@@ -1,0 +1,19 @@
+.secondary-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  &__link {
+    display: inline-flex;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center;
+    text-decoration: none;
+    color: $black;
+    padding: 0.2rem 0.5rem;
+    &.active {
+      background-color: $primary-25;
+      color: $emphasis;
+      font-weight: bold;
+    }
+  }
+}

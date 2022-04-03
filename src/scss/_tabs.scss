@@ -1,0 +1,9 @@
+.nav-tabs {
+  border-bottom-style: dashed;
+  & .nav-link {
+    color: $gray-800;
+    &.active {
+      color: $gray-900;
+    }
+  }
+}

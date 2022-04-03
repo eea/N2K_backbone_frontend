@@ -1,0 +1,33 @@
+@font-face {
+  font-family: Roboto;
+  src: url(../assets/fonts/Roboto-Regular.ttf);
+  font-weight: normal;
+}
+@font-face {
+  font-family: Roboto;
+  src: url(../assets/fonts/Roboto-Bold.ttf);
+  font-weight: bold;
+}
+@font-face {
+  font-family: Inter;
+  src: url(../assets/fonts/Inter-Regular.ttf);
+  font-weight: normal;
+}
+@font-face {
+  font-family: Roboto;
+  src: url(../assets/fonts/Inter-Bold.ttf);
+  font-weight: bold;
+}
+.h1 {
+  color: $primary-50;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin: 1rem 0;
+  &-main{
+    margin: 2rem 0;
+  }
+}
+
+h6 {
+  margin-bottom: 1.5rem;
+}

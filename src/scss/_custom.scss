@@ -1,0 +1,53 @@
+// Here you can add other styles
+
+.ico--md {
+  width: 1.5rem;
+}
+
+.dashed-line {
+  height: 1px;
+  background-image: linear-gradient(
+    90deg,
+    $gray-800,
+    $gray-800 75%,
+    transparent 75%,
+    transparent 100%
+  );
+  background-size: 10px 1px;
+  border: none;
+  background-color: transparent;
+}
+
+.dashed-border {
+  &--right {
+    border-right: dashed 2px $gray-100;
+  }
+}
+
+.comments {
+  &__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  &__text {
+    border-radius: 0.5rem;
+    background-color: $gray-25;
+    border: solid 1px $gray-100;
+    padding: 0.2rem 1.5rem;
+    flex: 1;
+  }
+}
+
+.color--primary {
+  color: $primary;
+}
+.color--secondary {
+  color: $secondary;
+}

@@ -1,0 +1,49 @@
+.form-check-input {
+  border-width: 2px;
+}
+.radio {
+  &--warning {
+    & .form-check-input {
+      border-color: $warning-base;
+      border-width: 1px;
+      background-color: $warning-25;
+      &:checked[type='radio'] {
+        background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><circle r='2' fill='black'/></svg>");
+      }
+    }
+  }
+  &--danger {
+    & .form-check-input {
+      border-color: $danger-base;
+      border-width: 1px;
+      background-color: $danger-25;
+      &:checked[type='radio'] {
+        background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><circle r='2' fill='black'/></svg>");
+      }
+    }
+  }
+  &--success {
+    & .form-check-input {
+      border-color: $success-base;
+      border-width: 1px;
+      background-color: $success-25;
+      &:checked[type='radio'] {
+        background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><circle r='2' fill='black'/></svg>");
+      }
+    }
+  }
+}
+.select--right {
+  position: absolute;
+  right: 1rem;
+ // top: 5.5rem;
+  width: 25rem;
+}
+.input--light {
+  border-radius: 0.5rem;
+  background-color: $gray-25;
+  border: solid 1px $gray-100;
+}
+.input--sm {
+  width: 8rem;
+}
