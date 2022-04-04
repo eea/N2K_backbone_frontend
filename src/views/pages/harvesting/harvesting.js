@@ -41,7 +41,7 @@ const Harvesting = () => {
           </CCol>
           <CCol className='header__title'>
             <ul className="btn--list justify-center">
-              <li><CButton color="link" className='btn-link--bold' href='/#/dashboard'>Dashboard11</CButton></li>
+              <li><CButton color="link" className='btn-link--bold' href='/#/dashboard'>Dashboard</CButton></li>
               <li><CButton color="link" className='btn-link--bold' href='/#/harvesting'>Harvesting</CButton></li>
               <li> <CButton color="link" className='btn-link--bold' href='/#/sitechanges'>Site Changes</CButton></li>
               <li><CButton color="link" className='btn-link--bold'>Site Lineage</CButton></li>
