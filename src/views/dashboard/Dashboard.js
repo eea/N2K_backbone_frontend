@@ -218,7 +218,7 @@ const Dashboard = () => {
                     <CCardImage className="p-1 card-img--flag" src={bulgaria} width="32px" />
                   </CCol>
                   <CCol xs={8} md={8} lg={8} className="p-0">
-                    <h2 className='p-2'>Bulgary</h2>
+                    <h2 className='p-2'>Bulgaria</h2>
                     <CCardBody className='px-2'>
                       <CCardText>
                         <span className='badge color--critical'>3 Critical</span>
@@ -239,7 +239,7 @@ const Dashboard = () => {
                     <CCardImage className="p-1 card-img--flag" src={croatia} width="32px" />
                   </CCol>
                   <CCol xs={8} md={8} lg={8} className="p-0">
-                    <h2 className='p-2'>Albania</h2>
+                    <h2 className='p-2'>Croatia</h2>
                     <CCardBody className='px-2'>
                       <CCardText>
                         <span className='badge color--critical'>2 Critical</span>
@@ -258,7 +258,7 @@ const Dashboard = () => {
                     <CCardImage className="p-1 card-img--flag" src={cyprus} width="32px" />
                   </CCol>
                   <CCol xs={8} md={8} lg={8} className="p-0">
-                    <h2 className='p-2'>Austria</h2>
+                    <h2 className='p-2'>Cyprus</h2>
                     <CCardBody className='px-2'>
                       <CCardText>
                         <span className='badge color--critical'>2 Critical</span>
@@ -277,7 +277,7 @@ const Dashboard = () => {
                     <CCardImage className="p-1 card-img--flag" src={czech} width="32px" />
                   </CCol>
                   <CCol xs={8} md={8} lg={8} className="p-0">
-                    <h2 className='p-2'>Belgium</h2>
+                    <h2 className='p-2'>Czech Republic</h2>
                     <CCardBody className='px-2'>
                       <CCardText>
                         <span className='badge color--critical'>1 Critical</span>
@@ -296,7 +296,7 @@ const Dashboard = () => {
                     <CCardImage className="p-1 card-img--flag" src={denmark} width="32px" />
                   </CCol>
                   <CCol xs={8} md={8} lg={8} className="p-0">
-                    <h2 className='p-2'>Bulgaria</h2>
+                    <h2 className='p-2'>Denmark</h2>
                     <CCardBody className='px-2'>
                       <CCardText>
                         <span className='badge color--critical'>3 Critical</span>
@@ -433,7 +433,7 @@ const Dashboard = () => {
                       <CCardImage className="p-1 card-img--flag" src={iceland} width="32px" />
                     </CCol>
                     <CCol xs={8} md={8} lg={8} className="p-0">
-                      <h2 className='p-2'>Ireland</h2>
+                      <h2 className='p-2'>Iceland</h2>
                       <CCardBody className='px-2'>
                         <CCardText>
                           <span className='badge color--critical'>1 Critical</span>
@@ -452,7 +452,7 @@ const Dashboard = () => {
                       <CCardImage className="p-1 card-img--flag" src={ireland} width="32px" />
                     </CCol>
                     <CCol xs={8} md={8} lg={8} className="p-0">
-                      <h2 className='p-2'>Iceland</h2>
+                      <h2 className='p-2'>Ireland</h2>
                       <CCardBody className='px-2'>
                         <CCardText>
                           <span className='badge color--critical'>3 Critical</span>
@@ -473,7 +473,7 @@ const Dashboard = () => {
                       <CCardImage className="p-1 card-img--flag" src={italy} width="32px" />
                     </CCol>
                     <CCol xs={8} md={8} lg={8} className="p-0">
-                      <h2 className='p-2'>Liechtenstein</h2>
+                      <h2 className='p-2'>Italy</h2>
                       <CCardBody className='px-2'>
                         <CCardText>
                           <span className='badge color--critical'>2 Critical</span>
@@ -492,7 +492,7 @@ const Dashboard = () => {
                       <CCardImage className="p-1 card-img--flag" src={latvia} width="32px" />
                     </CCol>
                     <CCol xs={8} md={8} lg={8} className="p-0">
-                      <h2 className='p-2'>Lithuania</h2>
+                      <h2 className='p-2'>Latvia</h2>
                       <CCardBody className='px-2'>
                         <CCardText>
                           <span className='badge color--critical'>2 Critical</span>
@@ -511,7 +511,7 @@ const Dashboard = () => {
                       <CCardImage className="p-1 card-img--flag" src={liechtenstein} width="32px" />
                     </CCol>
                     <CCol xs={8} md={8} lg={8} className="p-0">
-                      <h2 className='p-2'>Luxembourg</h2>
+                      <h2 className='p-2'>Liechtenstein</h2>
                       <CCardBody className='px-2'>
                         <CCardText>
                           <span className='badge color--critical'>1 Critical</span>
@@ -530,7 +530,7 @@ const Dashboard = () => {
                       <CCardImage className="p-1 card-img--flag" src={lithuania} width="32px" />
                     </CCol>
                     <CCol xs={8} md={8} lg={8} className="p-0">
-                      <h2 className='p-2'>Latvia</h2>
+                      <h2 className='p-2'>Lithuania</h2>
                       <CCardBody className='px-2'>
                         <CCardText>
                           <span className='badge color--critical'>3 Critical</span>
@@ -551,7 +551,7 @@ const Dashboard = () => {
                       <CCardImage className="p-1 card-img--flag" src={luxembourg} width="32px" />
                     </CCol>
                     <CCol xs={8} md={8} lg={8} className="p-0">
-                      <h2 className='p-2'>Montenegro</h2>
+                      <h2 className='p-2'>Luxembourg</h2>
                       <CCardBody className='px-2'>
                         <CCardText>
                           <span className='badge color--critical'>2 Critical</span>
@@ -589,7 +589,7 @@ const Dashboard = () => {
                       <CCardImage className="p-1 card-img--flag" src={malta} width="32px" />
                     </CCol>
                     <CCol xs={8} md={8} lg={8} className="p-0">
-                      <h2 className='p-2'>Monaco</h2>
+                      <h2 className='p-2'>Malta</h2>
                       <CCardBody className='px-2'>
                         <CCardText>
                           <span className='badge color--critical'>1 Critical</span>
@@ -608,7 +608,7 @@ const Dashboard = () => {
                       <CCardImage className="p-1 card-img--flag" src={montenegro} width="32px" />
                     </CCol>
                     <CCol xs={8} md={8} lg={8} className="p-0">
-                      <h2 className='p-2'>Netherlands</h2>
+                      <h2 className='p-2'>Montenegro</h2>
                       <CCardBody className='px-2'>
                         <CCardText>
                           <span className='badge color--critical'>3 Critical</span>
@@ -629,7 +629,7 @@ const Dashboard = () => {
                       <CCardImage className="p-1 card-img--flag" src={netherlands} width="32px" />
                     </CCol>
                     <CCol xs={8} md={8} lg={8} className="p-0">
-                      <h2 className='p-2'>Norway</h2>
+                      <h2 className='p-2'>Netherlands</h2>
                       <CCardBody className='px-2'>
                         <CCardText>
                           <span className='badge color--critical'>2 Critical</span>
@@ -648,7 +648,7 @@ const Dashboard = () => {
                       <CCardImage className="p-1 card-img--flag" src={norway} width="32px" />
                     </CCol>
                     <CCol xs={8} md={8} lg={8} className="p-0">
-                      <h2 className='p-2'>Poland</h2>
+                      <h2 className='p-2'>Norway</h2>
                       <CCardBody className='px-2'>
                         <CCardText>
                           <span className='badge color--critical'>2 Critical</span>
@@ -667,7 +667,7 @@ const Dashboard = () => {
                       <CCardImage className="p-1 card-img--flag" src={poland} width="32px" />
                     </CCol>
                     <CCol xs={8} md={8} lg={8} className="p-0">
-                      <h2 className='p-2'>Portugal</h2>
+                      <h2 className='p-2'>Poland</h2>
                       <CCardBody className='px-2'>
                         <CCardText>
                           <span className='badge color--critical'>1 Critical</span>
