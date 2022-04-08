@@ -1,4 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react'
+import { FetchData } from './FetchData';
 
 import {
   CButton,
@@ -38,10 +39,7 @@ import {
 
 } from '@coreui/react'
 
-const siteChangesDataFile = require('./../../../data/sitechanges.json');
-
-
-  
+const siteChangesDataFile = require('./../../../data/sitechangesS.json');
 
 import moreicon from './../../../assets/images/three-dots.svg'
 import justificationrequired from './../../../assets/images/exclamation.svg'
@@ -60,60 +58,6 @@ const Sitechanges = () => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-
-  const fetchSiteChanges = useCallback(async () => {
-  
-    setIsLoading(true);
-    setError(null);
-  
-  try {
-    const response = await fetch('https://n2kbacknonebackend.azurewebsites.net/api/sitechanges');
-    if (!response.ok){
-      throw new Error('Something went wrong!');
-    }
-
-    const data = await response.json();
-
-    const loadedSiteChanges = [];
-
-    for (const key in data){
-      loadedSiteChanges.push({
-        changeId: changeId,
-        siteCode: siteCode,
-        country: country,
-        status: status,
-        tags: tags,
-        level: level,
-        changeCategory: changeCategory,
-        changeType: changeType
-      });
-    }
-
-    setChanges(loadedSiteChanges);
-  } catch(error){
-    setError(error.message);
-  }
-  setIsLoading(false); 
-}, []);
-
-useEffect(() => {
-  fetchSiteChanges();
-}, [fetchSiteChanges]);
-
-let content = <p>Found no changes</p>;
-
-if(changes.length > 0){
-  content = <Table changes={changes} />;
-}
-
-if (error){
-  content = <p>{error}</p>;
-}
-
-if (isLoading){
-  content = <p>Loading...</p>;
-}
-
 
   return (
     <div className='container--main min-vh-100'>
@@ -188,6 +132,7 @@ if (isLoading){
                   <option value="3">Three</option>
                 </CFormSelect>          
             </div>
+            
             <CRow>
                 <CCol md={12} lg={12}>
                   {/*   tabs */}
@@ -221,54 +166,9 @@ if (isLoading){
                     
                   </CNav>
                   <CTabContent>
-                  
                   <CTabPane role="tabpanel" aria-labelledby="pending-tab" visible={activeTab === 1}>
                   {/* table */}
-                  <CTable className='mt-5'>
-                  <CTableHead>
-                    <CTableRow>
-                      <CTableHeaderCell scope="col"> <CFormCheck /></CTableHeaderCell>
-                      <CTableHeaderCell scope="col">Sitecode</CTableHeaderCell>
-                      <CTableHeaderCell scope="col">Level</CTableHeaderCell>
-                      <CTableHeaderCell scope="col">Change Category</CTableHeaderCell>
-                      <CTableHeaderCell scope="col">Change type</CTableHeaderCell>
-                      <CTableHeaderCell scope="col">Country</CTableHeaderCell>
-                      <CTableHeaderCell scope="col">Tags</CTableHeaderCell>
-                      <CTableHeaderCell scope="col">Status</CTableHeaderCell>
-                      <CTableHeaderCell scope="col"></CTableHeaderCell>
-                    </CTableRow>
-                  </CTableHead>
-                  <CTableBody>{siteChangesDataFile.map((item, index) => (
-                    <CTableRow v-for="item in tableItems" key={index}>
-                      <CTableDataCell><CFormCheck /></CTableDataCell>
-                      <CTableDataCell>{item.Sitecode}</CTableDataCell>
-                      <CTableDataCell><span className={'badge badge--' + item.Level.toLocaleLowerCase()}>{item.Level}</span></CTableDataCell>
-                      <CTableDataCell>{item['Change category']}</CTableDataCell>
-                      <CTableDataCell>{item['Change type']}</CTableDataCell>
-                      <CTableDataCell>{item.Country}</CTableDataCell>
-                      <CTableDataCell><span className='badge badge--default'>My_tag</span></CTableDataCell>
-                      <CTableDataCell>
-                        <CImage src={justificationrequired} className="ico--md "></CImage>
-                      </CTableDataCell>
-                      <CTableDataCell>
-                        <CDropdown >
-                          <CDropdownToggle color="primary" variant="ghost" caret={false} size="sm">
-                            <CImage src={moreicon} className="ico--md "></CImage>
-                          </CDropdownToggle>
-                          <CDropdownMenu>
-                            <CDropdownItem role={'button'} onClick={() => setVisibleXL(!visibleXL)}>Review site CHANGE</CDropdownItem>
-                            <CDropdownItem >Accept change/s</CDropdownItem>
-                            <CDropdownItem >Reject change/s</CDropdownItem>
-                            <CDropdownItem >Add comments</CDropdownItem>
-                            <CDropdownItem >Mark as justification required</CDropdownItem>
-                            <CDropdownItem >View spatial change/s</CDropdownItem>
-                          </CDropdownMenu>
-                        </CDropdown>
-                      </CTableDataCell>
-                    </CTableRow>
-                    ))}
-                  </CTableBody>
-            </CTable>
+                  <FetchData />
             {/*   pagination */}
             <CPagination aria-label="Page navigation example">
               <CPaginationItem aria-label="Previous">
@@ -284,7 +184,7 @@ if (isLoading){
             </CTabPane>
               <CTabPane role="tabpanel" aria-labelledby="accepted-tab" visible={activeTab === 2}></CTabPane>
               <CTabPane role="tabpanel" aria-labelledby="rejected-tab" visible={activeTab === 3}></CTabPane>                  
-            </CTabContent>
+                  </CTabContent>
                 </CCol>                
                 
               </CRow>
@@ -508,5 +408,6 @@ if (isLoading){
     </div>
   )
 }
+
 
 export default Sitechanges
