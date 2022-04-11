@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { CTable, CTableBody, CTableHead, CTableRow, CTableHeaderCell, CImage, CTableDataCell, CFormCheck, CDropdown, CDropdownToggle, CDropdownMenu, CDropdownItem } from '@coreui/react';
 import moreicon from './../../../assets/images/three-dots.svg'
-import justificationrequired from './../../../assets/images/exclamation.svg'
 
-const SERVER_API_URL = process.env.REACT_API_SERVER_URL;
+import ConfigData from '../../../config.json';
 
+import justificationrequired from './../../../assets/images/exclamation.svg';
 
 export class FetchData extends Component {
   static displayName = FetchData.name;
@@ -23,7 +23,7 @@ export class FetchData extends Component {
         <CTable className='mt-5'>
             <CTableHead>
             <CTableRow>
-                <CTableHeaderCell scope="col"> <CFormCheck /></CTableHeaderCell>
+                <CTableHeaderCell scope="col"><CFormCheck /></CTableHeaderCell>
                 <CTableHeaderCell scope="col">Sitecode</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Level</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Change Category</CTableHeaderCell>
@@ -76,13 +76,12 @@ export class FetchData extends Component {
     return (
       <>        
         {contents}        
-        {SERVER_API_URL}
       </>
     )
   }
-
+  
   async populateChangesData() {
-    const response = await fetch('https://n2kbacknonebackend.azurewebsites.net/api/sitechanges/get');
+    const response = await fetch(ConfigData.SERVER_API_ENDPOINT+'/api/sitechanges/get');
     const data = await response.json();
     this.setState({ changes: data, loading: false });
   }
