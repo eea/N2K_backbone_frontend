@@ -1,5 +1,6 @@
 import React, { lazy } from 'react'
 import { AppSidebar, AppFooter, AppHeader } from './../../../components/index'
+import { FetchEnvelops } from './FetchEnvelops';
 
 import {
   CButton,
@@ -112,7 +113,8 @@ const Harvesting = () => {
         {/* table */}
         <CRow>
         <CCol md={10} lg={10}>
-        <CTable className='mt-5'>
+        <FetchEnvelops />
+        {/* <CTable className='mt-5'> 
         <CTableHead>
             <CTableRow>
             <CTableHeaderCell scope="col"> <CFormCheck /></CTableHeaderCell>
@@ -177,7 +179,7 @@ const Harvesting = () => {
             </CTableRow>
         </CTableBody>
 
-        </CTable>
+        </CTable>*/}
         </CCol>
         <CCol md={2} lg={2} >
             <CRow className='p-4'>

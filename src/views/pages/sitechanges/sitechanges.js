@@ -39,7 +39,7 @@ import {
 
 } from '@coreui/react'
 
-const siteChangesDataFile = require('./../../../data/sitechangesS.json');
+//const siteChangesDataFile = require('./../../../data/sitechangesS.json');
 
 import moreicon from './../../../assets/images/three-dots.svg'
 import justificationrequired from './../../../assets/images/exclamation.svg'
