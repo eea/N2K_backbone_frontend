@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useState} from 'react'
 import { FetchData } from './FetchData';
-
+import TableRSPag from './TableRSPag';
 import {
   CButton,
   CCol,
@@ -132,7 +132,9 @@ const Sitechanges = () => {
                   <option value="3">Three</option>
                 </CFormSelect>          
             </div>
-            
+            <CRow>
+              <TableRSPag />
+            </CRow>
             <CRow>
                 <CCol md={12} lg={12}>
                   {/*   tabs */}
@@ -168,7 +170,7 @@ const Sitechanges = () => {
                   <CTabContent>
                   <CTabPane role="tabpanel" aria-labelledby="pending-tab" visible={activeTab === 1}>
                   {/* table */}
-                  <FetchData />
+                  {/* <FetchData /> */}
             {/*   pagination */}
             <CPagination aria-label="Page navigation example">
               <CPaginationItem aria-label="Previous">
