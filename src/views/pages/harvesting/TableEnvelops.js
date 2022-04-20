@@ -33,6 +33,7 @@ const IndeterminateCheckbox = React.forwardRef(
           setFilter(e.target.value || undefined) // Set undefined to remove the filter entirely
         }}
         placeholder={`Search`}
+        className="input--table-filters"
       />
     )
   }
@@ -171,8 +172,8 @@ const IndeterminateCheckbox = React.forwardRef(
     const columns = React.useMemo(
       () => [
         {
-            id: 'expander', // Make sure it has an ID
-          },
+          id: 'expander', // Make sure it has an ID
+        },
         {
             Header: ' ',
             columns: [

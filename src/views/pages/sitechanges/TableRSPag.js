@@ -61,6 +61,7 @@ const IndeterminateCheckbox = React.forwardRef(
           setFilter(e.target.value || undefined) // Set undefined to remove the filter entirely
         }}
         placeholder={`Search`}
+        className="input--table-filters"
       />
     )
   }
@@ -199,8 +200,7 @@ const IndeterminateCheckbox = React.forwardRef(
 
           <button onClick={() => nextPage()} disabled={!canNextPage}>
             {'>>'}
-          </button>{' '}
-          
+          </button>{' '}          
         </div>
       </>
     )
