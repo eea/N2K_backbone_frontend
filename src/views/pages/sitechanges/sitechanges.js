@@ -131,10 +131,7 @@ const Sitechanges = () => {
                   <option value="2">Two</option>
                   <option value="3">Three</option>
                 </CFormSelect>          
-            </div>
-            <CRow>
-              <TableRSPag />
-            </CRow>
+            </div>            
             <CRow>
                 <CCol md={12} lg={12}>
                   {/*   tabs */}
@@ -164,31 +161,16 @@ const Sitechanges = () => {
                       >
                         Rejected
                       </CNavLink>
-                    </CNavItem>
-                    
+                    </CNavItem>                    
                   </CNav>
                   <CTabContent>
                   <CTabPane role="tabpanel" aria-labelledby="pending-tab" visible={activeTab === 1}>
-                  {/* table */}
-                  {/* <FetchData /> */}
-            {/*   pagination */}
-            <CPagination aria-label="Page navigation example">
-              <CPaginationItem aria-label="Previous">
-                <span aria-hidden="true">&laquo;</span>
-              </CPaginationItem>
-              <CPaginationItem>1</CPaginationItem>
-              <CPaginationItem>2</CPaginationItem>
-              <CPaginationItem>3</CPaginationItem>
-              <CPaginationItem aria-label="Next">
-                <span aria-hidden="true">&raquo;</span>
-              </CPaginationItem>
-            </CPagination>
-            </CTabPane>
-              <CTabPane role="tabpanel" aria-labelledby="accepted-tab" visible={activeTab === 2}></CTabPane>
-              <CTabPane role="tabpanel" aria-labelledby="rejected-tab" visible={activeTab === 3}></CTabPane>                  
+                    <TableRSPag />
+                  </CTabPane>
+                  <CTabPane role="tabpanel" aria-labelledby="accepted-tab" visible={activeTab === 2}></CTabPane>
+                  <CTabPane role="tabpanel" aria-labelledby="rejected-tab" visible={activeTab === 3}></CTabPane>                  
                   </CTabContent>
-                </CCol>                
-                
+                </CCol>
               </CRow>
           </CContainer>
         </div>

@@ -16,15 +16,7 @@ import {
   CDropdownMenu,
   CDropdownToggle,
   CFormLabel,
-  CFormSelect,
-  CTable,
-  CTableBody,  
-  CTableDataCell,
-  CTableHead,
-  CTableHeaderCell,
-  CTableRow,
-  CFormCheck,
-  CImage,
+  CFormSelect,  
   CPagination,
   CPaginationItem,   
 } from '@coreui/react'
@@ -193,20 +185,7 @@ const Harvesting = () => {
             </CRow>            
         </CCol>
         
-        </CRow>
-       
-        {/*   pagination */}
-        <CPagination aria-label="Page navigation example">
-          <CPaginationItem aria-label="Previous">
-              <span aria-hidden="true">&laquo;</span>
-          </CPaginationItem>
-          <CPaginationItem>1</CPaginationItem>
-          <CPaginationItem>2</CPaginationItem>
-          <CPaginationItem>3</CPaginationItem>
-          <CPaginationItem aria-label="Next">
-              <span aria-hidden="true">&raquo;</span>
-          </CPaginationItem>
-        </CPagination>
+        </CRow>       
                        
           </CContainer>
         </div>

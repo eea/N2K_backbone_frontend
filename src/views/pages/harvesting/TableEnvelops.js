@@ -20,35 +20,7 @@ const IndeterminateCheckbox = React.forwardRef(
       )
     }
   )
-  // function GlobalFilter({
-  //   preGlobalFilteredRows,
-  //   globalFilter,
-  //   setGlobalFilter,
-  // }) {
-  //   const count = preGlobalFilteredRows.length
-  //   const [value, setValue] = React.useState(globalFilter)
-  //   const onChange = useAsyncDebounce(value => {
-  //     setGlobalFilter(value || undefined)
-  //   }, 200)
   
-  //   return (
-  //     <span>
-  //       Search:{' '}
-  //       <input
-  //         value={value || ""}
-  //         onChange={e => {
-  //           setValue(e.target.value);
-  //           onChange(e.target.value);
-  //         }}
-  //         placeholder={`${count} records...`}
-  //         style={{
-  //           fontSize: '1.1rem',
-  //           border: '0',
-  //         }}
-  //       />
-  //     </span>
-  //   )
-  // }
   function DefaultColumnFilter({
     column: { filterValue, preFilteredRows, setFilter },
   }) {
@@ -103,15 +75,10 @@ const IndeterminateCheckbox = React.forwardRef(
       page, 
       canPreviousPage,
       canNextPage,
-      pageOptions,
-      pageCount,
       gotoPage,
       nextPage,
-      previousPage,
-      setPageSize,
-      selectedFlatRows,
- 
-      state: { pageIndex, pageSize, selectedRowIds, expanded },
+      previousPage, 
+      state: { pageIndex},
     } = useTable(
       {
         columns,
@@ -169,7 +136,7 @@ const IndeterminateCheckbox = React.forwardRef(
               return (
                 <tr {...row.getRowProps()}>
                   {row.cells.map(cell => {
-                    return <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                    return <td {...cell.getCellProps()} key={cell.key} >{cell.render('Cell')}</td>
                   })}
                 </tr>
               )
@@ -178,11 +145,7 @@ const IndeterminateCheckbox = React.forwardRef(
         </table>
         <pre>
             
-        </pre>
-        {/* 
-          Pagination can be built however you'd like. 
-          This is just a very basic UI implementation:
-        */}
+        </pre>        
         <div className="pagination">
           <button onClick={() => previousPage()} disabled={!canPreviousPage}>
             {'<<'}
@@ -196,148 +159,97 @@ const IndeterminateCheckbox = React.forwardRef(
           <button onClick={() => nextPage()-1} disabled={!canNextPage}>
             {pageIndex+3}
           </button>{' '}
-
           <button onClick={() => nextPage()} disabled={!canNextPage}>
             {'>>'}
-          </button>{' '}
-          
+          </button>{' '}          
         </div>
       </>
     )
   }
   
-  function TableRSPag() {
+  function TableEnvelops() {
     const columns = React.useMemo(
       () => [
         {
-            // Build our expander column
             id: 'expander', // Make sure it has an ID
-            
-            Cell: ({ row }) =>
-              // Use the row.canExpand and row.getToggleRowExpandedProps prop getter
-              // to build the toggle for expanding a row
-              row.canExpand ? (
-                <span
-                  {...row.getToggleRowExpandedProps({
-                    style: {
-                      // We can even use the row.depth property
-                      // and paddingLeft to indicate the depth
-                      // of the row
-                      paddingLeft: `${row.depth * 2}rem`,
-                    },
-                  })}
-                >
-                  {row.isExpanded ? '👇' : '👉'}
-                </span>
-              ) : null,
           },
         {
             Header: ' ',
             columns: [
                 {
-                    Header: 'Sitecode',
-                    accessor: 'sitecode',
-                },
-                {
-                    Header: 'Level',
-                    accessor: 'level',
-                },
-                {
-                    Header: 'Change Category',
-                    accessor: 'changeCategory',
-                },
-                {
-                    Header: 'Change Type',
-                    accessor: 'changeType',
+                    Header: 'Envelope Id',
+                    accessor: 'envelopeId',
                 },
                 {
                     Header: 'Country',
                     accessor: 'country',
                 },
                 {
-                    Header: 'Tags',
-                    accessor: 'tags',  
-                },
+                    Header: 'Submission date',
+                    accessor: 'submissionDate',
+                },                
                 {
-                    Header: 'Status',
-                    accessor: 'status',
+                    Header: ' ',
+                    accessor: 'action',
                 },
             ],
         },
       ],
       []
-    )
+    ) 
   
-  //  const data = React.useMemo(() => makeData(5,5), []);
     const data = React.useMemo(
         () => [
           {
-            sitecode: '25654',
-            level: 'Medium',
-            changeCategory: '' ,
-            changeType: 'Sites added',
+            key: 1,
+            envelopeId: '25654',
             country: 'Spain',
-            tags: 'My tag',
-            status: 'Icono',
+            submissionDate: '02/07/2021',
             action: '...'
           },
           {
-            sitecode: '13502',
-            level: 'Medium',
-            changeCategory: 'Site general info (UL)',
-            changeType: 'Site priority',
+            key: 2,
+            envelopeId: '25655',
             country: 'Spain',
-            tags: 'My tag',
-            status: 'Icono',
+            submissionDate: '02/07/2021',
             action: '...'
           },
           {
-            sitecode: '9788',
-            level: 'Critical',
-            changeCategory: 'Species and Habitats',
-            changeType: 'Sites added',
+            key: 3,
+            envelopeId: '25656',
             country: 'Spain',
-            tags: 'My tag',
-            status: 'Icono',
+            submissionDate: '02/07/2021',
             action: '...'
           },
           {
-            sitecode: '25654',
-            level: 'Medium',
-            changeCategory: '' ,
-            changeType: 'Sites added',
+            key: 4,
+            envelopeId: '25657',
             country: 'Spain',
-            tags: 'My tag',
-            status: 'Icono',
+            submissionDate: '02/07/2021',
             action: '...'
           },
           {
-            sitecode: '13502',
-            level: 'Medium',
-            changeCategory: 'Site general info (UL)',
-            changeType: 'Site priority',
+            key: 5,
+            envelopeId: '25658',
             country: 'Spain',
-            tags: 'My tag',
-            status: 'Icono',
+            submissionDate: '02/07/2021',
             action: '...'
           },
           {
-            sitecode: '9788',
-            level: 'Critical',
-            changeCategory: 'Species and Habitats',
-            changeType: 'Sites added',
+            key: 6,
+            envelopeId: '25659',
             country: 'Spain',
-            tags: 'My tag',
-            status: 'Icono',
+            submissionDate: '02/07/2021',
             action: '...'
           },
         ],
         []
     )
+
   
     return (
         <Table columns={columns} data={data} />
     )
   }
   
-  export default TableRSPag
+  export default TableEnvelops
