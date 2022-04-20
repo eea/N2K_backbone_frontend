@@ -227,7 +227,7 @@ const IndeterminateCheckbox = React.forwardRef(
                     },
                   })}
                 >
-                  {row.isExpanded ? '👇' : '👉'}
+                  {row.isExpanded ? '➖' : '➕'}
                 </span>
               ) : null,
           },
@@ -279,8 +279,40 @@ const IndeterminateCheckbox = React.forwardRef(
             country: 'Spain',
             tags: 'My tag',
             status: 'Icono',
-            action: '...'
-          },
+            action: '...',
+            subRows: [
+                {
+                  sitecode: '',
+                  level: 'Critical',
+                  changeCategory: '' ,
+                  changeType: 'Sites added',
+                  country: 'Spain',
+                  tags: 'My tag',
+                  status: 'Icono',
+                  action: '...'
+                },
+                {
+                  sitecode: '',
+                  level: 'Medium',
+                  changeCategory: '' ,
+                  changeType: 'Sites added',
+                  country: 'Spain',
+                  tags: 'My tag',
+                  status: 'Icono',
+                  action: '...'
+                },
+                {
+                  sitecode: '',
+                  level: 'Warning',
+                  changeCategory: '' ,
+                  changeType: 'Sites added',
+                  country: 'Spain',
+                  tags: 'My tag',
+                  status: 'Icono',
+                  action: '...'
+                }
+              ]
+          },          
           {
             sitecode: '13502',
             level: 'Medium',
