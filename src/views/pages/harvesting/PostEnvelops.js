@@ -19,10 +19,11 @@ function PostEnvelops (){
 
     return (
         <React.Fragment>
-            <section>
-                <button  onClic={postVersionIdHandler}>Post</button>
-            </section>
-    
+            <form>
+                <section>
+                    <button onClick={postVersionIdHandler}>Post</button>
+                </section>
+            </form>
         </React.Fragment>
     )
 }

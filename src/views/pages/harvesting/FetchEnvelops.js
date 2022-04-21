@@ -30,8 +30,7 @@ export class FetchEnvelops extends Component {
           <CTableRow>
           <CTableHeaderCell scope="col"> <CFormCheck /></CTableHeaderCell>
           <CTableHeaderCell scope="col">Envelope ID</CTableHeaderCell>
-          <CTableHeaderCell scope="col">Country</CTableHeaderCell>
-          <CTableHeaderCell scope="col">Pending changes</CTableHeaderCell>
+          <CTableHeaderCell scope="col">Country</CTableHeaderCell>          
           <CTableHeaderCell scope="col">Submission date</CTableHeaderCell>            
           <CTableHeaderCell scope="col">&nbsp;</CTableHeaderCell>            
           </CTableRow>
@@ -43,16 +42,16 @@ export class FetchEnvelops extends Component {
               <CTableDataCell>{item.Country}</CTableDataCell>                    
               <CTableDataCell>{moment(item.SubmissionDate, 'DD-MM-YYYY').format()}</CTableDataCell>
               <CTableDataCell>
-              <PostEnvelops />
-              {/* <CDropdown >
+              
+              <CDropdown >
               <CDropdownToggle color="primary" variant="ghost" caret={false} size="sm">
                   <CImage src={moreicon} className="ico--md "></CImage>
               </CDropdownToggle>
               <CDropdownMenu>
-                  <CDropdownItem >Harvest info form submission/s</CDropdownItem>
-                  
+                <PostEnvelops />   
+                 <CDropdownItem>Harvest info form submission/s</CDropdownItem>
               </CDropdownMenu>
-              </CDropdown> */}
+              </CDropdown>
               </CTableDataCell>
           </CTableRow>
       ))}
