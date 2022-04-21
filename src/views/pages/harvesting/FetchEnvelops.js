@@ -1,10 +1,15 @@
 import React, { Component } from 'react';
 import { CTable, CTableBody, CTableHead, CTableRow, CTableHeaderCell, CImage, CTableDataCell, CFormCheck, CDropdown, CDropdownToggle, CDropdownMenu, CDropdownItem } from '@coreui/react';
+import PostEnvelops from './PostEnvelops';
+
+import moment from 'moment';
+
 
 import TableEnvelops from './TableEnvelops';
 import moreicon from './../../../assets/images/three-dots.svg'
 
 import ConfigData from '../../../config.json';
+
 
 export class FetchEnvelops extends Component {
   static displayName = FetchEnvelops.name;
@@ -34,19 +39,20 @@ export class FetchEnvelops extends Component {
       <CTableBody>{envelops.Data.map((item, index) => (
           <CTableRow className='align-middle' v-for="item in tableItems" key={index}>
               <CTableDataCell><CFormCheck /></CTableDataCell>
-              <CTableDataCell>{item.EnvelopeId}</CTableDataCell>
-              <CTableDataCell>{item.Country}</CTableDataCell>
-              <CTableDataCell>{item.PendingChanges}</CTableDataCell>
-              <CTableDataCell>{item.SubmissionDate}</CTableDataCell>
+              <CTableDataCell>{item.Id}</CTableDataCell>
+              <CTableDataCell>{item.Country}</CTableDataCell>                    
+              <CTableDataCell>{moment(item.SubmissionDate, 'DD-MM-YYYY').format()}</CTableDataCell>
               <CTableDataCell>
-              <CDropdown >
+              <PostEnvelops />
+              {/* <CDropdown >
               <CDropdownToggle color="primary" variant="ghost" caret={false} size="sm">
                   <CImage src={moreicon} className="ico--md "></CImage>
               </CDropdownToggle>
               <CDropdownMenu>
                   <CDropdownItem >Harvest info form submission/s</CDropdownItem>
+                  
               </CDropdownMenu>
-              </CDropdown>
+              </CDropdown> */}
               </CTableDataCell>
           </CTableRow>
       ))}

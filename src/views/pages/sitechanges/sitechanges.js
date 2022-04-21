@@ -165,7 +165,7 @@ const Sitechanges = () => {
                   </CNav>
                   <CTabContent>
                   <CTabPane role="tabpanel" aria-labelledby="pending-tab" visible={activeTab === 1}>
-                    <TableRSPag />
+                    <FetchData />
                   </CTabPane>
                   <CTabPane role="tabpanel" aria-labelledby="accepted-tab" visible={activeTab === 2}></CTabPane>
                   <CTabPane role="tabpanel" aria-labelledby="rejected-tab" visible={activeTab === 3}></CTabPane>                  

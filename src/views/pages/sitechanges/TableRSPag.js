@@ -3,7 +3,6 @@ import { useTable, usePagination, useFilters,useGlobalFilter, useRowSelect, useA
 
 import {matchSorter} from 'match-sorter'
 
-
 const IndeterminateCheckbox = React.forwardRef(
     ({ indeterminate, ...rest }, ref) => {
       const defaultRef = React.useRef()
@@ -20,35 +19,7 @@ const IndeterminateCheckbox = React.forwardRef(
       )
     }
   )
-  // function GlobalFilter({
-  //   preGlobalFilteredRows,
-  //   globalFilter,
-  //   setGlobalFilter,
-  // }) {
-  //   const count = preGlobalFilteredRows.length
-  //   const [value, setValue] = React.useState(globalFilter)
-  //   const onChange = useAsyncDebounce(value => {
-  //     setGlobalFilter(value || undefined)
-  //   }, 200)
   
-  //   return (
-  //     <span>
-  //       Search:{' '}
-  //       <input
-  //         value={value || ""}
-  //         onChange={e => {
-  //           setValue(e.target.value);
-  //           onChange(e.target.value);
-  //         }}
-  //         placeholder={`${count} records...`}
-  //         style={{
-  //           fontSize: '1.1rem',
-  //           border: '0',
-  //         }}
-  //       />
-  //     </span>
-  //   )
-  // }
   function DefaultColumnFilter({
     column: { filterValue, preFilteredRows, setFilter },
   }) {
