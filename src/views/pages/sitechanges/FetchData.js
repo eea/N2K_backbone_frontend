@@ -37,7 +37,7 @@ export class FetchData extends Component {
             <CTableBody>{changes.Data.map((item, index) => (
                 <CTableRow v-for="item in tableItems" key={index}>
                 <CTableDataCell><CFormCheck /></CTableDataCell>
-                <CTableDataCell>{item.Id}</CTableDataCell>
+                <CTableDataCell>{item.SiteCode}</CTableDataCell>
                 <CTableDataCell><span className={'badge badge--' + item.Level.toLocaleLowerCase()}>{item.Level}</span></CTableDataCell>
                 <CTableDataCell>{item.ChangeCategory}</CTableDataCell>
                 <CTableDataCell>{item.ChangeType}</CTableDataCell>
