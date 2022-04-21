@@ -3,6 +3,7 @@ import { useTable, usePagination, useFilters,useGlobalFilter, useRowSelect, useA
 
 import {matchSorter} from 'match-sorter'
 
+import { FetchData } from '../sitechanges/FetchData'
 
 const IndeterminateCheckbox = React.forwardRef(
     ({ indeterminate, ...rest }, ref) => {
@@ -170,30 +171,22 @@ const IndeterminateCheckbox = React.forwardRef(
   
   function TableEnvelops() {
     const columns = React.useMemo(
-      () => [
+      () => [        
         {
-          id: 'expander', // Make sure it has an ID
+          Header: 'Envelope Id',
+          accessor: 'envelopeId',
         },
         {
-            Header: ' ',
-            columns: [
-                {
-                    Header: 'Envelope Id',
-                    accessor: 'envelopeId',
-                },
-                {
-                    Header: 'Country',
-                    accessor: 'country',
-                },
-                {
-                    Header: 'Submission date',
-                    accessor: 'submissionDate',
-                },                
-                {
-                    Header: ' ',
-                    accessor: 'action',
-                },
-            ],
+          Header: 'Country',
+          accessor: 'country',
+        },
+        {
+          Header: 'Submission date',
+          accessor: 'submissionDate',
+        },                
+        {
+          Header: ' ',
+          accessor: 'action',
         },
       ],
       []

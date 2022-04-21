@@ -232,38 +232,33 @@ const IndeterminateCheckbox = React.forwardRef(
               ) : null,
           },
         {
-            Header: ' ',
-            columns: [
-                {
-                    Header: 'Sitecode',
-                    accessor: 'sitecode',
-                },
-                {
-                    Header: 'Level',
-                    accessor: 'level',
-                },
-                {
-                    Header: 'Change Category',
-                    accessor: 'changeCategory',
-                },
-                {
-                    Header: 'Change Type',
-                    accessor: 'changeType',
-                },
-                {
-                    Header: 'Country',
-                    accessor: 'country',
-                },
-                {
-                    Header: 'Tags',
-                    accessor: 'tags',  
-                },
-                {
-                    Header: 'Status',
-                    accessor: 'status',
-                },
-            ],
+          Header: 'Sitecode',
+          accessor: 'sitecode',
         },
+        {
+          Header: 'Level',
+          accessor: 'level',
+        },
+        {
+          Header: 'Change Category',
+          accessor: 'changeCategory',
+        },
+        {
+          Header: 'Change Type',
+          accessor: 'changeType',
+        },
+        {
+          Header: 'Country',
+          accessor: 'country',
+        },
+        {
+          Header: 'Tags',
+          accessor: 'tags',  
+        },
+        {
+          Header: 'Status',
+          accessor: 'status',
+        },        
       ],
       []
     )
