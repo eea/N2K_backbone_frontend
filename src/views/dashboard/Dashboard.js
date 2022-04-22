@@ -122,9 +122,6 @@ const Dashboard = () => {
                     </svg>
                   </div>
                   <CCardText className='card-text-new'>
-                    <span className='card__number'>
-                      104
-                    </span>
                     PENDING CHANGES
                   </CCardText>  
                   </a>   
