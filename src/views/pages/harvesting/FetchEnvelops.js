@@ -48,7 +48,7 @@ export class FetchEnvelops extends Component {
                   <CImage src={moreicon} className="ico--md "></CImage>
               </CDropdownToggle>
               <CDropdownMenu>
-                <PostEnvelops />   
+                 <PostEnvelops version_id={item.Id} country_code={item.Country} />   
                  <CDropdownItem>Harvest info form submission/s</CDropdownItem>
               </CDropdownMenu>
               </CDropdown>
