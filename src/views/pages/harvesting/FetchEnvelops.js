@@ -49,7 +49,7 @@ export class FetchEnvelops extends Component {
               </CDropdownToggle>
               <CDropdownMenu>
                  <PostEnvelops version_id={item.Id} country_code={item.Country} />   
-                 <CDropdownItem>Harvest info form submission/s</CDropdownItem>
+                 <CDropdownItem > Harvest info form submission/s</CDropdownItem>
               </CDropdownMenu>
               </CDropdown>
               </CTableDataCell>
