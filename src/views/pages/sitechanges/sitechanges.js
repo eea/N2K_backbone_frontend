@@ -1,5 +1,6 @@
 import React, {useCallback, useEffect, useState} from 'react'
 import { FetchData } from './FetchData';
+
 import TableRSPag from './TableRSPag';
 import {
   CButton,
@@ -165,7 +166,8 @@ const Sitechanges = () => {
                   </CNav>
                   <CTabContent>
                   <CTabPane role="tabpanel" aria-labelledby="pending-tab" visible={activeTab === 1}>
-                    <FetchData />
+                    {/* <FetchData /> */}
+                    <TableRSPag />
                   </CTabPane>
                   <CTabPane role="tabpanel" aria-labelledby="accepted-tab" visible={activeTab === 2}></CTabPane>
                   <CTabPane role="tabpanel" aria-labelledby="rejected-tab" visible={activeTab === 3}></CTabPane>                  
