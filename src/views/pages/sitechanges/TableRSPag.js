@@ -252,16 +252,8 @@ const IndeterminateCheckbox = React.forwardRef(
       ],
       []
     )
-
-    function componentDidMount() {
-      // Simple GET request using fetch      
-      fetch(ConfigData.SERVER_API_ENDPOINT+'/api/sitechanges/get')
-          .then(response => response.json())
-          .then(data => this.setState({ totalReactPackages: data.total }));
-    }
     
-    const data = React.useMemo(Data => componentDidMount);
-    //  const data = React.useMemo( Data => SitechangesFile);
+  const data = React.useMemo( Data => SitechangesFile);
   //  const data = React.useMemo(() => makeData(5,5), []);
     // const data = React.useMemo(
     //     () => [
