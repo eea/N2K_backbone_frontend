@@ -1,6 +1,8 @@
 import React, {useCallback, useEffect, useState} from 'react'
 import { FetchData } from './FetchData';
 
+import FetchDataTable from './FetchDataTable';
+
 import TableRSPag from './TableRSPag';
 import {
   CButton,
@@ -47,6 +49,7 @@ import justificationrequired from './../../../assets/images/exclamation.svg'
 import justificationprovided from './../../../assets/images/file-text.svg'
 import trash from './../../../assets/images/trash.svg'
 import user from './../../../assets/images/avatars/user.png'
+
 
 const xmlns = 'https://www.w3.org/2000/svg'
 
@@ -118,8 +121,8 @@ const Sitechanges = () => {
               <div className='ml-4'><h2 className='card-site-leve-title'>Site Level ONLY</h2></div>
               <div>
                 <ul className="btn--list">
-                  <li><CFormCheck / ><span className='badge color--success'>Warning</span></li>
-                  <li><CFormCheck / ><span className='badge color--warning'>Medium</span></li>
+                  <li><CFormCheck / ><span className='badge color--info'>Info</span></li>
+                  <li><CFormCheck / ><span className='badge color--medium'>Medium</span></li>
                   <li><CFormCheck /> <span className='badge color--critical'>Critical</span></li>
                 </ul>
               </div>
@@ -166,10 +169,13 @@ const Sitechanges = () => {
                   </CNav>
                   <CTabContent>
                   <CTabPane role="tabpanel" aria-labelledby="pending-tab" visible={activeTab === 1}>
-                    {/* <FetchData /> */}
-                    <TableRSPag />
+                  <FetchDataTable />
+                    <FetchData />
+                    {/* <TableRSPag /> */}
                   </CTabPane>
-                  <CTabPane role="tabpanel" aria-labelledby="accepted-tab" visible={activeTab === 2}></CTabPane>
+                  <CTabPane role="tabpanel" aria-labelledby="accepted-tab" visible={activeTab === 2}>
+                    
+                  </CTabPane>
                   <CTabPane role="tabpanel" aria-labelledby="rejected-tab" visible={activeTab === 3}></CTabPane>                  
                   </CTabContent>
                 </CCol>
