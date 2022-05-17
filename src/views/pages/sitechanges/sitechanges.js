@@ -122,7 +122,7 @@ const Sitechanges = () => {
               <div>
                 <ul className="btn--list">
                   <li><CFormCheck / ><span className='badge color--info'>Info</span></li>
-                  <li><CFormCheck / ><span className='badge color--medium'>Medium</span></li>
+                  <li><CFormCheck / ><span className='badge color--medium'>Warning</span></li>
                   <li><CFormCheck /> <span className='badge color--critical'>Critical</span></li>
                 </ul>
               </div>
