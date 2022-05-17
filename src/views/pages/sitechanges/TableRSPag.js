@@ -1,5 +1,6 @@
-import React from 'react'
+import React, {useState, useEffect} from 'react'
 import { useTable, usePagination, useFilters,useGlobalFilter, useRowSelect, useAsyncDebounce, useSortBy, useExpanded  } from 'react-table'
+import DropdownSiteChanges from './components/DropdownSiteChanges';
 
 import SitechangesFile from '../../../data/siteChanges.json';
 
@@ -197,6 +198,17 @@ const IndeterminateCheckbox = React.forwardRef(
   }
   
   function TableRSPag() {
+
+    const [events, setEvents] = useState([]);
+
+    useEffect(() => {
+      fetch(ConfigData.SERVER_API_ENDPOINT+'/api/sitechanges/get')
+      .then(response => response.json())
+      .then(data => {
+        setEvents(data);
+      });
+    }, [])
+
     const columns = React.useMemo(
       () => [
         {
@@ -242,123 +254,28 @@ const IndeterminateCheckbox = React.forwardRef(
           accessor: 'Country',
         },
         {
-          Header: 'Tags',
-          accessor: 'Tags',  
+          // Make an expander cell
+          Header: () => null, // No header
+          id: 'expanderHand', // It needs an ID
+          Cell: ({ row }) => (
+            // Use Cell to render an expander for each row.
+            // We can use the getToggleRowExpandedProps prop-getter
+            // to build the expander.
+            <span>
+              <DropdownSiteChanges/>
+            </span>
+          ),
         },
-        {
-          Header: 'Status',
-          accessor: 'Status',
-        },        
       ],
       []
     )
-    
-  const data = React.useMemo( Data => SitechangesFile);
+  
+    const data = React.useMemo( Data => SitechangesFile); 
+  //const data = React.useMemo(() => events);
   //  const data = React.useMemo(() => makeData(5,5), []);
-    // const data = React.useMemo(
-    //     () => [
-    //       {
-    //         sitecode: '25654',
-    //         level: 'Medium',
-    //         changeCategory: '' ,
-    //         changeType: 'Sites added',
-    //         country: 'Spain',
-    //         tags: 'My tag',
-    //         status: 'Icono',
-    //         action: '...',
-    //         subRows: [
-    //             {
-    //               sitecode: '',
-    //               level: 'Critical',
-    //               changeCategory: '' ,
-    //               changeType: 'Sites added',
-    //               country: 'Spain',
-    //               tags: 'My tag',
-    //               status: 'Icono',
-    //               action: '...'
-    //             },
-    //             {
-    //               sitecode: '',
-    //               level: 'Medium',
-    //               changeCategory: '' ,
-    //               changeType: 'Sites added',
-    //               country: 'Spain',
-    //               tags: 'My tag',
-    //               status: 'Icono',
-    //               action: '...'
-    //             },
-    //             {
-    //               sitecode: '',
-    //               level: 'Warning',
-    //               changeCategory: '' ,
-    //               changeType: 'Sites added',
-    //               country: 'Spain',
-    //               tags: 'My tag',
-    //               status: 'Icono',
-    //               action: '...'
-    //             }
-    //           ]
-    //       },          
-    //       {
-    //         sitecode: '13502',
-    //         level: 'Medium',
-    //         changeCategory: 'Site general info (UL)',
-    //         changeType: 'Site priority',
-    //         country: 'Spain',
-    //         tags: 'My tag',
-    //         status: 'Icono',
-    //         action: '...'
-    //       },
-    //       {
-    //         sitecode: '9788',
-    //         level: 'Critical',
-    //         changeCategory: 'Species and Habitats',
-    //         changeType: 'Sites added',
-    //         country: 'Spain',
-    //         tags: 'My tag',
-    //         status: 'Icono',
-    //         action: '...'
-    //       },
-    //       {
-    //         sitecode: '25654',
-    //         level: 'Medium',
-    //         changeCategory: '' ,
-    //         changeType: 'Sites added',
-    //         country: 'Spain',
-    //         tags: 'My tag',
-    //         status: 'Icono',
-    //         action: '...'
-    //       },
-    //       {
-    //         sitecode: '13502',
-    //         level: 'Medium',
-    //         changeCategory: 'Site general info (UL)',
-    //         changeType: 'Site priority',
-    //         country: 'Spain',
-    //         tags: 'My tag',
-    //         status: 'Icono',
-    //         action: '...'
-    //       },
-    //       {
-    //         sitecode: '9788',
-    //         level: 'Critical',
-    //         changeCategory: 'Species and Habitats',
-    //         changeType: 'Sites added',
-    //         country: 'Spain',
-    //         tags: 'My tag',
-    //         status: 'Icono',
-    //         action: '...'
-    //       },
-    //     ],
-    //     []
-    // )
-
-    const [loading, setLoading] = React.useState(false);
-    const [pageCount, setPageCount] = React.useState(0);
-       
-
-    return (
-        <Table columns={columns} data={data.Data} loading={loading} />
+  
+  return (
+      <Table columns={columns} data={data.Data} />        
     )
   }
   
