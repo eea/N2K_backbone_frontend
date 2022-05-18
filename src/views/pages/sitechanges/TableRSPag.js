@@ -55,9 +55,10 @@ const IndeterminateCheckbox = React.forwardRef(
     )
   }
   function DefaultColumnFilter({
-    column: { filterValue, preFilteredRows, setFilter },
+    column: { filterValue, preFilteredRows, setFilter, filteredRows },
   }) {
     const count = preFilteredRows.length
+    const _filteredRows = filteredRows.length
   
     return (
       <input
@@ -65,7 +66,7 @@ const IndeterminateCheckbox = React.forwardRef(
         onChange={e => {
           setFilter(e.target.value || undefined) // Set undefined to remove the filter entirely
         }}
-        placeholder={`Search`}
+        placeholder={`pre: `+count+` FilteredRows: `+_filteredRows}
         className="input--table-filters"
       />
     )
@@ -98,7 +99,7 @@ const IndeterminateCheckbox = React.forwardRef(
 
     const defaultColumn = React.useMemo(
         () => ({
-            Filter: DefaultColumnFilter,
+            Filter: DefaultColumnFilter,            
         })
     )
     const {
@@ -119,7 +120,7 @@ const IndeterminateCheckbox = React.forwardRef(
       state,
       setGlobalFilter,
       preGlobalFilteredRows,
-      visibleColumns,
+      visibleColumns,     
  
       state: { pageIndex, pageSize, selectedRowIds, expanded },
     } = useTable(
@@ -138,19 +139,19 @@ const IndeterminateCheckbox = React.forwardRef(
       hooks => {
         hooks.visibleColumns.push(columns => [
           {
-            id: 'selection',
-          
+            id: 'selection',          
             Header: ({ getToggleAllPageRowsSelectedProps }) => (
               <div>
                 <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} />
               </div>
             ),
-          
             Cell: ({ row }) => (
+              row.canExpand ?(
               <div>
                 <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
               </div>
-            ),
+              ): null
+            ),            
           },
           ...columns,
         ])
@@ -173,18 +174,6 @@ const IndeterminateCheckbox = React.forwardRef(
               </tr>              
             ))}
              <tr>
-            <th
-              colSpan={visibleColumns.length}
-              style={{
-                textAlign: 'left',
-              }}
-            >
-              <GlobalFilter
-                preGlobalFilteredRows={preGlobalFilteredRows}
-                globalFilter={state.globalFilter}
-                setGlobalFilter={setGlobalFilter}
-              />
-            </th>
           </tr>
           </thead>
           <tbody {...getTableBodyProps()}>
@@ -272,7 +261,7 @@ const IndeterminateCheckbox = React.forwardRef(
                   {row.isExpanded ? '➖' : '➕'}
                 </span>
               ) : null,
-          },
+        },
         {
           Header: 'Sitecode',
           accessor: 'SiteCode',
@@ -295,18 +284,17 @@ const IndeterminateCheckbox = React.forwardRef(
         },
         {
           Header: () => null, 
-          id: 'dropdownsiteChanges', 
-          Cell: ({ row }) => (            
-              <DropdownSiteChanges/>            
-          ),
+          id: 'dropdownsiteChanges',
+          Cell: ({ row }) =>
+              row.canExpand ? (
+                <DropdownSiteChanges/>
+              ) : null,
         },
       ],
       []
     )
   
     const data = React.useMemo( () => SitechangesFile); 
-  //const data = React.useMemo(() => events);
-  //  const data = React.useMemo(() => makeData(5,5), []);
   
   return (
       <Table columns={columns} data={data.Data} />        
