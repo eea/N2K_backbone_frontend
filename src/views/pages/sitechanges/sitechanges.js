@@ -7,10 +7,6 @@ import {
   CCol,
   CContainer,
   CRow,
-  CDropdown,
-  CDropdownItem,
-  CDropdownMenu,
-  CDropdownToggle,
   CNav,
   CNavItem,
   CNavLink,
@@ -20,32 +16,12 @@ import {
   CSidebarNav,
   CFormLabel,
   CFormSelect,
-  CTable,
-  CTableBody,  
-  CTableDataCell,
-  CTableHead,
-  CTableHeaderCell,
-  CTableRow,
   CFormCheck,
-  CImage,
-  CPagination,
-  CPaginationItem, 
-  CModal,
-  CModalBody,
-  CModalFooter,
-  CModalHeader,
-  CModalTitle,
   CTabContent,
   CTabPane
 
 } from '@coreui/react'
 
-//const siteChangesDataFile = require('./../../../data/sitechangesS.json');
-
-import moreicon from './../../../assets/images/three-dots.svg'
-import justificationrequired from './../../../assets/images/exclamation.svg'
-import justificationprovided from './../../../assets/images/file-text.svg'
-import trash from './../../../assets/images/trash.svg'
 import user from './../../../assets/images/avatars/user.png'
 
 
@@ -53,9 +29,6 @@ const xmlns = 'https://www.w3.org/2000/svg'
 
 const Sitechanges = () => {
 
-  const [changes, setChanges] = useState([]);
-  const [visibleXL, setVisibleXL] = useState(false);
-  const [activeKey, setActiveKey] = useState(1)
   const [activeTab, setActiveTab] = useState(1)
 
   const [isLoading, setIsLoading] = useState(false);

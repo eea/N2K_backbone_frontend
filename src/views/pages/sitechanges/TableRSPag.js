@@ -2,8 +2,6 @@ import React, {useState, useEffect} from 'react'
 import { useTable, usePagination, useFilters,useGlobalFilter, useRowSelect, useAsyncDebounce, useSortBy, useExpanded  } from 'react-table'
 import DropdownSiteChanges from './components/DropdownSiteChanges';
 
-import SitechangesFile from '../../../data/siteChanges.json';
-
 import ConfigData from '../../../config.json';
 
 import {matchSorter} from 'match-sorter'
@@ -118,11 +116,6 @@ const IndeterminateCheckbox = React.forwardRef(
       nextPage,
       previousPage,
       setPageSize,
-      selectedFlatRows,
-      state,
-      setGlobalFilter,
-      preGlobalFilteredRows,
-      visibleColumns,     
  
       state: { pageIndex, pageSize, selectedRowIds, expanded },
     } = useTable(
@@ -240,6 +233,8 @@ const IndeterminateCheckbox = React.forwardRef(
     const [events, setEvents] = useState([]);
     const [modalItem, setModalItem] = useState("");
     const [modalVisible, setModalVisible] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [changesData, setChangesData] = useState({});
 
     useEffect(() => {
       fetch(ConfigData.SERVER_API_ENDPOINT+'/api/sitechanges/get')
@@ -258,6 +253,8 @@ const IndeterminateCheckbox = React.forwardRef(
       setModalVisible(false);
       setModalItem("");
     }
+
+    
 
     const columns = React.useMemo(
       () => [
@@ -308,14 +305,33 @@ const IndeterminateCheckbox = React.forwardRef(
       []
     )
   
-    const data = React.useMemo( () => SitechangesFile); 
+    //const data = React.useMemo( () => SitechangesFile);
+
+    let load_data= ()=>{
+
+      if(!isLoading && Object.keys(changesData).length===0){
+        setIsLoading(true);
+        fetch(ConfigData.SERVER_API_ENDPOINT+'/api/sitechanges/get')
+        .then(response => response.json())
+        .then(data => {
+                        setChangesData(data.Data);
+                        setIsLoading(false);
+                      });
+      }
+    }
+    
+    load_data();
+
+    if(isLoading)
+      return (<p><em>Loading...</em></p>)
+    else
+      return (
+      <>
+        <Table columns={columns} data={changesData} />        
+        <ModalChanges visible = {modalVisible} close = {closeModal} item={modalItem} />
+      </>
+      )
   
-  return (
-    <>
-      <Table columns={columns} data={data.Data} />        
-      <ModalChanges visible = {modalVisible} close = {closeModal} item={modalItem} />
-    </>
-    )
   }
   
   export default TableRSPag

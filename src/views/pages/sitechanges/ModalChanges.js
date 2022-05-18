@@ -105,7 +105,7 @@ export class ModalChanges extends Component {
             <CFormCheck onClick={(e)=>this.set_level("Warning",e.target.checked)}/>            
             <svg xmlns="https://www.w3.org/2000/svg" width="16" height="16" fill="#696E70" className="bi bi-bookmark-fill" viewBox="0 0 16 16">
               <path d="M2 2v13.5a.5.5 0 0 0 .74.439L8 13.069l5.26 2.87A.5.5 0 0 0 14 15.5V2a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z" />
-            </svg>Medium
+            </svg>Warning
             </span>            
           </li>
           <li className="nav-item">
@@ -119,9 +119,9 @@ export class ModalChanges extends Component {
         </CSidebarNav>
         </CCol>
         <CCol md={9} lg={9}>
-          {this.state.levels.includes("Info") && <span className='badge badge--info'>Info</span>}
-          {this.state.levels.includes("Warning")&&<span className='badge badge--warning'>Medium</span>}
           {this.state.levels.includes("Critical")&&<span className='badge badge--critical'>Critical</span>}
+          {this.state.levels.includes("Warning")&&<span className='badge badge--warning'>Warning</span>}
+          {this.state.levels.includes("Info") && <span className='badge badge--info'>Info</span>}
           {this.render_change_list()}
         </CCol>
       </CRow>          
@@ -335,7 +335,7 @@ export class ModalChanges extends Component {
 
   load_data(){
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
-      fetch(ConfigData.SERVER_API_ENDPOINT+`/api/SiteChanges/GetSiteChangesDetail/siteCode=${this.props.item}&version=0`)
+      fetch(ConfigData.SERVER_API_ENDPOINT+`/api/SiteChanges/GetSiteChangesDetail/siteCode=${this.props.item}&version=1`)
       .then(response => response.json())
       .then(data => this.setState({data: data.Data, loading: false}));
     }
