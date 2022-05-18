@@ -8,6 +8,8 @@ import ConfigData from '../../../config.json';
 
 import {matchSorter} from 'match-sorter'
 
+import { ModalChanges } from './ModalChanges';
+
 const IndeterminateCheckbox = React.forwardRef(
     ({ indeterminate, ...rest }, ref) => {
       const defaultRef = React.useRef()
@@ -236,6 +238,8 @@ const IndeterminateCheckbox = React.forwardRef(
   function TableRSPag() {
 
     const [events, setEvents] = useState([]);
+    const [modalItem, setModalItem] = useState("");
+    const [modalVisible, setModalVisible] = useState(false);
 
     useEffect(() => {
       fetch(ConfigData.SERVER_API_ENDPOINT+'/api/sitechanges/get')
@@ -244,6 +248,16 @@ const IndeterminateCheckbox = React.forwardRef(
         setEvents(data);
       });
     }, [])
+
+    let openModal = (data)=>{
+      setModalVisible(true);
+      setModalItem(data);
+    }
+  
+    let closeModal = ()=>{
+      setModalVisible(false);
+      setModalItem("");
+    }
 
     const columns = React.useMemo(
       () => [
@@ -287,7 +301,7 @@ const IndeterminateCheckbox = React.forwardRef(
           id: 'dropdownsiteChanges',
           Cell: ({ row }) =>
               row.canExpand ? (
-                <DropdownSiteChanges/>
+                <DropdownSiteChanges clickFunction={()=>openModal(row.values.SiteCode)}/>          
               ) : null,
         },
       ],
@@ -297,7 +311,10 @@ const IndeterminateCheckbox = React.forwardRef(
     const data = React.useMemo( () => SitechangesFile); 
   
   return (
+    <>
       <Table columns={columns} data={data.Data} />        
+      <ModalChanges visible = {modalVisible} close = {closeModal} item={modalItem} />
+    </>
     )
   }
   
