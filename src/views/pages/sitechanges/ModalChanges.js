@@ -302,8 +302,8 @@ export class ModalChanges extends Component {
         </CModalBody>
         <CModalFooter>
           <div className="d-flex w-100 justify-content-between">
-            <CButton color="primary">Reject Changes </CButton>
-            <CButton color="secondary">Approve change</CButton>
+            <CButton color="secondary">Reject Changes </CButton>
+            <CButton color="primary">Approve change</CButton>
           </div>
         </CModalFooter>
       </>

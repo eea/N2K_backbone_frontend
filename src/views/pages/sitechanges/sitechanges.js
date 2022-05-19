@@ -95,21 +95,21 @@ const Sitechanges = () => {
               <div>
                 <ul className="btn--list">
                   <li>
-                    <div class="checkbox">
-                      <input type="checkbox" class="input-checkbox" id="check_info"/>
-                      <label htmlFor="check_info" class="input-label" className='badge color--info'>Info</label>
+                    <div className="checkbox">
+                      <input type="checkbox" className="input-checkbox" id="check_info"/>
+                      <label htmlFor="check_info" className="input-label badge color--info">Info</label>
                     </div>
                   </li>
                   <li>
-                    <div class="checkbox">
-                      <input type="checkbox" class="input-checkbox" id="check_medium"/>
-                      <label htmlFor="check_medium" class="input-label" className='badge color--medium'>Warning</label>
+                    <div className="checkbox">
+                      <input type="checkbox" className="input-checkbox" id="check_medium"/>
+                      <label htmlFor="check_medium" className="input-label badge color--medium">Warning</label>
                     </div>
                   </li>
                   <li>
-                    <div class="checkbox">
-                      <input type="checkbox" class="input-checkbox" id="check_warning"/>
-                      <label htmlFor="check_warning" class="input-label" className='badge color--critical'>Critical</label>
+                    <div className="checkbox">
+                      <input type="checkbox" className="input-checkbox" id="check_warning"/>
+                      <label htmlFor="check_warning" className="input-label badge color--critical">Critical</label>
                     </div>
                   </li>
                 </ul>
