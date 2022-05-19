@@ -29,19 +29,19 @@ const Harvesting = () => {
   return (
     <div className='container--main min-vh-100'>
       <CHeader className='header--custom'>
-        <CRow className='p-2 header__title'>
-          <CCol>
-            <div className="header__title justify-content-end">Natura Change Manager</div>
+        <CRow className='align-items-center'>
+          <CCol className="header__title">
+            <div>Natura Change Manager</div>
           </CCol>
-          <CCol className='header__title'>
-            <ul className="btn--list justify-center">
+          <CCol className='header__links'>
+            <ul className="btn--list justify-content-between">
               <li><CButton color="link" className='btn-link--bold' href='/#/dashboard'>Dashboard</CButton></li>
-              <li><CButton color="link" className='btn-link--bold' href='/#/harvesting'>Harvesting</CButton></li>
-              <li> <CButton color="link" className='btn-link--bold' href='/#/sitechanges'>Site Changes</CButton></li>
+              <li className='header-active'><CButton color="link" className='btn-link--bold' href='/#/harvesting'>Harvesting</CButton></li>
+              <li><CButton color="link" className='btn-link--bold' href='/#/sitechanges'>Site Changes</CButton></li>
               <li><CButton color="link" className='btn-link--bold'>Site Lineage</CButton></li>
               <li><CButton color="link" className='btn-link--bold'>Reports</CButton></li>
               <li><CButton color="link" className='btn-link--bold'>Reference Dataset</CButton></li>
-              <li><CAvatar src={user} size="md" /><CButton color="link" className='btn-link--bold'>Username</CButton></li>
+              <li><CAvatar src={user} /><CButton color="link" className='btn-link--bold'>Username</CButton></li>
             </ul>
           </CCol>
         </CRow>

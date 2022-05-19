@@ -37,19 +37,19 @@ const Sitechanges = () => {
   return (
     <div className='container--main min-vh-100'>
       <CHeader className='header--custom'>
-        <CRow className='p-2 header__title'>
-          <CCol>
-            <div className="header__title justify-content-end">Natura Change Manager</div>
+        <CRow className='align-items-center'>
+          <CCol className="header__title">
+            <div>Natura Change Manager</div>
           </CCol>
-          <CCol className='header__title'>
-            <ul className="btn--list justify-center">
+          <CCol className='header__links'>
+            <ul className="btn--list justify-content-between">
               <li><CButton color="link" className='btn-link--bold' href='/#/dashboard'>Dashboard</CButton></li>
               <li><CButton color="link" className='btn-link--bold' href='/#/harvesting'>Harvesting</CButton></li>
-              <li> <CButton color="link" className='btn-link--bold' href='/#/sitechanges'>Site Changes</CButton></li>
+              <li className='header-active'><CButton color="link" className='btn-link--bold' href='/#/sitechanges'>Site Changes</CButton></li>
               <li><CButton color="link" className='btn-link--bold'>Site Lineage</CButton></li>
               <li><CButton color="link" className='btn-link--bold'>Reports</CButton></li>
               <li><CButton color="link" className='btn-link--bold'>Reference Dataset</CButton></li>
-              <li><CAvatar src={user} size="md" /><CButton color="link" className='btn-link--bold'>Username</CButton></li>
+              <li><CAvatar src={user} /><CButton color="link" className='btn-link--bold'>Username</CButton></li>
             </ul>
           </CCol>
         </CRow>
@@ -59,11 +59,11 @@ const Sitechanges = () => {
       <div className="content--wrapper">
         <CSidebar className='sidebar--light'>
           <CSidebarNav>
-            <li className="nav-title">Site changes</li>
+            <li className="nav-title">Site Changes</li>
             <li className="nav-item">
               <a className="nav-link active"> <svg xmlns={""+xmlns} width="16" height="16" fill="#696E70" className="bi bi-bookmark-fill" viewBox="0 0 16 16">
                 <path d="M2 2v13.5a.5.5 0 0 0 .74.439L8 13.069l5.26 2.87A.5.5 0 0 0 14 15.5V2a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z" />
-              </svg> Changes management</a>
+              </svg> Changes Management</a>
             </li>
             <li className="nav-item">
               <a className="nav-link"> <svg xmlns="https://www.w3.org/2000/svg" width="16" height="16" fill="#696E70" className="bi bi-bookmark-fill" viewBox="0 0 16 16">
@@ -79,22 +79,39 @@ const Sitechanges = () => {
         </CSidebar>
         <div className="main-content">
           <CContainer fluid>           
-            <div className='d-flex  justify-content-between p-4'>
-              <div> <h1 className="h1">Change Management</h1></div>
+            <div className='d-flex  justify-content-between px-0 p-3'>
+              <div className='page-title'>
+                <h1 className="h1">Changes Management</h1>
+              </div>
               <div>
                 <ul className="btn--list">
-                  <li><CButton color="primary">Reject</CButton></li>
+                  <li><CButton color="secondary">Reject</CButton></li>
                   <li><CButton color="primary">Approve</CButton></li>
                 </ul>
               </div>
             </div>
-            <div className='d-flex flex-start p-4 card-site-level'>
-              <div className='ml-4'><h2 className='card-site-leve-title'>Site Level ONLY</h2></div>
+            <div className='d-flex flex-start align-items-center p-3 card-site-level'>
+              <div className='me-5'><h2 className='card-site-level-title'>Site Level ONLY</h2></div>
               <div>
                 <ul className="btn--list">
-                  <li><CFormCheck / ><span className='badge color--info'>Info</span></li>
-                  <li><CFormCheck / ><span className='badge color--medium'>Warning</span></li>
-                  <li><CFormCheck /> <span className='badge color--critical'>Critical</span></li>
+                  <li>
+                    <div className="checkbox">
+                      <input type="checkbox" className="input-checkbox" id="check_info"/>
+                      <label htmlFor="check_info" className="input-label badge color--info">Info</label>
+                    </div>
+                  </li>
+                  <li>
+                    <div className="checkbox">
+                      <input type="checkbox" className="input-checkbox" id="check_medium"/>
+                      <label htmlFor="check_medium" className="input-label badge color--medium">Warning</label>
+                    </div>
+                  </li>
+                  <li>
+                    <div className="checkbox">
+                      <input type="checkbox" className="input-checkbox" id="check_warning"/>
+                      <label htmlFor="check_warning" className="input-label badge color--critical">Critical</label>
+                    </div>
+                  </li>
                 </ul>
               </div>
             </div>

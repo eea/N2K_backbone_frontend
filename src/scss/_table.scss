@@ -1,4 +1,5 @@
 .table {
+  border-collapse: inherit;
   & th {
     color: $primary-dark;
     font-size: 0.9rem;
@@ -6,13 +7,35 @@
   &--light {
     & th,
     & td {
-      border-bottom: none;
       padding: 0.2rem;
     }
   }
   &--noheader {
     & th {
       display: none;
+    }
+  }
+  & tr {
+    & td {
+      border-bottom-color: $gray-100;
+      color: $black;
+    }
+  }
+  & .btn-more {
+    background: transparent;
+    border: transparent;
+    & svg {
+      fill: $gray-300;
+      transition: $transition-base;
+    }
+    &:hover, &:active {
+      background: none;
+      border-color: transparent;
+      svg {
+        fill: $primary-base;
+        transform: scale(1.2);
+        transition: $transition-base;
+      }
     }
   }
 }
@@ -30,4 +53,44 @@
   background-size: 1px 1rem;
   border-right: solid 1rem white;
   border-left: solid 1rem white;
+}
+.pagination {
+  color: $primary-base;
+  align-items: center;
+  margin-bottom: 1rem;
+  button {
+    color: $primary-base;
+    border: solid 1px $gray-100;
+    background-color: white;
+    padding: 0.25rem 0.75rem;
+    transition: $transition-base;
+    &:hover {
+      background-color: $primary-base;
+      color: white;
+      transition: $transition-base;
+    }
+    &:first-of-type {
+      border-radius: 4px 0px 0px 4px;
+    }
+    &:last-of-type {
+      border-radius: 0px 4px 4px 0px;
+    }
+    &[disabled] {
+      color: $gray-100;
+      &:hover {
+        background-color: initial;
+      }
+    }
+  }
+  span, label {
+    margin: 0 0.5rem;
+  }
+  & .pagination-rows {
+    margin-left: 1rem;
+    & select {
+      cursor: pointer;
+      width: 5rem;
+      display: inline-block;
+    }
+  }
 }

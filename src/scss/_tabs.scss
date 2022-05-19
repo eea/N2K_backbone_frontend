@@ -1,7 +1,14 @@
 .nav-tabs {
-  border-bottom-style: dashed;
+  border-bottom: 2px dashed $gray-100;
   & .nav-link {
     color: $gray-800;
+    border-bottom-width: 2px;
+    margin-bottom: -2px;
+    &:not(.active):hover {
+      background-color: $gray-25;
+      isolation: unset;
+      border-bottom: 2px hidden transparent;
+    }
     &.active {
       color: $gray-900;
     }

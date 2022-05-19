@@ -33,11 +33,20 @@
     }
   }
 }
+.form-select {
+  border-color: $gray-300;
+  line-height: normal;
+  cursor: pointer;
+  &:focus {
+    border: solid 1px #000015 !important;
+    box-shadow: none !important;
+  }
+}
 .select--right {
   position: absolute;
-  right: 1rem;
- // top: 5.5rem;
-  width: 25rem;
+  right: 0;
+  box-shadow: none;
+  margin-right: 1rem;
 }
 .input--light {
   border-radius: 0.5rem;
@@ -50,4 +59,61 @@
 
 .input--table-filters {
   border: none;
+  border-bottom: solid 1px transparent;
+  padding: 0;
+  margin-top: 0.5rem;
+  &::placeholder {
+    color: $gray-300;
+  }
+  &:focus-visible {
+    color: $black;
+    border-bottom-color: $black;
+    outline: none;
+  }
+}
+
+/* Checkbox */
+.checkbox {
+  & label {
+    display: inline-block;
+    position: relative;
+    padding: 0px 0px 0px 2rem;
+    font-size: 0.875rem;
+    line-height: normal;
+    cursor: pointer;
+    -webkit-transition: $transition-base;
+    -o-transition: $transition-base;
+    transition: $transition-base;
+    &:before {
+      content: "";
+      width: 18px;
+      height: 18px;
+      position: absolute;
+      left: 0;
+      top: 0;
+      border: 2px solid $gray-100;
+      border-radius: 2px;
+      cursor: pointer;
+    }
+  }
+  & input[type="checkbox"] {
+    display: none;
+    &:checked + label:after {
+      content:"";
+      position: absolute;
+      font-size: 0.875rem;
+      left: 6px;
+      top: 2px;
+      width: 6px;
+      height: 12px;
+      opacity: 1;
+      cursor: pointer;
+      border-bottom: solid 3px $blue;
+      border-right: solid 3px $blue;
+      transform: rotate(45deg);
+    }
+    &:checked + label:before {
+      border-color: $blue;
+    }
+  }
 }
