@@ -4,18 +4,41 @@
     list-style: none;
     margin: 0;
     padding: 0;
-    & li:not(:last-child) {
-      margin-right: 1rem;
+    & li {
+      &:not(:last-child) {
+        margin-right: 1rem;
+      }
     }
   }
   &-primary {
-    box-shadow: 0 0.2rem 0.2rem rgba(#000, 0.15);
+    background-color: $primary-base;
+    color: $white;
+    transition: $transition-base;
+    &:hover {
+      background-color: $white;
+      color: $primary-base;
+      transition: $transition-base;
+    }
+    &:focus, &:active, &:focus:active {
+      box-shadow: none;
+    }
   }
   &-secondary {
-    color: #fff;
-    box-shadow: 0 0.2rem 0.2rem rgba(#000, 0.15);
-    &.active {
-      color: #fff;
+    background-color: $white;
+    color: $primary-base;
+    border-color: $primary-base;
+    transition: $transition-base;
+    &:hover {
+      background-color: $primary-base;
+      color: $white;
+      border-color: $primary-base;
+      transition: $transition-base;
+    }
+    &:focus, &:active, &:focus:active {
+      box-shadow: none;
+      background-color: $white;
+      color: $primary-base;
+      border-color: $primary-base;
     }
   }
   &-link--bold {

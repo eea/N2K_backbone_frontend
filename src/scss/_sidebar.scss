@@ -1,16 +1,28 @@
 .sidebar-nav {
-  margin-right: 0.5rem;
   & .nav-title {
-    font-size: 1.1rem;
+    font-size: 1.25rem;
+    text-transform: initial;
+  }
+  & .nav-item {
+    margin-bottom: 0.25rem;
   }
   & .nav-link {
+    padding: 0.5rem;
+    margin: 0 1rem;
     font-weight: bold;
     font-size: 0.9rem;
+    border-radius: 0 0.5em 0.5rem 0rem;
+    cursor: pointer;
+    &:hover {
+      color: initial;
+      background: $primary-25;
+    }
     &.active {
-      border-radius: 0 0.5em 0.5rem 0rem;
-      & svg {
-        fill: $emphasis;
-      }
+      color:  $black;
+    }
+    & svg {
+      fill: $gray-800;
+      margin-right: 0.5rem;
     }
   }
 }
