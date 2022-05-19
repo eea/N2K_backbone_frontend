@@ -101,15 +101,20 @@
 }
 
 
-.form-label-reporting{
+.form-label-reporting {
   float: left;
-  width: 50%;
+  text-align: end;
+  margin-right: 1rem;
+  white-space: nowrap;
 }
-.form-select-reporting{
-  float: right;
-  width: 50%;
+
+.form-select-reporting {
+  // float: right;
+  width: 12rem;
+  line-height: normal;
 }
-.card-main-title{
+
+.card-main-title {
   position: absolute;
   width: 97px;
   height: 23px;
@@ -124,16 +129,18 @@
 }
 
 .card-site-level {
-  height: 60px;
-  left: 0px;
-  top: 0px;
-  border: 1px dashed #E5E5E5;
-  box-sizing: border-box; 
-  margin-bottom: 1.4rem;
-}
-
-.card-site-leve-title{
-  margin-right: 6rem;
+  border: 2px dashed $gray-100;
+  margin-bottom: 1.5rem;
+  & h2 {
+    font-size: 1rem;
+    margin: 0;
+  }
+  & .checkbox {
+    margin-right: 1rem;
+    & .badge {
+      font-weight: bold;
+    }
+  }
 }
 
 .card-icon-new{

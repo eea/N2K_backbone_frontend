@@ -19,13 +19,25 @@
   font-weight: bold;
 }
 .h1 {
-  color: $primary-50;
-  font-weight: bold;
-  text-transform: uppercase;
   margin: 1rem 0;
   &-main{
     margin: 2rem 0;
   }
+}
+
+h1 {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+h2 {
+  font-size: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+h3 {
+  font-size: 1rem;
+  margin-bottom: 1rem;
 }
 
 h6 {

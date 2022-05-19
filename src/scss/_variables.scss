@@ -9,7 +9,7 @@ $gray-25: #f4f7f8;
 
 $gray-100: #e5e5e5 !default;
 // $gray-200:  #d8dbe0 !default;
-// $gray-300:  #c4c9d0 !default;
+$gray-300:  #c4c9d0 !default;
 // $gray-400:  #b1b7c1 !default;
 // $gray-500:  #9da5b1 !default;
 // $gray-600:  #8a93a2 !default;
@@ -382,7 +382,7 @@ $danger-25: #f9d4d4 !default;
 // $caret-vertical-align:        $caret-width * .85 !default;
 // $caret-spacing:               $caret-width * .85 !default;
 // scss-docs-end caret-variables
-// $transition-base:             all .2s ease-in-out !default;
+$transition-base:             all .2s ease-in-out !default;
 // $transition-fade:             opacity .15s linear !default;
 // scss-docs-start collapse-transition
 // $transition-collapse:         height .35s ease !default;
