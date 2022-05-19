@@ -28,7 +28,8 @@ import {
   CModalHeader,
   CModalTitle,
   CTabContent,
-  CTabPane
+  CTabPane,
+  CCollapse
 
 } from '@coreui/react'
 
@@ -83,7 +84,6 @@ export class ModalChanges extends Component {
     let changes = this.state.data.ChangesList.filter(v => this.state.levels.includes(v.Level));
     let list = []
     for(let i in changes){
-      console.log(changes[i]);
       list.push(
           <>
             <div className="d-flex gap-2 align-items-center" key={changes[i].ChangeId}>
@@ -93,8 +93,7 @@ export class ModalChanges extends Component {
                 {(this.state.showDetail===changes[i].ChangeId)?"Hide detail":"View detail"}
               </CButton>
             </div>
-            { (this.state.showDetail===changes[i].ChangeId) &&
-              <div>
+            <CCollapse visible={this.state.showDetail===changes[i].ChangeId}>
               <span>
                 <label>Reference Value</label>
                 {' ' + changes[i].OlValue + ' '}
@@ -103,7 +102,7 @@ export class ModalChanges extends Component {
                 <label>Reported Value</label>
                 {' ' + changes[i].ReportedValue + ' '}
               </span>
-            </div>}
+            </CCollapse>
           </>);
           
     }
@@ -395,7 +394,6 @@ export class ModalChanges extends Component {
 
     this.post_request(ConfigData.SERVER_API_ENDPOINT+'/api/SiteChanges/AcceptChanges', rBody)
     .then(data => {
-        console.log(data);
         if(data.ok)
           this.close();
         else
@@ -421,7 +419,6 @@ export class ModalChanges extends Component {
 
     this.post_request(ConfigData.SERVER_API_ENDPOINT+'/api/SiteChanges/RejectChanges', rBody)
     .then(data => {
-        console.log(data);
         if(data.ok)
           this.close();
         else
