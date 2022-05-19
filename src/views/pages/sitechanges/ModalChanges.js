@@ -38,9 +38,12 @@ import trash from './../../../assets/images/trash.svg'
 
 const xmlns = 'https://www.w3.org/2000/svg'
 export class ModalChanges extends Component {
+  
+
   constructor(props) {
     super(props);
     this.state = {activeKey: 1, loading: true, data: {}, levels:["Critical"]};
+    
   }
 
   setActiveKey(val){
@@ -302,8 +305,8 @@ export class ModalChanges extends Component {
         </CModalBody>
         <CModalFooter>
           <div className="d-flex w-100 justify-content-between">
-            <CButton color="primary">Reject Changes </CButton>
-            <CButton color="secondary">Approve change</CButton>
+            <CButton color="secondary" onClick={()=>this.reject_changes()}>Reject Changes </CButton>
+            <CButton color="primary" onClick={()=>this.accept_changes()}>Approve change</CButton>
           </div>
         </CModalFooter>
       </>
@@ -339,6 +342,70 @@ export class ModalChanges extends Component {
       .then(response => response.json())
       .then(data => this.setState({data: data.Data, loading: false}));
     }
+  }
+
+  post_request(url,body){
+    const options = {
+      method: 'POST',
+      headers: {
+      'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    };
+
+    return fetch(url, options)
+  }
+
+  accept_changes(){
+    if(!confirm("This will approve all the changes")) return;
+
+    const rBody = [
+      {
+        "SiteCode": this.props.item,
+        "VersionId": 0,
+        "Status": "Pending",
+        "OK": 0,
+        "Error": "string"
+      }
+    ]
+
+    this.post_request(ConfigData.SERVER_API_ENDPOINT+'/api/SiteChanges/AcceptChanges', rBody)
+    .then(data => {
+        console.log(data);
+        if(data.ok)
+          this.close();
+        else
+          alert("something went wrong!");
+    }).catch(e => {
+          alert("something went wrong!");
+    });
+
+  }
+
+  reject_changes(){
+    if(!confirm("This will reject all the changes")) return;
+
+    const rBody = [
+      {
+        "SiteCode": this.props.item,
+        "VersionId": 0,
+        "Status": "Pending",
+        "OK": 0,
+        "Error": "string"
+      }
+    ]
+
+    this.post_request(ConfigData.SERVER_API_ENDPOINT+'/api/SiteChanges/RejectChanges', rBody)
+    .then(data => {
+        console.log(data);
+        if(data.ok)
+          this.close();
+        else
+          alert("something went wrong!");
+    }).catch(e => {
+          alert("something went wrong!");
+    });
+
   }
 
 }
