@@ -38,11 +38,10 @@ import trash from './../../../assets/images/trash.svg'
 
 const xmlns = 'https://www.w3.org/2000/svg'
 export class ModalChanges extends Component {
-  
 
   constructor(props) {
     super(props);
-    this.state = {activeKey: 1, loading: true, data: {}, levels:["Critical"]};
+    this.state = {activeKey: 1, loading: true, data: {}, levels:["Critical"], showDetail: ""};
     
   }
 
@@ -52,7 +51,7 @@ export class ModalChanges extends Component {
 
   close(){
     this.setActiveKey(1);
-    this.setState({levels:["Critical"]});
+    this.setState({levels:["Critical"], showDetail:""});
     this.props.close();
   }
 
@@ -72,15 +71,40 @@ export class ModalChanges extends Component {
     this.setState({levels: levels})
   }
 
+  toggleDetail(key){
+    if(this.state.showDetail===key){
+      this.setState({showDetail: ""});
+    } else {
+      this.setState({showDetail: key});
+    }
+  }
+
   render_change_list(){
     let changes = this.state.data.ChangesList.filter(v => this.state.levels.includes(v.Level));
     let list = []
     for(let i in changes){
-      list.push(<div className="d-flex gap-2 align-items-center" key={changes[i].ChangeId}>
-            <p className='mb-0'> {changes[i].ChangeCategory}</p>
-            <p className='mb-0'> <strong>{changes[i].ChangeType}</strong></p>
-            <CButton color="link" className='btn-link--dark '>View detail</CButton>
-          </div>)
+      console.log(changes[i]);
+      list.push(
+          <>
+            <div className="d-flex gap-2 align-items-center" key={changes[i].ChangeId}>
+              <p className='mb-0'> {changes[i].ChangeCategory}</p>
+              <p className='mb-0'> <strong>{changes[i].ChangeType}</strong></p>
+              <CButton color="link" className='btn-link--dark ' onClick={()=>this.toggleDetail(changes[i].ChangeId)}>
+                {(this.state.showDetail===changes[i].ChangeId)?"Hide detail":"View detail"}
+              </CButton>
+            </div>
+            { (this.state.showDetail===changes[i].ChangeId) &&
+              <div>
+              <span>
+                <label>Reference Value</label>
+                {' ' + changes[i].OlValue + ' '}
+              </span>
+              <span>
+                <label>Reported Value</label>
+                {' ' + changes[i].ReportedValue + ' '}
+              </span>
+            </div>}
+          </>);
           
     }
     
