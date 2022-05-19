@@ -1,6 +1,7 @@
 import React, { lazy } from 'react'
 import { AppSidebar, AppFooter, AppHeader } from './../../../components/index'
 import { FetchEnvelops } from './FetchEnvelops';
+import TableEnvelops from './TableEnvelops';
 
 import {
   CButton,
@@ -106,6 +107,7 @@ const Harvesting = () => {
         <CRow>
         <CCol md={10} lg={10}>
         <FetchEnvelops />
+        <TableEnvelops />
         {/* <CTable className='mt-5'> 
         <CTableHead>
             <CTableRow>
@@ -177,7 +179,7 @@ const Harvesting = () => {
             <CRow className='p-4'>
             </CRow>     
             <CRow lg={{cols: 1}} className='p-3'>
-              <CButton color="primary">Export to Excel</CButton>
+              <CButton color="primary">Harvest Selected</CButton>
             </CRow>       
             
             <CRow lg={{cols: 1}} className='p-3'>

@@ -1,7 +1,12 @@
-import React from 'react'
+import React, {useState, useEffect} from 'react'
 import { useTable, usePagination, useFilters,useGlobalFilter, useRowSelect, useAsyncDebounce, useSortBy, useExpanded  } from 'react-table'
+import DropdownSiteChanges from './components/DropdownSiteChanges';
+
+import ConfigData from '../../../config.json';
 
 import {matchSorter} from 'match-sorter'
+
+import { ModalChanges } from './ModalChanges';
 
 const IndeterminateCheckbox = React.forwardRef(
     ({ indeterminate, ...rest }, ref) => {
@@ -20,10 +25,40 @@ const IndeterminateCheckbox = React.forwardRef(
     }
   )
   
+  function GlobalFilter({
+    preGlobalFilteredRows,
+    globalFilter,
+    setGlobalFilter,
+  }) {
+    const count = preGlobalFilteredRows.length
+    const [value, setValue] = React.useState(globalFilter)
+    const onChange = useAsyncDebounce(value => {
+      setGlobalFilter(value || undefined)
+    }, 200)
+  
+    return (
+      <span>
+        Search:{' '}
+        <input
+          value={value || ""}
+          onChange={e => {
+            setValue(e.target.value);
+            onChange(e.target.value);
+          }}
+          placeholder={`${count} records...`}
+          style={{
+            fontSize: '1.1rem',
+            border: '0',
+          }}
+        />
+      </span>
+    )
+  }
   function DefaultColumnFilter({
-    column: { filterValue, preFilteredRows, setFilter },
+    column: { filterValue, preFilteredRows, setFilter, filteredRows },
   }) {
     const count = preFilteredRows.length
+    const _filteredRows = filteredRows.length
   
     return (
       <input
@@ -31,7 +66,7 @@ const IndeterminateCheckbox = React.forwardRef(
         onChange={e => {
           setFilter(e.target.value || undefined) // Set undefined to remove the filter entirely
         }}
-        placeholder={`Search`}
+        placeholder={`pre: `+count+` FilteredRows: `+_filteredRows}
         className="input--table-filters"
       />
     )
@@ -64,7 +99,7 @@ const IndeterminateCheckbox = React.forwardRef(
 
     const defaultColumn = React.useMemo(
         () => ({
-            Filter: DefaultColumnFilter,
+            Filter: DefaultColumnFilter,            
         })
     )
     const {
@@ -81,7 +116,6 @@ const IndeterminateCheckbox = React.forwardRef(
       nextPage,
       previousPage,
       setPageSize,
-      selectedFlatRows,
  
       state: { pageIndex, pageSize, selectedRowIds, expanded },
     } = useTable(
@@ -100,19 +134,19 @@ const IndeterminateCheckbox = React.forwardRef(
       hooks => {
         hooks.visibleColumns.push(columns => [
           {
-            id: 'selection',
-          
+            id: 'selection',          
             Header: ({ getToggleAllPageRowsSelectedProps }) => (
               <div>
                 <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} />
               </div>
             ),
-          
             Cell: ({ row }) => (
+              row.canExpand ?(
               <div>
                 <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
               </div>
-            ),
+              ): null
+            ),            
           },
           ...columns,
         ])
@@ -132,8 +166,10 @@ const IndeterminateCheckbox = React.forwardRef(
                         <div>{column.canFilter ? column.render('Filter') : null}</div>
                   </th>
                 ))}
-              </tr>
+              </tr>              
             ))}
+             <tr>
+          </tr>
           </thead>
           <tbody {...getTableBodyProps()}>
             {page.map((row, i) => {
@@ -156,44 +192,79 @@ const IndeterminateCheckbox = React.forwardRef(
           This is just a very basic UI implementation:
         */}
         <div className="pagination">
+          <button onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
+          {'<<'}
+          </button>{' '}
           <button onClick={() => previousPage()} disabled={!canPreviousPage}>
-            {'<<'}
-          </button>{' '}
-          <button onClick={() => gotoPage(pageIndex+1)} disabled={!canNextPage}>
-            {pageIndex+1}
-          </button>{' '}
-          <button onClick={() => previousPage() -1 } disabled={!canNextPage}>
-            {pageIndex+2}
-          </button>{' '}
-          <button onClick={() => nextPage()-1} disabled={!canNextPage}>
-            {pageIndex+3}
-          </button>{' '}
-
-          <button onClick={() => nextPage()} disabled={!canNextPage}>
+          {'<'}
+        </button>{' '}
+        <span>
+          Page{' '}
+          <strong>
+            {pageIndex + 1} of {pageOptions.length}
+          </strong>{' '}
+        </span>
+          
+        <button onClick={() => nextPage()} disabled={!canNextPage}>
+          {'>'}
+        </button>{' '}
+          <button onClick={() => gotoPage(pageCount - 1)} disabled={!canNextPage}>
             {'>>'}
-          </button>{' '}          
+          </button>{' '}
+          <select
+          value={pageSize}
+          onChange={e => {
+            setPageSize(Number(e.target.value))
+          }}
+        >
+          {[10, 20, 30, 40, 50].map(pageSize => (
+            <option key={pageSize} value={pageSize}>
+              Show {pageSize}
+            </option>
+          ))}
+        </select>
         </div>
       </>
     )
   }
   
   function TableRSPag() {
+
+    const [events, setEvents] = useState([]);
+    const [modalItem, setModalItem] = useState("");
+    const [modalVisible, setModalVisible] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [changesData, setChangesData] = useState({});
+
+    useEffect(() => {
+      fetch(ConfigData.SERVER_API_ENDPOINT+'/api/sitechanges/get')
+      .then(response => response.json())
+      .then(data => {
+        setEvents(data);
+      });
+    }, [])
+
+    let openModal = (data)=>{
+      setModalVisible(true);
+      setModalItem(data);
+    }
+  
+    let closeModal = ()=>{
+      setModalVisible(false);
+      setModalItem("");
+    }
+
+    
+
     const columns = React.useMemo(
       () => [
         {
-            // Build our expander column
-            id: 'expander', // Make sure it has an ID
-            
-            Cell: ({ row }) =>
-              // Use the row.canExpand and row.getToggleRowExpandedProps prop getter
-              // to build the toggle for expanding a row
+            id: 'expander',
+            Cell: ({ row }) =>              
               row.canExpand ? (
                 <span
                   {...row.getToggleRowExpandedProps({
-                    style: {
-                      // We can even use the row.depth property
-                      // and paddingLeft to indicate the depth
-                      // of the row
+                    style: {                      
                       paddingLeft: `${row.depth * 2}rem`,
                     },
                   })}
@@ -201,141 +272,66 @@ const IndeterminateCheckbox = React.forwardRef(
                   {row.isExpanded ? '➖' : '➕'}
                 </span>
               ) : null,
-          },
+        },
         {
           Header: 'Sitecode',
-          accessor: 'sitecode',
+          accessor: 'SiteCode',
         },
         {
           Header: 'Level',
-          accessor: 'level',
+          accessor: 'Level',
         },
         {
           Header: 'Change Category',
-          accessor: 'changeCategory',
+          accessor: 'ChangeCategory',
         },
         {
           Header: 'Change Type',
-          accessor: 'changeType',
+          accessor: 'ChangeType',
         },
         {
           Header: 'Country',
-          accessor: 'country',
+          accessor: 'Country',
         },
         {
-          Header: 'Tags',
-          accessor: 'tags',  
+          Header: () => null, 
+          id: 'dropdownsiteChanges',
+          Cell: ({ row }) =>
+              row.canExpand ? (
+                <DropdownSiteChanges clickFunction={()=>openModal(row.values.SiteCode)}/>          
+              ) : null,
         },
-        {
-          Header: 'Status',
-          accessor: 'status',
-        },        
       ],
       []
     )
   
-  //  const data = React.useMemo(() => makeData(5,5), []);
-    const data = React.useMemo(
-        () => [
-          {
-            sitecode: '25654',
-            level: 'Medium',
-            changeCategory: '' ,
-            changeType: 'Sites added',
-            country: 'Spain',
-            tags: 'My tag',
-            status: 'Icono',
-            action: '...',
-            subRows: [
-                {
-                  sitecode: '',
-                  level: 'Critical',
-                  changeCategory: '' ,
-                  changeType: 'Sites added',
-                  country: 'Spain',
-                  tags: 'My tag',
-                  status: 'Icono',
-                  action: '...'
-                },
-                {
-                  sitecode: '',
-                  level: 'Medium',
-                  changeCategory: '' ,
-                  changeType: 'Sites added',
-                  country: 'Spain',
-                  tags: 'My tag',
-                  status: 'Icono',
-                  action: '...'
-                },
-                {
-                  sitecode: '',
-                  level: 'Warning',
-                  changeCategory: '' ,
-                  changeType: 'Sites added',
-                  country: 'Spain',
-                  tags: 'My tag',
-                  status: 'Icono',
-                  action: '...'
-                }
-              ]
-          },          
-          {
-            sitecode: '13502',
-            level: 'Medium',
-            changeCategory: 'Site general info (UL)',
-            changeType: 'Site priority',
-            country: 'Spain',
-            tags: 'My tag',
-            status: 'Icono',
-            action: '...'
-          },
-          {
-            sitecode: '9788',
-            level: 'Critical',
-            changeCategory: 'Species and Habitats',
-            changeType: 'Sites added',
-            country: 'Spain',
-            tags: 'My tag',
-            status: 'Icono',
-            action: '...'
-          },
-          {
-            sitecode: '25654',
-            level: 'Medium',
-            changeCategory: '' ,
-            changeType: 'Sites added',
-            country: 'Spain',
-            tags: 'My tag',
-            status: 'Icono',
-            action: '...'
-          },
-          {
-            sitecode: '13502',
-            level: 'Medium',
-            changeCategory: 'Site general info (UL)',
-            changeType: 'Site priority',
-            country: 'Spain',
-            tags: 'My tag',
-            status: 'Icono',
-            action: '...'
-          },
-          {
-            sitecode: '9788',
-            level: 'Critical',
-            changeCategory: 'Species and Habitats',
-            changeType: 'Sites added',
-            country: 'Spain',
-            tags: 'My tag',
-            status: 'Icono',
-            action: '...'
-          },
-        ],
-        []
-    )
+    //const data = React.useMemo( () => SitechangesFile);
+
+    let load_data= ()=>{
+
+      if(!isLoading && Object.keys(changesData).length===0){
+        setIsLoading(true);
+        fetch(ConfigData.SERVER_API_ENDPOINT+'/api/sitechanges/get')
+        .then(response => response.json())
+        .then(data => {
+                        setChangesData(data.Data);
+                        setIsLoading(false);
+                      });
+      }
+    }
+    
+    load_data();
+
+    if(isLoading)
+      return (<p><em>Loading...</em></p>)
+    else
+      return (
+      <>
+        <Table columns={columns} data={changesData} />        
+        <ModalChanges visible = {modalVisible} close = {closeModal} item={modalItem} />
+      </>
+      )
   
-    return (
-        <Table columns={columns} data={data} />
-    )
   }
   
   export default TableRSPag

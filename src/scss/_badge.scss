@@ -3,23 +3,23 @@
   font-weight: normal;
   font-size: 0.85rem;
   line-height: initial;
-
-  &--default {
-    border-color: $gray-800;
-    color: $gray-800;
-  }
-  &--medium {
-    border-color: $warning-base;
-    color: $warning-base;
-  }
-  &--warning {
-    border-color: $success-base;
-    color: $success-base;
-  }
+  
   &--critical {
     border-color: $danger-base;
     color: $danger-base;
   }
+  &--warning {
+    border-color: $medium-base;
+    color: $medium-base;
+  }
+  &--info {
+    border-color: $success-base;
+    color: $success-base;
+  }
+  &--default {
+    border-color: $gray-800;
+    color: $gray-800;
+  }  
   &--light {
     background: $gray-100;
     color: $gray-900;
@@ -53,13 +53,13 @@
 }
 
 .color {
-  &--warning {
-    color: $warning-base;
-  }
   &--critical {
     color: $danger-base;
   }
-  &--success {
-    color: $success-base;
+  &--medium {
+    color: $medium-base;
   }
+  &--info {
+    color: $success-base;
+  } 
 }
