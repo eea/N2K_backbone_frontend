@@ -42,7 +42,7 @@ export class ModalChanges extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {activeKey: 1, loading: true, data: {}, levels:["Critical"], showDetail: ""};
+    this.state = {activeKey: 1, loading: true, data: {}, levels:["Critical","Warning","Info"], showDetail: ""};
     
   }
 
@@ -52,7 +52,7 @@ export class ModalChanges extends Component {
 
   close(){
     this.setActiveKey(1);
-    this.setState({levels:["Critical"], showDetail:""});
+    this.setState({levels:["Critical","Warning","Info"], showDetail: ""});
     this.props.close();
   }
 
@@ -95,11 +95,12 @@ export class ModalChanges extends Component {
             </div>
             <CCollapse visible={this.state.showDetail===changes[i].ChangeId}>
               <span>
-                <label>Reference Value</label>
+                <label>Reference Value: </label>
                 {' ' + changes[i].OlValue + ' '}
               </span>
+              &nbsp;---&nbsp;
               <span>
-                <label>Reported Value</label>
+                <label> Reported Value: </label>
                 {' ' + changes[i].ReportedValue + ' '}
               </span>
             </CCollapse>
@@ -128,7 +129,7 @@ export class ModalChanges extends Component {
           </li>
           <li className="nav-item">
           <span className='badge color--medium'>
-            <CFormCheck onClick={(e)=>this.set_level("Warning",e.target.checked)}/>            
+            <CFormCheck onClick={(e)=>this.set_level("Warning",e.target.checked)} defaultChecked/>            
             <svg xmlns="https://www.w3.org/2000/svg" width="16" height="16" fill="#696E70" className="bi bi-bookmark-fill" viewBox="0 0 16 16">
               <path d="M2 2v13.5a.5.5 0 0 0 .74.439L8 13.069l5.26 2.87A.5.5 0 0 0 14 15.5V2a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z" />
             </svg>Warning
@@ -136,7 +137,7 @@ export class ModalChanges extends Component {
           </li>
           <li className="nav-item">
           <span className='badge color--info'>
-          <CFormCheck onClick={(e)=>this.set_level("Info",e.target.checked)}/>
+          <CFormCheck onClick={(e)=>this.set_level("Info",e.target.checked)} defaultChecked/>
             <svg xmlns="https://www.w3.org/2000/svg" width="16" height="16" fill="#696E70" className="bi bi-bookmark-fill" viewBox="0 0 16 16">
               <path d="M2 2v13.5a.5.5 0 0 0 .74.439L8 13.069l5.26 2.87A.5.5 0 0 0 14 15.5V2a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z" />
             </svg>Info
@@ -385,10 +386,7 @@ export class ModalChanges extends Component {
     const rBody = [
       {
         "SiteCode": this.props.item,
-        "VersionId": 0,
-        "Status": "Pending",
-        "OK": 0,
-        "Error": "string"
+        "VersionId": 1,
       }
     ]
 
@@ -410,10 +408,7 @@ export class ModalChanges extends Component {
     const rBody = [
       {
         "SiteCode": this.props.item,
-        "VersionId": 0,
-        "Status": "Pending",
-        "OK": 0,
-        "Error": "string"
+        "VersionId": 1,
       }
     ]
 
