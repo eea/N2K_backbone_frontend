@@ -105,7 +105,6 @@ const Dashboard = () => {
                   </div>
                   <CCardText className='card-text-new'>                    
                     <span className='card__number'>
-                      1
                     </span>
                     PENDING SUBMISSIONS
                   </CCardText>
