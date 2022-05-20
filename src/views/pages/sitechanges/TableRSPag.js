@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react'
-import { useTable, usePagination, useFilters,useGlobalFilter, useRowSelect, useAsyncDebounce, useSortBy, useExpanded  } from 'react-table'
+import { useTable, usePagination, useFilters,useGlobalFilter, useRowSelect, useAsyncDebounce, useSortBy, useExpanded, initialExpanded  } from 'react-table'
 import DropdownSiteChanges from './components/DropdownSiteChanges';
 
 import ConfigData from '../../../config.json';
@@ -66,7 +66,7 @@ const IndeterminateCheckbox = React.forwardRef(
         onChange={e => {
           setFilter(e.target.value || undefined) // Set undefined to remove the filter entirely
         }}
-        placeholder={`pre: `+count+` FilteredRows: `+_filteredRows}
+        placeholder={`search`}
         className="input--table-filters"
       />
     )
@@ -115,15 +115,16 @@ const IndeterminateCheckbox = React.forwardRef(
       gotoPage,
       nextPage,
       previousPage,
-      setPageSize,
- 
-      state: { pageIndex, pageSize, selectedRowIds, expanded },
+      setPageSize, 
+      initialExpanded,
+      state: { pageIndex, pageSize, selectedRowIds, expanded, expandSubRows },
     } = useTable(
       {
         columns,
         data,
         defaultColumn,
         filterTypes,
+        initialState: {pageSize: 30},
       },
       useFilters,
       useGlobalFilter,
