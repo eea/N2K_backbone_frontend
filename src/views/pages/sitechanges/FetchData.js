@@ -52,7 +52,7 @@ export class FetchData extends Component {
                         <CImage src={moreicon} className="ico--md "></CImage>
                     </CDropdownToggle>
                     <CDropdownMenu>
-                        <CDropdownItem role={'button'} onClick={() => setVisibleXL(!visibleXL)}>Review site CHANGE</CDropdownItem>
+                        <CDropdownItem role={'button'} onClick={() => setVisibleXL(!visibleXL)}>Review site <b>CHANGE</b></CDropdownItem>
                         <CDropdownItem >Accept change/s</CDropdownItem>
                         <CDropdownItem >Reject change/s</CDropdownItem>
                         <CDropdownItem >Add comments</CDropdownItem>

@@ -12,7 +12,7 @@ function DropdownSiteChanges(props) {
                 </svg>
             </CDropdownToggle>
             <CDropdownMenu>
-                <CDropdownItem role={'button'} onClick={() => props.clickFunction()}>Review site CHANGE</CDropdownItem>
+                <CDropdownItem role={'button'} onClick={() => props.clickFunction()}>Review site <b>CHANGE</b></CDropdownItem>
                 <CDropdownItem >Accept change/s</CDropdownItem>
                 <CDropdownItem >Reject change/s</CDropdownItem>
                 <CDropdownItem >Add comments</CDropdownItem>

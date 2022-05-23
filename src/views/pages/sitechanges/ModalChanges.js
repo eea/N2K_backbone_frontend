@@ -29,8 +29,8 @@ import {
   CModalTitle,
   CTabContent,
   CTabPane,
-  CCollapse
-
+  CCollapse,
+  CCard
 } from '@coreui/react'
 
 import moreicon from './../../../assets/images/three-dots.svg'
@@ -85,26 +85,29 @@ export class ModalChanges extends Component {
     let list = []
     for(let i in changes){
       list.push(
-          <>
-            <div className="d-flex gap-2 align-items-center" key={changes[i].ChangeId}>
-              <p className='mb-0'> {changes[i].ChangeCategory}</p>
-              <p className='mb-0'> <strong>{changes[i].ChangeType}</strong></p>
+          <div className='collapse-container'>
+            <div className="d-flex gap-2 align-items-center justify-content-between" key={changes[i].ChangeId}>
+              <div>
+                <span className='me-3'> <strong>{changes[i].ChangeCategory}</strong></span>
+                <span className='me-3'> {changes[i].ChangeType}</span>
+              </div>
               <CButton color="link" className='btn-link--dark ' onClick={()=>this.toggleDetail(changes[i].ChangeId)}>
                 {(this.state.showDetail===changes[i].ChangeId)?"Hide detail":"View detail"}
               </CButton>
             </div>
             <CCollapse visible={this.state.showDetail===changes[i].ChangeId}>
-              <span>
-                <label>Reference Value: </label>
-                {' ' + changes[i].OlValue + ' '}
-              </span>
-              &nbsp;---&nbsp;
-              <span>
-                <label> Reported Value: </label>
-                {' ' + changes[i].ReportedValue + ' '}
-              </span>
+              <CCard>
+                <span className='me-5'>
+                  <b>Reference Value: </b>
+                  {' ' + changes[i].OlValue + ' '}
+                </span>
+                <span>
+                  <b> Reported Value: </b>
+                  {' ' + changes[i].ReportedValue + ' '}
+                </span>
+              </CCard>
             </CCollapse>
-          </>);
+          </div>);
           
     }
     
@@ -116,42 +119,36 @@ export class ModalChanges extends Component {
   render_changes(){
     return(
       <CTabPane role="tabpanel" aria-labelledby="home-tab" visible={this.state.activeKey === 1}>
-      <CRow className='p-3'>
-        <CCol md={3} lg={3}>
-        <CSidebarNav>          
-          <li className="nav-item">
-          <span className='badge color--critical' >
-            <CFormCheck onClick={(e)=>this.set_level("Critical",e.target.checked)} defaultChecked/>            
-              <svg xmlns="https://www.w3.org/2000/svg" width="16" height="16" fill="#696E70" className="bi bi-bookmark-fill" viewBox="0 0 16 16">
-                <path d="M2 2v13.5a.5.5 0 0 0 .74.439L8 13.069l5.26 2.87A.5.5 0 0 0 14 15.5V2a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z" />
-              </svg>Critical
-            </span>            
-          </li>
-          <li className="nav-item">
-          <span className='badge color--medium'>
-            <CFormCheck onClick={(e)=>this.set_level("Warning",e.target.checked)} defaultChecked/>            
-            <svg xmlns="https://www.w3.org/2000/svg" width="16" height="16" fill="#696E70" className="bi bi-bookmark-fill" viewBox="0 0 16 16">
-              <path d="M2 2v13.5a.5.5 0 0 0 .74.439L8 13.069l5.26 2.87A.5.5 0 0 0 14 15.5V2a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z" />
-            </svg>Warning
-            </span>            
-          </li>
-          <li className="nav-item">
-          <span className='badge color--info'>
-          <CFormCheck onClick={(e)=>this.set_level("Info",e.target.checked)} defaultChecked/>
-            <svg xmlns="https://www.w3.org/2000/svg" width="16" height="16" fill="#696E70" className="bi bi-bookmark-fill" viewBox="0 0 16 16">
-              <path d="M2 2v13.5a.5.5 0 0 0 .74.439L8 13.069l5.26 2.87A.5.5 0 0 0 14 15.5V2a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z" />
-            </svg>Info
-          </span>            
-          </li>
-        </CSidebarNav>
-        </CCol>
-        <CCol md={9} lg={9}>
-          {this.state.levels.includes("Critical")&&<span className='badge badge--critical'>Critical</span>}
-          {this.state.levels.includes("Warning")&&<span className='badge badge--warning'>Warning</span>}
-          {this.state.levels.includes("Info") && <span className='badge badge--info'>Info</span>}
-          {this.render_change_list()}
-        </CCol>
-      </CRow>          
+        <CRow className='p-3'>
+          <CCol xs="auto">
+            <CSidebarNav className="pe-5">
+              <li className="nav-item">
+                <div className="checkbox">
+                  <input type="checkbox" className="input-checkbox" id="modal_check_warning" onClick={(e)=>this.set_level("Critical",e.target.checked)} defaultChecked/>
+                  <label htmlFor="modal_check_warning" className="input-label badge color--critical">Critical</label>
+                </div>
+              </li>
+              <li className="nav-item">
+                <div className="checkbox">
+                  <input type="checkbox" className="input-checkbox" id="modal_check_medium" onClick={(e)=>this.set_level("Warning",e.target.checked)} defaultChecked/>
+                  <label htmlFor="modal_check_medium" className="input-label badge color--medium">Warning</label>
+                </div>
+              </li>
+              <li className="nav-item">
+                <div className="checkbox">
+                  <input type="checkbox" className="input-checkbox" id="modal_check_info" onClick={(e)=>this.set_level("Info",e.target.checked)} defaultChecked/>
+                  <label htmlFor="modal_check_info" className="input-label badge color--info">Info</label>
+                </div>
+              </li>
+            </CSidebarNav>
+          </CCol>
+          <CCol>
+            {this.state.levels.includes("Critical")&&<span className='badge badge--critical me-2'>Critical</span>}
+            {this.state.levels.includes("Warning")&&<span className='badge badge--warning me-2'>Warning</span>}
+            {this.state.levels.includes("Info") && <span className='badge badge--info me-2'>Info</span>}
+            {this.render_change_list()}
+          </CCol>
+        </CRow>
       </CTabPane>
     )
   }
@@ -160,7 +157,7 @@ export class ModalChanges extends Component {
     return(
       <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 2}>
       <CRow className='p-3'>
-        <CCol md={6} lg={6}>             
+        <CCol>
           <CTable className='table--light table--noheader'>
             <CTableHead>
               <CTableRow>
@@ -172,19 +169,15 @@ export class ModalChanges extends Component {
             </CTableHead>
             <CTableBody>
               <CTableRow className='align-middle'>
-                <CTableDataCell><h6>Attached documents</h6></CTableDataCell>
-                <CTableDataCell></CTableDataCell>
-                <CTableDataCell></CTableDataCell>
-                <CTableDataCell><h6><CButton color="link" className='btn-link--dark '>Add document</CButton></h6></CTableDataCell>
+                <CTableDataCell colSpan={2}><h6>Attached documents</h6></CTableDataCell>
+                <CTableDataCell className='text-end'><CButton color="link" className='btn-link--dark '>Add document</CButton></CTableDataCell>
               </CTableRow>
               <CTableRow className='align-middle'>
                 <CTableDataCell><CImage src={justificationprovided} className="ico--md "></CImage></CTableDataCell>
                 <CTableDataCell>File name</CTableDataCell>
-                <CTableDataCell>
-                <CButton color="link" className='btn-link--dark '>View</CButton>
-                <CImage src={trash} className="ico--md "></CImage>
-                </CTableDataCell>
-                  <CTableDataCell>
+                <CTableDataCell className='text-end'>
+                  <CButton color="link" className='btn-link--dark '>View</CButton>
+                  <CImage src={trash} className="ico--md "></CImage>
                     <CDropdown >
                       <CDropdownToggle color="primary" variant="ghost" caret={false} size="sm">
                         <CImage src={moreicon} className="ico--md "></CImage>
@@ -198,23 +191,21 @@ export class ModalChanges extends Component {
                   </CTableDataCell>
                 </CTableRow>
                 <CTableRow className='align-middle'>
-                      <CTableDataCell><CImage src={justificationprovided} className="ico--md "></CImage></CTableDataCell>
-                      <CTableDataCell>File name</CTableDataCell>
-                      <CTableDataCell>
-                        <CButton color="link" className='btn-link--dark '>View</CButton>
-                        <CImage src={trash} className="ico--md "></CImage>
-                      </CTableDataCell>
-                      <CTableDataCell>       
-                        <CDropdown>
-                        <CDropdownToggle color="primary" variant="ghost" caret={false} size="sm">
-                          <CImage src={moreicon} className="ico--md "></CImage>
-                        </CDropdownToggle>
-                        <CDropdownMenu>
-                          <CDropdownItem href="#">Action</CDropdownItem>
-                          <CDropdownItem href="#">Another action</CDropdownItem>
-                          <CDropdownItem href="#">Something else here</CDropdownItem>
-                        </CDropdownMenu>
-                      </CDropdown></CTableDataCell>
+                  <CTableDataCell><CImage src={justificationprovided} className="ico--md "></CImage></CTableDataCell>
+                  <CTableDataCell>File name</CTableDataCell>
+                  <CTableDataCell className='text-end'>
+                    <CButton color="link" className='btn-link--dark '>View</CButton>
+                    <CImage src={trash} className="ico--md "></CImage>
+                    <CDropdown>
+                    <CDropdownToggle color="primary" variant="ghost" caret={false} size="sm">
+                      <CImage src={moreicon} className="ico--md "></CImage>
+                    </CDropdownToggle>
+                    <CDropdownMenu>
+                      <CDropdownItem href="#">Action</CDropdownItem>
+                      <CDropdownItem href="#">Another action</CDropdownItem>
+                      <CDropdownItem href="#">Something else here</CDropdownItem>
+                    </CDropdownMenu>
+                  </CDropdown></CTableDataCell>
               </CTableRow>
             </CTableBody>
           </CTable>
@@ -235,12 +226,8 @@ export class ModalChanges extends Component {
         <CTable className='table--light table--noheader'>
           <CTableBody>
             <CTableRow className='align-middle'>
-              <CTableDataCell><h6>Comments</h6></CTableDataCell>
-              <CTableDataCell></CTableDataCell>
-              <CTableDataCell></CTableDataCell>
-              <CTableDataCell></CTableDataCell>
-              <CTableDataCell></CTableDataCell>
-              <CTableDataCell><h6><CButton color="link" className='btn-link--dark '>Add document</CButton></h6></CTableDataCell>
+              <CTableDataCell colSpan={3}><h6>Comments</h6></CTableDataCell>
+              <CTableDataCell className='text-end'><CButton color="link" className='btn-link--dark '>Add document</CButton></CTableDataCell>
             </CTableRow>
           </CTableBody>
         </CTable>        
@@ -329,8 +316,8 @@ export class ModalChanges extends Component {
         </CModalBody>
         <CModalFooter>
           <div className="d-flex w-100 justify-content-between">
-            <CButton color="secondary" onClick={()=>this.reject_changes()}>Reject Changes </CButton>
-            <CButton color="primary" onClick={()=>this.accept_changes()}>Approve change</CButton>
+            <CButton color="secondary" onClick={()=>this.reject_changes()}>Reject changes</CButton>
+            <CButton color="primary" onClick={()=>this.accept_changes()}>Approve changes</CButton>
           </div>
         </CModalFooter>
       </>
@@ -354,7 +341,7 @@ export class ModalChanges extends Component {
 
   render() {
     return(
-      <CModal size="xl" visible={this.isVisible()} onClose={this.close.bind(this)}>
+      <CModal scrollable size="xl" visible={this.isVisible()} onClose={this.close.bind(this)}>
         {this.render_data()}        
       </CModal>
     )
