@@ -1,6 +1,24 @@
-.modal-content {
-  box-shadow: 0 0 1rem rgba(0, 0, 0, 0.2);
-}
-.modal-title {
-  font-size: 1.2rem;
+.modal {
+  & .modal-dialog-scrollable {
+    & .modal-content {
+      height: 100%;
+      box-shadow: 0 0 1rem rgba(0, 0, 0, 0.2);
+    }
+  }
+  & .modal-title {
+    font-size: 1.2rem;
+    color: $primary-base;
+  }
+  & .sidebar-nav {
+    border-right: solid 1px $gray-100;
+    & .nav-item {
+      margin-bottom: 1rem;
+    }
+  }
+  .collapse-container {
+    & .card {
+      flex-direction: row;
+      padding: 1rem;
+    }
+  }
 }

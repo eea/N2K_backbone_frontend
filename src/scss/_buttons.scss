@@ -55,4 +55,11 @@
 .dropdown-menu {
   box-shadow: 0 0 0.3rem 0.3rem rgb(0 0 0 / 15%);
   border: none;
+  & .dropdown-item {
+    color: $black;
+    cursor: pointer;
+    &:hover {
+      background-color: $primary-25;
+    }
+  }
 }

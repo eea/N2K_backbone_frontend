@@ -1,3 +1,6 @@
+.card {
+  border-color: $gray-100;
+}
 .card-tag {
   font-size: 0.85rem;
 }
@@ -134,12 +137,6 @@
   & h2 {
     font-size: 1rem;
     margin: 0;
-  }
-  & .checkbox {
-    margin-right: 1rem;
-    & .badge {
-      font-weight: bold;
-    }
   }
 }
 
