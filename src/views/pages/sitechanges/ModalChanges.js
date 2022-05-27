@@ -36,13 +36,22 @@ import {
 import moreicon from './../../../assets/images/three-dots.svg'
 import justificationprovided from './../../../assets/images/file-text.svg'
 import trash from './../../../assets/images/trash.svg'
+import { AcceptReject } from './AcceptReject';
 
 const xmlns = 'https://www.w3.org/2000/svg'
+
 export class ModalChanges extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {activeKey: 1, loading: true, data: {}, levels:["Critical","Warning","Info"], showDetail: ""};
+    this.state = {
+      activeKey: 1, 
+      loading: true, 
+      data: {}, 
+      level:"Warning", 
+      bookmark: "",
+      showDetail: ""
+    };
     
   }
 
@@ -52,24 +61,12 @@ export class ModalChanges extends Component {
 
   close(){
     this.setActiveKey(1);
-    this.setState({levels:["Critical","Warning","Info"], showDetail: ""});
+    this.setState({level:"Warning", bookmark: "", showDetail: ""});
     this.props.close();
   }
 
   isVisible(){
     return this.props.visible;
-  }
-
-  set_level(level,val){
-    let levels = this.state.levels;
-    if(val){
-      if(!levels.includes(level)) 
-        levels.push(level);
-    } else {
-      if(levels.includes(level)) 
-        levels = levels.filter(e => e!==level);
-    }
-    this.setState({levels: levels})
   }
 
   toggleDetail(key){
@@ -80,31 +77,51 @@ export class ModalChanges extends Component {
     }
   }
 
+  render_values_table(changes){
+    let titles = Object.keys(changes[0]).map(v => {return(<CTableHeaderCell scope="col" key={v}> {v} </CTableHeaderCell>)});
+    let rows=[];
+    for(let i in changes){
+      rows.push(
+        <CTableRow key={i}>
+          {Object.values(changes[i]).map(v=>{return(<CTableDataCell key={v}> {v} </CTableDataCell>)})}
+        </CTableRow>
+      )
+    }
+    return(
+      <CTable>
+        <CTableHead>
+          <CTableRow>
+            {titles}
+          </CTableRow>
+        </CTableHead>
+        <CTableBody>
+          {rows}
+        </CTableBody>
+      </CTable>
+    )
+  }
+
   render_change_list(){
-    let changes = this.state.data.ChangesList.filter(v => this.state.levels.includes(v.Level));
+    let changes = this.state.data[this.state.level][this.state.bookmark];
     let list = []
     for(let i in changes){
+      let title = "";
+      title += changes[i].ChangeCategory?changes[i].ChangeCategory:"";
+      title += (title?' - ':"") + (changes[i].ChangeType?changes[i].ChangeType :"");
+      title += changes[i].FieldName?' - '+ changes[i].FieldName:""
       list.push(
-          <div className='collapse-container'>
-            <div className="d-flex gap-2 align-items-center justify-content-between" key={changes[i].ChangeId}>
+          <div key={"change_"+i} className='collapse-container'>
+            <div className="d-flex gap-2 align-items-center justify-content-between" key={title}>
               <div>
-                <span className='me-3'> <strong>{changes[i].ChangeCategory}</strong></span>
-                <span className='me-3'> {changes[i].ChangeType}</span>
+                <span className='me-3'> {title}</span>
               </div>
-              <CButton color="link" className='btn-link--dark ' onClick={()=>this.toggleDetail(changes[i].ChangeId)}>
+              <CButton color="link" className='btn-link--dark ' onClick={()=>this.toggleDetail(title)}>
                 {(this.state.showDetail===changes[i].ChangeId)?"Hide detail":"View detail"}
               </CButton>
             </div>
-            <CCollapse visible={this.state.showDetail===changes[i].ChangeId}>
+            <CCollapse visible={this.state.showDetail===title}>
               <CCard>
-                <span className='me-5'>
-                  <b>Reference Value: </b>
-                  {' ' + changes[i].OlValue + ' '}
-                </span>
-                <span>
-                  <b> Reported Value: </b>
-                  {' ' + changes[i].ReportedValue + ' '}
-                </span>
+                {this.render_values_table(changes[i].ChangedCodes)}
               </CCard>
             </CCollapse>
           </div>);
@@ -112,9 +129,56 @@ export class ModalChanges extends Component {
     }
     
     return (
-      <>{list}</>
+      <CCol>
+        {list}
+      </CCol>
     )
   }
+
+  set_bookmark(val){
+    this.setState({bookmark: val});
+  }
+
+  render_bookmarks(){
+    let bookmarks = [];
+
+    for(let i in this.state.data[this.state.level]){
+      if(typeof(this.state.data[this.state.level][i])!=='string'&&this.state.data[this.state.level][i].length!==0)
+        bookmarks.push(i);
+    }
+
+    if(bookmarks.length===1){
+      this.state.bookmark = bookmarks[0];
+    }
+
+    let list = [];
+    for(let i in bookmarks){
+      let bookmark= bookmarks[i];
+      list.push(
+        <li key={"bookmark_li_"+i} className="nav-item">
+          <div className="checkbox" id={"bookmark_div_"+i}>
+            <input type="checkbox" className="input-checkbox" id={"bookmark_check_"+i} onClick={(e)=>this.set_bookmark(bookmark)} checked={this.state.bookmark===bookmark} readOnly/>
+            <label id={"bookmark_label_"+i} htmlFor={"bookmark_check_"+i} className="input-label badge color--bookmark">{bookmark}</label>
+          </div>
+        </li>
+      )
+    }
+    return(
+      <CCol xs="auto">
+        {this.state.level==="Critical"&&<span className='badge badge--critical me-2'>Critical</span>}
+        {this.state.level==="Warning"&&<span className='badge badge--warning me-2'>Warning</span>}
+        {this.state.level==="Info" && <span className='badge badge--info me-2'>Info</span>}
+        <CSidebarNav className="pe-5">
+          {list}
+        </CSidebarNav>
+      </CCol>
+    )
+  }
+  
+  set_level(level){
+    this.setState({level: level, bookmark:""})
+  }
+
 
   render_changes(){
     return(
@@ -124,30 +188,26 @@ export class ModalChanges extends Component {
             <CSidebarNav className="pe-5">
               <li className="nav-item">
                 <div className="checkbox">
-                  <input type="checkbox" className="input-checkbox" id="modal_check_warning" onClick={(e)=>this.set_level("Critical",e.target.checked)} defaultChecked/>
+                  <input type="checkbox" className="input-checkbox" id="modal_check_warning" onClick={(e)=>this.set_level("Critical")} checked={this.state.level === "Critical"} readOnly/>
                   <label htmlFor="modal_check_warning" className="input-label badge color--critical">Critical</label>
                 </div>
               </li>
               <li className="nav-item">
                 <div className="checkbox">
-                  <input type="checkbox" className="input-checkbox" id="modal_check_medium" onClick={(e)=>this.set_level("Warning",e.target.checked)} defaultChecked/>
+                  <input type="checkbox" className="input-checkbox" id="modal_check_medium" onClick={(e)=>this.set_level("Warning")} checked={this.state.level === "Warning"} readOnly/>
                   <label htmlFor="modal_check_medium" className="input-label badge color--medium">Warning</label>
                 </div>
               </li>
               <li className="nav-item">
                 <div className="checkbox">
-                  <input type="checkbox" className="input-checkbox" id="modal_check_info" onClick={(e)=>this.set_level("Info",e.target.checked)} defaultChecked/>
+                  <input type="checkbox" className="input-checkbox" id="modal_check_info" onClick={(e)=>this.set_level("Info")} checked={this.state.level === "Info"} readOnly/>
                   <label htmlFor="modal_check_info" className="input-label badge color--info">Info</label>
                 </div>
               </li>
             </CSidebarNav>
           </CCol>
-          <CCol>
-            {this.state.levels.includes("Critical")&&<span className='badge badge--critical me-2'>Critical</span>}
-            {this.state.levels.includes("Warning")&&<span className='badge badge--warning me-2'>Warning</span>}
-            {this.state.levels.includes("Info") && <span className='badge badge--info me-2'>Info</span>}
+            {this.render_bookmarks()}
             {this.render_change_list()}
-          </CCol>
         </CRow>
       </CTabPane>
     )
@@ -317,7 +377,7 @@ export class ModalChanges extends Component {
         <CModalFooter>
           <div className="d-flex w-100 justify-content-between">
             <CButton color="secondary" onClick={()=>this.reject_changes()}>Reject changes</CButton>
-            <CButton color="primary" onClick={()=>this.accept_changes()}>Approve changes</CButton>
+            <CButton color="primary" onClick={()=>this.accept_changes()}>Accept changes</CButton>
           </div>
         </CModalFooter>
       </>
@@ -349,35 +409,15 @@ export class ModalChanges extends Component {
 
   load_data(){
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
-      fetch(ConfigData.SERVER_API_ENDPOINT+`/api/SiteChanges/GetSiteChangesDetail/siteCode=${this.props.item}&version=1`)
+      fetch(ConfigData.SERVER_API_ENDPOINT+`/api/SiteChanges/GetSiteChangesDetail/siteCode=${this.props.item}&version=${this.props.version}`)
       .then(response => response.json())
-      .then(data => this.setState({data: data.Data, loading: false}));
+      //.then(data => this.setState({data: data.Data, loading: false}));
+      .then(data=>{console.log(data);this.setState({data: data.Data, loading: false})});
     }
   }
-
-  post_request(url,body){
-    const options = {
-      method: 'POST',
-      headers: {
-      'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(body),
-    };
-
-    return fetch(url, options)
-  }
-
+  
   accept_changes(){
-    if(!confirm("This will approve all the changes")) return;
-
-    const rBody = [
-      {
-        "SiteCode": this.props.item,
-        "VersionId": 1,
-      }
-    ]
-
-    this.post_request(ConfigData.SERVER_API_ENDPOINT+'/api/SiteChanges/AcceptChanges', rBody)
+    AcceptReject.accept_changes(this.props.item,this.props.version)
     .then(data => {
         if(data.ok)
           this.close();
@@ -390,16 +430,7 @@ export class ModalChanges extends Component {
   }
 
   reject_changes(){
-    if(!confirm("This will reject all the changes")) return;
-
-    const rBody = [
-      {
-        "SiteCode": this.props.item,
-        "VersionId": 1,
-      }
-    ]
-
-    this.post_request(ConfigData.SERVER_API_ENDPOINT+'/api/SiteChanges/RejectChanges', rBody)
+    AcceptReject.reject_changes(this.props.item,this.props.version)
     .then(data => {
         if(data.ok)
           this.close();
@@ -410,5 +441,4 @@ export class ModalChanges extends Component {
     });
 
   }
-
 }

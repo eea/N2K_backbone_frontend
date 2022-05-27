@@ -236,7 +236,7 @@ const IndeterminateCheckbox = React.forwardRef(
   function TableRSPag() {
 
     const [events, setEvents] = useState([]);
-    const [modalItem, setModalItem] = useState("");
+    const [modalItem, setModalItem] = useState({});
     const [modalVisible, setModalVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [changesData, setChangesData] = useState({});
@@ -251,15 +251,29 @@ const IndeterminateCheckbox = React.forwardRef(
 
     let openModal = (data)=>{
       setModalVisible(true);
-      setModalItem(data);
+      setModalItem({id: data.SiteCode, version: data.Version});
     }
   
     let closeModal = ()=>{
       setModalVisible(false);
-      setModalItem("");
+      setModalItem({});
     }
 
-    
+    let acceptChanges = (data)=>{
+      alert("acceptChanges");
+      /*
+      setModalVisible(true);
+      setModalItem({id: data.SiteCode, version: data.Version});
+      */
+    }
+
+    let rejectChanges = (data)=>{
+      alert("rejectChanges");
+      /*
+      setModalVisible(true);
+      setModalItem({id: data.SiteCode, version: data.Version});
+      */
+    }
 
     const columns = React.useMemo(
       () => [
@@ -309,25 +323,27 @@ const IndeterminateCheckbox = React.forwardRef(
         {
           Header: () => null, 
           id: 'dropdownsiteChanges',
-          Cell: ({ row }) =>
+          Cell: ({ row }) => 
               row.canExpand ? (
-                <DropdownSiteChanges clickFunction={()=>openModal(row.values.SiteCode)}/>          
+                <DropdownSiteChanges review={()=>openModal(row.values)}/>          
               ) : null,
         },
       ],
       []
     )
   
-    //const data = React.useMemo( () => SitechangesFile);
-
     let load_data= ()=>{
 
-      if(!isLoading && Object.keys(changesData).length===0){
+      if(!isLoading && changesData!=="nodata" && Object.keys(changesData).length===0){
         setIsLoading(true);
+        //fetch(ConfigData.SERVER_API_ENDPOINT+'/api/sitechanges/getbystatus?Pending')
         fetch(ConfigData.SERVER_API_ENDPOINT+'/api/sitechanges/get')
         .then(response => response.json())
         .then(data => {
-                        setChangesData(data.Data);
+                        if(Object.keys(data.Data).length===0)
+                          setChangesData("nodata");
+                        else
+                          setChangesData(data.Data);
                         setIsLoading(false);
                       });
       }
@@ -335,15 +351,22 @@ const IndeterminateCheckbox = React.forwardRef(
     
     load_data();
 
+    let findVersion = (id)=>{
+      return id && changesData.filter(v=>v.SiteCode===id)[0].Version;
+    }
+
     if(isLoading)
       return (<p><em>Loading...</em></p>)
     else
-      return (
-      <>
-        <Table columns={columns} data={changesData} />        
-        <ModalChanges visible = {modalVisible} close = {closeModal} item={modalItem} />
-      </>
-      )
+      if(changesData==="nodata")
+        return (<p><em>No Data Avalaible</em></p>)
+      else
+        return (
+        <>
+          <Table columns={columns} data={changesData} />        
+          <ModalChanges visible = {modalVisible} close = {closeModal} item={modalItem.id} version={findVersion(modalItem.id)} />
+        </>
+        )
   
   }
   
