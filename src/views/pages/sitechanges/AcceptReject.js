@@ -2,7 +2,7 @@ import ConfigData from '../../../config.json';
 
 export class AcceptReject {
 
-  static post_request(url,body){
+  static postRequest(url,body){
     const options = {
       method: 'POST',
       headers: {
@@ -13,7 +13,7 @@ export class AcceptReject {
     return fetch(url, options)
   }
 
-  static accept_changes(site,version){
+  static acceptChanges(site,version){
     if(!confirm("This will approve all the changes")) return;
 
     const rBody = [
@@ -23,10 +23,10 @@ export class AcceptReject {
       }
     ]
 
-    return this.post_request(ConfigData.SERVER_API_ENDPOINT+'/api/SiteChanges/AcceptChanges', rBody)
+    return this.postRequest(ConfigData.SERVER_API_ENDPOINT+'/api/SiteChanges/AcceptChanges', rBody)
   }
 
-  static reject_changes(site,version){
+  static rejectChanges(site,version){
     if(!confirm("This will reject all the changes")) return;
 
     const rBody = [
@@ -36,6 +36,6 @@ export class AcceptReject {
       }
     ]
 
-    return this.post_request(ConfigData.SERVER_API_ENDPOINT+'/api/SiteChanges/RejectChanges', rBody)
+    return this.postRequest(ConfigData.SERVER_API_ENDPOINT+'/api/SiteChanges/RejectChanges', rBody)
   }
 }

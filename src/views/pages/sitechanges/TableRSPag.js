@@ -7,6 +7,7 @@ import ConfigData from '../../../config.json';
 import {matchSorter} from 'match-sorter'
 
 import { ModalChanges } from './ModalChanges';
+import { AcceptReject } from './AcceptReject';
 
 const IndeterminateCheckbox = React.forwardRef(
     ({ indeterminate, ...rest }, ref) => {
@@ -249,6 +250,8 @@ const IndeterminateCheckbox = React.forwardRef(
       });
     }, [])
 
+    let forceRefreshData = ()=> setChangesData({});
+
     let openModal = (data)=>{
       setModalVisible(true);
       setModalItem({id: data.SiteCode, version: data.Version});
@@ -257,31 +260,31 @@ const IndeterminateCheckbox = React.forwardRef(
     let closeModal = (refresh)=>{
       setModalVisible(false);
       setModalItem({});
-      //if(refresh) setChangesData({}); //To force refresh
+      if(refresh) forceRefreshData(); //To force refresh
     }
 
-    let acceptChanges = (data)=>{
-      alert("acceptChanges");
-      console.log(data);
-      /*
-      AcceptReject.accept_changes(this.props.item,this.props.version)
+    let acceptChanges = (change)=>{
+      AcceptReject.acceptChanges(change.SiteCode,findVersion(change.SiteCode))
       .then(data => {
           if(data.ok)
-            this.close();
+            forceRefreshData();
           else
             alert("something went wrong!");
       }).catch(e => {
             alert("something went wrong!");
       });
-      */
     }
 
-    let rejectChanges = (data)=>{
-      alert("rejectChanges");
-      /*
-      setModalVisible(true);
-      setModalItem({id: data.SiteCode, version: data.Version});
-      */
+    let rejectChanges = (change)=>{
+      AcceptReject.rejectChanges(change.SiteCode,findVersion(change.SiteCode))
+      .then(data => {
+          if(data.ok)
+            forceRefreshData();
+          else
+            alert("something went wrong!");
+      }).catch(e => {
+            alert("something went wrong!");
+      });
     }
 
     const columns = React.useMemo(
@@ -347,7 +350,7 @@ const IndeterminateCheckbox = React.forwardRef(
       []
     )
   
-    let load_data= ()=>{
+    let loadData= ()=>{
 
       if(!isLoading && changesData!=="nodata" && Object.keys(changesData).length===0){
         setIsLoading(true);
@@ -364,7 +367,7 @@ const IndeterminateCheckbox = React.forwardRef(
       }
     }
     
-    load_data();
+    loadData();
 
     let findVersion = (id)=>{
       return id && changesData.filter(v=>v.SiteCode===id)[0].Version;

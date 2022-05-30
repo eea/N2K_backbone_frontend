@@ -59,10 +59,10 @@ export class ModalChanges extends Component {
     this.setState({activeKey: val})
   }
 
-  close(){
+  close(refresh){
     this.setActiveKey(1);
     this.setState({level:"Warning", bookmark: "", showDetail: ""});
-    this.props.close();
+    this.props.close(refresh);
   }
 
   isVisible(){
@@ -388,8 +388,8 @@ export class ModalChanges extends Component {
         </CModalBody>
         <CModalFooter>
           <div className="d-flex w-100 justify-content-between">
-            <CButton color="secondary" onClick={()=>this.reject_changes()}>Reject changes</CButton>
-            <CButton color="primary" onClick={()=>this.accept_changes()}>Accept changes</CButton>
+            <CButton color="secondary" onClick={()=>this.rejectChanges()}>Reject changes</CButton>
+            <CButton color="primary" onClick={()=>this.acceptChanges()}>Accept changes</CButton>
           </div>
         </CModalFooter>
       </>
@@ -428,11 +428,11 @@ export class ModalChanges extends Component {
     }
   }
   
-  accept_changes(){
-    AcceptReject.accept_changes(this.props.item,this.props.version)
+  acceptChanges(){
+    AcceptReject.acceptChanges(this.props.item,this.props.version)
     .then(data => {
         if(data.ok)
-          this.close();
+          this.close(true);
         else
           alert("something went wrong!");
     }).catch(e => {
@@ -441,11 +441,11 @@ export class ModalChanges extends Component {
 
   }
 
-  reject_changes(){
-    AcceptReject.reject_changes(this.props.item,this.props.version)
+  rejectChanges(){
+    AcceptReject.rejectChanges(this.props.item,this.props.version)
     .then(data => {
         if(data.ok)
-          this.close();
+          this.close(true);
         else
           alert("something went wrong!");
     }).catch(e => {
