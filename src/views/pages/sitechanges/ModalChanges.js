@@ -77,13 +77,16 @@ export class ModalChanges extends Component {
     }
   }
 
-  render_values_table(changes){
-    let titles = Object.keys(changes[0]).map(v => {return(<CTableHeaderCell scope="col" key={v}> {v} </CTableHeaderCell>)});
+  render_ValuesTable(changes){
+    let heads = Object.keys(changes[0]).filter(v=> v!=="ChangeId" && v!=="Fields");
+    let fields= Object.keys(changes[0]["Fields"]);
+    let titles = heads.concat(fields).map(v => {return(<CTableHeaderCell scope="col" key={v}> {v} </CTableHeaderCell>)});
     let rows=[];
     for(let i in changes){
+      let values = heads.map(v=>changes[i][v]).concat(fields.map(v=>changes[i]["Fields"][v]));
       rows.push(
         <CTableRow key={i}>
-          {Object.values(changes[i]).map(v=>{return(<CTableDataCell key={v}> {v} </CTableDataCell>)})}
+          {values.map(v=>{return(<CTableDataCell key={v}> {v} </CTableDataCell>)})}
         </CTableRow>
       )
     }
@@ -101,31 +104,33 @@ export class ModalChanges extends Component {
     )
   }
 
-  render_change_list(){
+  renderChangeList(){
     let changes = this.state.data[this.state.level][this.state.bookmark];
     let list = []
     for(let i in changes){
-      let title = "";
-      title += changes[i].ChangeCategory?changes[i].ChangeCategory:"";
-      title += (title?' - ':"") + (changes[i].ChangeType?changes[i].ChangeType :"");
-      title += changes[i].FieldName?' - '+ changes[i].FieldName:""
-      list.push(
-          <div key={"change_"+i} className='collapse-container'>
-            <div className="d-flex gap-2 align-items-center justify-content-between" key={title}>
-              <div>
-                <span className='me-3'> {title}</span>
+      if (!Array.isArray(changes[i])) break;
+      for(let j in changes[i]){
+        let title = "";
+        title += changes[i][j].ChangeCategory?changes[i][j].ChangeCategory:"";
+        title += (title?' - ':"") + (changes[i][j].ChangeType?changes[i][j].ChangeType :"");
+        title += changes[i].FieldName?' - '+ changes[i][j].FieldName:""
+        list.push(
+            <div key={"change_"+i+"_"+j} className='collapse-container'>
+              <div className="d-flex gap-2 align-items-center justify-content-between" key={i+"_"+j}>
+                <div>
+                  <span className='me-3'> {title}</span>
+                </div>
+                <CButton color="link" className='btn-link--dark ' onClick={()=>this.toggleDetail(title)}>
+                  {(this.state.showDetail===changes[i][j].ChangeId)?"Hide detail":"View detail"}
+                </CButton>
               </div>
-              <CButton color="link" className='btn-link--dark ' onClick={()=>this.toggleDetail(title)}>
-                {(this.state.showDetail===changes[i].ChangeId)?"Hide detail":"View detail"}
-              </CButton>
-            </div>
-            <CCollapse visible={this.state.showDetail===title}>
-              <CCard>
-                {this.render_values_table(changes[i].ChangedCodes)}
-              </CCard>
-            </CCollapse>
-          </div>);
-          
+              <CCollapse visible={this.state.showDetail===title}>
+                <CCard>
+                  {this.render_ValuesTable(changes[i][j].ChangedCodesDetail)}
+                </CCard>
+              </CCollapse>
+            </div>);
+      }
     }
     
     return (
@@ -135,18 +140,25 @@ export class ModalChanges extends Component {
     )
   }
 
-  set_bookmark(val){
+  setBookmark(val){
     this.setState({bookmark: val});
   }
 
-  render_bookmarks(){
+  bookmarkIsEmpty(bookmark){
+    let isEmpty = true;
+    for(let i in bookmark){
+      isEmpty = Array.isArray(bookmark[i])?isEmpty && (bookmark[i].length===0):isEmpty;
+    }
+    return isEmpty;
+  }
+
+  renderBookmarks(){
     let bookmarks = [];
 
     for(let i in this.state.data[this.state.level]){
-      if(typeof(this.state.data[this.state.level][i])!=='string'&&this.state.data[this.state.level][i].length!==0)
+      if(!this.bookmarkIsEmpty(this.state.data[this.state.level][i]))
         bookmarks.push(i);
     }
-
     if(bookmarks.length===1){
       this.state.bookmark = bookmarks[0];
     }
@@ -157,7 +169,7 @@ export class ModalChanges extends Component {
       list.push(
         <li key={"bookmark_li_"+i} className="nav-item">
           <div className="checkbox" id={"bookmark_div_"+i}>
-            <input type="checkbox" className="input-checkbox" id={"bookmark_check_"+i} onClick={(e)=>this.set_bookmark(bookmark)} checked={this.state.bookmark===bookmark} readOnly/>
+            <input type="checkbox" className="input-checkbox" id={"bookmark_check_"+i} onClick={(e)=>this.setBookmark(bookmark)} checked={this.state.bookmark===bookmark} readOnly/>
             <label id={"bookmark_label_"+i} htmlFor={"bookmark_check_"+i} className="input-label badge color--bookmark">{bookmark}</label>
           </div>
         </li>
@@ -206,8 +218,8 @@ export class ModalChanges extends Component {
               </li>
             </CSidebarNav>
           </CCol>
-            {this.render_bookmarks()}
-            {this.render_change_list()}
+            {this.renderBookmarks()}
+            {this.renderChangeList()}
         </CRow>
       </CTabPane>
     )
@@ -411,8 +423,8 @@ export class ModalChanges extends Component {
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
       fetch(ConfigData.SERVER_API_ENDPOINT+`/api/SiteChanges/GetSiteChangesDetail/siteCode=${this.props.item}&version=${this.props.version}`)
       .then(response => response.json())
-      //.then(data => this.setState({data: data.Data, loading: false}));
-      .then(data=>{console.log(data);this.setState({data: data.Data, loading: false})});
+      .then(data => this.setState({data: data.Data, loading: false}));
+      //.then(data=>{console.log(data);this.setState({data: data.Data, loading: false})});
     }
   }
   

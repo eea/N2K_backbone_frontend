@@ -254,16 +254,25 @@ const IndeterminateCheckbox = React.forwardRef(
       setModalItem({id: data.SiteCode, version: data.Version});
     }
   
-    let closeModal = ()=>{
+    let closeModal = (refresh)=>{
       setModalVisible(false);
       setModalItem({});
+      //if(refresh) setChangesData({}); //To force refresh
     }
 
     let acceptChanges = (data)=>{
       alert("acceptChanges");
+      console.log(data);
       /*
-      setModalVisible(true);
-      setModalItem({id: data.SiteCode, version: data.Version});
+      AcceptReject.accept_changes(this.props.item,this.props.version)
+      .then(data => {
+          if(data.ok)
+            this.close();
+          else
+            alert("something went wrong!");
+      }).catch(e => {
+            alert("something went wrong!");
+      });
       */
     }
 
@@ -323,10 +332,16 @@ const IndeterminateCheckbox = React.forwardRef(
         {
           Header: () => null, 
           id: 'dropdownsiteChanges',
-          Cell: ({ row }) => 
-              row.canExpand ? (
-                <DropdownSiteChanges review={()=>openModal(row.values)}/>          
-              ) : null,
+          Cell: ({ row }) => {
+              const contextActions = {
+                review: ()=>openModal(row.values),
+                accept: ()=>acceptChanges(row.values),
+                reject: ()=>rejectChanges(row.values),
+              }
+              return row.canExpand ? (
+                <DropdownSiteChanges actions={contextActions}/>          
+              ) : null
+          }
         },
       ],
       []
@@ -336,8 +351,8 @@ const IndeterminateCheckbox = React.forwardRef(
 
       if(!isLoading && changesData!=="nodata" && Object.keys(changesData).length===0){
         setIsLoading(true);
-        //fetch(ConfigData.SERVER_API_ENDPOINT+'/api/sitechanges/getbystatus?Pending')
-        fetch(ConfigData.SERVER_API_ENDPOINT+'/api/sitechanges/get')
+        fetch(ConfigData.SERVER_API_ENDPOINT+'/api/sitechanges/getbystatus?status=Pending')
+        //fetch(ConfigData.SERVER_API_ENDPOINT+'/api/sitechanges/get')
         .then(response => response.json())
         .then(data => {
                         if(Object.keys(data.Data).length===0)
