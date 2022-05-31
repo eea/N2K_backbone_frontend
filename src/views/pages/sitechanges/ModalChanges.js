@@ -1,5 +1,5 @@
 import ConfigData from '../../../config.json';
-import React, { Component } from 'react';
+import React, { Component, useState } from 'react';
 import {
   CButton,
   CCol,
@@ -33,17 +33,58 @@ import {
   CCard
 } from '@coreui/react'
 
+import { ConfirmationModal } from './components/ConfirmationModal';
 import moreicon from './../../../assets/images/three-dots.svg'
 import justificationprovided from './../../../assets/images/file-text.svg'
 import trash from './../../../assets/images/trash.svg'
 
 const xmlns = 'https://www.w3.org/2000/svg'
+
 export class ModalChanges extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {activeKey: 1, loading: true, data: {}, levels:["Critical","Warning","Info"], showDetail: ""};
-    
+    this.state = {
+      activeKey: 1,
+      loading: true,
+      data: {},
+      levels:["Critical","Warning","Info"],
+      showDetail: "",
+      modalValues : {
+        visibility: false,
+        close: () => {
+          this.setState({
+            modalValues: {
+              visibility: false
+            }
+          });
+        }
+      }
+    };
+  }
+
+  updateModalValues(title, text, primaryButtonText, primaryButtonFunction, secondaryButtonText, secondaryButtonFunction) {
+    this.setState({
+      modalValues : {
+        visibility: true,
+        title: title,
+        text: text,
+        primaryButton: (
+          primaryButtonText && primaryButtonFunction ? {
+            text: primaryButtonText,
+            function: () => primaryButtonFunction(),
+          }
+          : ''
+        ),
+        secondaryButton: (
+          secondaryButtonText && secondaryButtonFunction ? {
+            text: secondaryButtonText,
+            function: () => secondaryButtonFunction(),
+          }
+          : ''
+        ),
+      }
+    });
   }
 
   setActiveKey(val){
@@ -124,14 +165,14 @@ export class ModalChanges extends Component {
             <CSidebarNav className="pe-5">
               <li className="nav-item">
                 <div className="checkbox">
-                  <input type="checkbox" className="input-checkbox" id="modal_check_warning" onClick={(e)=>this.set_level("Critical",e.target.checked)} defaultChecked/>
-                  <label htmlFor="modal_check_warning" className="input-label badge color--critical">Critical</label>
+                  <input type="checkbox" className="input-checkbox" id="modal_check_critical" onClick={(e)=>this.set_level("Critical",e.target.checked)} defaultChecked/>
+                  <label htmlFor="modal_check_critical" className="input-label badge color--critical">Critical</label>
                 </div>
               </li>
               <li className="nav-item">
                 <div className="checkbox">
                   <input type="checkbox" className="input-checkbox" id="modal_check_medium" onClick={(e)=>this.set_level("Warning",e.target.checked)} defaultChecked/>
-                  <label htmlFor="modal_check_medium" className="input-label badge color--medium">Warning</label>
+                  <label htmlFor="modal_check_warning" className="input-label badge color--warning">Warning</label>
                 </div>
               </li>
               <li className="nav-item">
@@ -341,9 +382,12 @@ export class ModalChanges extends Component {
 
   render() {
     return(
-      <CModal scrollable size="xl" visible={this.isVisible()} onClose={this.close.bind(this)}>
-        {this.render_data()}        
-      </CModal>
+      <>
+        <CModal scrollable size="xl" visible={this.isVisible()} onClose={this.close.bind(this)}>
+          {this.render_data()}
+        </CModal>
+        <ConfirmationModal modalValues={this.state.modalValues}/>
+      </>
     )
   }
 
