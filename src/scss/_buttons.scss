@@ -50,12 +50,23 @@
   &-link--dark {
     color: $black;
   }
+  &-link--dropdown {
+    color: $primary-base;
+    font-weight: bold;
+    padding: 0;
+    border: none;
+    margin: 0.5rem 0;
+    &:after {
+      vertical-align: middle;
+    }
+  }
+
 }
 
 .dropdown-menu {
-  box-shadow: 0 0 0.3rem 0.3rem rgb(0 0 0 / 15%);
+  box-shadow: $box-shadow;
   border: none;
-  & .dropdown-item {
+  .dropdown-item {
     color: $black;
     cursor: pointer;
     &:hover {

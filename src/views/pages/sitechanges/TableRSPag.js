@@ -194,23 +194,23 @@ const IndeterminateCheckbox = React.forwardRef(
         */}
         <div className="pagination">
           <button onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
-          {'«'}
+            <i class="fa-solid fa-angles-left"></i>
           </button>{' '}
           <button onClick={() => previousPage()} disabled={!canPreviousPage}>
-          {'Previous'}
-        </button>{' '}
-        <span>
-          Page{' '}
-          <strong>
-            {pageIndex + 1} of {pageOptions.length}
-          </strong>{' '}
-        </span>
+            <i class="fa-solid fa-angle-left"></i>
+          </button>{' '}
+          <span>
+            Page{' '}
+            <strong>
+              {pageIndex + 1} of {pageOptions.length}
+            </strong>{' '}
+          </span>
           
-        <button onClick={() => nextPage()} disabled={!canNextPage}>
-          {'Next'}
-        </button>{' '}
+          <button onClick={() => nextPage()} disabled={!canNextPage}>
+            <i class="fa-solid fa-angle-right"></i>
+          </button>{' '}
           <button onClick={() => gotoPage(pageCount - 1)} disabled={!canNextPage}>
-            {'»'}
+            <i class="fa-solid fa-angles-right"></i>
           </button>{' '}
           <div className='pagination-rows'>
             <label className='form-label'>Rows per page</label>
@@ -273,15 +273,12 @@ const IndeterminateCheckbox = React.forwardRef(
                       paddingLeft: `${row.depth * 2}rem`,
                     },
                   })}
+                  className="row-expand"
                 >
                   {row.isExpanded ? 
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="#22a4fb" width="16" height="16" viewBox="0 0 448 512">
-                      <path d="M384 32C419.3 32 448 60.65 448 96V416C448 451.3 419.3 480 384 480H64C28.65 480 0 451.3 0 416V96C0 60.65 28.65 32 64 32H384zM136 232C122.7 232 112 242.7 112 256C112 269.3 122.7 280 136 280H312C325.3 280 336 269.3 336 256C336 242.7 325.3 232 312 232H136z"/>
-                    </svg>
+                    <i className="fa-solid fa-square-minus"></i>
                     : 
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="#22a4fb" width="16" height="16" viewBox="0 0 448 512">
-                      <path d="M384,32H64C28.7,32,0,60.7,0,96v320c0,35.3,28.7,64,64,64h320c35.3,0,64-28.7,64-64V96C448,60.7,419.3,32,384,32z M312,280 h-64v64c0,13.3-10.7,24-24,24s-24-10.7-24-24v-64h-64c-13.3,0-24-10.7-24-24s10.7-24,24-24h64v-64c0-13.3,10.7-24,24-24 s24,10.7,24,24v64h64c13.3,0,24,10.7,24,24S325.3,280,312,280z"/>
-                    </svg>
+                    <i className="fa-solid fa-square-plus"></i>
                   }
                 </span>
               ) : null,

@@ -5,14 +5,9 @@
   font-size: 0.85rem;
 }
 .card--site {
-  & .card-img {
+  .card-img {
     width: auto;
   }  
-}
-.card-img {
-  &--flag {
-    width: 3rem;
-  }
 }
 .card--dashboard {
   background-color: $primary-25;
@@ -20,7 +15,7 @@
   max-width: 12rem;
   min-height: 12rem;
   flex-basis: 12rem;
-  & .card {
+  .card {
     &-body {
       display: flex;
       flex-direction: column;
@@ -45,6 +40,22 @@
     }
   }
 }
+
+.dashboard-title {
+  position: relative;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  .h1-main {
+    margin: 0;
+    font-weight: normal;
+  }
+  & > * {
+    display: inline-block;
+  }
+}
+
 .country-title{
   position: static;
   width: 40px;
@@ -65,42 +76,142 @@
   margin: 0px 18px;
 }
 
-.country-card{
-  padding: 16px 10px;
-  width: 383px;
-  height: 150px;
-  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.15);
+.country-card {
+  box-shadow: $box-shadow;
   border-radius: 10px;
-  flex: auto;
-  margin: 0px 17px;  
+  margin: 0;
+  padding: 1rem 0.75rem;
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  transition: $transition-base;
+  &:hover {
+    background-color: $gray-25;
+    cursor: pointer;
+    transition: $transition-base;
+  }
+  &-left {
+    margin-right: 1rem;
+    .card-img {
+      &--flag {
+        width: 2.5rem;
+      }
+    }
+  }
+  &-right {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+  &-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    i {
+      color: $primary-base;
+    }
+  }
+  &-title {
+    font-size: 1.125rem;
+    font-weight: bold;
+    color: $primary-base;
+  }
+  &-body {
+    .badge {
+      border: none;
+      padding: 0;
+      margin-right: 0.5rem;
+    }
+  }
+}
+
+.pending-card {
+  box-shadow: $box-shadow;
+  border-radius: 10px;
+  padding: 1rem 0.75rem;
+  transition: $transition-base;
+  &:hover {
+    background-color: $gray-25;
+    transition: $transition-base;
+  }
+  &-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    font-size: 1.25rem;
+    i, svg {
+      color: $gray-400;
+    }
+  }
+  &-body {
+    margin-bottom: 0.5rem;
+    .badge {
+      border: none;
+      padding: 0;
+      margin-right: 0.5rem;
+    }
+  }
+  &-button {
+    .btn {
+      padding: 0;
+    }
+  }
+}
+
+.chart-card {
+  box-shadow: $box-shadow;
+  border-radius: 10px;
+  margin: 0;
+  padding: 1rem 0.75rem;
+  height: 100%;
+  h3 {
+    text-align: center;
+  }
+}
+
+.grid {
+  margin: -0.5rem;
+  > [class*='col-'] {
+    padding: 0.5rem;
+  }
 }
 
 .container-card-dashboard {
-  position: initial;
-  background: #FFFFFF;
-  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);
+  box-shadow: $box-shadow;
   border-radius: 10px;
-}
-
-.card-dashboard-new{
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  padding: 15px 20px;
-  position: static;
-  width: 400px;
-  background: #E3F2FD;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  box-sizing: border-box;
-  border-radius: 5px;
-  flex: initial;
-  order: 0;
-  flex-grow: 0;
-  margin: 0px 10px;
-}
-
-.card-dashboard-new a {
-  text-decoration: none;
+  padding: 2rem;
+  a {
+    text-decoration: none;
+  }
+  .card-dashboard-new {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 15px 20px;
+    position: static;
+    background: #E3F2FD;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+    border-radius: 5px;
+    flex: initial;
+    order: 0;
+    flex-grow: 0;
+    height: 100%;
+    transition: $transition-base;
+    &:hover {
+      background: #cfe9fc;
+      transition: $transition-base;
+    }
+    .card-body {
+      display: flex;
+      align-items: center;
+    }
+    a {
+      text-decoration: none;
+    }
+  }
 }
 
 
@@ -109,6 +220,7 @@
   text-align: end;
   margin-right: 1rem;
   white-space: nowrap;
+  padding: 0;
 }
 
 .form-select-reporting {
