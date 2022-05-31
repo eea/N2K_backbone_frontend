@@ -7,6 +7,7 @@ import ConfigData from '../../../config.json';
 import {matchSorter} from 'match-sorter'
 
 import { ModalChanges } from './ModalChanges';
+import { AcceptReject } from './AcceptReject';
 
 const IndeterminateCheckbox = React.forwardRef(
     ({ indeterminate, ...rest }, ref) => {
@@ -236,7 +237,7 @@ const IndeterminateCheckbox = React.forwardRef(
   function TableRSPag() {
 
     const [events, setEvents] = useState([]);
-    const [modalItem, setModalItem] = useState("");
+    const [modalItem, setModalItem] = useState({});
     const [modalVisible, setModalVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [changesData, setChangesData] = useState({});
@@ -249,17 +250,42 @@ const IndeterminateCheckbox = React.forwardRef(
       });
     }, [])
 
+    let forceRefreshData = ()=> setChangesData({});
+
     let openModal = (data)=>{
       setModalVisible(true);
-      setModalItem(data);
+      setModalItem({id: data.SiteCode, version: data.Version});
     }
   
-    let closeModal = ()=>{
+    let closeModal = (refresh)=>{
       setModalVisible(false);
-      setModalItem("");
+      setModalItem({});
+      if(refresh) forceRefreshData(); //To force refresh
     }
 
-    
+    let acceptChanges = (change)=>{
+      AcceptReject.acceptChanges(change.SiteCode,findVersion(change.SiteCode))
+      .then(data => {
+          if(data.ok)
+            forceRefreshData();
+          else
+            alert("something went wrong!");
+      }).catch(e => {
+            alert("something went wrong!");
+      });
+    }
+
+    let rejectChanges = (change)=>{
+      AcceptReject.rejectChanges(change.SiteCode,findVersion(change.SiteCode))
+      .then(data => {
+          if(data.ok)
+            forceRefreshData();
+          else
+            alert("something went wrong!");
+      }).catch(e => {
+            alert("something went wrong!");
+      });
+    }
 
     const columns = React.useMemo(
       () => [
@@ -306,41 +332,56 @@ const IndeterminateCheckbox = React.forwardRef(
         {
           Header: () => null, 
           id: 'dropdownsiteChanges',
-          Cell: ({ row }) =>
-              row.canExpand ? (
-                <DropdownSiteChanges clickFunction={()=>openModal(row.values.SiteCode)}/>          
-              ) : null,
+          Cell: ({ row }) => {
+              const contextActions = {
+                review: ()=>openModal(row.values),
+                accept: ()=>acceptChanges(row.values),
+                reject: ()=>rejectChanges(row.values),
+              }
+              return row.canExpand ? (
+                <DropdownSiteChanges actions={contextActions}/>          
+              ) : null
+          }
         },
       ],
       []
     )
   
-    //const data = React.useMemo( () => SitechangesFile);
+    let loadData= ()=>{
 
-    let load_data= ()=>{
-
-      if(!isLoading && Object.keys(changesData).length===0){
+      if(!isLoading && changesData!=="nodata" && Object.keys(changesData).length===0){
         setIsLoading(true);
-        fetch(ConfigData.SERVER_API_ENDPOINT+'/api/sitechanges/get')
+        fetch(ConfigData.SERVER_API_ENDPOINT+'/api/sitechanges/getbystatus?status=Pending')
+        //fetch(ConfigData.SERVER_API_ENDPOINT+'/api/sitechanges/get')
         .then(response => response.json())
         .then(data => {
-                        setChangesData(data.Data);
+                        if(Object.keys(data.Data).length===0)
+                          setChangesData("nodata");
+                        else
+                          setChangesData(data.Data);
                         setIsLoading(false);
                       });
       }
     }
     
-    load_data();
+    loadData();
+
+    let findVersion = (id)=>{
+      return id && changesData.filter(v=>v.SiteCode===id)[0].Version;
+    }
 
     if(isLoading)
       return (<p><em>Loading...</em></p>)
     else
-      return (
-      <>
-        <Table columns={columns} data={changesData} />        
-        <ModalChanges visible = {modalVisible} close = {closeModal} item={modalItem} />
-      </>
-      )
+      if(changesData==="nodata")
+        return (<p><em>No Data Avalaible</em></p>)
+      else
+        return (
+        <>
+          <Table columns={columns} data={changesData} />        
+          <ModalChanges visible = {modalVisible} close = {closeModal} item={modalItem.id} version={findVersion(modalItem.id)} />
+        </>
+        )
   
   }
   
