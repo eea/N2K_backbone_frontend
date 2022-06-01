@@ -150,7 +150,7 @@ const IndeterminateCheckbox = React.forwardRef(
         </pre>        
         <div className="pagination">
           <button onClick={() => previousPage()} disabled={!canPreviousPage}>
-            {'<<'}
+            <i class="fa-solid fa-angle-left"></i>
           </button>{' '}
           <button onClick={() => gotoPage(pageIndex+1)} disabled={!canNextPage}>
             {pageIndex+1}
@@ -162,7 +162,7 @@ const IndeterminateCheckbox = React.forwardRef(
             {pageIndex+3}
           </button>{' '}
           <button onClick={() => nextPage()} disabled={!canNextPage}>
-            {'>>'}
+            <i class="fa-solid fa-angle-right"></i>
           </button>{' '}          
         </div>
       </>

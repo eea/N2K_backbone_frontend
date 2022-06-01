@@ -1,38 +1,41 @@
 .table {
   border-collapse: inherit;
-  & th {
+  th {
     color: $primary-dark;
     font-size: 0.9rem;
   }
   &--light {
-    & th,
-    & td {
+    th, td {
       padding: 0.2rem;
     }
   }
   &--noheader {
-    & th {
+    th {
       display: none;
     }
   }
-  & tr {
-    & td {
+  tr {
+    td {
       border-bottom-color: $gray-100;
       color: $black;
+      .row-expand i {
+        color: $blue;
+      }
     }
   }
-  & .btn-more {
+  .btn-more {
     background: transparent;
     border: transparent;
-    & svg {
-      fill: $gray-300;
+    font-size: 1rem;
+    i {
+      color: $gray-300;
       transition: $transition-base;
     }
     &:hover, &:active {
       background: none;
       border-color: transparent;
-      svg {
-        fill: $primary-base;
+      i {
+        color: $primary-base;
         transform: scale(1.2);
         transition: $transition-base;
       }
@@ -80,6 +83,9 @@
       &:hover {
         background-color: initial;
       }
+    }
+    & i {
+      font-size: 0.75rem;
     }
   }
   span, label {

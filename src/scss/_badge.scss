@@ -3,23 +3,42 @@
   font-weight: normal;
   font-size: 0.85rem;
   line-height: initial;
-  
   &--critical {
     border-color: $danger-base;
     color: $danger-base;
+    &.active {
+      background-color: $danger-base;
+      color: $white;
+    }
   }
   &--warning {
-    border-color: $medium-base;
-    color: $medium-base;
+    border-color: $warning-base;
+    color: $warning-base;
+    &.active {
+      background-color: $warning-base;
+      color: $white;
+    }
   }
   &--info {
     border-color: $success-base;
     color: $success-base;
+    &.active {
+      background-color: $success-base;
+      color: $white;
+    }
   }
   &--default {
     border-color: $gray-800;
     color: $gray-800;
-  }  
+  }
+  &--all {
+    border-color: $blue;
+    color: $blue;
+    &.active {
+      background-color: $blue;
+      color: $white;
+    }
+  }
   &--light {
     background: $gray-100;
     color: $gray-900;
@@ -56,8 +75,8 @@
   &--critical {
     color: $danger-base;
   }
-  &--medium {
-    color: $medium-base;
+  &--warning {
+    color: $warning-base;
   }
   &--info {
     color: $success-base;
