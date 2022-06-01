@@ -79,7 +79,7 @@ const IndeterminateCheckbox = React.forwardRef(
   
   fuzzyTextFilterFn.autoRemove = val => !val
 
-  function Table({ columns, data }) {
+  function Table({ columns, data, setSelected }) {
 
     const filterTypes = React.useMemo(
         () => ({
@@ -145,7 +145,7 @@ const IndeterminateCheckbox = React.forwardRef(
             Cell: ({ row }) => (
               row.canExpand ?(
               <div>
-                <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
+                <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} name={"chk_"+row.original.SiteCode} sitecode={row.original.SiteCode}/>
               </div>
               ): null
             ),            
@@ -154,6 +154,8 @@ const IndeterminateCheckbox = React.forwardRef(
         ])
       }
     )
+
+    if(setSelected) setSelected(Object.keys(selectedRowIds).filter(v=>!v.includes(".")).map(v=>{return {SiteCode:data[v].SiteCode, VersionId: data[v].Version}}))
   
     // Render the UI for your table
     return (
@@ -234,7 +236,7 @@ const IndeterminateCheckbox = React.forwardRef(
     )
   }
   
-  function TableRSPag() {
+  function TableRSPag(props) {
 
     const [events, setEvents] = useState([]);
     const [modalItem, setModalItem] = useState({});
@@ -254,7 +256,7 @@ const IndeterminateCheckbox = React.forwardRef(
 
     let openModal = (data)=>{
       setModalVisible(true);
-      setModalItem({id: data.SiteCode, version: data.Version});
+      setModalItem(data);
     }
   
     let closeModal = (refresh)=>{
@@ -264,28 +266,32 @@ const IndeterminateCheckbox = React.forwardRef(
     }
 
     let acceptChanges = (change)=>{
-      AcceptReject.acceptChanges(change.SiteCode,findVersion(change.SiteCode))
+      return props.accept({"SiteCode":change.SiteCode,"VersionId":change.Version})
       .then(data => {
-          if(data.ok)
+          if(data.ok){
             forceRefreshData();
-          else
-            alert("something went wrong!");
+          }
+          return data;
       }).catch(e => {
             alert("something went wrong!");
       });
     }
 
     let rejectChanges = (change)=>{
-      AcceptReject.rejectChanges(change.SiteCode,findVersion(change.SiteCode))
+      return props.reject({"SiteCode":change.SiteCode,"VersionId":change.Version})
       .then(data => {
-          if(data.ok)
-            forceRefreshData();
-          else
-            alert("something went wrong!");
-      }).catch(e => {
-            alert("something went wrong!");
-      });
-    }
+        if(data.ok){
+          forceRefreshData();
+          props.setRefresh("pending",false);
+          props.setRefresh("rejected",true);
+        }
+        else
+          alert("something went wrong!");
+        return data;
+    }).catch(e => {
+          alert("something went wrong!");
+    });
+   }
 
     const columns = React.useMemo(
       () => [
@@ -337,9 +343,9 @@ const IndeterminateCheckbox = React.forwardRef(
           id: 'dropdownsiteChanges',
           Cell: ({ row }) => {
               const contextActions = {
-                review: ()=>openModal(row.values),
-                accept: ()=>acceptChanges(row.values),
-                reject: ()=>rejectChanges(row.values),
+                review: ()=>openModal(row.original),
+                accept: ()=>acceptChanges(row.original),
+                reject: ()=>rejectChanges(row.original),
               }
               return row.canExpand ? (
                 <DropdownSiteChanges actions={contextActions}/>          
@@ -351,11 +357,10 @@ const IndeterminateCheckbox = React.forwardRef(
     )
   
     let loadData= ()=>{
-
-      if(!isLoading && changesData!=="nodata" && Object.keys(changesData).length===0){
+      if(props.getRefresh()||(!isLoading && changesData!=="nodata" && Object.keys(changesData).length===0)){
+        props.setRefresh(props.status,false);
         setIsLoading(true);
-        fetch(ConfigData.SERVER_API_ENDPOINT+'/api/sitechanges/getbystatus?status=Pending')
-        //fetch(ConfigData.SERVER_API_ENDPOINT+'/api/sitechanges/get')
+        fetch(ConfigData.SERVER_API_ENDPOINT+'/api/sitechanges/getbystatus?status='+props.status)
         .then(response => response.json())
         .then(data => {
                         if(Object.keys(data.Data).length===0)
@@ -369,10 +374,6 @@ const IndeterminateCheckbox = React.forwardRef(
     
     loadData();
 
-    let findVersion = (id)=>{
-      return id && changesData.filter(v=>v.SiteCode===id)[0].Version;
-    }
-
     if(isLoading)
       return (<p><em>Loading...</em></p>)
     else
@@ -381,8 +382,8 @@ const IndeterminateCheckbox = React.forwardRef(
       else
         return (
         <>
-          <Table columns={columns} data={changesData} />        
-          <ModalChanges visible = {modalVisible} close = {closeModal} item={modalItem.id} version={findVersion(modalItem.id)} />
+          <Table columns={columns} data={changesData} setSelected={props.setSelected}/>        
+          <ModalChanges visible = {modalVisible} close = {closeModal} accept={()=>acceptChanges(modalItem)} reject={()=>rejectChanges(modalItem)} item={modalItem.SiteCode} version={modalItem.Version} />
         </>
         )
   

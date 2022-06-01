@@ -424,33 +424,27 @@ export class ModalChanges extends Component {
       fetch(ConfigData.SERVER_API_ENDPOINT+`/api/SiteChanges/GetSiteChangesDetail/siteCode=${this.props.item}&version=${this.props.version}`)
       .then(response => response.json())
       .then(data => this.setState({data: data.Data, loading: false}));
-      //.then(data=>{console.log(data);this.setState({data: data.Data, loading: false})});
     }
   }
   
   acceptChanges(){
-    AcceptReject.acceptChanges(this.props.item,this.props.version)
-    .then(data => {
-        if(data.ok)
-          this.close(true);
-        else
-          alert("something went wrong!");
+    this.props.accept()
+    .then((data) => {
+      if(data.ok)
+        this.close(true);
     }).catch(e => {
-          alert("something went wrong!");
+        alert("something went wrong!-kkk");
+        console.log(e);
     });
-
   }
 
   rejectChanges(){
-    AcceptReject.rejectChanges(this.props.item,this.props.version)
+    this.props.reject()
     .then(data => {
         if(data.ok)
           this.close(true);
-        else
-          alert("something went wrong!");
     }).catch(e => {
           alert("something went wrong!");
     });
-
   }
 }

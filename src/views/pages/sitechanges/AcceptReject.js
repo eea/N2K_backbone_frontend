@@ -13,28 +13,16 @@ export class AcceptReject {
     return fetch(url, options)
   }
 
-  static acceptChanges(site,version){
+  static acceptChanges(body){
+    let rBody = !Array.isArray(body)?[body]:body
     if(!confirm("This will approve all the changes")) return;
-
-    const rBody = [
-      {
-        "SiteCode": site,
-        "VersionId": version,
-      }
-    ]
 
     return this.postRequest(ConfigData.SERVER_API_ENDPOINT+'/api/SiteChanges/AcceptChanges', rBody)
   }
 
-  static rejectChanges(site,version){
+  static rejectChanges(body){
+    let rBody = !Array.isArray(body)?[body]:body
     if(!confirm("This will reject all the changes")) return;
-
-    const rBody = [
-      {
-        "SiteCode": site,
-        "VersionId": version,
-      }
-    ]
 
     return this.postRequest(ConfigData.SERVER_API_ENDPOINT+'/api/SiteChanges/RejectChanges', rBody)
   }
