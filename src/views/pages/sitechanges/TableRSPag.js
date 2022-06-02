@@ -1,6 +1,10 @@
 import React, {useState, useEffect} from 'react'
-import { useTable, usePagination, useFilters,useGlobalFilter, useRowSelect, useAsyncDebounce, useSortBy, useExpanded, initialExpanded  } from 'react-table'
+import { useTable, usePagination, useFilters,useGlobalFilter, useRowSelect, useAsyncDebounce, useSortBy, useExpanded, initialExpanded } from 'react-table'
 import DropdownSiteChanges from './components/DropdownSiteChanges';
+import {
+  CPagination,
+  CPaginationItem,
+} from '@coreui/react'
 
 import ConfigData from '../../../config.json';
 
@@ -193,26 +197,25 @@ const IndeterminateCheckbox = React.forwardRef(
           Pagination can be built however you'd like. 
           This is just a very basic UI implementation:
         */}
-        <div className="pagination">
-          <button onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
-            <i class="fa-solid fa-angles-left"></i>
-          </button>{' '}
-          <button onClick={() => previousPage()} disabled={!canPreviousPage}>
-            <i class="fa-solid fa-angle-left"></i>
-          </button>{' '}
+        <CPagination>
+          <CPaginationItem onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
+            <i className="fa-solid fa-angles-left"></i>
+          </CPaginationItem>
+          <CPaginationItem onClick={() => previousPage()} disabled={!canPreviousPage}>
+            <i className="fa-solid fa-angle-left"></i>
+          </CPaginationItem>
           <span>
             Page{' '}
             <strong>
               {pageIndex + 1} of {pageOptions.length}
             </strong>{' '}
           </span>
-          
-          <button onClick={() => nextPage()} disabled={!canNextPage}>
-            <i class="fa-solid fa-angle-right"></i>
-          </button>{' '}
-          <button onClick={() => gotoPage(pageCount - 1)} disabled={!canNextPage}>
-            <i class="fa-solid fa-angles-right"></i>
-          </button>{' '}
+          <CPaginationItem onClick={() => nextPage()} disabled={!canNextPage}>
+            <i className="fa-solid fa-angle-right"></i>
+          </CPaginationItem>
+          <CPaginationItem onClick={() => gotoPage(pageCount - 1)} disabled={!canNextPage}>
+            <i className="fa-solid fa-angles-right"></i>
+          </CPaginationItem>
           <div className='pagination-rows'>
             <label className='form-label'>Rows per page</label>
             <select
@@ -229,7 +232,7 @@ const IndeterminateCheckbox = React.forwardRef(
               ))}
             </select>
           </div>
-        </div>
+        </CPagination>
       </>
     )
   }

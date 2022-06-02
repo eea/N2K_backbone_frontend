@@ -52,12 +52,12 @@ export class FetchData extends Component {
                         <CImage src={moreicon} className="ico--md "></CImage>
                     </CDropdownToggle>
                     <CDropdownMenu>
-                        <CDropdownItem role={'button'} onClick={() => setVisibleXL(!visibleXL)}>Review site <b>CHANGE</b></CDropdownItem>
-                        <CDropdownItem >Accept change/s</CDropdownItem>
-                        <CDropdownItem >Reject change/s</CDropdownItem>
+                        <CDropdownItem role={'button'} onClick={() => setVisibleXL(!visibleXL)}>Review site <b>CHANGES</b></CDropdownItem>
+                        <CDropdownItem >Accept changes</CDropdownItem>
+                        <CDropdownItem >Reject changes</CDropdownItem>
                         <CDropdownItem >Add comments</CDropdownItem>
                         <CDropdownItem >Mark as justification required</CDropdownItem>
-                        <CDropdownItem >View spatial change/s</CDropdownItem>
+                        <CDropdownItem >View spatial changes</CDropdownItem>
                     </CDropdownMenu>
                     </CDropdown>
                 </CTableDataCell>

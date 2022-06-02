@@ -13,6 +13,10 @@
     border-right: solid 1px $gray-100;
     .nav-item {
       margin-bottom: 1rem;
+      .nav-link {
+        margin: 0;
+        padding-right: 3rem;
+      }
     }
   }
   .collapse-container {
@@ -20,12 +24,44 @@
       flex-direction: row;
       padding: 1rem;
       margin: 0.5rem 0;
+      table {
+        margin-bottom: 0;
+        tr:last-of-type td {
+          border-bottom: none;
+        }
+      }
     }
   }
   &--confirmation {
     z-index: 1065;
     & ~ .modal-backdrop {
       z-index: 1060;
+    }
+  }
+
+  .document {
+    &--list {
+      padding: 1rem;
+    }
+    &--item {
+      display: flex;
+      justify-content: space-between;
+      &:not(:last-of-type) {
+        margin-bottom: 0.5rem;
+      }
+    }
+  }
+
+  .comment {
+    &--list {
+      padding: 1rem;
+    }
+    &--item {
+      display: flex;
+      justify-content: space-between;
+      &:not(:last-of-type) {
+        margin-bottom: 0.5rem;
+      }
     }
   }
 }
