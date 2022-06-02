@@ -24,13 +24,11 @@ const PostEnvelops = ({version_id, country_code}) => {
 
     return (
         <React.Fragment>
-
-                <section>
-                    <button onClick={() => postVersionIdHandler(version_id,country_code )}>
-                    Post
-                    </button>
-                </section>
-
+            <section>
+                <button onClick={() => postVersionIdHandler(version_id,country_code )}>
+                    Review site CHANGES
+                </button>
+            </section>
         </React.Fragment>
     )
 }
