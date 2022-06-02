@@ -1,12 +1,17 @@
 import React, {useState, useEffect} from 'react'
-import { useTable, usePagination, useFilters,useGlobalFilter, useRowSelect, useAsyncDebounce, useSortBy, useExpanded  } from 'react-table'
+import { useTable, usePagination, useFilters,useGlobalFilter, useRowSelect, useAsyncDebounce, useSortBy, useExpanded, initialExpanded } from 'react-table'
 import DropdownSiteChanges from './components/DropdownSiteChanges';
+import {
+  CPagination,
+  CPaginationItem,
+} from '@coreui/react'
 
 import ConfigData from '../../../config.json';
 
 import {matchSorter} from 'match-sorter'
 
 import { ModalChanges } from './ModalChanges';
+import { AcceptReject } from './AcceptReject';
 
 const IndeterminateCheckbox = React.forwardRef(
     ({ indeterminate, ...rest }, ref) => {
@@ -66,7 +71,7 @@ const IndeterminateCheckbox = React.forwardRef(
         onChange={e => {
           setFilter(e.target.value || undefined) // Set undefined to remove the filter entirely
         }}
-        placeholder={`pre: `+count+` FilteredRows: `+_filteredRows}
+        placeholder={`search`}
         className="input--table-filters"
       />
     )
@@ -115,15 +120,16 @@ const IndeterminateCheckbox = React.forwardRef(
       gotoPage,
       nextPage,
       previousPage,
-      setPageSize,
- 
-      state: { pageIndex, pageSize, selectedRowIds, expanded },
+      setPageSize, 
+      initialExpanded,
+      state: { pageIndex, pageSize, selectedRowIds, expanded, expandSubRows },
     } = useTable(
       {
         columns,
         data,
         defaultColumn,
         filterTypes,
+        initialState: {pageSize: 30},
       },
       useFilters,
       useGlobalFilter,
@@ -191,26 +197,25 @@ const IndeterminateCheckbox = React.forwardRef(
           Pagination can be built however you'd like. 
           This is just a very basic UI implementation:
         */}
-        <div className="pagination">
-          <button onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
-          {'«'}
-          </button>{' '}
-          <button onClick={() => previousPage()} disabled={!canPreviousPage}>
-          {'Previous'}
-        </button>{' '}
-        <span>
-          Page{' '}
-          <strong>
-            {pageIndex + 1} of {pageOptions.length}
-          </strong>{' '}
-        </span>
-          
-        <button onClick={() => nextPage()} disabled={!canNextPage}>
-          {'Next'}
-        </button>{' '}
-          <button onClick={() => gotoPage(pageCount - 1)} disabled={!canNextPage}>
-            {'»'}
-          </button>{' '}
+        <CPagination>
+          <CPaginationItem onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
+            <i className="fa-solid fa-angles-left"></i>
+          </CPaginationItem>
+          <CPaginationItem onClick={() => previousPage()} disabled={!canPreviousPage}>
+            <i className="fa-solid fa-angle-left"></i>
+          </CPaginationItem>
+          <span>
+            Page{' '}
+            <strong>
+              {pageIndex + 1} of {pageOptions.length}
+            </strong>{' '}
+          </span>
+          <CPaginationItem onClick={() => nextPage()} disabled={!canNextPage}>
+            <i className="fa-solid fa-angle-right"></i>
+          </CPaginationItem>
+          <CPaginationItem onClick={() => gotoPage(pageCount - 1)} disabled={!canNextPage}>
+            <i className="fa-solid fa-angles-right"></i>
+          </CPaginationItem>
           <div className='pagination-rows'>
             <label className='form-label'>Rows per page</label>
             <select
@@ -227,7 +232,7 @@ const IndeterminateCheckbox = React.forwardRef(
               ))}
             </select>
           </div>
-        </div>
+        </CPagination>
       </>
     )
   }
@@ -235,7 +240,7 @@ const IndeterminateCheckbox = React.forwardRef(
   function TableRSPag() {
 
     const [events, setEvents] = useState([]);
-    const [modalItem, setModalItem] = useState("");
+    const [modalItem, setModalItem] = useState({});
     const [modalVisible, setModalVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [changesData, setChangesData] = useState({});
@@ -248,17 +253,42 @@ const IndeterminateCheckbox = React.forwardRef(
       });
     }, [])
 
+    let forceRefreshData = ()=> setChangesData({});
+
     let openModal = (data)=>{
       setModalVisible(true);
-      setModalItem(data);
+      setModalItem({id: data.SiteCode, version: data.Version});
     }
   
-    let closeModal = ()=>{
+    let closeModal = (refresh)=>{
       setModalVisible(false);
-      setModalItem("");
+      setModalItem({});
+      if(refresh) forceRefreshData(); //To force refresh
     }
 
-    
+    let acceptChanges = (change)=>{
+      AcceptReject.acceptChanges(change.SiteCode,findVersion(change.SiteCode))
+      .then(data => {
+          if(data.ok)
+            forceRefreshData();
+          else
+            alert("something went wrong!");
+      }).catch(e => {
+            alert("something went wrong!");
+      });
+    }
+
+    let rejectChanges = (change)=>{
+      AcceptReject.rejectChanges(change.SiteCode,findVersion(change.SiteCode))
+      .then(data => {
+          if(data.ok)
+            forceRefreshData();
+          else
+            alert("something went wrong!");
+      }).catch(e => {
+            alert("something went wrong!");
+      });
+    }
 
     const columns = React.useMemo(
       () => [
@@ -272,15 +302,12 @@ const IndeterminateCheckbox = React.forwardRef(
                       paddingLeft: `${row.depth * 2}rem`,
                     },
                   })}
+                  className="row-expand"
                 >
                   {row.isExpanded ? 
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="#22a4fb" width="16" height="16" viewBox="0 0 448 512">
-                      <path d="M384 32C419.3 32 448 60.65 448 96V416C448 451.3 419.3 480 384 480H64C28.65 480 0 451.3 0 416V96C0 60.65 28.65 32 64 32H384zM136 232C122.7 232 112 242.7 112 256C112 269.3 122.7 280 136 280H312C325.3 280 336 269.3 336 256C336 242.7 325.3 232 312 232H136z"/>
-                    </svg>
+                    <i className="fa-solid fa-square-minus"></i>
                     : 
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="#22a4fb" width="16" height="16" viewBox="0 0 448 512">
-                      <path d="M384,32H64C28.7,32,0,60.7,0,96v320c0,35.3,28.7,64,64,64h320c35.3,0,64-28.7,64-64V96C448,60.7,419.3,32,384,32z M312,280 h-64v64c0,13.3-10.7,24-24,24s-24-10.7-24-24v-64h-64c-13.3,0-24-10.7-24-24s10.7-24,24-24h64v-64c0-13.3,10.7-24,24-24 s24,10.7,24,24v64h64c13.3,0,24,10.7,24,24S325.3,280,312,280z"/>
-                    </svg>
+                    <i className="fa-solid fa-square-plus"></i>
                   }
                 </span>
               ) : null,
@@ -308,41 +335,56 @@ const IndeterminateCheckbox = React.forwardRef(
         {
           Header: () => null, 
           id: 'dropdownsiteChanges',
-          Cell: ({ row }) =>
-              row.canExpand ? (
-                <DropdownSiteChanges clickFunction={()=>openModal(row.values.SiteCode)}/>          
-              ) : null,
+          Cell: ({ row }) => {
+              const contextActions = {
+                review: ()=>openModal(row.values),
+                accept: ()=>acceptChanges(row.values),
+                reject: ()=>rejectChanges(row.values),
+              }
+              return row.canExpand ? (
+                <DropdownSiteChanges actions={contextActions}/>          
+              ) : null
+          }
         },
       ],
       []
     )
   
-    //const data = React.useMemo( () => SitechangesFile);
+    let loadData= ()=>{
 
-    let load_data= ()=>{
-
-      if(!isLoading && Object.keys(changesData).length===0){
+      if(!isLoading && changesData!=="nodata" && Object.keys(changesData).length===0){
         setIsLoading(true);
-        fetch(ConfigData.SERVER_API_ENDPOINT+'/api/sitechanges/get')
+        fetch(ConfigData.SERVER_API_ENDPOINT+'/api/sitechanges/getbystatus?status=Pending')
+        //fetch(ConfigData.SERVER_API_ENDPOINT+'/api/sitechanges/get')
         .then(response => response.json())
         .then(data => {
-                        setChangesData(data.Data);
+                        if(Object.keys(data.Data).length===0)
+                          setChangesData("nodata");
+                        else
+                          setChangesData(data.Data);
                         setIsLoading(false);
                       });
       }
     }
     
-    load_data();
+    loadData();
+
+    let findVersion = (id)=>{
+      return id && changesData.filter(v=>v.SiteCode===id)[0].Version;
+    }
 
     if(isLoading)
       return (<p><em>Loading...</em></p>)
     else
-      return (
-      <>
-        <Table columns={columns} data={changesData} />        
-        <ModalChanges visible = {modalVisible} close = {closeModal} item={modalItem} />
-      </>
-      )
+      if(changesData==="nodata")
+        return (<p><em>No Data Avalaible</em></p>)
+      else
+        return (
+        <>
+          <Table columns={columns} data={changesData} />        
+          <ModalChanges visible = {modalVisible} close = {closeModal} item={modalItem.id} version={findVersion(modalItem.id)} />
+        </>
+        )
   
   }
   

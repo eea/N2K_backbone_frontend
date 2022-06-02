@@ -31,9 +31,12 @@ html {
 
   position: relative;
 }
-.page-title h1 {
-  font-size: 1.5rem;
-  color: $primary-base;
+.page-title {
+  margin-top: 0.75rem;
+  h1 {
+    font-size: 1.5rem;
+    color: $primary-base;
+  }
 }
 .header {
   &--custom {
@@ -44,7 +47,7 @@ html {
     background: #033166;
     color: #fff;
     font-size: 1.5rem;
-    & .row {
+    .row {
       --cui-gutter-x: none;
       --cui-gutter-y:none;
     }
@@ -52,7 +55,7 @@ html {
   &__title {
     margin: 0 1rem;
   }
-  & li {
+  li {
     margin: auto 1rem;
     white-space: nowrap;
     position: relative;
@@ -90,7 +93,7 @@ html {
         }
       }
     }
-    & .avatar {
+    .avatar {
       margin-right: 0.5rem;
     }
 }

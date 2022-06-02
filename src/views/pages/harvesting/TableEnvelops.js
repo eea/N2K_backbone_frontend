@@ -8,6 +8,7 @@ import {matchSorter} from 'match-sorter'
 import ConfigData from '../../../config.json';
 
 import { FetchData } from '../sitechanges/FetchData'
+import { CPagination, CPaginationItem } from '@coreui/react'
 import { isFunction } from 'eslint-plugin-react/lib/util/ast';
 import { is } from 'core-js/core/object';
 
@@ -156,26 +157,25 @@ const IndeterminateCheckbox = React.forwardRef(
         <pre>
             
         </pre>        
-        <div className="pagination">
-          <button onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
-          {'«'}
-          </button>{' '}
-          <button onClick={() => previousPage()} disabled={!canPreviousPage}>
-          {'Previous'}
-        </button>{' '}
-        <span>
-          Page{' '}
-          <strong>
-            {pageIndex + 1} of {pageOptions.length}
-          </strong>{' '}
-        </span>
-          
-        <button onClick={() => nextPage()} disabled={!canNextPage}>
-          {'Next'}
-        </button>{' '}
-          <button onClick={() => gotoPage(pageCount - 1)} disabled={!canNextPage}>
-            {'»'}
-          </button>{' '}
+        <CPagination>
+          <CPaginationItem onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
+            <i className="fa-solid fa-angles-left"></i>
+          </CPaginationItem>
+          <CPaginationItem onClick={() => previousPage()} disabled={!canPreviousPage}>
+            <i className="fa-solid fa-angle-left"></i>
+          </CPaginationItem>
+          <span>
+            Page{' '}
+            <strong>
+              {pageIndex + 1} of {pageOptions.length}
+            </strong>{' '}
+          </span>
+          <CPaginationItem onClick={() => nextPage()} disabled={!canNextPage}>
+            <i className="fa-solid fa-angle-right"></i>
+          </CPaginationItem>
+          <CPaginationItem onClick={() => gotoPage(pageCount - 1)} disabled={!canNextPage}>
+            <i className="fa-solid fa-angles-right"></i>
+          </CPaginationItem>
           <div className='pagination-rows'>
             <label className='form-label'>Rows per page</label>
             <select
@@ -192,7 +192,7 @@ const IndeterminateCheckbox = React.forwardRef(
               ))}
             </select>
           </div>
-        </div>
+        </CPagination>
       </>
     )
   }

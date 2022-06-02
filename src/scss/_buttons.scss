@@ -50,9 +50,67 @@
   &-link--dark {
     color: $black;
   }
+  &-link--dropdown {
+    color: $primary-base;
+    font-weight: bold;
+    padding: 0;
+    border: none;
+    margin: 0.5rem 0;
+    &:after {
+      vertical-align: middle;
+    }
+  }
+
 }
 
 .dropdown-menu {
-  box-shadow: 0 0 0.3rem 0.3rem rgb(0 0 0 / 15%);
+  box-shadow: $box-shadow;
   border: none;
+  .dropdown-item {
+    color: $black;
+    cursor: pointer;
+    &:hover {
+      background-color: $primary-25;
+    }
+  }
+}
+
+.btn-more {
+  background: transparent;
+  border: transparent;
+  font-size: 1rem;
+  i {
+    color: $gray-400;
+    transition: $transition-base;
+  }
+  &:hover, &:active, &:focus {
+    background: none;
+    border-color: transparent;
+    i {
+      color: $primary-base;
+      transform: scale(1.2);
+      transition: $transition-base;
+    }
+  }
+}
+
+.btn-delete {
+  display: inline-block;
+  font-size: 1.125rem;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  i {
+    color: $gray-700;
+    vertical-align: middle;
+    transition: $transition-base;
+  }
+  &:hover, &:active, &:focus {
+    background: none;
+    border-color: transparent;
+    i {
+      color: $primary-base;
+      transform: scale(1.2);
+      transition: $transition-base;
+    }
+  }
 }

@@ -1,5 +1,5 @@
 import ConfigData from '../../../config.json';
-import React, { Component } from 'react';
+import React, { Component, useState } from 'react';
 import {
   CButton,
   CCol,
@@ -28,103 +28,286 @@ import {
   CModalHeader,
   CModalTitle,
   CTabContent,
-  CTabPane
-
+  CTabPane,
+  CCollapse,
+  CCard
 } from '@coreui/react'
 
+import { ConfirmationModal } from './components/ConfirmationModal';
 import moreicon from './../../../assets/images/three-dots.svg'
 import justificationprovided from './../../../assets/images/file-text.svg'
 import trash from './../../../assets/images/trash.svg'
+import { AcceptReject } from './AcceptReject';
 
 const xmlns = 'https://www.w3.org/2000/svg'
+
 export class ModalChanges extends Component {
+
   constructor(props) {
     super(props);
-    this.state = {activeKey: 1, loading: true, data: {}, levels:["Critical"]};
+    this.state = {
+      activeKey: 1, 
+      loading: true, 
+      data: {}, 
+      levels:["Critical"],
+      bookmark: "",
+      bookmarks: [],
+      showDetail: "",
+      modalValues : {
+        visibility: false,
+        close: () => {
+          this.setState({
+            modalValues: {
+              visibility: false
+            }
+          });
+        }
+      }
+    };
+  }
+
+  updateModalValues(title, text, primaryButtonText, primaryButtonFunction, secondaryButtonText, secondaryButtonFunction) {
+    this.setState({
+      modalValues : {
+        visibility: true,
+        title: title,
+        text: text,
+        primaryButton: (
+          primaryButtonText && primaryButtonFunction ? {
+            text: primaryButtonText,
+            function: () => primaryButtonFunction(),
+          }
+          : ''
+        ),
+        secondaryButton: (
+          secondaryButtonText && secondaryButtonFunction ? {
+            text: secondaryButtonText,
+            function: () => secondaryButtonFunction(),
+          }
+          : ''
+        ),
+      }
+    });
   }
 
   setActiveKey(val){
     this.setState({activeKey: val})
   }
 
-  close(){
+  close(refresh){
     this.setActiveKey(1);
-    this.setState({levels:["Critical"]});
-    this.props.close();
+    this.setState({level:"Warning", bookmark: "", showDetail: ""});
+    this.props.close(refresh);
   }
 
   isVisible(){
     return this.props.visible;
   }
 
-  set_level(level,val){
-    let levels = this.state.levels;
-    if(val){
-      if(!levels.includes(level)) 
-        levels.push(level);
+  toggleDetail(key){
+    if(this.state.showDetail===key){
+      this.setState({showDetail: ""});
     } else {
-      if(levels.includes(level)) 
-        levels = levels.filter(e => e!==level);
+      this.setState({showDetail: key});
     }
-    this.setState({levels: levels})
   }
 
-  render_change_list(){
-    let changes = this.state.data.ChangesList.filter(v => this.state.levels.includes(v.Level));
-    let list = []
+  render_ValuesTable(changes){
+    let heads = Object.keys(changes[0]).filter(v=> v!=="ChangeId" && v!=="Fields");
+    let fields= Object.keys(changes[0]["Fields"]);
+    let titles = heads.concat(fields).map(v => {return(<CTableHeaderCell scope="col" key={v}> {v} </CTableHeaderCell>)});
+    let rows=[];
     for(let i in changes){
-      list.push(<div className="d-flex gap-2 align-items-center" key={changes[i].ChangeId}>
-            <p className='mb-0'> {changes[i].ChangeCategory}</p>
-            <p className='mb-0'> <strong>{changes[i].ChangeType}</strong></p>
-            <CButton color="link" className='btn-link--dark '>View detail</CButton>
-          </div>)
-          
+      let values = heads.map(v=>changes[i][v]).concat(fields.map(v=>changes[i]["Fields"][v]));
+      rows.push(
+        <CTableRow key={i}>
+          {values.map(v=>{return(<CTableDataCell key={v}> {v} </CTableDataCell>)})}
+        </CTableRow>
+      )
     }
-    
-    return (
-      <>{list}</>
+    return(
+      <CTable>
+        <CTableHead>
+          <CTableRow>
+            {titles}
+          </CTableRow>
+        </CTableHead>
+        <CTableBody>
+          {rows}
+        </CTableBody>
+      </CTable>
     )
   }
+
+  renderChangeList(){
+    let levels = this.state.levels;
+    let list = [];
+    for(let l in levels){
+      let changes = this.state.data[levels[l]][this.state.bookmark];
+      for(let i in changes){
+        if (!Array.isArray(changes[i])) break;
+        for(let j in changes[i]){
+          let title = "";
+          //title += changes[i][j].ChangeCategory?changes[i][j].ChangeCategory:"";
+          title += (title?' - ':"") + (changes[i][j].ChangeType?changes[i][j].ChangeType :"");
+          title += changes[i].FieldName?' - '+ changes[i][j].FieldName:""
+          list.push(
+              <div key={"change_"+l+"_"+j} className='collapse-container'>
+                <div className="d-flex gap-2 align-items-center justify-content-between" key={i+"_"+j}>
+                  <div>
+                    <span className="me-3"> {title}</span>
+                  </div>
+                  <CButton color="link" className="btn-link--dark " onClick={()=>this.toggleDetail(title)}>
+                    {(this.state.showDetail===title) ? "Hide detail" : "View detail"}
+                  </CButton>
+                </div>
+                <CCollapse visible={this.state.showDetail===title}>
+                  <CCard>
+                    {this.render_ValuesTable(changes[i][j].ChangedCodesDetail)}
+                  </CCard>
+                </CCollapse>
+              </div>);
+        }
+      }
+    }
+    
+    
+    return (
+      <CCol>
+        {list}
+      </CCol>
+    )
+  }
+
+  setBookmark(val){
+    this.setState({bookmark: val});
+  }
+
+  bookmarkIsEmpty(bookmark){
+    let isEmpty = true;
+    for(let i in bookmark){
+      isEmpty = Array.isArray(bookmark[i])?isEmpty && (bookmark[i].length===0):isEmpty;
+    }
+    return isEmpty;
+  }
+
+  renderBookmarks(){
+    let bookmarks = [];
+    let levels = this.state.levels;
+    let list = [];
+    for(let l in levels){
+      for(let i in this.state.data[levels[l]]){
+        if(!this.bookmarkIsEmpty(this.state.data[levels[l]][i])) {
+          if(!bookmarks.includes(i)) {
+            bookmarks.push(i);
+          }
+        }
+      }
+      if(!this.state.bookmark && bookmarks.length > 0){
+        for(let i in bookmarks){
+          if (bookmarks[i] === "SiteInfo") {
+            this.state.bookmark = bookmarks[i];
+          } else {
+            if(bookmarks[i] === "Habitats") {
+              this.state.bookmark = bookmarks[i];
+            } else {
+              if(bookmarks[i] === "Sites") {
+                this.state.bookmark = bookmarks[i];
+              } else {
+                this.state.bookmark = bookmarks[i];
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return(
+      <CSidebarNav className="pe-4">
+        {bookmarks.includes("SiteInfo") && 
+          <li className="nav-item mb-1">
+            <a className={"nav-link" + (this.state.bookmark == "SiteInfo" ? " active" : "")} onClick={() => this.setBookmark("SiteInfo")}>
+              <i className="fa-solid fa-bookmark"></i>
+              Site info
+            </a>
+          </li>
+        }
+        {bookmarks.includes("Habitats") && 
+          <li className="nav-item mb-1">
+            <a className={"nav-link" + (this.state.bookmark == "Habitats" ? " active" : "")} onClick={() => this.setBookmark("Habitats")}>
+              <i className="fa-solid fa-bookmark"></i>
+              Habitats
+            </a>
+          </li>
+        }
+        {bookmarks.includes("Species") && 
+          <li className="nav-item mb-1">
+            <a className={"nav-link" + (this.state.bookmark == "Species" ? " active" : "")} onClick={() => this.setBookmark("Species")}>
+              <i className="fa-solid fa-bookmark"></i>
+              Species
+            </a>
+          </li>
+        }
+      </CSidebarNav>
+    )
+  }
+  
+  set_level(level){
+    let levels = this.state.levels;
+    if(levels.includes(level)) {
+      levels = levels.filter(e => e!==level);
+    } else {
+      levels.push(level);
+    }
+    this.setState({levels: levels, bookmark: ""});
+  }
+
 
   render_changes(){
     return(
       <CTabPane role="tabpanel" aria-labelledby="home-tab" visible={this.state.activeKey === 1}>
-      <CRow className='p-3'>
-        <CCol md={3} lg={3}>
-        <CSidebarNav>          
-          <li className="nav-item">
-          <span className='badge color--critical' >
-            <CFormCheck onClick={(e)=>this.set_level("Critical",e.target.checked)} defaultChecked/>            
-              <svg xmlns="https://www.w3.org/2000/svg" width="16" height="16" fill="#696E70" className="bi bi-bookmark-fill" viewBox="0 0 16 16">
-                <path d="M2 2v13.5a.5.5 0 0 0 .74.439L8 13.069l5.26 2.87A.5.5 0 0 0 14 15.5V2a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z" />
-              </svg>Critical
-            </span>            
-          </li>
-          <li className="nav-item">
-          <span className='badge color--medium'>
-            <CFormCheck onClick={(e)=>this.set_level("Warning",e.target.checked)}/>            
-            <svg xmlns="https://www.w3.org/2000/svg" width="16" height="16" fill="#696E70" className="bi bi-bookmark-fill" viewBox="0 0 16 16">
-              <path d="M2 2v13.5a.5.5 0 0 0 .74.439L8 13.069l5.26 2.87A.5.5 0 0 0 14 15.5V2a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z" />
-            </svg>Warning
-            </span>            
-          </li>
-          <li className="nav-item">
-          <span className='badge color--info'>
-          <CFormCheck onClick={(e)=>this.set_level("Info",e.target.checked)}/>
-            <svg xmlns="https://www.w3.org/2000/svg" width="16" height="16" fill="#696E70" className="bi bi-bookmark-fill" viewBox="0 0 16 16">
-              <path d="M2 2v13.5a.5.5 0 0 0 .74.439L8 13.069l5.26 2.87A.5.5 0 0 0 14 15.5V2a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z" />
-            </svg>Info
-          </span>            
-          </li>
-        </CSidebarNav>
-        </CCol>
-        <CCol md={9} lg={9}>
-          {this.state.levels.includes("Critical")&&<span className='badge badge--critical'>Critical</span>}
-          {this.state.levels.includes("Warning")&&<span className='badge badge--warning'>Warning</span>}
-          {this.state.levels.includes("Info") && <span className='badge badge--info'>Info</span>}
-          {this.render_change_list()}
-        </CCol>
-      </CRow>          
+        <CRow className="p-3">
+          <CCol xs="auto">
+            <CSidebarNav className="pe-5">
+              <li className="nav-item">
+                <div className="checkbox">
+                  <input type="checkbox" className="input-checkbox" id="modal_check_critical" onClick={(e)=>this.set_level("Critical")} checked={this.state.levels.includes("Critical")} readOnly/>
+                  <label htmlFor="modal_check_critical" className="input-label badge color--critical">Critical</label>
+                </div>
+              </li>
+              <li className="nav-item">
+                <div className="checkbox">
+                  <input type="checkbox" className="input-checkbox" id="modal_check_warning" onClick={(e)=>this.set_level("Warning")} checked={this.state.levels.includes("Warning")} readOnly/>
+                  <label htmlFor="modal_check_warning" className="input-label badge color--warning">Warning</label>
+                </div>
+              </li>
+              <li className="nav-item">
+                <div className="checkbox">
+                  <input type="checkbox" className="input-checkbox" id="modal_check_info" onClick={(e)=>this.set_level("Info")} checked={this.state.levels.includes("Info")} readOnly/>
+                  <label htmlFor="modal_check_info" className="input-label badge color--info">Info</label>
+                </div>
+              </li>
+            </CSidebarNav>
+          </CCol>
+          <CCol>
+            <div className="mb-2">
+              {this.state.levels.includes("Critical") && <span className="badge badge--critical me-2">Critical</span>}
+              {this.state.levels.includes("Warning") &&<span className="badge badge--warning me-2">Warning</span>}
+              {this.state.levels.includes("Info") && <span className="badge badge--info me-2">Info</span>}
+            </div>
+            <CRow>
+              <CCol xs="auto">
+                {this.renderBookmarks()}
+              </CCol>
+              <CCol>
+                {this.renderChangeList()}
+              </CCol>
+            </CRow>
+          </CCol>
+
+            
+
+        </CRow>
       </CTabPane>
     )
   }
@@ -132,136 +315,129 @@ export class ModalChanges extends Component {
   render_documents(){
     return(
       <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 2}>
-      <CRow className='p-3'>
-        <CCol md={6} lg={6}>             
-          <CTable className='table--light table--noheader'>
-            <CTableHead>
-              <CTableRow>
-                <CTableHeaderCell scope="col">Document</CTableHeaderCell>
-                <CTableHeaderCell scope="col">File</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Actions</CTableHeaderCell>
-                <CTableHeaderCell scope="col">More</CTableHeaderCell>
-              </CTableRow>
-            </CTableHead>
-            <CTableBody>
-              <CTableRow className='align-middle'>
-                <CTableDataCell><h6>Attached documents</h6></CTableDataCell>
-                <CTableDataCell></CTableDataCell>
-                <CTableDataCell></CTableDataCell>
-                <CTableDataCell><h6><CButton color="link" className='btn-link--dark '>Add document</CButton></h6></CTableDataCell>
-              </CTableRow>
-              <CTableRow className='align-middle'>
-                <CTableDataCell><CImage src={justificationprovided} className="ico--md "></CImage></CTableDataCell>
-                <CTableDataCell>File name</CTableDataCell>
-                <CTableDataCell>
-                <CButton color="link" className='btn-link--dark '>View</CButton>
-                <CImage src={trash} className="ico--md "></CImage>
-                </CTableDataCell>
-                  <CTableDataCell>
-                    <CDropdown >
-                      <CDropdownToggle color="primary" variant="ghost" caret={false} size="sm">
-                        <CImage src={moreicon} className="ico--md "></CImage>
-                      </CDropdownToggle>
-                      <CDropdownMenu>
-                        <CDropdownItem href="#">Action</CDropdownItem>
-                        <CDropdownItem href="#">Another action</CDropdownItem>
-                        <CDropdownItem href="#">Something else here</CDropdownItem>
-                      </CDropdownMenu>
-                    </CDropdown>
-                  </CTableDataCell>
-                </CTableRow>
-                <CTableRow className='align-middle'>
-                      <CTableDataCell><CImage src={justificationprovided} className="ico--md "></CImage></CTableDataCell>
-                      <CTableDataCell>File name</CTableDataCell>
-                      <CTableDataCell>
-                        <CButton color="link" className='btn-link--dark '>View</CButton>
-                        <CImage src={trash} className="ico--md "></CImage>
-                      </CTableDataCell>
-                      <CTableDataCell>       
-                        <CDropdown>
-                        <CDropdownToggle color="primary" variant="ghost" caret={false} size="sm">
-                          <CImage src={moreicon} className="ico--md "></CImage>
-                        </CDropdownToggle>
-                        <CDropdownMenu>
-                          <CDropdownItem href="#">Action</CDropdownItem>
-                          <CDropdownItem href="#">Another action</CDropdownItem>
-                          <CDropdownItem href="#">Something else here</CDropdownItem>
-                        </CDropdownMenu>
-                      </CDropdown></CTableDataCell>
-              </CTableRow>
-            </CTableBody>
-          </CTable>
-          {/*   pagination */}
-          <CPagination aria-label="Page navigation example">
-            <CPaginationItem aria-label="Previous">
-                <span aria-hidden="true">&laquo;</span>
-            </CPaginationItem>
-            <CPaginationItem>1</CPaginationItem>
-            <CPaginationItem>2</CPaginationItem>
-            <CPaginationItem>3</CPaginationItem>
-            <CPaginationItem aria-label="Next">
-                <span aria-hidden="true">&raquo;</span>
-            </CPaginationItem>
-          </CPagination>
-        </CCol>
-        <CCol md={6} lg={6}>
-        <CTable className='table--light table--noheader'>
-          <CTableBody>
-            <CTableRow className='align-middle'>
-              <CTableDataCell><h6>Comments</h6></CTableDataCell>
-              <CTableDataCell></CTableDataCell>
-              <CTableDataCell></CTableDataCell>
-              <CTableDataCell></CTableDataCell>
-              <CTableDataCell></CTableDataCell>
-              <CTableDataCell><h6><CButton color="link" className='btn-link--dark '>Add document</CButton></h6></CTableDataCell>
-            </CTableRow>
-          </CTableBody>
-        </CTable>        
-                <ul className='comments__list'>
-                  <li className='comments__item'>
-                    <div className='comments__text'><del>New to upload supporting emails</del></div>
-                    <CImage src={trash} className="ico--md "></CImage>
-                    <CDropdown >
-                      <CDropdownToggle color="primary" variant="ghost" caret={false} size="sm">
-                        <CImage src={moreicon} className="ico--md "></CImage>
-                      </CDropdownToggle>
-                      <CDropdownMenu>
-                        <CDropdownItem href="#">Action</CDropdownItem>
-                        <CDropdownItem href="#">Another action</CDropdownItem>
-                        <CDropdownItem href="#">Something else here</CDropdownItem>
-                      </CDropdownMenu>
-                    </CDropdown>
-                  </li>
+      <CRow className="py-3">
+        <CCol xs={12} lg={6}>
+          <CCard className="document--list">
+            <div className="d-flex justify-content-between align-items-center pb-2">
+              <b>Attached documents</b>
+              <CButton color="link" className="btn-link--dark ">Add document</CButton>
+            </div>
+            <div className="document--item">
+              <div className="my-auto">
+                <CImage src={justificationprovided} className="ico--md me-3"></CImage>
+                <span>File name</span>
+              </div>
+              <div>
+                <CButton color="link" className="btn-link--dark ">View</CButton>
+                <div className="btn-delete">
+                  <i className="fa-regular fa-trash-can"></i>
+                </div>
+                <CDropdown >
+                  <CDropdownToggle className="btn-more" caret={false}>
+                    <i className="fa-solid fa-ellipsis"></i>
+                  </CDropdownToggle>
+                  <CDropdownMenu>
+                    <CDropdownItem href="#">Action</CDropdownItem>
+                    <CDropdownItem href="#">Another action</CDropdownItem>
+                    <CDropdownItem href="#">Something else here</CDropdownItem>
+                  </CDropdownMenu>
+                </CDropdown>
+              </div>
+            </div>
+            <div className="document--item">
+              <div className="my-auto">
+                <CImage src={justificationprovided} className="ico--md me-3"></CImage>
+                <span>File name</span>
+              </div>
+              <div>
+                <CButton color="link" className="btn-link--dark ">View</CButton>
+                <div className="btn-delete">
+                  <i className="fa-regular fa-trash-can"></i>
+                </div>
+                <CDropdown >
+                  <CDropdownToggle className="btn-more" caret={false}>
+                    <i className="fa-solid fa-ellipsis"></i>
+                  </CDropdownToggle>
+                  <CDropdownMenu>
+                    <CDropdownItem href="#">Action</CDropdownItem>
+                    <CDropdownItem href="#">Another action</CDropdownItem>
+                    <CDropdownItem href="#">Something else here</CDropdownItem>
+                  </CDropdownMenu>
+                </CDropdown>
+              </div>
+            </div>
+          </CCard>
 
-                  <li className='comments__item'>
-                    <div className='comments__text'>Spatial file needed to approve change</div>
-                    <CImage src={trash} className="ico--md "></CImage>
-                    <CDropdown >
-                      <CDropdownToggle color="primary" variant="ghost" caret={false} size="sm">
-                        <CImage src={moreicon} className="ico--md "></CImage>
-                      </CDropdownToggle>
-                      <CDropdownMenu>
-                        <CDropdownItem href="#">Action</CDropdownItem>
-                        <CDropdownItem href="#">Another action</CDropdownItem>
-                        <CDropdownItem href="#">Something else here</CDropdownItem>
-                      </CDropdownMenu>
-                    </CDropdown>
-                  </li>
-                </ul>
-            {/*   pagination */}
-            <CPagination aria-label="Page navigation example">
+          {/*   pagination */}
+          <CPagination aria-label="Pagination" className="pt-3">
             <CPaginationItem aria-label="Previous">
-                <span aria-hidden="true">&laquo;</span>
+                <i className="fa-solid fa-angle-left"></i>
             </CPaginationItem>
             <CPaginationItem>1</CPaginationItem>
             <CPaginationItem>2</CPaginationItem>
             <CPaginationItem>3</CPaginationItem>
             <CPaginationItem aria-label="Next">
-                <span aria-hidden="true">&raquo;</span>
+              <i className="fa-solid fa-angle-right"></i>
             </CPaginationItem>
           </CPagination>
         </CCol>
-        
+        <CCol xs={12} lg={6}>
+          <CCard className="comment--list">
+            <div className="d-flex justify-content-between align-items-center pb-2">
+              <b>Comments</b>
+              <CButton color="link" className="btn-link--dark ">Add comment</CButton>
+            </div>
+            <div className="comment--item">
+              <div className="comments__text me-2"><del>New to upload supporting emails</del></div>
+              <div>
+                <div className="btn-delete">
+                  <i className="fa-regular fa-trash-can"></i>
+                </div>
+                <CDropdown >
+                  <CDropdownToggle className="btn-more" caret={false}>
+                    <i className="fa-solid fa-ellipsis"></i>
+                  </CDropdownToggle>
+                  <CDropdownMenu>
+                    <CDropdownItem href="#">Action</CDropdownItem>
+                    <CDropdownItem href="#">Another action</CDropdownItem>
+                    <CDropdownItem href="#">Something else here</CDropdownItem>
+                  </CDropdownMenu>
+                </CDropdown>
+              </div>
+            </div>
+            <div className="comment--item">
+              <div className="comments__text me-2">Spatial file needed to approve change</div>
+              <div>
+                <div className="btn-delete">
+                  <i className="fa-regular fa-trash-can"></i>
+                </div>
+                <CDropdown >
+                  <CDropdownToggle className="btn-more" caret={false}>
+                    <i className="fa-solid fa-ellipsis"></i>
+                  </CDropdownToggle>
+                  <CDropdownMenu>
+                    <CDropdownItem href="#">Action</CDropdownItem>
+                    <CDropdownItem href="#">Another action</CDropdownItem>
+                    <CDropdownItem href="#">Something else here</CDropdownItem>
+                  </CDropdownMenu>
+                </CDropdown>
+              </div>
+            </div>
+          </CCard>
+
+          {/*   pagination */}
+          <CPagination aria-label="Pagination" className="pt-3">
+            <CPaginationItem aria-label="Previous">
+              <i className="fa-solid fa-angle-left"></i>
+            </CPaginationItem>
+            <CPaginationItem>1</CPaginationItem>
+            <CPaginationItem>2</CPaginationItem>
+            <CPaginationItem>3</CPaginationItem>
+            <CPaginationItem aria-label="Next">
+              <i className="fa-solid fa-angle-right"></i>
+            </CPaginationItem>
+          </CPagination>
+        </CCol>
       </CRow>
       </CTabPane>
     )
@@ -302,8 +478,8 @@ export class ModalChanges extends Component {
         </CModalBody>
         <CModalFooter>
           <div className="d-flex w-100 justify-content-between">
-            <CButton color="secondary">Reject Changes </CButton>
-            <CButton color="primary">Approve change</CButton>
+            <CButton color="secondary" onClick={()=>this.rejectChanges()}>Reject changes</CButton>
+            <CButton color="primary" onClick={()=>this.acceptChanges()}>Accept changes</CButton>
           </div>
         </CModalFooter>
       </>
@@ -327,18 +503,47 @@ export class ModalChanges extends Component {
 
   render() {
     return(
-      <CModal size="xl" visible={this.isVisible()} onClose={this.close.bind(this)}>
-        {this.render_data()}        
-      </CModal>
+      <>
+        <CModal scrollable size="xl" visible={this.isVisible()} onClose={this.close.bind(this)}>
+          {this.render_data()}
+        </CModal>
+        <ConfirmationModal modalValues={this.state.modalValues}/>
+      </>
     )
   }
 
   load_data(){
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
-      fetch(ConfigData.SERVER_API_ENDPOINT+`/api/SiteChanges/GetSiteChangesDetail/siteCode=${this.props.item}&version=1`)
+      fetch(ConfigData.SERVER_API_ENDPOINT+`/api/SiteChanges/GetSiteChangesDetail/siteCode=${this.props.item}&version=${this.props.version}`)
       .then(response => response.json())
       .then(data => this.setState({data: data.Data, loading: false}));
+      //.then(data=>{console.log(data);this.setState({data: data.Data, loading: false})});
     }
   }
+  
+  acceptChanges(){
+    AcceptReject.acceptChanges(this.props.item,this.props.version)
+    .then(data => {
+        if(data.ok)
+          this.close(true);
+        else
+          alert("something went wrong!");
+    }).catch(e => {
+          alert("something went wrong!");
+    });
 
+  }
+
+  rejectChanges(){
+    AcceptReject.rejectChanges(this.props.item,this.props.version)
+    .then(data => {
+        if(data.ok)
+          this.close(true);
+        else
+          alert("something went wrong!");
+    }).catch(e => {
+          alert("something went wrong!");
+    });
+
+  }
 }

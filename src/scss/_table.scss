@@ -1,40 +1,25 @@
 .table {
   border-collapse: inherit;
-  & th {
+  th {
     color: $primary-dark;
     font-size: 0.9rem;
   }
   &--light {
-    & th,
-    & td {
+    th, td {
       padding: 0.2rem;
     }
   }
   &--noheader {
-    & th {
+    th {
       display: none;
     }
   }
-  & tr {
-    & td {
+  tr {
+    td {
       border-bottom-color: $gray-100;
       color: $black;
-    }
-  }
-  & .btn-more {
-    background: transparent;
-    border: transparent;
-    & svg {
-      fill: $gray-300;
-      transition: $transition-base;
-    }
-    &:hover, &:active {
-      background: none;
-      border-color: transparent;
-      svg {
-        fill: $primary-base;
-        transform: scale(1.2);
-        transition: $transition-base;
+      .row-expand i {
+        color: $blue;
       }
     }
   }
@@ -58,12 +43,13 @@
   color: $primary-base;
   align-items: center;
   margin-bottom: 1rem;
-  button {
+  .page-link {
     color: $primary-base;
     border: solid 1px $gray-100;
     background-color: white;
     padding: 0.25rem 0.75rem;
     transition: $transition-base;
+    cursor: pointer;
     &:hover {
       background-color: $primary-base;
       color: white;
@@ -77,9 +63,13 @@
     }
     &[disabled] {
       color: $gray-100;
+      border-color: initial;
       &:hover {
         background-color: initial;
       }
+    }
+    & i {
+      font-size: 0.75rem;
     }
   }
   span, label {
