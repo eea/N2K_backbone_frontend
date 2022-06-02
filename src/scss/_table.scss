@@ -23,24 +23,6 @@
       }
     }
   }
-  .btn-more {
-    background: transparent;
-    border: transparent;
-    font-size: 1rem;
-    i {
-      color: $gray-300;
-      transition: $transition-base;
-    }
-    &:hover, &:active {
-      background: none;
-      border-color: transparent;
-      i {
-        color: $primary-base;
-        transform: scale(1.2);
-        transition: $transition-base;
-      }
-    }
-  }
 }
 .td-separator {
   width: 1.1rem;
@@ -61,12 +43,13 @@
   color: $primary-base;
   align-items: center;
   margin-bottom: 1rem;
-  button {
+  .page-link {
     color: $primary-base;
     border: solid 1px $gray-100;
     background-color: white;
     padding: 0.25rem 0.75rem;
     transition: $transition-base;
+    cursor: pointer;
     &:hover {
       background-color: $primary-base;
       color: white;
@@ -80,6 +63,7 @@
     }
     &[disabled] {
       color: $gray-100;
+      border-color: initial;
       &:hover {
         background-color: initial;
       }

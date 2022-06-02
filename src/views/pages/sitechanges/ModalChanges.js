@@ -49,8 +49,9 @@ export class ModalChanges extends Component {
       activeKey: 1, 
       loading: true, 
       data: {}, 
-      level:"Warning", 
+      levels:["Critical"],
       bookmark: "",
+      bookmarks: [],
       showDetail: "",
       modalValues : {
         visibility: false,
@@ -139,33 +140,37 @@ export class ModalChanges extends Component {
   }
 
   renderChangeList(){
-    let changes = this.state.data[this.state.level][this.state.bookmark];
-    let list = []
-    for(let i in changes){
-      if (!Array.isArray(changes[i])) break;
-      for(let j in changes[i]){
-        let title = "";
-        title += changes[i][j].ChangeCategory?changes[i][j].ChangeCategory:"";
-        title += (title?' - ':"") + (changes[i][j].ChangeType?changes[i][j].ChangeType :"");
-        title += changes[i].FieldName?' - '+ changes[i][j].FieldName:""
-        list.push(
-            <div key={"change_"+i+"_"+j} className='collapse-container'>
-              <div className="d-flex gap-2 align-items-center justify-content-between" key={i+"_"+j}>
-                <div>
-                  <span className='me-3'> {title}</span>
+    let levels = this.state.levels;
+    let list = [];
+    for(let l in levels){
+      let changes = this.state.data[levels[l]][this.state.bookmark];
+      for(let i in changes){
+        if (!Array.isArray(changes[i])) break;
+        for(let j in changes[i]){
+          let title = "";
+          //title += changes[i][j].ChangeCategory?changes[i][j].ChangeCategory:"";
+          title += (title?' - ':"") + (changes[i][j].ChangeType?changes[i][j].ChangeType :"");
+          title += changes[i].FieldName?' - '+ changes[i][j].FieldName:""
+          list.push(
+              <div key={"change_"+l+"_"+j} className='collapse-container'>
+                <div className="d-flex gap-2 align-items-center justify-content-between" key={i+"_"+j}>
+                  <div>
+                    <span className="me-3"> {title}</span>
+                  </div>
+                  <CButton color="link" className="btn-link--dark " onClick={()=>this.toggleDetail(title)}>
+                    {(this.state.showDetail===title) ? "Hide detail" : "View detail"}
+                  </CButton>
                 </div>
-                <CButton color="link" className='btn-link--dark ' onClick={()=>this.toggleDetail(title)}>
-                  {(this.state.showDetail===changes[i][j].ChangeId)?"Hide detail":"View detail"}
-                </CButton>
-              </div>
-              <CCollapse visible={this.state.showDetail===title}>
-                <CCard>
-                  {this.render_ValuesTable(changes[i][j].ChangedCodesDetail)}
-                </CCard>
-              </CCollapse>
-            </div>);
+                <CCollapse visible={this.state.showDetail===title}>
+                  <CCard>
+                    {this.render_ValuesTable(changes[i][j].ChangedCodesDetail)}
+                  </CCard>
+                </CCollapse>
+              </div>);
+        }
       }
     }
+    
     
     return (
       <CCol>
@@ -188,72 +193,120 @@ export class ModalChanges extends Component {
 
   renderBookmarks(){
     let bookmarks = [];
-
-    for(let i in this.state.data[this.state.level]){
-      if(!this.bookmarkIsEmpty(this.state.data[this.state.level][i]))
-        bookmarks.push(i);
-    }
-    if(bookmarks.length===1){
-      this.state.bookmark = bookmarks[0];
-    }
-
+    let levels = this.state.levels;
     let list = [];
-    for(let i in bookmarks){
-      let bookmark= bookmarks[i];
-      list.push(
-        <li key={"bookmark_li_"+i} className="nav-item">
-          <div className="checkbox" id={"bookmark_div_"+i}>
-            <input type="checkbox" className="input-checkbox" id={"bookmark_check_"+i} onClick={(e)=>this.setBookmark(bookmark)} checked={this.state.bookmark===bookmark} readOnly/>
-            <label id={"bookmark_label_"+i} htmlFor={"bookmark_check_"+i} className="input-label badge color--bookmark">{bookmark}</label>
-          </div>
-        </li>
-      )
+    for(let l in levels){
+      for(let i in this.state.data[levels[l]]){
+        if(!this.bookmarkIsEmpty(this.state.data[levels[l]][i])) {
+          if(!bookmarks.includes(i)) {
+            bookmarks.push(i);
+          }
+        }
+      }
+      if(!this.state.bookmark && bookmarks.length > 0){
+        for(let i in bookmarks){
+          if (bookmarks[i] === "SiteInfo") {
+            this.state.bookmark = bookmarks[i];
+          } else {
+            if(bookmarks[i] === "Habitats") {
+              this.state.bookmark = bookmarks[i];
+            } else {
+              if(bookmarks[i] === "Sites") {
+                this.state.bookmark = bookmarks[i];
+              } else {
+                this.state.bookmark = bookmarks[i];
+              }
+            }
+          }
+        }
+      }
     }
+
     return(
-      <CCol xs="auto">
-        {this.state.level==="Critical"&&<span className='badge badge--critical me-2'>Critical</span>}
-        {this.state.level==="Warning"&&<span className='badge badge--warning me-2'>Warning</span>}
-        {this.state.level==="Info" && <span className='badge badge--info me-2'>Info</span>}
-        <CSidebarNav className="pe-5">
-          {list}
-        </CSidebarNav>
-      </CCol>
+      <CSidebarNav className="pe-4">
+        {bookmarks.includes("SiteInfo") && 
+          <li className="nav-item mb-1">
+            <a className={"nav-link" + (this.state.bookmark == "SiteInfo" ? " active" : "")} onClick={() => this.setBookmark("SiteInfo")}>
+              <i className="fa-solid fa-bookmark"></i>
+              Site info
+            </a>
+          </li>
+        }
+        {bookmarks.includes("Habitats") && 
+          <li className="nav-item mb-1">
+            <a className={"nav-link" + (this.state.bookmark == "Habitats" ? " active" : "")} onClick={() => this.setBookmark("Habitats")}>
+              <i className="fa-solid fa-bookmark"></i>
+              Habitats
+            </a>
+          </li>
+        }
+        {bookmarks.includes("Species") && 
+          <li className="nav-item mb-1">
+            <a className={"nav-link" + (this.state.bookmark == "Species" ? " active" : "")} onClick={() => this.setBookmark("Species")}>
+              <i className="fa-solid fa-bookmark"></i>
+              Species
+            </a>
+          </li>
+        }
+      </CSidebarNav>
     )
   }
   
   set_level(level){
-    this.setState({level: level, bookmark:""})
+    let levels = this.state.levels;
+    if(levels.includes(level)) {
+      levels = levels.filter(e => e!==level);
+    } else {
+      levels.push(level);
+    }
+    this.setState({levels: levels, bookmark: ""});
   }
 
 
   render_changes(){
     return(
       <CTabPane role="tabpanel" aria-labelledby="home-tab" visible={this.state.activeKey === 1}>
-        <CRow className='p-3'>
+        <CRow className="p-3">
           <CCol xs="auto">
             <CSidebarNav className="pe-5">
               <li className="nav-item">
                 <div className="checkbox">
-                  <input type="checkbox" className="input-checkbox" id="modal_check_critical" onClick={(e)=>this.set_level("Critical")} checked={this.state.level === "Critical"} readOnly/>
+                  <input type="checkbox" className="input-checkbox" id="modal_check_critical" onClick={(e)=>this.set_level("Critical")} checked={this.state.levels.includes("Critical")} readOnly/>
                   <label htmlFor="modal_check_critical" className="input-label badge color--critical">Critical</label>
                 </div>
               </li>
               <li className="nav-item">
                 <div className="checkbox">
-                  <input type="checkbox" className="input-checkbox" id="modal_check_warning" onClick={(e)=>this.set_level("Warning")} checked={this.state.level === "Warning"} readOnly/>
+                  <input type="checkbox" className="input-checkbox" id="modal_check_warning" onClick={(e)=>this.set_level("Warning")} checked={this.state.levels.includes("Warning")} readOnly/>
                   <label htmlFor="modal_check_warning" className="input-label badge color--warning">Warning</label>
                 </div>
               </li>
               <li className="nav-item">
                 <div className="checkbox">
-                  <input type="checkbox" className="input-checkbox" id="modal_check_info" onClick={(e)=>this.set_level("Info")} checked={this.state.level === "Info"} readOnly/>
+                  <input type="checkbox" className="input-checkbox" id="modal_check_info" onClick={(e)=>this.set_level("Info")} checked={this.state.levels.includes("Info")} readOnly/>
                   <label htmlFor="modal_check_info" className="input-label badge color--info">Info</label>
                 </div>
               </li>
             </CSidebarNav>
           </CCol>
-            {this.renderBookmarks()}
-            {this.renderChangeList()}
+          <CCol>
+            <div className="mb-2">
+              {this.state.levels.includes("Critical") && <span className="badge badge--critical me-2">Critical</span>}
+              {this.state.levels.includes("Warning") &&<span className="badge badge--warning me-2">Warning</span>}
+              {this.state.levels.includes("Info") && <span className="badge badge--info me-2">Info</span>}
+            </div>
+            <CRow>
+              <CCol xs="auto">
+                {this.renderBookmarks()}
+              </CCol>
+              <CCol>
+                {this.renderChangeList()}
+              </CCol>
+            </CRow>
+          </CCol>
+
+            
+
         </CRow>
       </CTabPane>
     )
@@ -262,126 +315,129 @@ export class ModalChanges extends Component {
   render_documents(){
     return(
       <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 2}>
-      <CRow className='p-3'>
-        <CCol>
-          <CTable className='table--light table--noheader'>
-            <CTableHead>
-              <CTableRow>
-                <CTableHeaderCell scope="col">Document</CTableHeaderCell>
-                <CTableHeaderCell scope="col">File</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Actions</CTableHeaderCell>
-                <CTableHeaderCell scope="col">More</CTableHeaderCell>
-              </CTableRow>
-            </CTableHead>
-            <CTableBody>
-              <CTableRow className='align-middle'>
-                <CTableDataCell colSpan={2}><h6>Attached documents</h6></CTableDataCell>
-                <CTableDataCell className='text-end'><CButton color="link" className='btn-link--dark '>Add document</CButton></CTableDataCell>
-              </CTableRow>
-              <CTableRow className='align-middle'>
-                <CTableDataCell><CImage src={justificationprovided} className="ico--md "></CImage></CTableDataCell>
-                <CTableDataCell>File name</CTableDataCell>
-                <CTableDataCell className='text-end'>
-                  <CButton color="link" className='btn-link--dark '>View</CButton>
-                  <CImage src={trash} className="ico--md "></CImage>
-                    <CDropdown >
-                      <CDropdownToggle color="primary" variant="ghost" caret={false} size="sm">
-                        <CImage src={moreicon} className="ico--md "></CImage>
-                      </CDropdownToggle>
-                      <CDropdownMenu>
-                        <CDropdownItem href="#">Action</CDropdownItem>
-                        <CDropdownItem href="#">Another action</CDropdownItem>
-                        <CDropdownItem href="#">Something else here</CDropdownItem>
-                      </CDropdownMenu>
-                    </CDropdown>
-                  </CTableDataCell>
-                </CTableRow>
-                <CTableRow className='align-middle'>
-                  <CTableDataCell><CImage src={justificationprovided} className="ico--md "></CImage></CTableDataCell>
-                  <CTableDataCell>File name</CTableDataCell>
-                  <CTableDataCell className='text-end'>
-                    <CButton color="link" className='btn-link--dark '>View</CButton>
-                    <CImage src={trash} className="ico--md "></CImage>
-                    <CDropdown>
-                    <CDropdownToggle color="primary" variant="ghost" caret={false} size="sm">
-                      <CImage src={moreicon} className="ico--md "></CImage>
-                    </CDropdownToggle>
-                    <CDropdownMenu>
-                      <CDropdownItem href="#">Action</CDropdownItem>
-                      <CDropdownItem href="#">Another action</CDropdownItem>
-                      <CDropdownItem href="#">Something else here</CDropdownItem>
-                    </CDropdownMenu>
-                  </CDropdown></CTableDataCell>
-              </CTableRow>
-            </CTableBody>
-          </CTable>
-          {/*   pagination */}
-          <CPagination aria-label="Page navigation example">
-            <CPaginationItem aria-label="Previous">
-                <span aria-hidden="true">&laquo;</span>
-            </CPaginationItem>
-            <CPaginationItem>1</CPaginationItem>
-            <CPaginationItem>2</CPaginationItem>
-            <CPaginationItem>3</CPaginationItem>
-            <CPaginationItem aria-label="Next">
-                <span aria-hidden="true">&raquo;</span>
-            </CPaginationItem>
-          </CPagination>
-        </CCol>
-        <CCol md={6} lg={6}>
-        <CTable className='table--light table--noheader'>
-          <CTableBody>
-            <CTableRow className='align-middle'>
-              <CTableDataCell colSpan={3}><h6>Comments</h6></CTableDataCell>
-              <CTableDataCell className='text-end'><CButton color="link" className='btn-link--dark '>Add document</CButton></CTableDataCell>
-            </CTableRow>
-          </CTableBody>
-        </CTable>        
-                <ul className='comments__list'>
-                  <li className='comments__item'>
-                    <div className='comments__text'><del>New to upload supporting emails</del></div>
-                    <CImage src={trash} className="ico--md "></CImage>
-                    <CDropdown >
-                      <CDropdownToggle color="primary" variant="ghost" caret={false} size="sm">
-                        <CImage src={moreicon} className="ico--md "></CImage>
-                      </CDropdownToggle>
-                      <CDropdownMenu>
-                        <CDropdownItem href="#">Action</CDropdownItem>
-                        <CDropdownItem href="#">Another action</CDropdownItem>
-                        <CDropdownItem href="#">Something else here</CDropdownItem>
-                      </CDropdownMenu>
-                    </CDropdown>
-                  </li>
+      <CRow className="py-3">
+        <CCol xs={12} lg={6}>
+          <CCard className="document--list">
+            <div className="d-flex justify-content-between align-items-center pb-2">
+              <b>Attached documents</b>
+              <CButton color="link" className="btn-link--dark ">Add document</CButton>
+            </div>
+            <div className="document--item">
+              <div className="my-auto">
+                <CImage src={justificationprovided} className="ico--md me-3"></CImage>
+                <span>File name</span>
+              </div>
+              <div>
+                <CButton color="link" className="btn-link--dark ">View</CButton>
+                <div className="btn-delete">
+                  <i className="fa-regular fa-trash-can"></i>
+                </div>
+                <CDropdown >
+                  <CDropdownToggle className="btn-more" caret={false}>
+                    <i className="fa-solid fa-ellipsis"></i>
+                  </CDropdownToggle>
+                  <CDropdownMenu>
+                    <CDropdownItem href="#">Action</CDropdownItem>
+                    <CDropdownItem href="#">Another action</CDropdownItem>
+                    <CDropdownItem href="#">Something else here</CDropdownItem>
+                  </CDropdownMenu>
+                </CDropdown>
+              </div>
+            </div>
+            <div className="document--item">
+              <div className="my-auto">
+                <CImage src={justificationprovided} className="ico--md me-3"></CImage>
+                <span>File name</span>
+              </div>
+              <div>
+                <CButton color="link" className="btn-link--dark ">View</CButton>
+                <div className="btn-delete">
+                  <i className="fa-regular fa-trash-can"></i>
+                </div>
+                <CDropdown >
+                  <CDropdownToggle className="btn-more" caret={false}>
+                    <i className="fa-solid fa-ellipsis"></i>
+                  </CDropdownToggle>
+                  <CDropdownMenu>
+                    <CDropdownItem href="#">Action</CDropdownItem>
+                    <CDropdownItem href="#">Another action</CDropdownItem>
+                    <CDropdownItem href="#">Something else here</CDropdownItem>
+                  </CDropdownMenu>
+                </CDropdown>
+              </div>
+            </div>
+          </CCard>
 
-                  <li className='comments__item'>
-                    <div className='comments__text'>Spatial file needed to approve change</div>
-                    <CImage src={trash} className="ico--md "></CImage>
-                    <CDropdown >
-                      <CDropdownToggle color="primary" variant="ghost" caret={false} size="sm">
-                        <CImage src={moreicon} className="ico--md "></CImage>
-                      </CDropdownToggle>
-                      <CDropdownMenu>
-                        <CDropdownItem href="#">Action</CDropdownItem>
-                        <CDropdownItem href="#">Another action</CDropdownItem>
-                        <CDropdownItem href="#">Something else here</CDropdownItem>
-                      </CDropdownMenu>
-                    </CDropdown>
-                  </li>
-                </ul>
-            {/*   pagination */}
-            <CPagination aria-label="Page navigation example">
+          {/*   pagination */}
+          <CPagination aria-label="Pagination" className="pt-3">
             <CPaginationItem aria-label="Previous">
-                <span aria-hidden="true">&laquo;</span>
+                <i className="fa-solid fa-angle-left"></i>
             </CPaginationItem>
             <CPaginationItem>1</CPaginationItem>
             <CPaginationItem>2</CPaginationItem>
             <CPaginationItem>3</CPaginationItem>
             <CPaginationItem aria-label="Next">
-                <span aria-hidden="true">&raquo;</span>
+              <i className="fa-solid fa-angle-right"></i>
             </CPaginationItem>
           </CPagination>
         </CCol>
-        
+        <CCol xs={12} lg={6}>
+          <CCard className="comment--list">
+            <div className="d-flex justify-content-between align-items-center pb-2">
+              <b>Comments</b>
+              <CButton color="link" className="btn-link--dark ">Add comment</CButton>
+            </div>
+            <div className="comment--item">
+              <div className="comments__text me-2"><del>New to upload supporting emails</del></div>
+              <div>
+                <div className="btn-delete">
+                  <i className="fa-regular fa-trash-can"></i>
+                </div>
+                <CDropdown >
+                  <CDropdownToggle className="btn-more" caret={false}>
+                    <i className="fa-solid fa-ellipsis"></i>
+                  </CDropdownToggle>
+                  <CDropdownMenu>
+                    <CDropdownItem href="#">Action</CDropdownItem>
+                    <CDropdownItem href="#">Another action</CDropdownItem>
+                    <CDropdownItem href="#">Something else here</CDropdownItem>
+                  </CDropdownMenu>
+                </CDropdown>
+              </div>
+            </div>
+            <div className="comment--item">
+              <div className="comments__text me-2">Spatial file needed to approve change</div>
+              <div>
+                <div className="btn-delete">
+                  <i className="fa-regular fa-trash-can"></i>
+                </div>
+                <CDropdown >
+                  <CDropdownToggle className="btn-more" caret={false}>
+                    <i className="fa-solid fa-ellipsis"></i>
+                  </CDropdownToggle>
+                  <CDropdownMenu>
+                    <CDropdownItem href="#">Action</CDropdownItem>
+                    <CDropdownItem href="#">Another action</CDropdownItem>
+                    <CDropdownItem href="#">Something else here</CDropdownItem>
+                  </CDropdownMenu>
+                </CDropdown>
+              </div>
+            </div>
+          </CCard>
+
+          {/*   pagination */}
+          <CPagination aria-label="Pagination" className="pt-3">
+            <CPaginationItem aria-label="Previous">
+              <i className="fa-solid fa-angle-left"></i>
+            </CPaginationItem>
+            <CPaginationItem>1</CPaginationItem>
+            <CPaginationItem>2</CPaginationItem>
+            <CPaginationItem>3</CPaginationItem>
+            <CPaginationItem aria-label="Next">
+              <i className="fa-solid fa-angle-right"></i>
+            </CPaginationItem>
+          </CPagination>
+        </CCol>
       </CRow>
       </CTabPane>
     )

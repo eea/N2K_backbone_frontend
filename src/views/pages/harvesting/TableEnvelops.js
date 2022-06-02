@@ -4,6 +4,7 @@ import { useTable, usePagination, useFilters,useGlobalFilter, useRowSelect, useA
 import {matchSorter} from 'match-sorter'
 
 import { FetchData } from '../sitechanges/FetchData'
+import { CPagination, CPaginationItem } from '@coreui/react'
 
 const IndeterminateCheckbox = React.forwardRef(
     ({ indeterminate, ...rest }, ref) => {
@@ -148,23 +149,24 @@ const IndeterminateCheckbox = React.forwardRef(
         <pre>
             
         </pre>        
-        <div className="pagination">
-          <button onClick={() => previousPage()} disabled={!canPreviousPage}>
-            <i class="fa-solid fa-angle-left"></i>
-          </button>{' '}
-          <button onClick={() => gotoPage(pageIndex+1)} disabled={!canNextPage}>
+
+        <CPagination>
+          <CPaginationItem onClick={() => previousPage()} disabled={!canPreviousPage}>
+            <i className="fa-solid fa-angle-left"></i>
+          </CPaginationItem>
+          <CPaginationItem onClick={() => gotoPage(pageIndex+1)} disabled={!canNextPage}>
             {pageIndex+1}
-          </button>{' '}
-          <button onClick={() => previousPage() -1 } disabled={!canNextPage}>
+          </CPaginationItem>
+          <CPaginationItem onClick={() => previousPage() -1 } disabled={!canNextPage}>
             {pageIndex+2}
-          </button>{' '}
-          <button onClick={() => nextPage()-1} disabled={!canNextPage}>
+          </CPaginationItem>
+          <CPaginationItem onClick={() => nextPage()-1} disabled={!canNextPage}>
             {pageIndex+3}
-          </button>{' '}
-          <button onClick={() => nextPage()} disabled={!canNextPage}>
-            <i class="fa-solid fa-angle-right"></i>
-          </button>{' '}          
-        </div>
+          </CPaginationItem>
+          <CPaginationItem onClick={() => nextPage()} disabled={!canNextPage}>
+            <i className="fa-solid fa-angle-right"></i>
+          </CPaginationItem>
+        </CPagination>
       </>
     )
   }
