@@ -7,7 +7,6 @@ import ConfigData from '../../../config.json';
 import {matchSorter} from 'match-sorter'
 
 import { ModalChanges } from './ModalChanges';
-import { AcceptReject } from './AcceptReject';
 
 const IndeterminateCheckbox = React.forwardRef(
     ({ indeterminate, ...rest }, ref) => {
@@ -145,7 +144,7 @@ const IndeterminateCheckbox = React.forwardRef(
             Cell: ({ row }) => (
               row.canExpand ?(
               <div>
-                <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} name={"chk_"+row.original.SiteCode} sitecode={row.original.SiteCode}/>
+                <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} name={"chk_"+row.original.SiteCode} sitecode={row.original.SiteCode} />
               </div>
               ): null
             ),            
@@ -268,19 +267,17 @@ const IndeterminateCheckbox = React.forwardRef(
     let acceptChanges = (change)=>{
       return props.accept({"SiteCode":change.SiteCode,"VersionId":change.Version})
       .then(data => {
-          if(data.ok){
+          if(data?.ok){
             forceRefreshData();
           }
           return data;
-      }).catch(e => {
-            alert("something went wrong!");
       });
     }
 
     let rejectChanges = (change)=>{
       return props.reject({"SiteCode":change.SiteCode,"VersionId":change.Version})
       .then(data => {
-        if(data.ok){
+        if(data?.ok){
           forceRefreshData();
           props.setRefresh("pending",false);
           props.setRefresh("rejected",true);
@@ -341,8 +338,8 @@ const IndeterminateCheckbox = React.forwardRef(
           Cell: ({ row }) => {
               const contextActions = {
                 review: ()=>openModal(row.original),
-                accept: ()=>acceptChanges(row.original),
-                reject: ()=>rejectChanges(row.original),
+                accept: ()=>props.updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(row.original), "Cancel", ()=>{}),
+                reject: ()=>props.updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(row.original), "Cancel", ()=>{}),
               }
               return row.canExpand ? (
                 <DropdownSiteChanges actions={contextActions}/>          
@@ -380,7 +377,14 @@ const IndeterminateCheckbox = React.forwardRef(
         return (
         <>
           <Table columns={columns} data={changesData} setSelected={props.setSelected}/>        
-          <ModalChanges visible = {modalVisible} close = {closeModal} accept={()=>acceptChanges(modalItem)} reject={()=>rejectChanges(modalItem)} item={modalItem.SiteCode} version={modalItem.Version} />
+          <ModalChanges visible = {modalVisible} 
+                        close = {closeModal} 
+                        accept={()=>acceptChanges(modalItem)} 
+                        reject={()=>rejectChanges(modalItem)} 
+                        item={modalItem.SiteCode} 
+                        version={modalItem.Version} 
+                        updateModalValues = {props.updateModalValues}
+          />
         </>
         )
   

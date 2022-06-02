@@ -37,7 +37,6 @@ import { ConfirmationModal } from './components/ConfirmationModal';
 import moreicon from './../../../assets/images/three-dots.svg'
 import justificationprovided from './../../../assets/images/file-text.svg'
 import trash from './../../../assets/images/trash.svg'
-import { AcceptReject } from './AcceptReject';
 
 const xmlns = 'https://www.w3.org/2000/svg'
 
@@ -422,8 +421,8 @@ export class ModalChanges extends Component {
         </CModalBody>
         <CModalFooter>
           <div className="d-flex w-100 justify-content-between">
-            <CButton color="secondary" onClick={()=>this.rejectChanges()}>Reject changes</CButton>
-            <CButton color="primary" onClick={()=>this.acceptChanges()}>Accept changes</CButton>
+            <CButton color="secondary" onClick={()=>this.props.updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>this.rejectChanges(), "Cancel", ()=>{})}>Reject changes</CButton>
+            <CButton color="primary" onClick={()=>this.props.updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>this.acceptChanges(), "Cancel", ()=>{})}>Accept changes</CButton>
           </div>
         </CModalFooter>
       </>
@@ -467,21 +466,16 @@ export class ModalChanges extends Component {
   acceptChanges(){
     this.props.accept()
     .then((data) => {
-      if(data.ok)
+      if(data?.ok)
         this.close(true);
-    }).catch(e => {
-        alert("something went wrong!-kkk");
-        console.log(e);
     });
   }
 
   rejectChanges(){
     this.props.reject()
     .then(data => {
-        if(data.ok)
+        if(data?.ok)
           this.close(true);
-    }).catch(e => {
-          alert("something went wrong!");
     });
   }
 }

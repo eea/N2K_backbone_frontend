@@ -1,5 +1,4 @@
 import React, {useCallback, useEffect, useState} from 'react'
-import { FetchData } from './FetchData';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 import TableRSPag from './TableRSPag';
@@ -24,7 +23,7 @@ import {
 
 import { ConfirmationModal } from './components/ConfirmationModal';
 import user from './../../../assets/images/avatars/user.png'
-import { AcceptReject } from './AcceptReject';
+import ConfigData from '../../../config.json';
 
 const xmlns = 'https://www.w3.org/2000/svg'
 
@@ -39,12 +38,29 @@ const Sitechanges = () => {
   const [error, setError] = useState(null);
   const [forceRefresh, setForceRefresh] = useState(0);
 
-  let selectedCodes=[], setSelectedCodes=(v)=>selectedCodes=v;
+  let selectedCodes=[], 
+  setSelectedCodes=(v)=>{
+    if(document.querySelectorAll('input[sitecode]:checked').length!==0 && v.length===0) return;
+    selectedCodes=v
+  };
 
   let forceRefreshData = ()=>setForceRefresh(forceRefresh+1);
 
+  let postRequest = (url,body)=>{
+    const options = {
+      method: 'POST',
+      headers: {
+      'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    };
+    return fetch(url, options)
+  }
+
   let acceptChanges = (changes)=>{
-    return AcceptReject.acceptChanges(changes)
+    let rBody = !Array.isArray(changes)?[changes]:changes
+
+    return postRequest(ConfigData.SERVER_API_ENDPOINT+'/api/SiteChanges/AcceptChanges', rBody)
     .then(data => {
         if(data.ok){
           setRefreshSitechanges("pending",true);
@@ -60,7 +76,9 @@ const Sitechanges = () => {
   }
 
   let rejectChanges = (changes)=>{
-    return AcceptReject.rejectChanges(changes)
+    let rBody = !Array.isArray(changes)?[changes]:changes
+
+    return postRequest(ConfigData.SERVER_API_ENDPOINT+'/api/SiteChanges/RejectChanges', rBody)
     .then(data => {
         if(data.ok){
           setRefreshSitechanges("pending",true);
@@ -104,6 +122,7 @@ const Sitechanges = () => {
         }
         : ''
       ),
+
     });
   }
 
@@ -162,8 +181,8 @@ const Sitechanges = () => {
                 </div>
                 <div>
                   <ul className="btn--list">
-                    <li><CButton color="secondary"  onClick={()=>rejectChanges(selectedCodes)}>Reject Changes</CButton></li>
-                    <li><CButton color="primary" onClick={()=>acceptChanges(selectedCodes)} disabled={activeTab!==1}>Accept Changes</CButton></li>
+                    <li><CButton color="secondary"  onClick={()=>updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(selectedCodes), "Cancel", ()=>{})}>Reject Changes</CButton></li>
+                    <li><CButton color="primary" onClick={()=>updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(selectedCodes), "Cancel", ()=>{})} disabled={activeTab!==1}>Accept Changes</CButton></li>
                   </ul>
                 </div>
               </div>
@@ -242,6 +261,7 @@ const Sitechanges = () => {
                         setRefresh={setRefreshSitechanges}
                         accept={acceptChanges}
                         reject={rejectChanges}
+                        updateModalValues={updateModalValues}
                       />                      
                     </CTabPane>
                     <CTabPane role="tabpanel" aria-labelledby="accepted-tab" visible={activeTab === 2}>                    
