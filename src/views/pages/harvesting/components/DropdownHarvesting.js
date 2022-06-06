@@ -7,13 +7,11 @@ function DropdownHarvesting(props) {
     return(
         <CDropdown>
             <CDropdownToggle className='btn-more' caret={false} size="sm">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="bi bi-three-dots" viewBox="0 0 16 16">
-                    <path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/>
-                </svg>
+                <i className="fa-solid fa-ellipsis"></i>
             </CDropdownToggle>
             <CDropdownMenu>
                 {/* <PostEnvelops version_id={item.Id} country_code={item.Country} />    */}
-                <PostEnvelops version_id={props.Id} country_code={props.Country} />
+                <PostEnvelops versionId={props.versionId} countryCode={props.countryCode} modalProps={props.modalProps}/>
                 {/* <CDropdownItem role={'button'} onClick={() => props.clickFunction()}>Review site CHANGES</CDropdownItem>                                 */}
             </CDropdownMenu>
         </CDropdown>

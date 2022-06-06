@@ -8,9 +8,10 @@ import {matchSorter} from 'match-sorter'
 import ConfigData from '../../../config.json';
 
 import { FetchData } from '../sitechanges/FetchData'
-import { CPagination, CPaginationItem } from '@coreui/react'
+import { CPagination, CPaginationItem, CAlert } from '@coreui/react'
 import { isFunction } from 'eslint-plugin-react/lib/util/ast';
-import { is } from 'core-js/core/object';
+//import { is } from 'core-js/core/object';
+import { ConfirmationModal } from './components/ConfirmationModal';
 
 const IndeterminateCheckbox = React.forwardRef(
     ({ indeterminate, ...rest }, ref) => {
@@ -202,6 +203,7 @@ const IndeterminateCheckbox = React.forwardRef(
     const [events, setEvents] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [envelopsData, setEnvelopsData] = useState({});    
+    const [alertVisible, setAlertVisible] = useState(false);
 
     useEffect(() => {
       fetch(ConfigData.SERVER_API_ENDPOINT+'/api/Harvesting/Pending')
@@ -211,91 +213,90 @@ const IndeterminateCheckbox = React.forwardRef(
       });
     }, [])
 
+    const formatDate = (date) => {
+      date = new Date(date);
+      var d = date.getDate();
+      var m = date.getMonth() + 1;
+      var y = date.getFullYear();
+      date = (d <= 9 ? '0' + d : d) + '/' + (m <= 9 ? '0' + m : m) + '/' + y;
+      return date;
+    };
+
     const columns = React.useMemo(
-      () => [        
+      () => [
         {
-          Header: 'Envelope Id',
-          accessor: 'envelopeId',
+          Header: 'Envelope ID',
+          accessor: 'Id',
         },
         {
           Header: 'Country',
-          accessor: 'country',
+          accessor: 'Country',
         },
         {
           Header: 'Submission date',
-          accessor: 'submissionDate',
-        },                
+          accessor: 'SubmissionDate',
+          Cell: ({ cell }) => (
+            formatDate(cell.value)
+          )
+        },
         {
         Header: () => null, 
         id: 'dropdownEnvelops',
         Cell: ({ row }) => (
-          <DropdownHarvesting />  
+          <DropdownHarvesting versionId={row.values.Id} countryCode={row.values.Country} modalProps={modalProps}/>
           )
         },
       ],
       []
-    ) 
-  
-    // const data = React.useMemo(
-    //     () => [
-    //       {
-    //         key: 1,
-    //         envelopeId: '25654',
-    //         country: 'Spain',
-    //         submissionDate: '02/07/2021',
-            
-    //       },
-    //       {
-    //         key: 2,
-    //         envelopeId: '25655',
-    //         country: 'Spain',
-    //         submissionDate: '02/07/2021',
-            
-    //       },
-    //       {
-    //         key: 3,
-    //         envelopeId: '25656',
-    //         country: 'Spain',
-    //         submissionDate: '02/07/2021',
-            
-    //       },
-    //       {
-    //         key: 4,
-    //         envelopeId: '25657',
-    //         country: 'Spain',
-    //         submissionDate: '02/07/2021',
-            
-    //       },
-    //       {
-    //         key: 5,
-    //         envelopeId: '25658',
-    //         country: 'Spain',
-    //         submissionDate: '02/07/2021',
-            
-    //       },
-    //       {
-    //         key: 6,
-    //         envelopeId: '25659',
-    //         country: 'Spain',
-    //         submissionDate: '02/07/2021',
-            
-    //       },
-    //     ],
-    //     []
-    // )
+    )
+
+    let modalProps = {
+      showAlert() {
+        setAlertVisible(true);
+      },
+      showModal(accept, reject) {
+        updateModalValues("Harvest Envelops","This will harvest this envelop?","Continue", accept, "Cancel", reject);//()=>setVisible(true)
+      }
+    }
+
+    const [modalValues, setModalValues] = useState({
+      visibility: false,
+      close: () => {
+        setModalValues((prevState) => ({
+          ...prevState,
+          visibility: false
+        }));
+      }
+    });
+
+    function updateModalValues(title, text, primaryButtonText, primaryButtonFunction, secondaryButtonText, secondaryButtonFunction) {
+      setModalValues({
+        visibility: true,
+        title: title,
+        text: text,
+        primaryButton: (
+          primaryButtonText && primaryButtonFunction ? {
+            text: primaryButtonText,
+            function: () => primaryButtonFunction(),
+          }
+          : ''
+        ),
+        secondaryButton: (
+          secondaryButtonText && secondaryButtonFunction ? {
+            text: secondaryButtonText,
+            function: () => secondaryButtonFunction(),
+          }
+          : ''
+        ),
+      });
+    }
 
     let load_data= ()=>{
-    console.log("pasa por aquí 1"+isLoading) ;
       if(!isLoading && Object.keys(envelopsData).length===0){
-        console.log("pasa por aquí 2"+isLoading) ;
-        
         setIsLoading(true);
         fetch(ConfigData.SERVER_API_ENDPOINT+'/api/Harvesting/Pending')
         .then(response => response.json())
         .then(data => {
-          console.log("pasa por aquí 3"+isLoading) ;
-          console.log("pasa por aquí 3 "+data.length);
-          console.log(data);
           setEnvelopsData(data.Data);
           if(Object.keys(envelopsData).length === 0){
             setIsLoading(false);
@@ -303,9 +304,7 @@ const IndeterminateCheckbox = React.forwardRef(
           else {
             setIsLoading('nodata');
           }
-          
         });
-        console.log("pasa por aquí 4"+isLoading) ;
       }
     }
 
@@ -320,14 +319,12 @@ const IndeterminateCheckbox = React.forwardRef(
     else {
       return (
         <>
-          <Table columns={columns} data={envelopsData} />            
+          <Table columns={columns} data={envelopsData}/>
+          <ConfirmationModal modalValues={modalValues}/>
+          <CAlert color="primary" dismissible visible={alertVisible} onClose={() => setAlertVisible(false)}>Envelope successfully harvested</CAlert>
         </>
-        )
+      )
     }
-      
-    // return (
-    //   <Table columns={columns} data={data} />
-    // )
   }
-  
+
   export default TableEnvelops
