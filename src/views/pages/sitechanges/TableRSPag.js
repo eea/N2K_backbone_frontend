@@ -71,7 +71,7 @@ const IndeterminateCheckbox = React.forwardRef(
         onChange={e => {
           setFilter(e.target.value || undefined) // Set undefined to remove the filter entirely
         }}
-        placeholder={`search`}
+        placeholder={`Search`}
         className="input--table-filters"
       />
     )
@@ -358,12 +358,12 @@ const IndeterminateCheckbox = React.forwardRef(
         //fetch(ConfigData.SERVER_API_ENDPOINT+'/api/sitechanges/get')
         .then(response => response.json())
         .then(data => {
-                        if(Object.keys(data.Data).length===0)
-                          setChangesData("nodata");
-                        else
-                          setChangesData(data.Data);
-                        setIsLoading(false);
-                      });
+          if(Object.keys(data.Data).length===0)
+            setChangesData("nodata");
+          else
+            setChangesData(data.Data);
+          setIsLoading(false);
+        });
       }
     }
     
@@ -374,7 +374,7 @@ const IndeterminateCheckbox = React.forwardRef(
     }
 
     if(isLoading)
-      return (<p><em>Loading...</em></p>)
+      return (<div className="loading-container"><em>Loading...</em></div>)
     else
       if(changesData==="nodata")
         return (<p><em>No Data Avalaible</em></p>)
