@@ -120,7 +120,7 @@ export class ModalChanges extends Component {
       let values = heads.map(v=>changes[i][v]).concat(fields.map(v=>changes[i]["Fields"][v]));
       rows.push(
         <CTableRow key={i}>
-          {values.map(v=>{return(<CTableDataCell key={v}> {v} </CTableDataCell>)})}
+          {values.map((v,j)=>{return(<CTableDataCell key={v+"_"+j}> {v} </CTableDataCell>)})}
         </CTableRow>
       )
     }
@@ -151,21 +151,22 @@ export class ModalChanges extends Component {
           title += (title?' - ':"") + (changes[i][j].ChangeType?changes[i][j].ChangeType :"");
           title += changes[i].FieldName?' - '+ changes[i][j].FieldName:""
           list.push(
-              <div key={"change_"+l+"_"+j} className='collapse-container'>
-                <div className="d-flex gap-2 align-items-center justify-content-between" key={i+"_"+j}>
-                  <div>
-                    <span className="me-3"> {title}</span>
-                  </div>
-                  <CButton color="link" className="btn-link--dark " onClick={()=>this.toggleDetail(title)}>
-                    {(this.state.showDetail===title) ? "Hide detail" : "View detail"}
-                  </CButton>
+            <div key={"change_"+levels[l]+"_"+j+"_"+title} className="collapse-container">
+              <div className="d-flex gap-2 align-items-center justify-content-between" key={i+"_"+j}>
+                <div>
+                  <span className="me-3"> {title}</span>
                 </div>
-                <CCollapse visible={this.state.showDetail===title}>
-                  <CCard>
-                    {this.render_ValuesTable(changes[i][j].ChangedCodesDetail)}
-                  </CCard>
-                </CCollapse>
-              </div>);
+                <CButton color="link" className="btn-link--dark " onClick={()=>this.toggleDetail(changes[i][j].ChangeCategory + title)}>
+                  {(this.state.showDetail===changes[i][j].ChangeCategory + title) ? "Hide detail" : "View detail"}
+                </CButton>
+              </div>
+              <CCollapse visible={this.state.showDetail===changes[i][j].ChangeCategory+title}>
+                <CCard>
+                  {this.state.showDetail && this.render_ValuesTable(changes[i][j].ChangedCodesDetail)}
+                </CCard>
+              </CCollapse>
+            </div>
+          );
         }
       }
     }
@@ -298,14 +299,11 @@ export class ModalChanges extends Component {
               <CCol xs="auto">
                 {this.renderBookmarks()}
               </CCol>
-              <CCol>
+              
                 {this.renderChangeList()}
-              </CCol>
+              
             </CRow>
           </CCol>
-
-            
-
         </CRow>
       </CTabPane>
     )
@@ -490,7 +488,7 @@ export class ModalChanges extends Component {
     this.load_data()
 
     let contents = this.state.loading
-      ? <p><em>Loading...</em></p>
+      ? <div className="loading-container"><em>Loading...</em></div>
       : this.render_modal();
 
     return (
