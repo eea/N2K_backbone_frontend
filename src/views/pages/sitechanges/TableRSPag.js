@@ -65,6 +65,7 @@ const IndeterminateCheckbox = React.forwardRef(
     const _filteredRows = filteredRows.length
   
     return (
+      /*
       <input
         value={filterValue || ''}
         onChange={e => {
@@ -73,6 +74,8 @@ const IndeterminateCheckbox = React.forwardRef(
         placeholder={`search`}
         className="input--table-filters"
       />
+      */
+     <></>
     )
   }
 
