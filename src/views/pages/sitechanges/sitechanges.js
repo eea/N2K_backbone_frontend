@@ -1,5 +1,4 @@
 import React, {useCallback, useEffect, useState} from 'react'
-import { FetchData } from './FetchData';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 import TableRSPag from './TableRSPag';
@@ -24,15 +23,75 @@ import {
 
 import { ConfirmationModal } from './components/ConfirmationModal';
 import user from './../../../assets/images/avatars/user.png'
+import ConfigData from '../../../config.json';
 
 const xmlns = 'https://www.w3.org/2000/svg'
 
+let refreshSitechanges={"pending":false,"accepted":false,"rejected":false}, 
+    getRefreshSitechanges=(state)=>refreshSitechanges[state], 
+    setRefreshSitechanges=(state,v)=>refreshSitechanges[state]=v;
 const Sitechanges = () => {
 
   const [activeTab, setActiveTab] = useState(1)
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [forceRefresh, setForceRefresh] = useState(0);
+
+  let selectedCodes=[], 
+  setSelectedCodes=(v)=>{
+    if(document.querySelectorAll('input[sitecode]:checked').length!==0 && v.length===0) return;
+    selectedCodes=v
+  };
+
+  let forceRefreshData = ()=>setForceRefresh(forceRefresh+1);
+
+  let postRequest = (url,body)=>{
+    const options = {
+      method: 'POST',
+      headers: {
+      'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    };
+    return fetch(url, options)
+  }
+
+  let acceptChanges = (changes)=>{
+    let rBody = !Array.isArray(changes)?[changes]:changes
+
+    return postRequest(ConfigData.SERVER_API_ENDPOINT+'/api/SiteChanges/AcceptChanges', rBody)
+    .then(data => {
+        if(data.ok){
+          setRefreshSitechanges("pending",true);
+          setRefreshSitechanges("accepted",true);
+          forceRefreshData();
+        }else
+          alert("something went wrong!");
+        return data;
+    }).catch(e => {
+          alert("something went wrong!");
+          console.log(e);
+    });
+  }
+
+  let rejectChanges = (changes)=>{
+    let rBody = !Array.isArray(changes)?[changes]:changes
+
+    return postRequest(ConfigData.SERVER_API_ENDPOINT+'/api/SiteChanges/RejectChanges', rBody)
+    .then(data => {
+        if(data.ok){
+          setRefreshSitechanges("pending",true);
+          setRefreshSitechanges("rejected",true);
+          forceRefreshData();
+        }else
+          alert("something went wrong!");
+        return data;
+    }).catch(e => {
+          alert("something went wrong!");
+          console.log(e);
+    });
+  }
 
   const [modalValues, setModalValues] = useState({
     visibility: false,
@@ -63,6 +122,7 @@ const Sitechanges = () => {
         }
         : ''
       ),
+
     });
   }
 
@@ -121,8 +181,8 @@ const Sitechanges = () => {
                 </div>
                 <div>
                   <ul className="btn--list">
-                    <li><CButton color="secondary">Reject</CButton></li>
-                    <li><CButton color="primary">Approve</CButton></li>
+                    <li><CButton color="secondary"  onClick={()=>updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(selectedCodes), "Cancel", ()=>{})}>Reject Changes</CButton></li>
+                    <li><CButton color="primary" onClick={()=>updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(selectedCodes), "Cancel", ()=>{})} disabled={activeTab!==1}>Accept Changes</CButton></li>
                   </ul>
                 </div>
               </div>
@@ -168,7 +228,7 @@ const Sitechanges = () => {
                         <CNavLink
                           href="javascript:void(0);"
                           active={activeTab === 1}
-                          onClick={() => setActiveTab(1)}
+                          onClick={() => {setActiveTab(1);forceRefreshData();}}
                         > Pending
                         </CNavLink>
                       </CNavItem>
@@ -176,7 +236,7 @@ const Sitechanges = () => {
                         <CNavLink
                           href="javascript:void(0);"
                           active={activeTab === 2}
-                          onClick={() => setActiveTab(2)}
+                          onClick={() => {setActiveTab(2);forceRefreshData();}}
                         >
                           Accepted
                         </CNavLink>
@@ -185,7 +245,7 @@ const Sitechanges = () => {
                         <CNavLink
                           href="javascript:void(0);"
                           active={activeTab === 3}
-                          onClick={() => setActiveTab(3)}
+                          onClick={() => {setActiveTab(3);forceRefreshData();}}
                         >
                           Rejected
                         </CNavLink>
@@ -193,11 +253,23 @@ const Sitechanges = () => {
                     </CNav>
                     <CTabContent>
                     <CTabPane role="tabpanel" aria-labelledby="pending-tab" visible={activeTab === 1}>
-                      <TableRSPag />                      
+                      <TableRSPag 
+                        status="pending" 
+                        setSelected={setSelectedCodes} 
+                        forceRefresh={forceRefresh} 
+                        getRefresh={()=>getRefreshSitechanges("pending")} 
+                        setRefresh={setRefreshSitechanges}
+                        accept={acceptChanges}
+                        reject={rejectChanges}
+                        updateModalValues={updateModalValues}
+                      />                      
                     </CTabPane>
                     <CTabPane role="tabpanel" aria-labelledby="accepted-tab" visible={activeTab === 2}>                    
+                      <TableRSPag status="accepted" setSelected={setSelectedCodes} forceRefresh={forceRefresh} getRefresh={()=>getRefreshSitechanges("accepted")} setRefresh={setRefreshSitechanges}/>
                     </CTabPane>
-                    <CTabPane role="tabpanel" aria-labelledby="rejected-tab" visible={activeTab === 3}></CTabPane>                    
+                    <CTabPane role="tabpanel" aria-labelledby="rejected-tab" visible={activeTab === 3}>
+                      <TableRSPag status="rejected" setSelected={setSelectedCodes} forceRefresh={forceRefresh} getRefresh={()=>getRefreshSitechanges("rejected")} setRefresh={setRefreshSitechanges}/>
+                    </CTabPane>                    
                     </CTabContent>
                   </CCol>
                 </CRow>

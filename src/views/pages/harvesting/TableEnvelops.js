@@ -1,10 +1,17 @@
-import React from 'react'
+import React, {useState, useEffect} from 'react'
 import { useTable, usePagination, useFilters,useGlobalFilter, useRowSelect, useAsyncDebounce, useSortBy, useExpanded  } from 'react-table'
+import PostEnvelops from './PostEnvelops';
+import DropdownHarvesting from './components/DropdownHarvesting';
 
 import {matchSorter} from 'match-sorter'
 
+import ConfigData from '../../../config.json';
+
 import { FetchData } from '../sitechanges/FetchData'
-import { CPagination, CPaginationItem } from '@coreui/react'
+import { CPagination, CPaginationItem, CAlert } from '@coreui/react'
+import { isFunction } from 'eslint-plugin-react/lib/util/ast';
+//import { is } from 'core-js/core/object';
+import { ConfirmationModal } from './components/ConfirmationModal';
 
 const IndeterminateCheckbox = React.forwardRef(
     ({ indeterminate, ...rest }, ref) => {
@@ -78,6 +85,8 @@ const IndeterminateCheckbox = React.forwardRef(
       page, 
       canPreviousPage,
       canNextPage,
+      pageOptions,
+      pageSize,
       gotoPage,
       nextPage,
       previousPage, 
@@ -149,103 +158,173 @@ const IndeterminateCheckbox = React.forwardRef(
         <pre>
             
         </pre>        
-
         <CPagination>
+          <CPaginationItem onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
+            <i className="fa-solid fa-angles-left"></i>
+          </CPaginationItem>
           <CPaginationItem onClick={() => previousPage()} disabled={!canPreviousPage}>
             <i className="fa-solid fa-angle-left"></i>
           </CPaginationItem>
-          <CPaginationItem onClick={() => gotoPage(pageIndex+1)} disabled={!canNextPage}>
-            {pageIndex+1}
-          </CPaginationItem>
-          <CPaginationItem onClick={() => previousPage() -1 } disabled={!canNextPage}>
-            {pageIndex+2}
-          </CPaginationItem>
-          <CPaginationItem onClick={() => nextPage()-1} disabled={!canNextPage}>
-            {pageIndex+3}
-          </CPaginationItem>
+          <span>
+            Page{' '}
+            <strong>
+              {pageIndex + 1} of {pageOptions.length}
+            </strong>{' '}
+          </span>
           <CPaginationItem onClick={() => nextPage()} disabled={!canNextPage}>
             <i className="fa-solid fa-angle-right"></i>
           </CPaginationItem>
+          <CPaginationItem onClick={() => gotoPage(pageCount - 1)} disabled={!canNextPage}>
+            <i className="fa-solid fa-angles-right"></i>
+          </CPaginationItem>
+          <div className='pagination-rows'>
+            <label className='form-label'>Rows per page</label>
+            <select
+              className='form-select'
+              value={pageSize}
+              onChange={e => {
+                setPageSize(Number(e.target.value))
+              }}
+            >
+              {[10, 20, 30, 40, 50].map(pageSize => (
+                <option key={pageSize} value={pageSize}>
+                  {pageSize}
+                </option>
+              ))}
+            </select>
+          </div>
         </CPagination>
       </>
     )
   }
   
   function TableEnvelops() {
+
+    const [events, setEvents] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [envelopsData, setEnvelopsData] = useState({});    
+    const [alertVisible, setAlertVisible] = useState(false);
+
+    useEffect(() => {
+      fetch(ConfigData.SERVER_API_ENDPOINT+'/api/Harvesting/Pending')
+      .then(response => response.json())
+      .then(data => {
+        setEvents(data);
+      });
+    }, [])
+
+    const formatDate = (date) => {
+      date = new Date(date);
+      var d = date.getDate();
+      var m = date.getMonth() + 1;
+      var y = date.getFullYear();
+      date = (d <= 9 ? '0' + d : d) + '/' + (m <= 9 ? '0' + m : m) + '/' + y;
+      return date;
+    };
+
     const columns = React.useMemo(
-      () => [        
+      () => [
         {
-          Header: 'Envelope Id',
-          accessor: 'envelopeId',
+          Header: 'Envelope ID',
+          accessor: 'Id',
         },
         {
           Header: 'Country',
-          accessor: 'country',
+          accessor: 'Country',
         },
         {
           Header: 'Submission date',
-          accessor: 'submissionDate',
-        },                
+          accessor: 'SubmissionDate',
+          Cell: ({ cell }) => (
+            formatDate(cell.value)
+          )
+        },
         {
-          Header: ' ',
-          accessor: 'action',
+        Header: () => null, 
+        id: 'dropdownEnvelops',
+        Cell: ({ row }) => (
+          <DropdownHarvesting versionId={row.values.Id} countryCode={row.values.Country} modalProps={modalProps}/>
+          )
         },
       ],
       []
-    ) 
-  
-    const data = React.useMemo(
-        () => [
-          {
-            key: 1,
-            envelopeId: '25654',
-            country: 'Spain',
-            submissionDate: '02/07/2021',
-            action: '...'
-          },
-          {
-            key: 2,
-            envelopeId: '25655',
-            country: 'Spain',
-            submissionDate: '02/07/2021',
-            action: '...'
-          },
-          {
-            key: 3,
-            envelopeId: '25656',
-            country: 'Spain',
-            submissionDate: '02/07/2021',
-            action: '...'
-          },
-          {
-            key: 4,
-            envelopeId: '25657',
-            country: 'Spain',
-            submissionDate: '02/07/2021',
-            action: '...'
-          },
-          {
-            key: 5,
-            envelopeId: '25658',
-            country: 'Spain',
-            submissionDate: '02/07/2021',
-            action: '...'
-          },
-          {
-            key: 6,
-            envelopeId: '25659',
-            country: 'Spain',
-            submissionDate: '02/07/2021',
-            action: '...'
-          },
-        ],
-        []
     )
 
-  
-    return (
-        <Table columns={columns} data={data} />
-    )
+    let modalProps = {
+      showAlert() {
+        setAlertVisible(true);
+      },
+      showModal(accept, reject) {
+        updateModalValues("Harvest Envelops","This will harvest this envelop?","Continue", accept, "Cancel", reject);//()=>setVisible(true)
+      }
+    }
+
+    const [modalValues, setModalValues] = useState({
+      visibility: false,
+      close: () => {
+        setModalValues((prevState) => ({
+          ...prevState,
+          visibility: false
+        }));
+      }
+    });
+
+    function updateModalValues(title, text, primaryButtonText, primaryButtonFunction, secondaryButtonText, secondaryButtonFunction) {
+      setModalValues({
+        visibility: true,
+        title: title,
+        text: text,
+        primaryButton: (
+          primaryButtonText && primaryButtonFunction ? {
+            text: primaryButtonText,
+            function: () => primaryButtonFunction(),
+          }
+          : ''
+        ),
+        secondaryButton: (
+          secondaryButtonText && secondaryButtonFunction ? {
+            text: secondaryButtonText,
+            function: () => secondaryButtonFunction(),
+          }
+          : ''
+        ),
+      });
+    }
+
+    let load_data= ()=>{
+      if(!isLoading && Object.keys(envelopsData).length===0){
+        setIsLoading(true);
+        fetch(ConfigData.SERVER_API_ENDPOINT+'/api/Harvesting/Pending')
+        .then(response => response.json())
+        .then(data => {
+          setEnvelopsData(data.Data);
+          if(Object.keys(envelopsData).length === 0){
+            setIsLoading(false);
+          }
+          else {
+            setIsLoading('nodata');
+          }
+        });
+      }
+    }
+
+    load_data();
+
+    if(isLoading){
+      return (<p><em>Loading...</em></p>)
+    }      
+    else if (isLoading === 'nodata'){
+      return (<p><em>No data</em></p>)
+    }
+    else {
+      return (
+        <>
+          <Table columns={columns} data={envelopsData}/>
+          <ConfirmationModal modalValues={modalValues}/>
+          <CAlert color="primary" dismissible visible={alertVisible} onClose={() => setAlertVisible(false)}>Envelope successfully harvested</CAlert>
+        </>
+      )
+    }
   }
-  
+
   export default TableEnvelops
