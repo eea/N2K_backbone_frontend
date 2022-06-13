@@ -30,12 +30,16 @@ import {
   CTabContent,
   CTabPane,
   CCollapse,
-  CCard
+  CCard,
+  CAlert,
 } from '@coreui/react'
+import CIcon from '@coreui/icons-react'
+import { cilWarning } from '@coreui/icons'
 
 import { ConfirmationModal } from './components/ConfirmationModal';
 import moreicon from './../../../assets/images/three-dots.svg'
 import justificationprovided from './../../../assets/images/file-text.svg'
+import justificationrequired from './../../../assets/images/exclamation.svg'
 import trash from './../../../assets/images/trash.svg'
 
 const xmlns = 'https://www.w3.org/2000/svg'
@@ -52,6 +56,9 @@ export class ModalChanges extends Component {
       bookmark: "",
       bookmarks: [],
       showDetail: "",
+      showAlert: false,
+      newComment: false,
+      newDocument: false,
       modalValues : {
         visibility: false,
         close: () => {
@@ -111,6 +118,39 @@ export class ModalChanges extends Component {
     }
   }
 
+  addComment() {
+    this.setState({newComment: true})
+  }
+
+  updateComment(e){
+    let input = e.currentTarget.closest(".comment--item").querySelector("input");
+    if (e.currentTarget.firstChild.classList.contains("fa-pencil")) {
+      input.disabled = false;
+      input.focus();
+      e.currentTarget.firstChild.classList.replace("fa-pencil", "fa-floppy-disk");
+    } else {
+      input.disabled = true;
+      e.currentTarget.firstChild.classList.replace("fa-floppy-disk", "fa-pencil");
+      // Update comment
+    }
+  }
+
+  deleteComment(e){
+    // Delete comment
+  }
+
+  addDocument() {
+    this.setState({newDocument: true})
+  }
+
+  deleteDocument(e){
+    // Delete document
+  }
+
+  uploadFile(e) {
+    document.getElementById("uploadFile").value = e.currentTarget.value;
+  }
+
   render_ValuesTable(changes){
     let heads = Object.keys(changes[0]).filter(v=> v!=="ChangeId" && v!=="Fields");
     let fields= Object.keys(changes[0]["Fields"]);
@@ -156,7 +196,7 @@ export class ModalChanges extends Component {
                 <div>
                   <span className="me-3"> {title}</span>
                 </div>
-                <CButton color="link" className="btn-link--dark " onClick={()=>this.toggleDetail(changes[i][j].ChangeCategory + title)}>
+                <CButton color="link" className="btn-link--dark" onClick={()=>this.toggleDetail(changes[i][j].ChangeCategory + title)}>
                   {(this.state.showDetail===changes[i][j].ChangeCategory + title) ? "Hide detail" : "View detail"}
                 </CButton>
               </div>
@@ -170,12 +210,10 @@ export class ModalChanges extends Component {
         }
       }
     }
-    
-    
     return (
-      <CCol>
+      <>
         {list}
-      </CCol>
+      </>
     )
   }
 
@@ -299,9 +337,9 @@ export class ModalChanges extends Component {
               <CCol xs="auto">
                 {this.renderBookmarks()}
               </CCol>
-              
+              <CCol>
                 {this.renderChangeList()}
-              
+              </CCol>
             </CRow>
           </CCol>
         </CRow>
@@ -312,130 +350,140 @@ export class ModalChanges extends Component {
   render_documents(){
     return(
       <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 2}>
-      <CRow className="py-3">
-        <CCol xs={12} lg={6}>
-          <CCard className="document--list">
-            <div className="d-flex justify-content-between align-items-center pb-2">
-              <b>Attached documents</b>
-              <CButton color="link" className="btn-link--dark ">Add document</CButton>
-            </div>
-            <div className="document--item">
-              <div className="my-auto">
-                <CImage src={justificationprovided} className="ico--md me-3"></CImage>
-                <span>File name</span>
+        <CRow className="py-3">
+          <CCol xs={12} lg={6}>
+            <CCard className="document--list">
+              <div className="d-flex justify-content-between align-items-center pb-2">
+                <b>Attached documents</b>
+                <CButton color="link" className="btn-link--dark" onClick={() => this.addDocument()}>Add document</CButton>
               </div>
-              <div>
-                <CButton color="link" className="btn-link--dark ">View</CButton>
-                <div className="btn-delete">
-                  <i className="fa-regular fa-trash-can"></i>
+              {this.state.newDocument &&
+                <div className="document--item new">
+                  <div className="input-file">
+                    <label htmlFor="uploadBtn">
+                      Select file
+                    </label>
+                    <input id="uploadBtn" type="file" onChange={(e) => this.uploadFile(e)}/>
+                    <input id="uploadFile" placeholder="No file selected" disabled="disabled" />
+                  </div>
+                  <div>
+                    <div className="btn-icon">
+                      <i className="fa-solid fa-floppy-disk"></i>
+                    </div>
+                    <div className="btn-icon">
+                      <i className="fa-regular fa-trash-can"></i>
+                    </div>
+                  </div>
                 </div>
-                <CDropdown >
-                  <CDropdownToggle className="btn-more" caret={false}>
-                    <i className="fa-solid fa-ellipsis"></i>
-                  </CDropdownToggle>
-                  <CDropdownMenu>
-                    <CDropdownItem href="#">Action</CDropdownItem>
-                    <CDropdownItem href="#">Another action</CDropdownItem>
-                    <CDropdownItem href="#">Something else here</CDropdownItem>
-                  </CDropdownMenu>
-                </CDropdown>
-              </div>
-            </div>
-            <div className="document--item">
-              <div className="my-auto">
-                <CImage src={justificationprovided} className="ico--md me-3"></CImage>
-                <span>File name</span>
-              </div>
-              <div>
-                <CButton color="link" className="btn-link--dark ">View</CButton>
-                <div className="btn-delete">
-                  <i className="fa-regular fa-trash-can"></i>
+              }
+              <div className="document--item">
+                <div className="my-auto">
+                  <CImage src={justificationprovided} className="ico--md me-3"></CImage>
+                  <span>File name</span>
                 </div>
-                <CDropdown >
-                  <CDropdownToggle className="btn-more" caret={false}>
-                    <i className="fa-solid fa-ellipsis"></i>
-                  </CDropdownToggle>
-                  <CDropdownMenu>
-                    <CDropdownItem href="#">Action</CDropdownItem>
-                    <CDropdownItem href="#">Another action</CDropdownItem>
-                    <CDropdownItem href="#">Something else here</CDropdownItem>
-                  </CDropdownMenu>
-                </CDropdown>
+                <div>
+                  <CButton color="link" className="btn-link--dark">View</CButton>
+                  <div className="btn-icon" onClick={() => this.deleteDocument()}>
+                    <i className="fa-regular fa-trash-can"></i>
+                  </div>
+                </div>
               </div>
-            </div>
-          </CCard>
-
-          {/*   pagination */}
-          <CPagination aria-label="Pagination" className="pt-3">
-            <CPaginationItem aria-label="Previous">
+              <div className="document--item">
+                <div className="my-auto">
+                  <CImage src={justificationprovided} className="ico--md me-3"></CImage>
+                  <span>File name</span>
+                </div>
+                <div>
+                  <CButton color="link" className="btn-link--dark">View</CButton>
+                  <div className="btn-icon">
+                    <i className="fa-regular fa-trash-can"></i>
+                  </div>
+                </div>
+              </div>
+            </CCard>
+            <CPagination aria-label="Pagination" className="pt-3">
+              <CPaginationItem aria-label="Previous">
+                  <i className="fa-solid fa-angle-left"></i>
+              </CPaginationItem>
+              <CPaginationItem>1</CPaginationItem>
+              <CPaginationItem>2</CPaginationItem>
+              <CPaginationItem>3</CPaginationItem>
+              <CPaginationItem aria-label="Next">
+                <i className="fa-solid fa-angle-right"></i>
+              </CPaginationItem>
+            </CPagination>
+          </CCol>
+          <CCol xs={12} lg={6}>
+            <CCard className="comment--list">
+              <div className="d-flex justify-content-between align-items-center pb-2">
+                <b>Comments</b>
+                <CButton color="link" className="btn-link--dark" onClick={() => this.addComment()}>Add comment</CButton>
+              </div>
+              {this.state.newComment &&
+                <div className="comment--item new">
+                  <div className="comment--text">
+                    <input type="text" placeholder="Add comment"/>
+                  </div>
+                  <div>
+                    <div className="btn-icon">
+                      <i className="fa-solid fa-floppy-disk"></i>
+                    </div>
+                    <div className="btn-icon">
+                      <i className="fa-regular fa-trash-can"></i>
+                    </div>
+                  </div>
+                </div>
+              }
+              <div className="comment--item">
+                <div className="comment--text">
+                  <input type="text" placeholder="Add comment" defaultValue="New to upload supporting emails" disabled/>
+                </div>
+                <div>
+                  <div className="btn-icon" onClick={(e) => this.updateComment(e)}>
+                    <i className="fa-solid fa-pencil"></i>
+                  </div>
+                  <div className="btn-icon" onClick={(e) => this.deleteComment(e)}>
+                    <i className="fa-regular fa-trash-can"></i>
+                  </div>
+                </div>
+              </div>
+              <div className="comment--item">
+                <div className="comment--text">
+                  <input type="text" placeholder="Add comment" defaultValue="Spatial file needed to approve change" disabled/>
+                </div>
+                <div>
+                  <div className="btn-icon" onClick={(e) => this.updateComment(e)}>
+                    <i className="fa-solid fa-pencil"></i>
+                  </div>
+                  <div className="btn-icon" onClick={(e) => this.deleteComment(e)}>
+                    <i className="fa-regular fa-trash-can"></i>
+                  </div>
+                </div>
+              </div>
+            </CCard>
+            <CPagination aria-label="Pagination" className="pt-3">
+              <CPaginationItem aria-label="Previous">
                 <i className="fa-solid fa-angle-left"></i>
-            </CPaginationItem>
-            <CPaginationItem>1</CPaginationItem>
-            <CPaginationItem>2</CPaginationItem>
-            <CPaginationItem>3</CPaginationItem>
-            <CPaginationItem aria-label="Next">
-              <i className="fa-solid fa-angle-right"></i>
-            </CPaginationItem>
-          </CPagination>
-        </CCol>
-        <CCol xs={12} lg={6}>
-          <CCard className="comment--list">
-            <div className="d-flex justify-content-between align-items-center pb-2">
-              <b>Comments</b>
-              <CButton color="link" className="btn-link--dark ">Add comment</CButton>
+              </CPaginationItem>
+              <CPaginationItem>1</CPaginationItem>
+              <CPaginationItem>2</CPaginationItem>
+              <CPaginationItem>3</CPaginationItem>
+              <CPaginationItem aria-label="Next">
+                <i className="fa-solid fa-angle-right"></i>
+              </CPaginationItem>
+            </CPagination>
+          </CCol>
+          <CCol>
+            <div className="checkbox">
+              <input type="checkbox" className="input-checkbox" id="modal_justification_req"/>
+              <label htmlFor="modal_justification_req" className="input-label">Justification required</label>
             </div>
-            <div className="comment--item">
-              <div className="comments__text me-2"><del>New to upload supporting emails</del></div>
-              <div>
-                <div className="btn-delete">
-                  <i className="fa-regular fa-trash-can"></i>
-                </div>
-                <CDropdown >
-                  <CDropdownToggle className="btn-more" caret={false}>
-                    <i className="fa-solid fa-ellipsis"></i>
-                  </CDropdownToggle>
-                  <CDropdownMenu>
-                    <CDropdownItem href="#">Action</CDropdownItem>
-                    <CDropdownItem href="#">Another action</CDropdownItem>
-                    <CDropdownItem href="#">Something else here</CDropdownItem>
-                  </CDropdownMenu>
-                </CDropdown>
-              </div>
+            <div className="checkbox">
+              <input type="checkbox" className="input-checkbox" id="modal_justification_prov"/>
+              <label htmlFor="modal_justification_prov" className="input-label">Justification provided</label>
             </div>
-            <div className="comment--item">
-              <div className="comments__text me-2">Spatial file needed to approve change</div>
-              <div>
-                <div className="btn-delete">
-                  <i className="fa-regular fa-trash-can"></i>
-                </div>
-                <CDropdown >
-                  <CDropdownToggle className="btn-more" caret={false}>
-                    <i className="fa-solid fa-ellipsis"></i>
-                  </CDropdownToggle>
-                  <CDropdownMenu>
-                    <CDropdownItem href="#">Action</CDropdownItem>
-                    <CDropdownItem href="#">Another action</CDropdownItem>
-                    <CDropdownItem href="#">Something else here</CDropdownItem>
-                  </CDropdownMenu>
-                </CDropdown>
-              </div>
-            </div>
-          </CCard>
-
-          {/*   pagination */}
-          <CPagination aria-label="Pagination" className="pt-3">
-            <CPaginationItem aria-label="Previous">
-              <i className="fa-solid fa-angle-left"></i>
-            </CPaginationItem>
-            <CPaginationItem>1</CPaginationItem>
-            <CPaginationItem>2</CPaginationItem>
-            <CPaginationItem>3</CPaginationItem>
-            <CPaginationItem aria-label="Next">
-              <i className="fa-solid fa-angle-right"></i>
-            </CPaginationItem>
-          </CPagination>
-        </CCol>
-      </CRow>
+          </CCol>
+        </CRow>
       </CTabPane>
     )
   }
@@ -448,6 +496,10 @@ export class ModalChanges extends Component {
           <CModalTitle>{data.SiteCode} - {data.Name}</CModalTitle>
         </CModalHeader>
         <CModalBody>
+          <CAlert color="primary" className="d-flex align-items-center" visible={this.state.showAlert}>
+            <CIcon icon={cilWarning} size="md" className="me-2"/>
+            Justification required
+          </CAlert>
           <CNav variant="tabs" role="tablist">
             <CNavItem>
               <CNavLink

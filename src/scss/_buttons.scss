@@ -22,6 +22,9 @@
     &:focus, &:active, &:focus:active {
       box-shadow: none;
     }
+    &:disabled {
+      opacity: 0.5;
+    }
   }
   &-secondary {
     background-color: $white;
@@ -36,6 +39,12 @@
     }
     &:focus, &:active, &:focus:active {
       box-shadow: none;
+      background-color: $white;
+      color: $primary-base;
+      border-color: $primary-base;
+    }
+    &:disabled {
+      opacity: 0.5;
       background-color: $white;
       color: $primary-base;
       border-color: $primary-base;
@@ -94,7 +103,7 @@
   }
 }
 
-.btn-delete {
+.btn-icon {
   display: inline-block;
   font-size: 1.125rem;
   padding: 0.25rem 0.5rem;
