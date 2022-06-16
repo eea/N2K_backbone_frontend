@@ -1,26 +1,22 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState} from 'react';
 import { CTable, CTableBody, CTableHead, CTableRow, CTableHeaderCell, CImage, CTableDataCell, CFormCheck, CDropdown, CDropdownToggle, CDropdownMenu, CDropdownItem } from '@coreui/react';
-import moreicon from './../../../assets/images/three-dots.svg'
 
 import ConfigData from '../../../config.json';
 
-import justificationrequired from './../../../assets/images/exclamation.svg';
+export default function FetchDataTable() {
 
-export class FetchData extends Component {
-  static displayName = FetchData.name;
+    const [events, setEvents] = useState([]);
 
-  constructor(props) {
-    super(props);
-    this.state = { changes: [], loading: true };
-  }
-
-  componentDidMount() {
-    this.populateChangesData();
-  }
-
-  static renderChangesTable(changes) {
-    return (        
-        <CTable className='mt-5'>
+    useEffect(() => {
+      fetch(ConfigData.SERVER_API_ENDPOINT+'/api/sitechanges/GetByStatus')
+      .then(response => response.json())
+      .then(data => {
+        setEvents(data);
+      });
+    }, []);
+  
+    return (
+        <CTable className='mt-5'>            
             <CTableHead>
             <CTableRow>
                 <CTableHeaderCell scope="col"><CFormCheck /></CTableHeaderCell>
@@ -34,8 +30,8 @@ export class FetchData extends Component {
                 <CTableHeaderCell scope="col"></CTableHeaderCell>
             </CTableRow>
             </CTableHead>
-            <CTableBody>{changes.Data.map((item, index) => (
-                <CTableRow v-for="item in tableItems" key={index}>
+            <CTableBody>{ events.Data.map((item, key) => (
+                <CTableRow v-for="item in tableItems" key={id}>
                 <CTableDataCell><CFormCheck /></CTableDataCell>
                 <CTableDataCell>{item.SiteCode}</CTableDataCell>
                 <CTableDataCell><span className={'badge badge--' + item.Level.toLocaleLowerCase()}>{item.Level}</span></CTableDataCell>
@@ -44,7 +40,7 @@ export class FetchData extends Component {
                 <CTableDataCell>{item.Country}</CTableDataCell>
                 <CTableDataCell><span className='badge badge--default'>{item.Tags}My_tag</span></CTableDataCell>
                 <CTableDataCell>
-                    {/* <CImage src={justificationrequired} className="ico--md "></CImage> */}
+                    
                 </CTableDataCell>
                 <CTableDataCell>
                     <CDropdown >
@@ -52,12 +48,12 @@ export class FetchData extends Component {
                         <CImage src={moreicon} className="ico--md "></CImage>
                     </CDropdownToggle>
                     <CDropdownMenu>
-                        <CDropdownItem role={'button'} onClick={() => setVisibleXL(!visibleXL)}>Review site <b>CHANGES</b></CDropdownItem>
-                        <CDropdownItem >Accept changes</CDropdownItem>
-                        <CDropdownItem >Reject changes</CDropdownItem>
+                        <CDropdownItem role={'button'} onClick={() => setVisibleXL(!visibleXL)}>Review site CHANGE</CDropdownItem>
+                        <CDropdownItem >Accept change/s</CDropdownItem>
+                        <CDropdownItem >Reject change/s</CDropdownItem>
                         <CDropdownItem >Add comments</CDropdownItem>
                         <CDropdownItem >Mark as justification required</CDropdownItem>
-                        <CDropdownItem >View spatial changes</CDropdownItem>
+                        <CDropdownItem >View spatial change/s</CDropdownItem>
                     </CDropdownMenu>
                     </CDropdown>
                 </CTableDataCell>
@@ -66,23 +62,4 @@ export class FetchData extends Component {
             </CTableBody>
         </CTable>
     );
-  }
-
-  render() {
-    let contents = this.state.loading
-      ? <div className="loading-container"><em>Loading...</em></div>
-      : FetchData.renderChangesTable(this.state.changes);
-
-    return (
-      <>        
-        {contents}        
-      </>
-    )
-  }
-  
-  async populateChangesData() {
-    const response = await fetch(ConfigData.SERVER_API_ENDPOINT+'/api/sitechanges/get');
-    const data = await response.json();
-    this.setState({ changes: data, loading: false });
-  }
 }

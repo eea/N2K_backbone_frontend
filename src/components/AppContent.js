@@ -5,10 +5,16 @@ import { CContainer, CSpinner } from '@coreui/react'
 // routes config
 import routes from '../routes'
 
+const loading = (
+  <div className="h-100 text-center">
+    <CSpinner color="primary" className="m-5"/>
+  </div>
+)
+
 const AppContent = () => {
   return (
     <>
-      <Suspense fallback={<CSpinner color="primary" />}>
+      <Suspense fallback={loading}>
         <Switch>
           {routes.map((route, idx) => {
             return (

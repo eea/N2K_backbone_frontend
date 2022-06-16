@@ -24,30 +24,17 @@
   }
 }
 
-.comments {
-  &__list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  &__item {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
-  }
-  &__text {
-    border-radius: 0.5rem;
-    background-color: $gray-25;
-    border: solid 1px $gray-100;
-    padding: 0.25rem 1rem;
-    flex: 1;
-  }
-}
-
 .color--primary {
   color: $primary;
 }
 .color--secondary {
   color: $secondary;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  padding: 2rem;
 }
