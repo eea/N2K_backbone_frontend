@@ -30,22 +30,26 @@ const xmlns = 'https://www.w3.org/2000/svg'
 let countries = [{name:"Germany",code:"DE"},{name:"France",code:"FR"}];
 
 let refreshSitechanges={"pending":false,"accepted":false,"rejected":false}, 
-    getRefreshSitechanges=(state)=>refreshSitechanges[state], 
-    setRefreshSitechanges=(state,v)=>refreshSitechanges[state]=v;
+  getRefreshSitechanges=(state)=>refreshSitechanges[state], 
+  setRefreshSitechanges=(state,v)=>refreshSitechanges[state] = v;
 const Sitechanges = () => {
-
   const [activeTab, setActiveTab] = useState(1)
-
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [forceRefresh, setForceRefresh] = useState(0);
-  const [country, setCountry] = useState('DE');
+  const [country, setCountry] = useState(countries[0].code);
   const [level, setLevel] = useState('Critical');
+  const [disabledBtn, setDisabledBtn] = useState(true);
 
   let selectedCodes=[], 
   setSelectedCodes=(v)=>{
     if(document.querySelectorAll('input[sitecode]:checked').length!==0 && v.length===0) return;
-    selectedCodes=v
+    selectedCodes = v;
+    if (selectedCodes.length === 0) {
+      setDisabledBtn(true)
+    } else {
+      setDisabledBtn(false)
+    }
   };
 
   let forceRefreshData = ()=>{for(let i in refreshSitechanges) setRefreshSitechanges(i,true)};
@@ -76,8 +80,8 @@ const Sitechanges = () => {
           alert("something went wrong!");
         return data;
     }).catch(e => {
-          alert("something went wrong!");
-          console.log(e);
+      alert("something went wrong!");
+      console.log(e);
     });
   }
 
@@ -95,8 +99,8 @@ const Sitechanges = () => {
           alert("something went wrong!");
         return data;
     }).catch(e => {
-          alert("something went wrong!");
-          console.log(e);
+      alert("something went wrong!");
+      console.log(e);
     });
   }
 
@@ -145,21 +149,21 @@ const Sitechanges = () => {
 
   return (
     <>
-      <div className='container--main min-vh-100'>
-        <CHeader className='header--custom'>
-          <CRow className='align-items-center'>
+      <div className="container--main min-vh-100">
+        <CHeader className="header--custom">
+          <CRow className="align-items-center">
             <CCol className="header__title">
               <div>Natura Change Manager</div>
             </CCol>
-            <CCol className='header__links'>
+            <CCol className="header__links">
               <ul className="btn--list justify-content-between">
-                <li><CButton color="link" className='btn-link--bold' href='/#/dashboard'>Dashboard</CButton></li>
-                <li><CButton color="link" className='btn-link--bold' href='/#/harvesting'>Harvesting</CButton></li>
-                <li className='header-active'><CButton color="link" className='btn-link--bold' href='/#/sitechanges'>Site Changes</CButton></li>
-                <li><CButton color="link" className='btn-link--bold'>Site Lineage</CButton></li>
-                <li><CButton color="link" className='btn-link--bold'>Reports</CButton></li>
-                <li><CButton color="link" className='btn-link--bold'>Reference Dataset</CButton></li>
-                <li><CAvatar src={user} /><CButton color="link" className='btn-link--bold'>Username</CButton></li>
+                <li><CButton color="link" className="btn-link--bold" href="/#/dashboard">Dashboard</CButton></li>
+                <li><CButton color="link" className="btn-link--bold" href="/#/harvesting">Harvesting</CButton></li>
+                <li className="header-active"><CButton color="link" className="btn-link--bold" href="/#/sitechanges">Site Changes</CButton></li>
+                <li><CButton color="link" className="btn-link--bold">Site Lineage</CButton></li>
+                <li><CButton color="link" className="btn-link--bold">Reports</CButton></li>
+                <li><CButton color="link" className="btn-link--bold">Reference Dataset</CButton></li>
+                <li><CAvatar src={user} /><CButton color="link" className="btn-link--bold">Username</CButton></li>
               </ul>
             </CCol>
           </CRow>
@@ -167,7 +171,7 @@ const Sitechanges = () => {
         <CContainer fluid>
         </CContainer>
         <div className="content--wrapper">
-          <CSidebar className='sidebar--light'>
+          <CSidebar className="sidebar--light">
             <CSidebarNav>
               <li className="nav-title">Site Changes</li>
               <li className="nav-item">
@@ -191,20 +195,20 @@ const Sitechanges = () => {
             </CSidebarNav>
           </CSidebar>
           <div className="main-content">
-            <CContainer fluid>           
-              <div className='d-flex  justify-content-between px-0 p-3'>
-                <div className='page-title'>
+            <CContainer fluid>
+              <div className="d-flex  justify-content-between px-0 p-3">
+                <div className="page-title">
                   <h1 className="h1">Changes Management</h1>
                 </div>
                 <div>
                   <ul className="btn--list">
-                    <li><CButton color="secondary"  onClick={()=>updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(selectedCodes), "Cancel", ()=>{})}>Reject Changes</CButton></li>
-                    <li><CButton color="primary" onClick={()=>updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(selectedCodes), "Cancel", ()=>{})} disabled={activeTab!==1}>Accept Changes</CButton></li>
+                    <li><CButton color="secondary"  onClick={()=>updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(selectedCodes), "Cancel", ()=>{})} disabled={disabledBtn || activeTab!==1}>Reject changes</CButton></li>
+                    <li><CButton color="primary" onClick={()=>updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(selectedCodes), "Cancel", ()=>{})} disabled={disabledBtn || activeTab!==1}>Accept changes</CButton></li>
                   </ul>
                 </div>
               </div>
-              <div className='d-flex flex-start align-items-center p-3 card-site-level'>
-                <div className='me-5'><h2 className='card-site-level-title'>Site Level ONLY</h2></div>
+              <div className="d-flex flex-start align-items-center p-3 card-site-level">
+                <div className="me-5"><h2 className="card-site-level-title">Site Level ONLY</h2></div>
                 <div>
                   <ul className="btn--list">
                     <li>
@@ -265,7 +269,7 @@ const Sitechanges = () => {
                         >
                           Rejected
                         </CNavLink>
-                      </CNavItem>                    
+                      </CNavItem>
                     </CNav>
                     <CTabContent>
                     <CTabPane role="tabpanel" aria-labelledby="pending-tab" visible={activeTab === 1}>
@@ -279,7 +283,7 @@ const Sitechanges = () => {
                         accept={acceptChanges}
                         reject={rejectChanges}
                         updateModalValues={updateModalValues}
-                      />                      
+                      />
                     </CTabPane>
                     <CTabPane role="tabpanel" aria-labelledby="accepted-tab" visible={activeTab === 2}>                    
                       <TableRSPag 
@@ -312,6 +316,5 @@ const Sitechanges = () => {
     </>
   )
 }
-
 
 export default Sitechanges
