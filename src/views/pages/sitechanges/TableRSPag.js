@@ -214,19 +214,19 @@ const IndeterminateCheckbox = React.forwardRef(
           <CPaginationItem onClick={() => changePage(0,gotoPage(0))} disabled={!canPreviousPage}>
             <i className="fa-solid fa-angles-left"></i>
           </CPaginationItem>
-          <CPaginationItem onClick={() => changePage(pageIndex-1,previousPage())} disabled={!canPreviousPage}>
+          <CPaginationItem onClick={() => changePage(pageIndex,previousPage())} disabled={!canPreviousPage}>
             <i className="fa-solid fa-angle-left"></i>
           </CPaginationItem>
           <span>
             Page{' '}
             <strong>
-              {pageIndex + 1} of {pageCount}
+              {pageIndex+1} of {pageCount}
             </strong>{' '}
           </span>
           <CPaginationItem onClick={() => changePage(pageIndex+1,nextPage())} disabled={!canNextPage}>
             <i className="fa-solid fa-angle-right"></i>
           </CPaginationItem>
-          <CPaginationItem onClick={() => changePage(pageCount - 1,gotoPage(pageCount - 1))} disabled={!canNextPage}>
+          <CPaginationItem onClick={() => changePage(pageCount-1,gotoPage(pageCount - 1))} disabled={!canNextPage}>
             <i className="fa-solid fa-angles-right"></i>
           </CPaginationItem>
           <div className='pagination-rows'>
@@ -414,7 +414,7 @@ const IndeterminateCheckbox = React.forwardRef(
         url += 'country='+ props.country;
         url += '&status='+props.status;
         url += '&level='+props.level;
-        url += '&page='+currentPage;
+        url += '&page='+(currentPage+1);
         url += '&limit='+currentSize;
         promises.push(
           fetch(url)
