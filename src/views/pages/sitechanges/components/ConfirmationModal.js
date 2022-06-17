@@ -16,10 +16,12 @@ export class ConfirmationModal extends Component {
 
   primaryFunction() {
     this.props.modalValues.primaryButton.function();
+    this.close();
   }
 
   secondaryFunction() {
     this.props.modalValues.secondaryButton.function();
+    this.close();
   }
 
   closeFunction() {

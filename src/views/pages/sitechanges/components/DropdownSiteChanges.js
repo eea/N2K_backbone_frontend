@@ -13,7 +13,7 @@ function DropdownSiteChanges(props) {
                 <CDropdownItem role={'button'} onClick={() => props.actions.accept()}>Accept changes</CDropdownItem>
                 <CDropdownItem role={'button'} onClick={() => props.actions.reject()}>Reject changes</CDropdownItem>
                 <CDropdownItem >Add comments</CDropdownItem>
-                <CDropdownItem >Mark as justification required</CDropdownItem>
+                <CDropdownItem role={'button'} onClick={() => props.actions.mark()}>Mark as justification required</CDropdownItem>
                 <CDropdownItem >View spatial changes</CDropdownItem>
             </CDropdownMenu>
         </CDropdown>

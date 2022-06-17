@@ -70,7 +70,7 @@ export class FetchData extends Component {
 
   render() {
     let contents = this.state.loading
-      ? <p><em>Loading...</em></p>
+      ? <div className="loading-container"><em>Loading...</em></div>
       : FetchData.renderChangesTable(this.state.changes);
 
     return (
