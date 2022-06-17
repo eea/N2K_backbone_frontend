@@ -389,7 +389,7 @@ const IndeterminateCheckbox = React.forwardRef(
           Header: '',
           accessor: "JustificationRequired",
           Cell: ({ row }) => (
-            row.canExpand ? <> {row.value === true ? <CImage src={justificationrequired} className="ico--md "></CImage> : '🥳'  } </> : null 
+            row.canExpand ? <> {row.value === true ? <CImage src={justificationrequired} className="ico--md "></CImage> : null  } </> : null 
           ),
         },    
         {
