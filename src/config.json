@@ -1,7 +1,8 @@
 {
-    "SERVER_API_ENDPOINT": "https://n2kbackboneback-dev.azurewebsites.net",
+    "SERVER_API_ENDPOINT": "https://n2kbacknonebackend.azurewebsites.net",
     "THEME_COLORS": {
       "PRIMARY": "#007bff",
       "SECONDARY": "#fc3"
     }
 }
+

@@ -27,7 +27,7 @@ import ConfigData from '../../../config.json';
 
 const xmlns = 'https://www.w3.org/2000/svg'
 
-let countries = [{name:"Germany",code:"DE"},{name:"France",code:"FR"}];
+let countries = [{name:"Austria",code:"AT"},{name:"Germany",code:"DE"},{name:"France",code:"FR"}];
 
 let refreshSitechanges={"pending":false,"accepted":false,"rejected":false}, 
   getRefreshSitechanges=(state)=>refreshSitechanges[state], 
@@ -37,7 +37,7 @@ const Sitechanges = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [forceRefresh, setForceRefresh] = useState(0);
-  const [country, setCountry] = useState(countries[0].code);
+  const [country, setCountry] = useState("DE");
   const [level, setLevel] = useState('Critical');
   const [disabledBtn, setDisabledBtn] = useState(true);
 
@@ -71,7 +71,6 @@ const Sitechanges = () => {
     return postRequest(ConfigData.SERVER_API_ENDPOINT+'/api/SiteChanges/AcceptChanges', rBody)
     .then(data => {
         if(data.ok){
-          console.log("en data.ok");
           setRefreshSitechanges("pending",true);
           setRefreshSitechanges("accepted",true);
           //forceRefreshData();
@@ -251,7 +250,7 @@ const Sitechanges = () => {
                 </div>
                 <div className="select--right">    
                   <CFormLabel htmlFor="exampleFormControlInput1" className='form-label form-label-reporting col-md-4 col-form-label'>Country </CFormLabel>
-                    <CFormSelect aria-label="Default select example" className='form-select-reporting' onChange={(e)=>changeCountry(e.target.value)}>
+                    <CFormSelect aria-label="Default select example" className='form-select-reporting' value={country} onChange={(e)=>changeCountry(e.target.value)}>
                       {
                         countries.map((e)=><option value={e.code} key={e.code}>{e.name}</option>)
                       }
