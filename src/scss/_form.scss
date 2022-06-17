@@ -121,20 +121,20 @@
       height: 18px;
       position: absolute;
       left: 0;
-      top: 0;
+      bottom: 0;
       border: 2px solid $gray-100;
       border-radius: 2px;
       cursor: pointer;
     }
   }
-  & input[type="checkbox"] {
+  input[type="checkbox"] {
     display: none;
     &:checked + label:after {
       content:"";
       position: absolute;
       font-size: 0.875rem;
       left: 6px;
-      top: 2px;
+      bottom: 4px;
       width: 6px;
       height: 12px;
       opacity: 1;
@@ -145,6 +145,20 @@
     }
     &:checked + label:before {
       border-color: $blue;
+    }
+    &:indeterminate + label:before {
+      border-color: $blue;
+    }
+    &:indeterminate + label:after {
+      content: "";
+      position: absolute;
+      font-size: 0.875rem;
+      left: 4px;
+      bottom: 7px;
+      width: 10px;
+      height: 12px;
+      cursor: pointer;
+      border-bottom: solid 3px #22a4fb;
     }
   }
   .badge {
