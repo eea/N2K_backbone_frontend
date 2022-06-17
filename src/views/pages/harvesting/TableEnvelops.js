@@ -1,31 +1,46 @@
 import React, {useState, useEffect} from 'react'
-import { useTable, usePagination, useFilters,useGlobalFilter, useRowSelect, useAsyncDebounce, useSortBy, useExpanded  } from 'react-table'
-import PostEnvelops from './PostEnvelops';
-import DropdownHarvesting from './components/DropdownHarvesting';
-
+import { useTable, usePagination, useFilters,useGlobalFilter, useRowSelect, useAsyncDebounce, useSortBy, useExpanded } from 'react-table'
 import {matchSorter} from 'match-sorter'
-
 import ConfigData from '../../../config.json';
+import {
+  CPagination,
+  CPaginationItem,
+  CDropdown,
+  
+  CDropdownToggle,
+  CDropdownMenu,
+  CDropdownItem,
+  CTooltip,
+  CImage
+} from '@coreui/react'
 
-import { FetchData } from '../sitechanges/FetchData'
-import { CPagination, CPaginationItem, CAlert } from '@coreui/react'
-import { isFunction } from 'eslint-plugin-react/lib/util/ast';
-//import { is } from 'core-js/core/object';
-import { ConfirmationModal } from './components/ConfirmationModal';
+import justificationrequired from './../../../assets/images/exclamation.svg'
 
 const IndeterminateCheckbox = React.forwardRef(
     ({ indeterminate, ...rest }, ref) => {
       const defaultRef = React.useRef()
       const resolvedRef = ref || defaultRef
+      let checkedAll;
+      if (document.querySelectorAll("input:not(#harvesting_check_all):checked").length == 0) {
+        indeterminate = false;
+      }
+      else if (!document.querySelector("#harvesting_check_all").checked && document.querySelectorAll("input[id^=harvesting_check]:not(#harvesting_check_all)").length === document.querySelectorAll("input:not(#harvesting_check_all):checked").length) {
+        indeterminate = false;
+        checkedAll = true;
+      }
   
       React.useEffect(() => {
-        resolvedRef.current.indeterminate = indeterminate
+        resolvedRef.current.indeterminate = indeterminate;
+        if (checkedAll) {
+          resolvedRef.current.checked = true;
+        }
       }, [resolvedRef, indeterminate])
   
       return (
-        <>
-          <input type="checkbox" ref={resolvedRef} {...rest} />
-        </>
+        <div className={"checkbox" + (rest.hidden ? " d-none" :"")} >
+          <input type="checkbox" className="input-checkbox" ref={resolvedRef} {...rest}/>
+          <label htmlFor={rest.id}></label>
+        </div>
       )
     }
   )
@@ -53,29 +68,29 @@ const IndeterminateCheckbox = React.forwardRef(
   
   fuzzyTextFilterFn.autoRemove = val => !val
 
-  function Table({ columns, data }) {
+  function Table({ columns, data, setSelected }) {
 
     const filterTypes = React.useMemo(
-        () => ({
-          fuzzyText: fuzzyTextFilterFn,
-          text: (rows, id, filterValue) => {
-            return rows.filter(row => {
-              const rowValue = row.values[id]
-              return rowValue !== undefined
-                ? String(rowValue)
-                    .toLowerCase()
-                    .startsWith(String(filterValue).toLowerCase())
-                : true
-            })
-          },
-        }),
-        []
-      )
+      () => ({
+        fuzzyText: fuzzyTextFilterFn,
+        text: (rows, id, filterValue) => {
+          return rows.filter(row => {
+            const rowValue = row.values[id]
+            return rowValue !== undefined
+              ? String(rowValue)
+                .toLowerCase()
+                .startsWith(String(filterValue).toLowerCase())
+              : true
+          })
+        },
+      }),
+      []
+    )
 
     const defaultColumn = React.useMemo(
-        () => ({
-            Filter: DefaultColumnFilter,
-        })
+      () => ({
+          Filter: DefaultColumnFilter,
+      })
     )
     const {
       getTableProps,
@@ -90,7 +105,7 @@ const IndeterminateCheckbox = React.forwardRef(
       gotoPage,
       nextPage,
       previousPage, 
-      state: { pageIndex},
+      state: { pageIndex, selectedRowIds },
     } = useTable(
       {
         columns,
@@ -108,27 +123,22 @@ const IndeterminateCheckbox = React.forwardRef(
         hooks.visibleColumns.push(columns => [
           {
             id: 'selection',
-          
             Header: ({ getToggleAllPageRowsSelectedProps }) => (
-              <div>
-                <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} />
-              </div>
+              <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} id="harvesting_check_all"/>
             ),
-          
             Cell: ({ row }) => (
-              <div>
-                <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
-              </div>
+              row.values.Id !== 34 && <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} id={"harvesting_check_" + row.id}/>
             ),
           },
           ...columns,
         ])
       }
     )
+    if(setSelected) setSelected(Object.keys(selectedRowIds).filter(v=>!v.includes(".")).map(v=>{return {CountryCode:data[v].Country, VersionId: data[v].Id}}))
   
     // Render the UI for your table
     return (
-      <>        
+      <>
         <table  className="table" {...getTableProps()}>
           <thead>
             {headerGroups.map(headerGroup => (
@@ -156,8 +166,8 @@ const IndeterminateCheckbox = React.forwardRef(
           </tbody>
         </table>
         <pre>
-            
-        </pre>        
+
+        </pre>
         <CPagination>
           <CPaginationItem onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
             <i className="fa-solid fa-angles-left"></i>
@@ -198,7 +208,7 @@ const IndeterminateCheckbox = React.forwardRef(
     )
   }
   
-  function TableEnvelops() {
+  function TableEnvelops(props) {
 
     const [events, setEvents] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -240,58 +250,40 @@ const IndeterminateCheckbox = React.forwardRef(
           )
         },
         {
-        Header: () => null, 
-        id: 'dropdownEnvelops',
-        Cell: ({ row }) => (
-          <DropdownHarvesting versionId={row.values.Id} countryCode={row.values.Country} modalProps={modalProps}/>
+          Header: () => null, 
+          id: 'dropdownEnvelops',
+          Cell: ({ row }) => (
+            row.values.Id === 34 ? (
+              <CTooltip
+                content="Previous envelopes must be handled first"
+                placement="top"
+              >
+                <CImage src={justificationrequired}/>
+              </CTooltip>
+            )
+            : <DropdownHarvesting versionId={row.values.Id} countryCode={row.values.Country} modalProps={props.modalProps}/>
           )
         },
       ],
       []
     )
 
-    let modalProps = {
-      showAlert() {
-        setAlertVisible(true);
-      },
-      showModal(accept, reject) {
-        updateModalValues("Harvest Envelops","This will harvest this envelop?","Continue", accept, "Cancel", reject);//()=>setVisible(true)
-      }
+    function DropdownHarvesting(props) {
+      let row = {versionId: props.versionId, countryCode: props.countryCode};
+      return (
+        <CDropdown>
+          <CDropdownToggle className='btn-more' caret={false} size="sm">
+            <i className="fa-solid fa-ellipsis"></i>
+          </CDropdownToggle>
+          <CDropdownMenu>
+            <CDropdownItem onClick={() => props.modalProps.showHarvestModal(row)}>Harvest</CDropdownItem>
+            <CDropdownItem onClick={() => props.modalProps.showDiscardModal(row)}>Discard</CDropdownItem>
+          </CDropdownMenu>
+        </CDropdown>
+      )
     }
 
-    const [modalValues, setModalValues] = useState({
-      visibility: false,
-      close: () => {
-        setModalValues((prevState) => ({
-          ...prevState,
-          visibility: false
-        }));
-      }
-    });
-
-    function updateModalValues(title, text, primaryButtonText, primaryButtonFunction, secondaryButtonText, secondaryButtonFunction) {
-      setModalValues({
-        visibility: true,
-        title: title,
-        text: text,
-        primaryButton: (
-          primaryButtonText && primaryButtonFunction ? {
-            text: primaryButtonText,
-            function: () => primaryButtonFunction(),
-          }
-          : ''
-        ),
-        secondaryButton: (
-          secondaryButtonText && secondaryButtonFunction ? {
-            text: secondaryButtonText,
-            function: () => secondaryButtonFunction(),
-          }
-          : ''
-        ),
-      });
-    }
-
-    let load_data= ()=>{
+    let load_data = () => {
       if(!isLoading && Object.keys(envelopsData).length===0){
         setIsLoading(true);
         fetch(ConfigData.SERVER_API_ENDPOINT+'/api/Harvesting/Pending')
@@ -310,18 +302,16 @@ const IndeterminateCheckbox = React.forwardRef(
 
     load_data();
 
-    if(isLoading){
-      return (<p><em>Loading...</em></p>)
-    }      
-    else if (isLoading === 'nodata'){
+    if(isLoading) {
+      return (<div className="loading-container"><em>Loading...</em></div>)
+    }
+    else if (isLoading === 'nodata') {
       return (<p><em>No data</em></p>)
     }
     else {
       return (
         <>
-          <Table columns={columns} data={envelopsData}/>
-          <ConfirmationModal modalValues={modalValues}/>
-          <CAlert color="primary" dismissible visible={alertVisible} onClose={() => setAlertVisible(false)}>Envelope successfully harvested</CAlert>
+          <Table columns={columns} data={envelopsData} setSelected={props.setSelected}/>
         </>
       )
     }
