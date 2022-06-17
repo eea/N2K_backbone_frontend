@@ -4,6 +4,7 @@ import DropdownSiteChanges from './components/DropdownSiteChanges';
 import {
   CPagination,
   CPaginationItem,
+  CImage,
 } from '@coreui/react'
 
 import ConfigData from '../../../config.json';
@@ -11,6 +12,7 @@ import ConfigData from '../../../config.json';
 import {matchSorter} from 'match-sorter'
 
 import { ModalChanges } from './ModalChanges';
+import justificationrequired from './../../../assets/images/exclamation.svg'
 
 const IndeterminateCheckbox = React.forwardRef(
     ({ indeterminate, ...rest }, ref) => {
@@ -321,7 +323,20 @@ const IndeterminateCheckbox = React.forwardRef(
         return data;
     }).catch(e => {
           alert("something went wrong!");
-    });
+    });   
+    }
+
+    let markChanges = (change) =>{
+      return props.mark({SiteCode:change.SiteCode,"Justification":change.JustificationRequired})
+      .then(data => {
+        if(data?.ok){
+          forceRefreshData();          
+        }else
+          alert("something went wrong!");
+        return data;
+      }).catch(e => {
+        alert("something went wrong!");
+      });    
    }
 
     const columns = React.useMemo(
@@ -353,6 +368,10 @@ const IndeterminateCheckbox = React.forwardRef(
         {
           Header: 'Level',
           accessor: 'Level',
+          //Cell: (row ) => {            
+           // row.styles['backgroundColor'] = row.value === 'Critical' ? 'badge badge--critical' : null
+           // return row.value === "Critical" ? 'red' : 'green';              
+          //}
         },
         {
           Header: 'Change Category',
@@ -367,6 +386,13 @@ const IndeterminateCheckbox = React.forwardRef(
           accessor: 'Country',
         },
         {
+          Header: '',
+          accessor: "JustificationRequired",
+          Cell: ({ row }) => (
+            row.canExpand ? <> {row.value === true ? <CImage src={justificationrequired} className="ico--md "></CImage> : '🥳'  } </> : null 
+          ),
+        },    
+        {
           Header: () => null, 
           id: 'dropdownsiteChanges',
           Cell: ({ row }) => {
@@ -374,6 +400,7 @@ const IndeterminateCheckbox = React.forwardRef(
                 review: ()=>openModal(row.original),
                 accept: ()=>props.updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(row.original), "Cancel", ()=>{}),
                 reject: ()=>props.updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(row.original), "Cancel", ()=>{}),
+                mark: ()=>props.updateModalValues("Mark Changes", "This will mark all the site changes", "Continue", ()=>markChanges(row.original), "Cancel", ()=>{}),
               }
               return row.canExpand ? (
                 <DropdownSiteChanges actions={contextActions}/>          
@@ -453,6 +480,7 @@ const IndeterminateCheckbox = React.forwardRef(
                         close = {closeModal} 
                         accept={()=>acceptChanges(modalItem)} 
                         reject={()=>rejectChanges(modalItem)} 
+                        mark={()=>markChanges(modalItem)}
                         item={modalItem.SiteCode} 
                         version={modalItem.Version} 
                         updateModalValues = {props.updateModalValues}
