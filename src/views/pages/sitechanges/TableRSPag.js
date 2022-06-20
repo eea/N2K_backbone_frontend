@@ -26,7 +26,10 @@ const IndeterminateCheckbox = React.forwardRef(
   
       return (
         <>
-          <input type="checkbox" ref={resolvedRef} {...rest} />
+          <div className={"checkbox" + (rest.hidden ? " d-none" :"")} >
+            <input type="checkbox" className="input-checkbox" ref={resolvedRef} {...rest}/>
+            <label htmlFor={rest.id}></label>
+          </div>
         </>
       )
     }
@@ -150,19 +153,19 @@ const IndeterminateCheckbox = React.forwardRef(
       hooks => {
         hooks.visibleColumns.push(columns => [
           {
-            id: 'selection',          
+            id: 'selection',
             Header: ({ getToggleAllPageRowsSelectedProps }) => (
-              <div key="th_selection">
-                <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} />
-              </div>
+              
+                <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} id="sitechanges_check_all" />
+              
             ),
             Cell: ({ row }) => (
               row.canExpand ?(
-              <div key={"div_"+row.id}>
-                <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} name={"chk_"+row.original.SiteCode} sitecode={row.original.SiteCode} />
-              </div>
+              
+                <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} name={"chk_"+row.original.SiteCode} sitecode={row.original.SiteCode} id={"sitechanges_check_" + row.id} />
+             
               ): null
-            ),            
+            ),
           },
           ...columns,
         ])
@@ -346,7 +349,7 @@ const IndeterminateCheckbox = React.forwardRef(
             id: 'expander',
             Cell: ({ row }) =>              
               row.canExpand ? (
-                <span
+                <div
                   {...row.getToggleRowExpandedProps({
                     style: {                      
                       paddingLeft: `${row.depth * 2}rem`,
@@ -359,7 +362,7 @@ const IndeterminateCheckbox = React.forwardRef(
                     : 
                     <i className="fa-solid fa-square-plus"></i>
                   }
-                </span>
+                </div>
               ) : null,
         },
         {
