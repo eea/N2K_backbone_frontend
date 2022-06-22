@@ -216,7 +216,7 @@ const IndeterminateCheckbox = React.forwardRef(
           <CPaginationItem onClick={() => changePage(0,gotoPage(0))} disabled={!canPreviousPage}>
             <i className="fa-solid fa-angles-left"></i>
           </CPaginationItem>
-          <CPaginationItem onClick={() => changePage(pageIndex,previousPage())} disabled={!canPreviousPage}>
+          <CPaginationItem onClick={() => changePage(pageIndex-1,previousPage())} disabled={!canPreviousPage}>
             <i className="fa-solid fa-angle-left"></i>
           </CPaginationItem>
           <span>
@@ -432,7 +432,7 @@ const IndeterminateCheckbox = React.forwardRef(
         
         if(props.getRefresh()||(levelCountry==={})||(levelCountry.level!==props.level)||(levelCountry.country!==props.country)){
           props.setRefresh(props.status,false);  //For the referred status, data is updated
-          resetPagination();
+          //resetPagination();
           promises.push(getSiteCodes());
           setLevelCountry({level:props.level,country:props.country});
         }
