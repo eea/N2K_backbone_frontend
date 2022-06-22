@@ -432,7 +432,6 @@ const IndeterminateCheckbox = React.forwardRef(
         
         if(props.getRefresh()||(levelCountry==={})||(levelCountry.level!==props.level)||(levelCountry.country!==props.country)){
           props.setRefresh(props.status,false);  //For the referred status, data is updated
-          //resetPagination();
           promises.push(getSiteCodes());
           setLevelCountry({level:props.level,country:props.country});
         }
