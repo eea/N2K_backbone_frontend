@@ -5,6 +5,7 @@ import {
   CPagination,
   CPaginationItem,
   CImage,
+  CTooltip
 } from '@coreui/react'
 
 import ConfigData from '../../../config.json';
@@ -153,16 +154,13 @@ const IndeterminateCheckbox = React.forwardRef(
         hooks.visibleColumns.push(columns => [
           {
             id: 'selection',
+            cellWidth: '48px',
             Header: ({ getToggleAllPageRowsSelectedProps }) => (
-              
-                <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} id="sitechanges_check_all" />
-              
+              <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} id="sitechanges_check_all" />
             ),
             Cell: ({ row }) => (
               row.canExpand ?(
-              
                 <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} name={"chk_"+row.original.SiteCode} sitecode={row.original.SiteCode} id={"sitechanges_check_" + row.id} />
-             
               ): null
             ),
           },
@@ -185,7 +183,7 @@ const IndeterminateCheckbox = React.forwardRef(
             {headerGroups.map(headerGroup => (
               <tr {...headerGroup.getHeaderGroupProps()}>
                 {headerGroup.headers.map(column => (
-                  <th key={column.id}>
+                  <th key={column.id} style={{width:column.cellWidth}}>
                       {column.render('Header')}
                         {/*<div>{column.canFilter ? column.render('Filter') : null}</div>*/}
                   </th>
@@ -201,7 +199,7 @@ const IndeterminateCheckbox = React.forwardRef(
               return (
                 <tr {...row.getRowProps()}>
                   {row.cells.map(cell => {
-                    return <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                    return <td {...cell.getCellProps()} className={cell.column.className}>{cell.render('Cell')}</td>
                   })}
                 </tr>
               )
@@ -345,36 +343,59 @@ const IndeterminateCheckbox = React.forwardRef(
     const columns = React.useMemo(
       () => [
         {
-            id: 'expander',
-            Cell: ({ row }) =>              
-              row.canExpand ? (
-                <div
-                  {...row.getToggleRowExpandedProps({
-                    style: {                      
-                      paddingLeft: `${row.depth * 2}rem`,
-                    },
-                  })}
-                  className="row-expand"
-                >
-                  {row.isExpanded ? 
-                    <i className="fa-solid fa-square-minus"></i>
-                    : 
-                    <i className="fa-solid fa-square-plus"></i>
-                  }
-                </div>
-              ) : null,
+          id: 'expander',
+          cellWidth: '48px',
+          Cell: ({ row }) =>
+            row.canExpand ? (
+              <div
+                {...row.getToggleRowExpandedProps({
+                  style: {
+                    paddingLeft: `${row.depth * 2}rem`,
+                  },
+                })}
+                className="row-expand"
+              >
+                {row.isExpanded ? 
+                  <i className="fa-solid fa-square-minus"></i>
+                  : 
+                  <i className="fa-solid fa-square-plus"></i>
+                }
+              </div>
+            ) : null,
         },
         {
           Header: 'Sitecode',
           accessor: 'SiteCode',
+          className:"cell-sitecode",
+          Cell: ({ row }) => {
+            return (
+              row.values.SiteCode ? (
+                <CTooltip
+                  content={row.original.SiteName}
+                  placement="top"
+                >
+                  <div>
+                    {row.values.SiteCode + " - " + row.original.SiteName}
+                  </div>
+                </CTooltip>
+              )
+              : null
+            )
+          }
         },
         {
           Header: 'Level',
           accessor: 'Level',
-          //Cell: (row ) => {            
-           // row.styles['backgroundColor'] = row.value === 'Critical' ? 'badge badge--critical' : null
-           // return row.value === "Critical" ? 'red' : 'green';              
-          //}
+          Cell: ({ row }) => {
+            return (
+              row.original.Level ? (
+                <span className={"badge badge--" + row.original.Level.toLowerCase()}>
+                  {row.values.Level}
+                </span>
+              )
+              : null
+            )
+          }
         },
         {
           Header: 'Change Category',
@@ -398,16 +419,18 @@ const IndeterminateCheckbox = React.forwardRef(
         {
           Header: () => null, 
           id: 'dropdownsiteChanges',
+          cellWidth: '48px',
           Cell: ({ row }) => {
-              const contextActions = {
-                review: ()=>openModal(row.original),
-                accept: ()=>props.updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(row.original), "Cancel", ()=>{}),
-                reject: ()=>props.updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(row.original), "Cancel", ()=>{}),
-                mark: ()=>props.updateModalValues("Mark Changes", "This will mark all the site changes", "Continue", ()=>markChanges(row.original), "Cancel", ()=>{}),
-              }
-              return row.canExpand ? (
-                <DropdownSiteChanges actions={contextActions}/>          
-              ) : null
+            const contextActions = {
+              review: ()=>openModal(row.original),
+              accept: ()=>props.updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(row.original), "Cancel", ()=>{}),
+              reject: ()=>props.updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(row.original), "Cancel", ()=>{}),
+              mark: ()=>props.updateModalValues("Mark Changes", "This will mark all the site changes", "Continue", ()=>markChanges(row.original), "Cancel", ()=>{}),
+            }
+            return row.canExpand ? (
+              <DropdownSiteChanges actions={contextActions}/>
+            )
+            : null
           }
         },
       ],

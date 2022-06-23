@@ -473,7 +473,7 @@ export class ModalChanges extends Component {
               </CPaginationItem>
             </CPagination>
           </CCol>
-          <CCol>
+          <CCol className="d-flex">
             <div className="checkbox">
               <input type="checkbox" className="input-checkbox" id="modal_justification_req"/>
               <label htmlFor="modal_justification_req" className="input-label">Justification required</label>
