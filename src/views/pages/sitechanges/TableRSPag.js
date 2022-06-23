@@ -14,6 +14,7 @@ import {matchSorter} from 'match-sorter'
 
 import { ModalChanges } from './ModalChanges';
 import justificationrequired from './../../../assets/images/exclamation.svg'
+import justificationprovided from './../../../assets/images/file-text.svg'
 
 const IndeterminateCheckbox = React.forwardRef(
     ({ indeterminate, ...rest }, ref) => {
@@ -378,8 +379,7 @@ const IndeterminateCheckbox = React.forwardRef(
                     {row.values.SiteCode + " - " + row.original.SiteName}
                   </div>
                 </CTooltip>
-              )
-              : null
+              ) : null
             )
           }
         },
@@ -392,8 +392,7 @@ const IndeterminateCheckbox = React.forwardRef(
                 <span className={"badge badge--" + row.original.Level.toLowerCase()}>
                   {row.values.Level}
                 </span>
-              )
-              : null
+              ) : null
             )
           }
         },
@@ -413,7 +412,14 @@ const IndeterminateCheckbox = React.forwardRef(
           Header: '',
           accessor: "JustificationRequired",
           Cell: ({ row }) => (
-            row.canExpand ? <> {row.value === true ? <CImage src={justificationrequired} className="ico--md "></CImage> : null  } </> : null 
+            row.canExpand ? <> {row.value === true ? <CImage src={justificationrequired} className="ico--md "></CImage> : null } </> : null             
+          ),
+        },    
+        {
+          Header: '',
+          accessor: "JustificationProvided",
+          Cell: ({ row }) => (
+            row.canExpand ? <> {row.value === true ? <CImage src={justificationprovided} className="ico--md "></CImage> : null  } </> : null             
           ),
         },    
         {
@@ -421,16 +427,15 @@ const IndeterminateCheckbox = React.forwardRef(
           id: 'dropdownsiteChanges',
           cellWidth: '48px',
           Cell: ({ row }) => {
-            const contextActions = {
-              review: ()=>openModal(row.original),
-              accept: ()=>props.updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(row.original), "Cancel", ()=>{}),
-              reject: ()=>props.updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(row.original), "Cancel", ()=>{}),
-              mark: ()=>props.updateModalValues("Mark Changes", "This will mark all the site changes", "Continue", ()=>markChanges(row.original), "Cancel", ()=>{}),
-            }
-            return row.canExpand ? (
-              <DropdownSiteChanges actions={contextActions}/>
-            )
-            : null
+              const contextActions = {
+                review: ()=>openModal(row.original),
+                accept: ()=>props.updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(row.original), "Cancel", ()=>{}),
+                reject: ()=>props.updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(row.original), "Cancel", ()=>{}),
+                switchMark: ()=>props.updateModalValues("Mark Changes", "This will mark all the site changes", "Continue", ()=>switchMarkChanges(row.original), "Cancel", ()=>{}),
+              }
+              return row.canExpand ? (
+                <DropdownSiteChanges actions={contextActions}/>          
+              ) : null
           }
         },
       ],
@@ -506,7 +511,7 @@ const IndeterminateCheckbox = React.forwardRef(
                         close = {closeModal} 
                         accept={()=>acceptChanges(modalItem)} 
                         reject={()=>rejectChanges(modalItem)} 
-                        mark={()=>markChanges(modalItem)}
+                        mark={()=>switchMarkChanges(modalItem)}
                         item={modalItem.SiteCode} 
                         version={modalItem.Version} 
                         updateModalValues = {props.updateModalValues}
