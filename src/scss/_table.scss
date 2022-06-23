@@ -31,6 +31,19 @@
           color: $blue;
         }
       }
+      .btn-group {
+        width: 100%;
+      }
+    }
+    .cell-sitecode {
+      max-width: 200px;
+      width: 30%;
+      div {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        cursor: default;
+      }
     }
   }
   .checkbox {
