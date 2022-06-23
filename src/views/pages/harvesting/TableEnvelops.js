@@ -14,8 +14,6 @@ import {
   CImage
 } from '@coreui/react'
 
-import justificationrequired from './../../../assets/images/exclamation.svg'
-
 const IndeterminateCheckbox = React.forwardRef(
     ({ indeterminate, ...rest }, ref) => {
       const defaultRef = React.useRef()
@@ -123,11 +121,12 @@ const IndeterminateCheckbox = React.forwardRef(
         hooks.visibleColumns.push(columns => [
           {
             id: 'selection',
+            cellWidth: '48px',
             Header: ({ getToggleAllPageRowsSelectedProps }) => (
               <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} id="harvesting_check_all"/>
             ),
             Cell: ({ row }) => (
-              row.values.Id !== 34 && <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} id={"harvesting_check_" + row.id}/>
+              row.index !== 1 && <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} id={"harvesting_check_" + row.id}/>
             ),
           },
           ...columns,
@@ -144,9 +143,9 @@ const IndeterminateCheckbox = React.forwardRef(
             {headerGroups.map(headerGroup => (
               <tr {...headerGroup.getHeaderGroupProps()}>
                 {headerGroup.headers.map(column => (
-                  <th>
-                      {column.render('Header')}
-                        <div>{column.canFilter ? column.render('Filter') : null}</div>
+                  <th key={column.id} style={{width:column.cellWidth}}>
+                    {column.render('Header')}
+                    <div>{column.canFilter ? column.render('Filter') : null}</div>
                   </th>
                 ))}
               </tr>
@@ -158,7 +157,7 @@ const IndeterminateCheckbox = React.forwardRef(
               return (
                 <tr {...row.getRowProps()}>
                   {row.cells.map(cell => {
-                    return <td {...cell.getCellProps()} key={cell.key} >{cell.render('Cell')}</td>
+                    return <td {...cell.getCellProps()} key={cell.column.id + "_" + cell.row.id}>{cell.render('Cell')}</td>
                   })}
                 </tr>
               )
@@ -252,16 +251,16 @@ const IndeterminateCheckbox = React.forwardRef(
         {
           Header: () => null, 
           id: 'dropdownEnvelops',
+          cellWidth: '48px',
           Cell: ({ row }) => (
-            row.values.Id === 34 ? (
+            row.index === 1 ? (
               <CTooltip
-                content="Previous envelopes must be handled first"
+                content="Previous envelope must be handled first"
                 placement="top"
               >
-                <CImage src={justificationrequired}/>
+                <i className="fa-solid fa-ban"></i>
               </CTooltip>
-            )
-            : <DropdownHarvesting versionId={row.values.Id} countryCode={row.values.Country} modalProps={props.modalProps}/>
+            ) : <DropdownHarvesting versionId={row.values.Id} countryCode={row.values.Country} modalProps={props.modalProps}/>
           )
         },
       ],

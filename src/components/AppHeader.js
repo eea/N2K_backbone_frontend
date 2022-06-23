@@ -18,25 +18,25 @@ const AppHeader = (props) => {
         </CCol>
         <CCol className='header__links'>
           <ul className="btn--list justify-content-between">
-            <li className={!props.page && 'header-active'}>
+            <li className={!props.page ? 'header-active' : ''}>
               <CButton color="link" className='btn-link--bold' href='/#/dashboard'>Dashboard</CButton>
             </li>
-            <li className={props.page === 'harvesting' && 'header-active'}>
+            <li className={props.page === 'harvesting' ? 'header-active' : ''}>
               <CButton color="link" className='btn-link--bold' href='/#/harvesting'>Harvesting</CButton>
             </li>
-            <li className={props.page === 'sitechanges' && 'header-active'}>
+            <li className={props.page === 'sitechanges' ? 'header-active' : ''}>
               <CButton color="link" className='btn-link--bold' href='/#/sitechanges'>Site Changes</CButton>
             </li>
-            <li className={props.page === 'sitelineage' && 'header-active'}>
+            <li className={props.page === 'sitelineage' ? 'header-active' : ''}>
               <CButton color="link" className='btn-link--bold'>Site Lineage</CButton>
             </li>
-            <li className={props.page === 'reports' && 'header-active'}>
+            <li className={props.page === 'reports' ? 'header-active' : ''}>
               <CButton color="link" className='btn-link--bold'>Reports</CButton>
             </li>
-            <li className={props.page === 'refdataset' && 'header-active'}>
+            <li className={props.page === 'refdataset' ? 'header-active' : ''}>
               <CButton color="link" className='btn-link--bold'>Reference Dataset</CButton>
             </li>
-            <li className={props.page === 'user' && 'header-active'}>
+            <li className={props.page === 'user' ? 'header-active' : ''}>
               <CAvatar>
                 <i className="fa-solid fa-circle-user"></i>
               </CAvatar>
