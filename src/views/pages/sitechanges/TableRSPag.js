@@ -328,8 +328,8 @@ const IndeterminateCheckbox = React.forwardRef(
     });   
     }
 
-    let markChanges = (change) =>{
-      return props.mark({SiteCode:change.SiteCode,"Justification":change.JustificationRequired})
+    let switchMarkChanges = (change) =>{
+      return props.mark({"SiteCode":change.SiteCode,"VersionId":change.Version,"Justification":true})
       .then(data => {
         if(data?.ok){
           forceRefreshData();          
@@ -412,14 +412,14 @@ const IndeterminateCheckbox = React.forwardRef(
           Header: '',
           accessor: "JustificationRequired",
           Cell: ({ row }) => (
-            row.canExpand ? <> {row.value === true ? <CImage src={justificationrequired} className="ico--md "></CImage> : null } </> : null             
+            row.canExpand ? <> {row.values.JustificationRequired === true ? <CImage src={justificationrequired} className="ico--md "></CImage> : null } </> : null             
           ),
         },    
         {
           Header: '',
           accessor: "JustificationProvided",
           Cell: ({ row }) => (
-            row.canExpand ? <> {row.value === true ? <CImage src={justificationprovided} className="ico--md "></CImage> : null  } </> : null             
+            row.canExpand ? <> {row.values.JustificationProvided === true ? <CImage src={justificationprovided} className="ico--md "></CImage> : null  } </> : null             
           ),
         },    
         {
@@ -431,7 +431,7 @@ const IndeterminateCheckbox = React.forwardRef(
                 review: ()=>openModal(row.original),
                 accept: ()=>props.updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(row.original), "Cancel", ()=>{}),
                 reject: ()=>props.updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(row.original), "Cancel", ()=>{}),
-                switchMark: ()=>props.updateModalValues("Mark Changes", "This will mark all the site changes", "Continue", ()=>switchMarkChanges(row.original), "Cancel", ()=>{}),
+                mark: ()=>props.updateModalValues("Mark Changes", "This will mark all the site changes", "Continue", ()=>switchMarkChanges(row.original), "Cancel", ()=>{}),
               }
               return row.canExpand ? (
                 <DropdownSiteChanges actions={contextActions}/>          

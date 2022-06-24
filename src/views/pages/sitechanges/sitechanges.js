@@ -104,13 +104,13 @@ const Sitechanges = () => {
     });
   }
 
-  let markChanges = (changes)=>{
+  let switchMarkChanges = (changes)=>{
     let rBody =!Array.isArray(changes)?[changes]:changes 
 
     return postRequest(ConfigData.SERVER_API_ENDPOINT+'/api/SiteChanges/MarkAsJustificationRequired', rBody)
     .then(data => {
       if(data.ok){
-        //forceRefreshData();
+        forceRefreshData();        
       }
       else 
         alert("something went wrong!");
@@ -281,7 +281,7 @@ const Sitechanges = () => {
                         setRefresh={setRefreshSitechanges}
                         accept={acceptChanges}
                         reject={rejectChanges}
-                        mark={markChanges}
+                        mark={switchMarkChanges}
                         updateModalValues={updateModalValues}
                       />
                     </CTabPane>
