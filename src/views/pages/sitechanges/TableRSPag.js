@@ -427,11 +427,12 @@ const IndeterminateCheckbox = React.forwardRef(
           id: 'dropdownsiteChanges',
           cellWidth: '48px',
           Cell: ({ row }) => {
+              const toggleMark = row.values.JustificationRequired === true ? "Unmark" : "Mark";
               const contextActions = {
                 review: ()=>openModal(row.original),
                 accept: ()=>props.updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(row.original), "Cancel", ()=>{}),
                 reject: ()=>props.updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(row.original), "Cancel", ()=>{}),
-                mark: ()=>props.updateModalValues("Mark Changes", "This will mark all the site changes", "Continue", ()=>switchMarkChanges(row.original), "Cancel", ()=>{}),
+                mark: ()=>props.updateModalValues(toggleMark, "This will "+toggleMark+" all the site changes", "Continue", ()=>switchMarkChanges(row.original), "Cancel", ()=>{}),
               }
               return row.canExpand ? (
                 <DropdownSiteChanges actions={contextActions}/>          
