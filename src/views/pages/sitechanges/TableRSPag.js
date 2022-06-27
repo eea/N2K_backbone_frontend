@@ -435,7 +435,7 @@ const IndeterminateCheckbox = React.forwardRef(
                 mark: ()=>props.updateModalValues(toggleMark, "This will "+toggleMark+" all the site changes", "Continue", ()=>switchMarkChanges(row.original), "Cancel", ()=>{}),
               }
               return row.canExpand ? (
-                <DropdownSiteChanges actions={contextActions}/>          
+                <DropdownSiteChanges actions={contextActions} toggleMark = {toggleMark}/>          
               ) : null
           }
         },
