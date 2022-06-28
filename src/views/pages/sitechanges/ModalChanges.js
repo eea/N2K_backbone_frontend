@@ -300,6 +300,16 @@ export class ModalChanges extends Component {
     this.setState({levels: levels, bookmark: ""});
   }
 
+  set_Just_Requ(){
+    let justification = this.state.justification;
+    if (justification === true){
+      justification = true;
+    } else {
+      justification = false;
+    }
+    this.setState(justification);
+  }
+
 
   render_changes(){
     return(
@@ -475,7 +485,8 @@ export class ModalChanges extends Component {
           </CCol>
           <CCol className="d-flex">
             <div className="checkbox">
-              <input type="checkbox" checked className="input-checkbox" id="modal_justification_req" onClick="" />
+              <input type="checkbox" className="input-checkbox" id="modal_justification_req" onClick={(e)=>this.set_Just_Requ(true)} checked readOnly/>
+              {/* <input type="checkbox" checked className="input-checkbox" id="modal_justification_req" onClick="" /> */}
               <label htmlFor="modal_justification_req" className="input-label">Justification required</label>
             </div>
             <div className="checkbox">
