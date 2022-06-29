@@ -298,6 +298,19 @@ const IndeterminateCheckbox = React.forwardRef(
       if(refresh) forceRefreshData(); //To force refresh
     }
 
+    let setBackToPending = (change)=>{
+      return props.setBackToPending({"SiteCode":change.SiteCode,"VersionId":change.Version})
+      .then(data => {
+          if(data?.ok){
+            forceRefreshData();
+            //props.setRefresh("pending",false);
+            //props.setRefresh("accepted",true);
+            //props.setRefresh("rejected",true);
+          }
+          return data;
+      });
+    }
+
     let acceptChanges = (change)=>{
       return props.accept({"SiteCode":change.SiteCode,"VersionId":change.Version})
       .then(data => {
@@ -396,20 +409,38 @@ const IndeterminateCheckbox = React.forwardRef(
           Header: () => null, 
           id: 'dropdownsiteChanges',
           Cell: ({ row }) => {
-              const contextActions = {
-                review: ()=>openModal(row.original),
-                accept: ()=>props.updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(row.original), "Cancel", ()=>{}),
-                reject: ()=>props.updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(row.original), "Cancel", ()=>{}),
-                mark: ()=>props.updateModalValues("Mark Changes", "This will mark all the site changes", "Continue", ()=>markChanges(row.original), "Cancel", ()=>{}),
-              }
               return row.canExpand ? (
-                <DropdownSiteChanges actions={contextActions}/>          
+                <DropdownSiteChanges actions={getContextActions(row)}/>          
               ) : null
           }
         },
       ],
       []
     )
+
+    let getContextActions = (row)=>{
+      switch(props.status){
+        case 'pending':
+          return {
+            review: ()=>openModal(row.original),
+            accept: ()=>props.updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(row.original), "Cancel", ()=>{}),
+            reject: ()=>props.updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(row.original), "Cancel", ()=>{}),
+            mark: ()=>props.updateModalValues("Mark Changes", "This will mark all the site changes", "Continue", ()=>markChanges(row.original), "Cancel", ()=>{}),
+          }
+        case 'accepted':
+          return {
+            review: ()=>openModal(row.original),
+            backPending: ()=>props.updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", ()=>setBackToPending(row.original), "Cancel", ()=>{}),
+          }
+        case 'rejected':
+          return {
+            review: ()=>openModal(row.original),
+            backPending: ()=>props.updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", ()=>setBackToPending(row.original), "Cancel", ()=>{}),
+          }
+        default:
+          return {}
+      }
+    }
 
     let getSiteCodes= ()=>{
       let url = ConfigData.SERVER_API_ENDPOINT+'/api/sitechanges/GetSiteCodes/';
@@ -479,10 +510,12 @@ const IndeterminateCheckbox = React.forwardRef(
                         close = {closeModal} 
                         accept={()=>acceptChanges(modalItem)} 
                         reject={()=>rejectChanges(modalItem)} 
+                        backToPending={()=>setBackToPending(modalItem)}
                         mark={()=>markChanges(modalItem)}
                         item={modalItem.SiteCode} 
                         version={modalItem.Version} 
                         updateModalValues = {props.updateModalValues}
+                        status = {props.status}
           />
         </>
         )

@@ -65,6 +65,23 @@ const Sitechanges = () => {
     return fetch(url, options)
   }
 
+  let setBackToPending = (changes)=>{
+    let rBody = !Array.isArray(changes)?[changes]:changes
+
+    return postRequest(ConfigData.SERVER_API_ENDPOINT+'/api/SiteChanges/MoveToPending', rBody)
+    .then(data => {
+        if(data.ok){
+          forceRefreshData();
+          setForceRefresh(forceRefresh+1);
+        }else
+          alert("something went wrong!");
+        return data;
+    }).catch(e => {
+      alert("something went wrong!");
+      console.log(e);
+    });
+  }
+
   let acceptChanges = (changes)=>{
     let rBody = !Array.isArray(changes)?[changes]:changes
 
@@ -219,8 +236,9 @@ const Sitechanges = () => {
                 </div>
                 <div>
                   <ul className="btn--list">
-                    <li><CButton color="secondary"  onClick={()=>updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(selectedCodes), "Cancel", ()=>{})} disabled={disabledBtn || activeTab!==1}>Reject changes</CButton></li>
-                    <li><CButton color="primary" onClick={()=>updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(selectedCodes), "Cancel", ()=>{})} disabled={disabledBtn || activeTab!==1}>Accept changes</CButton></li>
+                    {activeTab===1 && <li><CButton color="secondary"  onClick={()=>updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(selectedCodes), "Cancel", ()=>{})} disabled={disabledBtn || activeTab!==1}>Reject changes</CButton></li>}
+                    {activeTab===1 && <li><CButton color="primary" onClick={()=>updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(selectedCodes), "Cancel", ()=>{})} disabled={disabledBtn || activeTab!==1}>Accept changes</CButton></li>}
+                    {activeTab!==1 && <li><CButton color="primary" onClick={()=>updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", ()=>setBackToPending(selectedCodes), "Cancel", ()=>{})} disabled={disabledBtn || activeTab===1}>Back to Pending</CButton></li>}
                   </ul>
                 </div>
               </div>
@@ -311,6 +329,8 @@ const Sitechanges = () => {
                         setSelected={setSelectedCodes} 
                         getRefresh={()=>getRefreshSitechanges("accepted")} 
                         setRefresh={setRefreshSitechanges}
+                        setBackToPending={setBackToPending}
+                        updateModalValues={updateModalValues}
                       />
                     </CTabPane>
                     <CTabPane role="tabpanel" aria-labelledby="rejected-tab" visible={activeTab === 3}>
@@ -321,6 +341,8 @@ const Sitechanges = () => {
                         setSelected={setSelectedCodes} 
                         getRefresh={()=>getRefreshSitechanges("rejected")} 
                         setRefresh={setRefreshSitechanges}
+                        setBackToPending={setBackToPending}
+                        updateModalValues={updateModalValues}
                       />
                     </CTabPane>                    
                     </CTabContent>
