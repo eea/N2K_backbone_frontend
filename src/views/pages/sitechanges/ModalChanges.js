@@ -301,18 +301,7 @@ export class ModalChanges extends Component {
     }
     this.setState({levels: levels, bookmark: ""});
   }
-
-  set_Just_Requ(){
-    let justification = this.state.justification;
-    if (justification === true){
-      justification = true;
-    } else {
-      justification = false;
-    }
-    this.setState(justification);
-  }
-
-
+  
   render_changes(){
     return(
       <CTabPane role="tabpanel" aria-labelledby="home-tab" visible={this.state.activeKey === 1}>
