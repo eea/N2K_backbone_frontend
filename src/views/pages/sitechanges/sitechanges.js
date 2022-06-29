@@ -27,16 +27,16 @@ import ConfigData from '../../../config.json';
 
 const xmlns = 'https://www.w3.org/2000/svg'
 
-let countries = [{name:"Austria",code:"AT"},{name:"Germany",code:"DE"},{name:"France",code:"FR"}];
-
 let refreshSitechanges={"pending":false,"accepted":false,"rejected":false}, 
   getRefreshSitechanges=(state)=>refreshSitechanges[state], 
   setRefreshSitechanges=(state,v)=>refreshSitechanges[state] = v;
+
 const Sitechanges = () => {
   const [activeTab, setActiveTab] = useState(1)
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [forceRefresh, setForceRefresh] = useState(0);
+  const [countries, setCountries] = useState([]);
   const [country, setCountry] = useState("DE");
   const [level, setLevel] = useState('Critical');
   const [disabledBtn, setDisabledBtn] = useState(true);
@@ -179,6 +179,19 @@ const Sitechanges = () => {
   let changeCountry= (country)=>{
     setCountry(country)
     forceRefreshData();
+  }
+
+  //Initial set for countries
+  if(countries.length === 0){
+    fetch(ConfigData.SERVER_API_ENDPOINT+'/api/Countries/GetWithData')
+    .then(response => response.json())
+    .then(data => {
+      let countriesList = [];
+      for(let i in data.Data){
+        countriesList.push({name:data.Data[i].Country,code:data.Data[i].Code});
+      }
+      setCountries(countriesList);
+    });      
   }
 
   return (
