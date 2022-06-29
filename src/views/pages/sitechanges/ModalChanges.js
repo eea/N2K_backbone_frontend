@@ -59,6 +59,8 @@ export class ModalChanges extends Component {
       showAlert: false,
       newComment: false,
       newDocument: false,
+      justificationRequired: false,
+      justificationProvided: false,
       modalValues : {
         visibility: false,
         close: () => {
@@ -485,12 +487,11 @@ export class ModalChanges extends Component {
           </CCol>
           <CCol className="d-flex">
             <div className="checkbox">
-              <input type="checkbox" className="input-checkbox" id="modal_justification_req" onClick={(e)=>this.set_Just_Requ(true)} checked readOnly/>
-              {/* <input type="checkbox" checked className="input-checkbox" id="modal_justification_req" onClick="" /> */}
+              <input type="checkbox" className="input-checkbox" id="modal_justification_req" checked={this.props.justificationRequired} />
               <label htmlFor="modal_justification_req" className="input-label">Justification required</label>
             </div>
             <div className="checkbox">
-              <input type="checkbox" className="input-checkbox" id="modal_justification_prov"/>
+              <input type="checkbox" className="input-checkbox" id="modal_justification_prov" checked={this.props.justificationProvided}/>
               <label htmlFor="modal_justification_prov" className="input-label">Justification provided</label>
             </div>
           </CCol>

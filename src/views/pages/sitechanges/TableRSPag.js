@@ -409,14 +409,14 @@ const IndeterminateCheckbox = React.forwardRef(
           accessor: 'Country',
         },
         {
-          Header: '',
+          Header: () => null,
           accessor: "JustificationRequired",
           Cell: ({ row }) => (
-            row.canExpand ? <> {row.values.JustificationRequired === true ? <CImage src={justificationrequired} className="ico--md "></CImage> : null } </> : null             
-          ),
+            row.canExpand ? <> {row.values.JustificationRequired === true ? <CImage src={justificationrequired} className="ico--md "></CImage> : null } </> : null
+          )                     
         },    
         {
-          Header: '',
+          Header: () => null,
           accessor: "JustificationProvided",
           Cell: ({ row }) => (
             row.canExpand ? <> {row.values.JustificationProvided === true ? <CImage src={justificationprovided} className="ico--md "></CImage> : null  } </> : null             
@@ -432,7 +432,7 @@ const IndeterminateCheckbox = React.forwardRef(
                 review: ()=>openModal(row.original),
                 accept: ()=>props.updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(row.original), "Cancel", ()=>{}),
                 reject: ()=>props.updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(row.original), "Cancel", ()=>{}),
-                mark: ()=>props.updateModalValues(`{toggleMark} Changes`, `This will {toggleMark} all the site changes`, "Continue", ()=>switchMarkChanges(row.original), "Cancel", ()=>{}),
+                mark: ()=>props.updateModalValues(""+toggleMark+" Changes", "This will "+toggleMark+ " all the site changes", "Continue", ()=>switchMarkChanges(row.original), "Cancel", ()=>{}),
               }
               return row.canExpand ? (
                 <DropdownSiteChanges actions={contextActions} toggleMark = {toggleMark}/>          
@@ -513,11 +513,11 @@ const IndeterminateCheckbox = React.forwardRef(
                         accept={()=>acceptChanges(modalItem)} 
                         reject={()=>rejectChanges(modalItem)} 
                         mark={()=>switchMarkChanges(modalItem)}
-                        justificationRequired = {modalItem.JustificationRequired}
-                        justificationProvided ={modalItem.JustificationProvided}
                         item={modalItem.SiteCode} 
                         version={modalItem.Version} 
                         updateModalValues = {props.updateModalValues}
+                        justificationRequired = {modalItem.JustificationRequired}
+                        justificationProvided = {modalItem.JustificationProvided}
           />
         </>
         )
