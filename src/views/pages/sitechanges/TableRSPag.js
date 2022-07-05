@@ -5,6 +5,7 @@ import {
   CPagination,
   CPaginationItem,
   CImage,
+  CTooltip
 } from '@coreui/react'
 
 import ConfigData from '../../../config.json';
@@ -13,6 +14,7 @@ import {matchSorter} from 'match-sorter'
 
 import { ModalChanges } from './ModalChanges';
 import justificationrequired from './../../../assets/images/exclamation.svg'
+import justificationprovided from './../../../assets/images/file-text.svg'
 
 const IndeterminateCheckbox = React.forwardRef(
     ({ indeterminate, ...rest }, ref) => {
@@ -25,7 +27,10 @@ const IndeterminateCheckbox = React.forwardRef(
   
       return (
         <>
-          <input type="checkbox" ref={resolvedRef} {...rest} />
+          <div className={"checkbox" + (rest.hidden ? " d-none" :"")} >
+            <input type="checkbox" className="input-checkbox" ref={resolvedRef} {...rest}/>
+            <label htmlFor={rest.id}></label>
+          </div>
         </>
       )
     }
@@ -149,19 +154,16 @@ const IndeterminateCheckbox = React.forwardRef(
       hooks => {
         hooks.visibleColumns.push(columns => [
           {
-            id: 'selection',          
+            id: 'selection',
+            cellWidth: '48px',
             Header: ({ getToggleAllPageRowsSelectedProps }) => (
-              <div key="th_selection">
-                <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} />
-              </div>
+              <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} id="sitechanges_check_all" />
             ),
             Cell: ({ row }) => (
               row.canExpand ?(
-              <div key={"div_"+row.id}>
-                <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} name={"chk_"+row.original.SiteCode} sitecode={row.original.SiteCode} />
-              </div>
+                <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} name={"chk_"+row.original.SiteCode} sitecode={row.original.SiteCode} id={"sitechanges_check_" + row.id} />
               ): null
-            ),            
+            ),
           },
           ...columns,
         ])
@@ -182,7 +184,7 @@ const IndeterminateCheckbox = React.forwardRef(
             {headerGroups.map(headerGroup => (
               <tr {...headerGroup.getHeaderGroupProps()}>
                 {headerGroup.headers.map(column => (
-                  <th key={column.id}>
+                  <th key={column.id} style={{width:column.cellWidth}}>
                       {column.render('Header')}
                         {/*<div>{column.canFilter ? column.render('Filter') : null}</div>*/}
                   </th>
@@ -198,7 +200,7 @@ const IndeterminateCheckbox = React.forwardRef(
               return (
                 <tr {...row.getRowProps()}>
                   {row.cells.map(cell => {
-                    return <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                    return <td {...cell.getCellProps()} className={cell.column.className}>{cell.render('Cell')}</td>
                   })}
                 </tr>
               )
@@ -339,8 +341,8 @@ const IndeterminateCheckbox = React.forwardRef(
     });   
     }
 
-    let markChanges = (change) =>{
-      return props.mark({SiteCode:change.SiteCode,"Justification":change.JustificationRequired})
+    let switchMarkChanges = (change) =>{
+      return props.mark({"SiteCode":change.SiteCode,"VersionId":change.Version,"Justification":true})
       .then(data => {
         if(data?.ok){
           forceRefreshData();          
@@ -355,36 +357,57 @@ const IndeterminateCheckbox = React.forwardRef(
     const columns = React.useMemo(
       () => [
         {
-            id: 'expander',
-            Cell: ({ row }) =>              
-              row.canExpand ? (
-                <span
-                  {...row.getToggleRowExpandedProps({
-                    style: {                      
-                      paddingLeft: `${row.depth * 2}rem`,
-                    },
-                  })}
-                  className="row-expand"
-                >
-                  {row.isExpanded ? 
-                    <i className="fa-solid fa-square-minus"></i>
-                    : 
-                    <i className="fa-solid fa-square-plus"></i>
-                  }
-                </span>
-              ) : null,
+          id: 'expander',
+          cellWidth: '48px',
+          Cell: ({ row }) =>
+            row.canExpand ? (
+              <div
+                {...row.getToggleRowExpandedProps({
+                  style: {
+                    paddingLeft: `${row.depth * 2}rem`,
+                  },
+                })}
+                className="row-expand"
+              >
+                {row.isExpanded ? 
+                  <i className="fa-solid fa-square-minus"></i>
+                  : 
+                  <i className="fa-solid fa-square-plus"></i>
+                }
+              </div>
+            ) : null,
         },
         {
           Header: 'Sitecode',
           accessor: 'SiteCode',
+          className:"cell-sitecode",
+          Cell: ({ row }) => {
+            return (
+              row.values.SiteCode ? (
+                <CTooltip
+                  content={row.original.SiteName}
+                  placement="top"
+                >
+                  <div>
+                    {row.values.SiteCode + " - " + row.original.SiteName}
+                  </div>
+                </CTooltip>
+              ) : null
+            )
+          }
         },
         {
           Header: 'Level',
           accessor: 'Level',
-          //Cell: (row ) => {            
-           // row.styles['backgroundColor'] = row.value === 'Critical' ? 'badge badge--critical' : null
-           // return row.value === "Critical" ? 'red' : 'green';              
-          //}
+          Cell: ({ row }) => {
+            return (
+              row.original.Level ? (
+                <span className={"badge badge--" + row.original.Level.toLowerCase()}>
+                  {row.values.Level}
+                </span>
+              ) : null
+            )
+          }
         },
         {
           Header: 'Change Category',
@@ -399,18 +422,33 @@ const IndeterminateCheckbox = React.forwardRef(
           accessor: 'Country',
         },
         {
-          Header: '',
+          Header: () => null,
           accessor: "JustificationRequired",
           Cell: ({ row }) => (
-            row.canExpand ? <> {row.value === true ? <CImage src={justificationrequired} className="ico--md "></CImage> : null  } </> : null 
+            row.canExpand ? <> {row.values.JustificationRequired === true ? <CImage src={justificationrequired} className="ico--md "></CImage> : null } </> : null
+          )                     
+        },    
+        {
+          Header: () => null,
+          accessor: "JustificationProvided",
+          Cell: ({ row }) => (
+            row.canExpand ? <> {row.values.JustificationProvided === true ? <CImage src={justificationprovided} className="ico--md "></CImage> : null  } </> : null             
           ),
         },    
         {
           Header: () => null, 
           id: 'dropdownsiteChanges',
+          cellWidth: '48px',
           Cell: ({ row }) => {
+              const toggleMark = row.values.JustificationRequired === true ? "Unmark" : "Mark";
+              const contextActions = {
+                review: ()=>openModal(row.original),
+                accept: ()=>props.updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(row.original), "Cancel", ()=>{}),
+                reject: ()=>props.updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(row.original), "Cancel", ()=>{}),
+                mark: ()=>props.updateModalValues(""+toggleMark+" Changes", "This will "+toggleMark+ " all the site changes", "Continue", ()=>switchMarkChanges(row.original), "Cancel", ()=>{}),
+              }
               return row.canExpand ? (
-                <DropdownSiteChanges actions={getContextActions(row)}/>          
+                <DropdownSiteChanges actions={getContextActions(row)} toggleMark = {toggleMark}/>          
               ) : null
           }
         },
@@ -511,11 +549,12 @@ const IndeterminateCheckbox = React.forwardRef(
                         accept={()=>acceptChanges(modalItem)} 
                         reject={()=>rejectChanges(modalItem)} 
                         backToPending={()=>setBackToPending(modalItem)}
-                        mark={()=>markChanges(modalItem)}
+                        mark={()=>switchMarkChanges(modalItem)}
                         item={modalItem.SiteCode} 
                         version={modalItem.Version} 
                         updateModalValues = {props.updateModalValues}
-                        status = {props.status}
+                        justificationRequired = {modalItem.JustificationRequired}
+                        justificationProvided = {modalItem.JustificationProvided}
           />
         </>
         )

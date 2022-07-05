@@ -59,6 +59,8 @@ export class ModalChanges extends Component {
       showAlert: false,
       newComment: false,
       newDocument: false,
+      justificationRequired: false,
+      justificationProvided: false,
       modalValues : {
         visibility: false,
         close: () => {
@@ -299,8 +301,7 @@ export class ModalChanges extends Component {
     }
     this.setState({levels: levels, bookmark: ""});
   }
-
-
+  
   render_changes(){
     return(
       <CTabPane role="tabpanel" aria-labelledby="home-tab" visible={this.state.activeKey === 1}>
@@ -473,13 +474,13 @@ export class ModalChanges extends Component {
               </CPaginationItem>
             </CPagination>
           </CCol>
-          <CCol>
+          <CCol className="d-flex">
             <div className="checkbox">
-              <input type="checkbox" className="input-checkbox" id="modal_justification_req"/>
+              <input type="checkbox" className="input-checkbox" id="modal_justification_req" checked={this.props.justificationRequired} />
               <label htmlFor="modal_justification_req" className="input-label">Justification required</label>
             </div>
             <div className="checkbox">
-              <input type="checkbox" className="input-checkbox" id="modal_justification_prov"/>
+              <input type="checkbox" className="input-checkbox" id="modal_justification_prov" checked={this.props.justificationProvided}/>
               <label htmlFor="modal_justification_prov" className="input-label">Justification provided</label>
             </div>
           </CCol>

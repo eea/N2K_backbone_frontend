@@ -1,4 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react'
+import { AppFooter, AppHeader } from './../../../components/index'
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 import TableRSPag from './TableRSPag';
@@ -10,8 +11,6 @@ import {
   CNav,
   CNavItem,
   CNavLink,
-  CHeader,
-  CAvatar,
   CSidebar,
   CSidebarNav,
   CFormLabel,
@@ -22,7 +21,6 @@ import {
 } from '@coreui/react'
 
 import { ConfirmationModal } from './components/ConfirmationModal';
-import user from './../../../assets/images/avatars/user.png'
 import ConfigData from '../../../config.json';
 
 const xmlns = 'https://www.w3.org/2000/svg'
@@ -41,14 +39,19 @@ const Sitechanges = () => {
   const [level, setLevel] = useState('Critical');
   const [disabledBtn, setDisabledBtn] = useState(true);
 
-  let selectedCodes=[], 
-  setSelectedCodes=(v)=>{
-    if(document.querySelectorAll('input[sitecode]:checked').length!==0 && v.length===0) return;
+  let selectedCodes = [],
+  setSelectedCodes = (v) => {
+    if(document.querySelectorAll('input[sitecode]:checked').length !== 0 && v.length === 0) {
+      if(!document.querySelector("#sitechanges_check_all").indeterminate && !document.querySelector("#sitechanges_check_all").checked) {
+        setDisabledBtn(true);
+      }
+      return;
+    }
     selectedCodes = v;
     if (selectedCodes.length === 0) {
-      setDisabledBtn(true)
+      setDisabledBtn(true);
     } else {
-      setDisabledBtn(false)
+      setDisabledBtn(false);
     }
   };
 
@@ -120,13 +123,13 @@ const Sitechanges = () => {
     });
   }
 
-  let markChanges = (changes)=>{
+  let switchMarkChanges = (changes)=>{
     let rBody =!Array.isArray(changes)?[changes]:changes 
 
     return postRequest(ConfigData.SERVER_API_ENDPOINT+'/api/SiteChanges/MarkAsJustificationRequired', rBody)
     .then(data => {
       if(data.ok){
-        //forceRefreshData();
+        forceRefreshData();        
       }
       else 
         alert("something went wrong!");
@@ -197,26 +200,7 @@ const Sitechanges = () => {
   return (
     <>
       <div className="container--main min-vh-100">
-        <CHeader className="header--custom">
-          <CRow className="align-items-center">
-            <CCol className="header__title">
-              <div>Natura Change Manager</div>
-            </CCol>
-            <CCol className="header__links">
-              <ul className="btn--list justify-content-between">
-                <li><CButton color="link" className="btn-link--bold" href="/#/dashboard">Dashboard</CButton></li>
-                <li><CButton color="link" className="btn-link--bold" href="/#/harvesting">Harvesting</CButton></li>
-                <li className="header-active"><CButton color="link" className="btn-link--bold" href="/#/sitechanges">Site Changes</CButton></li>
-                <li><CButton color="link" className="btn-link--bold">Site Lineage</CButton></li>
-                <li><CButton color="link" className="btn-link--bold">Reports</CButton></li>
-                <li><CButton color="link" className="btn-link--bold">Reference Dataset</CButton></li>
-                <li><CAvatar src={user} /><CButton color="link" className="btn-link--bold">Username</CButton></li>
-              </ul>
-            </CCol>
-          </CRow>
-        </CHeader>
-        <CContainer fluid>
-        </CContainer>
+        <AppHeader page="sitechanges"/>
         <div className="content--wrapper">
           <CSidebar className="sidebar--light">
             <CSidebarNav>
@@ -330,7 +314,7 @@ const Sitechanges = () => {
                         setRefresh={setRefreshSitechanges}
                         accept={acceptChanges}
                         reject={rejectChanges}
-                        mark={markChanges}
+                        mark={switchMarkChanges}
                         updateModalValues={updateModalValues}
                       />
                     </CTabPane>

@@ -1,8 +1,10 @@
 .table {
   border-collapse: inherit;
+  border-spacing: 0;
   th {
     color: $primary-dark;
     font-size: 0.9rem;
+    vertical-align: middle;
   }
   &--light {
     th, td {
@@ -18,10 +20,36 @@
     td {
       border-bottom-color: $gray-100;
       color: $black;
-      .row-expand i {
-        color: $blue;
+      vertical-align: middle;
+      padding: 0.75rem 0.5rem;
+      .row-expand {
+        font-size: 18px;
+        line-height: 18px;
+        height: 18px;
+        text-align: center;
+        i {
+          color: $blue;
+        }
+      }
+      .btn-group {
+        width: 100%;
       }
     }
+    .cell-sitecode {
+      max-width: 200px;
+      width: 30%;
+      div {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        cursor: default;
+      }
+    }
+  }
+  .checkbox {
+    margin: auto;
+    height: 18px;
+    width: 18px;
   }
 }
 .td-separator {
