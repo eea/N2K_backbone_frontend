@@ -1,47 +1,28 @@
-import React, { Component } from 'react';
 
+import React, { Component, useState } from 'react';
 import {
-    CButton,
+    CButton,  
     CCol,
     CCard,
+    CImage,
     CPagination,
-    CPaginationItem,
+    CPaginationItem,  
   } from '@coreui/react'
 
-export class CommentsModal extends Component {   
-  constructor(props) {
-    super(props);
-    this.state = {
-      activeKey: 1, 
-      loading: true, 
-      data: {}, 
-      levels:["Critical"],
-      bookmark: "",
-      bookmarks: [],
-      showDetail: "",
-      showAlert: false,
-      newComment: false,
-      newDocument: false,
-      justificationRequired: false,
-      justificationProvided: false,
-      modalValues : {
-        visibility: false,
-        close: () => {
-          this.setState({
-            modalValues: {
-              visibility: false
-            }
-          });
-        }
-      }
+const CommentsM = (props) => {
+
+    const [sdocument, setDocument ] = useState([]);
+    const [comment, setComment ] = useState([]);
+
+    const newComment = (event) => {
+        // new comment
     };
-  }
-   
-    addComment() {
-        this.setState({newComment: true})
-    }
-        
-    updateComment(e){
+
+    const addComment = (event) => {
+       // {newComment: true}>
+    };
+
+    const updateComment = (e) => {
         let input = e.currentTarget.closest(".comment--item").querySelector("input");
         if (e.currentTarget.firstChild.classList.contains("fa-pencil")) {
             input.disabled = false;
@@ -53,19 +34,18 @@ export class CommentsModal extends Component {
             // Update comment
         }
     }
-            
-    deleteComment(e){
-        // Delete comment
+    const deleteComment = (e) => {
+        //delete comment
     }
-    
-    return() {        
+
+    return (
         <CCol xs={12} lg={6}>
             <CCard className="comment--list">
               <div className="d-flex justify-content-between align-items-center pb-2">
                 <b>Comments</b>
-                <CButton color="link" className="btn-link--dark" onClick={() => this.addComment()}>Add comment</CButton>
+                <CButton color="link" className="btn-link--dark" onClick={addComment}>Add comment</CButton>
               </div>
-              {this.state.newComment &&
+              {newComment &&
                 <div className="comment--item new">
                   <div className="comment--text">
                     <input type="text" placeholder="Add comment"/>
@@ -85,10 +65,10 @@ export class CommentsModal extends Component {
                   <input type="text" placeholder="Add comment" defaultValue="New to upload supporting emails" disabled/>
                 </div>
                 <div>
-                  <div className="btn-icon" onClick={(e) => this.updateComment(e)}>
+                  <div className="btn-icon" onClick={updateComment}>
                     <i className="fa-solid fa-pencil"></i>
                   </div>
-                  <div className="btn-icon" onClick={(e) => this.deleteComment(e)}>
+                  <div className="btn-icon" onClick={deleteComment}>
                     <i className="fa-regular fa-trash-can"></i>
                   </div>
                 </div>
@@ -118,8 +98,8 @@ export class CommentsModal extends Component {
                 <i className="fa-solid fa-angle-right"></i>
               </CPaginationItem>
             </CPagination>
-          </CCol>      
-    }
-  }
-  
-export default CommentsModal;
+          </CCol>   
+    );
+};
+
+export default CommentsM;

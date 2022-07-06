@@ -38,7 +38,9 @@ import { cilWarning } from '@coreui/icons'
 import CommentsModal from './components/CommentsModal';
 
 import { ConfirmationModal } from './components/ConfirmationModal';
-import { DocumentsModal } from './components/DocumentsModal';
+import DocumentsModal from './components/DocumentsModal';
+import CommentsM from './components/CommentsM';
+import DocumentsM from './components/DocumentsM';
 
 import moreicon from './../../../assets/images/three-dots.svg'
 import justificationprovided from './../../../assets/images/file-text.svg'
@@ -323,7 +325,7 @@ export class ModalChanges extends Component {
                   <label htmlFor="modal_check_warning" className="input-label badge color--warning">Warning</label>
                 </div>
               </li>
-              <li className="nav-item">
+                <li className="nav-item">
                 <div className="checkbox">
                   <input type="checkbox" className="input-checkbox" id="modal_check_info" onClick={(e)=>this.set_level("Info")} checked={this.state.levels.includes("Info")} readOnly/>
                   <label htmlFor="modal_check_info" className="input-label badge color--info">Info</label>
@@ -355,8 +357,133 @@ export class ModalChanges extends Component {
     return(
       <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 2}>
         <CRow className="py-3">
-          <DocumentsModal/>
-          <CommentsModal />           
+        <CCol xs={12} lg={6}>
+            <CCard className="document--list">
+              <div className="d-flex justify-content-between align-items-center pb-2">
+                <b>Attached documents</b>
+                <CButton color="link" className="btn-link--dark" onClick={() => this.state.addDocument()}>Add document</CButton>
+              </div>
+              {this.state.newDocument &&
+                <div className="document--item new">
+                  <div className="input-file">
+                    <label htmlFor="uploadBtn">
+                      Select file
+                    </label>
+                    <input id="uploadBtn" type="file" onChange={this.state.uploadFile}/>
+                    <input id="uploadFile" placeholder="No file selected" disabled="disabled" />
+                  </div>
+                  <div>
+                    <div className="btn-icon">
+                      <i className="fa-solid fa-floppy-disk"></i>
+                    </div>
+                    <div className="btn-icon">
+                      <i className="fa-regular fa-trash-can"></i>
+                    </div>
+                  </div>
+                </div>
+              }
+              <div className="document--item">
+                <div className="my-auto">
+                  <CImage src={justificationprovided} className="ico--md me-3"></CImage>
+                  <span>File name</span>
+                </div>
+                <div>
+                  <CButton color="link" className="btn-link--dark">View</CButton>
+                  <div className="btn-icon" onClick={this.state.deleteDocument}>
+                    <i className="fa-regular fa-trash-can"></i>
+                  </div>
+                </div>
+              </div>
+              <div className="document--item">
+                <div className="my-auto">
+                  <CImage src={justificationprovided} className="ico--md me-3"></CImage>
+                  <span>File name</span>
+                </div>
+                <div>
+                  <CButton color="link" className="btn-link--dark">View</CButton>
+                  <div className="btn-icon">
+                    <i className="fa-regular fa-trash-can"></i>
+                  </div>
+                </div>
+              </div>
+            </CCard>
+            <CPagination aria-label="Pagination" className="pt-3">
+              <CPaginationItem aria-label="Previous">
+                  <i className="fa-solid fa-angle-left"></i>
+              </CPaginationItem>
+              <CPaginationItem>1</CPaginationItem>
+              <CPaginationItem>2</CPaginationItem>
+              <CPaginationItem>3</CPaginationItem>
+              <CPaginationItem aria-label="Next">
+                <i className="fa-solid fa-angle-right"></i>
+              </CPaginationItem>
+            </CPagination>
+          </CCol> 
+          <CCol xs={12} lg={6}>
+            <CCard className="comment--list">
+              <div className="d-flex justify-content-between align-items-center pb-2">
+                <b>Comments</b>
+                <CButton color="link" className="btn-link--dark" onClick={() => this.addComment()}>Add comment</CButton>
+              </div>
+              {this.state.newComment &&
+                <div className="comment--item new">
+                  <div className="comment--text">
+                    <input type="text" placeholder="Add comment"/>
+                  </div>
+                  <div>
+                    <div className="btn-icon">
+                      <i className="fa-solid fa-floppy-disk"></i>
+                    </div>
+                    <div className="btn-icon">
+                      <i className="fa-regular fa-trash-can"></i>
+                    </div>
+                  </div>
+                </div>
+              }
+              <div className="comment--item">
+                <div className="comment--text">
+                  <input type="text" placeholder="Add comment" defaultValue="New to upload supporting emails" disabled/>
+                </div>
+                <div>
+                  <div className="btn-icon" onClick={(e) => this.updateComment(e)}>
+                    <i className="fa-solid fa-pencil"></i>
+                  </div>
+                  <div className="btn-icon" onClick={(e) => this.deleteComment(e)}>
+                    <i className="fa-regular fa-trash-can"></i>
+                  </div>
+                </div>
+              </div>
+              <div className="comment--item">
+                <div className="comment--text">
+                  <input type="text" placeholder="Add comment" defaultValue="Spatial file needed to approve change" disabled/>
+                </div>
+                <div>
+                  <div className="btn-icon" onClick={(e) => this.updateComment(e)}>
+                    <i className="fa-solid fa-pencil"></i>
+                  </div>
+                  <div className="btn-icon" onClick={(e) => this.deleteComment(e)}>
+                    <i className="fa-regular fa-trash-can"></i>
+                  </div>
+                </div>
+              </div>
+            </CCard>
+            <CPagination aria-label="Pagination" className="pt-3">
+              <CPaginationItem aria-label="Previous">
+                <i className="fa-solid fa-angle-left"></i>
+              </CPaginationItem>
+              <CPaginationItem>1</CPaginationItem>
+              <CPaginationItem>2</CPaginationItem>
+              <CPaginationItem>3</CPaginationItem>
+              <CPaginationItem aria-label="Next">
+                <i className="fa-solid fa-angle-right"></i>
+              </CPaginationItem>
+            </CPagination>
+          </CCol> 
+          {/* <DocumentsModal /> */}
+          {/* <CommentsModal /> */}
+
+          {/* <DocumentsM />
+          <CommentsM /> */}
           <CCol className="d-flex">
             <div className="checkbox">
               <input type="checkbox" className="input-checkbox" id="modal_justification_req" checked={this.props.justificationRequired} />
