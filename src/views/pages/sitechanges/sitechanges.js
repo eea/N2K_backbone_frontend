@@ -41,8 +41,9 @@ const Sitechanges = () => {
 
   let selectedCodes = [],
   setSelectedCodes = (v) => {
+    let checkAll = document.querySelector('.tab-pane.active [id^=sitechanges_check_all]');
     if(document.querySelectorAll('input[sitecode]:checked').length !== 0 && v.length === 0) {
-      if(!document.querySelector("#sitechanges_check_all").indeterminate && !document.querySelector("#sitechanges_check_all").checked) {
+      if(!checkAll.indeterminate && !checkAll.checked) {
         setDisabledBtn(true);
       }
       return;

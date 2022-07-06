@@ -92,7 +92,7 @@ const IndeterminateCheckbox = React.forwardRef(
   
   fuzzyTextFilterFn.autoRemove = val => !val
 
-  function Table({ columns, data, setSelected, siteCodes, currentPage, currentSize, loadPage }) {
+  function Table({ columns, data, setSelected, siteCodes, currentPage, currentSize, loadPage, status }) {
 
     const [pgCount, setPgCount] = useState(Math.ceil(siteCodes.length / currentSize));
 
@@ -157,11 +157,11 @@ const IndeterminateCheckbox = React.forwardRef(
             id: 'selection',
             cellWidth: '48px',
             Header: ({ getToggleAllPageRowsSelectedProps }) => (
-              <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} id="sitechanges_check_all" />
+              <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} id={"sitechanges_check_all_" + status} />
             ),
             Cell: ({ row }) => (
               row.canExpand ?(
-                <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} name={"chk_"+row.original.SiteCode} sitecode={row.original.SiteCode} id={"sitechanges_check_" + row.id} />
+                <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} name={"chk_"+row.original.SiteCode} sitecode={row.original.SiteCode} id={"sitechanges_check_" +  row.original.SiteCode} />
               ): null
             ),
           },
@@ -543,6 +543,7 @@ const IndeterminateCheckbox = React.forwardRef(
             currentPage={currentPage}
             currentSize={currentSize} 
             loadPage = {loadPage}
+            status={props.status}
           />        
           <ModalChanges visible = {modalVisible} 
                         close = {closeModal} 
