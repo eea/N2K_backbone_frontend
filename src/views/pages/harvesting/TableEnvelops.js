@@ -6,7 +6,6 @@ import {
   CPagination,
   CPaginationItem,
   CDropdown,
-  
   CDropdownToggle,
   CDropdownMenu,
   CDropdownItem,
@@ -126,14 +125,19 @@ const IndeterminateCheckbox = React.forwardRef(
               <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} id="harvesting_check_all"/>
             ),
             Cell: ({ row }) => (
-              row.index !== 1 && <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} id={"harvesting_check_" + row.id}/>
+              !row.original.CanHarvest ? <CTooltip
+              content="Previous envelope must be handled first"
+              placement="top"
+            >
+              <div style={{width:"16px", height:"16px"}}></div>
+            </CTooltip> : <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} id={"harvesting_check_" + row.Version}/>
             ),
           },
           ...columns,
         ])
       }
     )
-    if(setSelected) setSelected(Object.keys(selectedRowIds).filter(v=>!v.includes(".")).map(v=>{return {CountryCode:data[v].Country, VersionId: data[v].Id}}))
+    if(setSelected) setSelected(Object.keys(selectedRowIds).filter(v=>!v.includes(".")).map(v=>{return {CountryCode:data[v].CountryCode, VersionId: data[v].Version}}))
   
     // Render the UI for your table
     return (
@@ -215,7 +219,7 @@ const IndeterminateCheckbox = React.forwardRef(
     const [alertVisible, setAlertVisible] = useState(false);
 
     useEffect(() => {
-      fetch(ConfigData.SERVER_API_ENDPOINT+'/api/Harvesting/Pending')
+      fetch(ConfigData.SERVER_API_ENDPOINT+'/api/Harvesting/PreHarvested')
       .then(response => response.json())
       .then(data => {
         setEvents(data);
@@ -235,7 +239,7 @@ const IndeterminateCheckbox = React.forwardRef(
       () => [
         {
           Header: 'Envelope ID',
-          accessor: 'Id',
+          accessor: 'Version',
         },
         {
           Header: 'Country',
@@ -243,7 +247,7 @@ const IndeterminateCheckbox = React.forwardRef(
         },
         {
           Header: 'Submission date',
-          accessor: 'SubmissionDate',
+          accessor: 'ImportDate',
           Cell: ({ cell }) => (
             formatDate(cell.value)
           )
@@ -253,14 +257,14 @@ const IndeterminateCheckbox = React.forwardRef(
           id: 'dropdownEnvelops',
           cellWidth: '48px',
           Cell: ({ row }) => (
-            row.index === 1 ? (
+            !row.original.CanHarvest ? (
               <CTooltip
                 content="Previous envelope must be handled first"
                 placement="top"
               >
                 <i className="fa-solid fa-ban"></i>
               </CTooltip>
-            ) : <DropdownHarvesting versionId={row.values.Id} countryCode={row.values.Country} modalProps={props.modalProps}/>
+            ) : <DropdownHarvesting versionId={row.values.Version} countryCode={row.original.CountryCode} modalProps={props.modalProps}/>
           )
         },
       ],
@@ -285,7 +289,7 @@ const IndeterminateCheckbox = React.forwardRef(
     let load_data = () => {
       if(!isLoading && Object.keys(envelopsData).length===0){
         setIsLoading(true);
-        fetch(ConfigData.SERVER_API_ENDPOINT+'/api/Harvesting/Pending')
+        fetch(ConfigData.SERVER_API_ENDPOINT+'/api/Harvesting/PreHarvested')
         .then(response => response.json())
         .then(data => {
           setEnvelopsData(data.Data);

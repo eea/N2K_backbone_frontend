@@ -155,18 +155,6 @@ const Harvesting = () => {
                 </ul>
               </div>
             </div>
-            <div className="d-flex justify-content-end mb-3">
-              <div className="select--right position-relative m-0">
-                <CFormLabel htmlFor="exampleFormControlInput1" className="form-label form-label-reporting col-md-4 col-form-label">Reporting date</CFormLabel>
-                <CFormSelect aria-label="Default select example" className="form-select-reporting">
-                  <option></option>
-                  <option value="1">One</option>
-                  <option value="2">Two</option>
-                  <option value="3">Three</option>
-                </CFormSelect>
-              </div>
-            </div>
-            {/* table */}
             <CRow>
               <CCol md={12} lg={12}>
                 <TableEnvelops setSelected={setSelectedCodes} modalProps={modalProps} />
