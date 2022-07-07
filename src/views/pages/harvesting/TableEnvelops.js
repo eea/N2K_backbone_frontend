@@ -125,12 +125,14 @@ const IndeterminateCheckbox = React.forwardRef(
               <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} id="harvesting_check_all"/>
             ),
             Cell: ({ row }) => (
-              !row.original.CanHarvest ? <CTooltip
-              content="Previous envelope must be handled first"
-              placement="top"
-            >
-              <div style={{width:"16px", height:"16px"}}></div>
-            </CTooltip> : <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} id={"harvesting_check_" + row.Version}/>
+              !row.original.CanHarvest ?
+                <CTooltip
+                  content="Previous envelope must be handled first"
+                  placement="top"
+                >
+                  <div className="checkbox"></div>
+                </CTooltip>
+              : <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} id={"harvesting_check_" + row.Version}/>
             ),
           },
           ...columns,
@@ -257,14 +259,14 @@ const IndeterminateCheckbox = React.forwardRef(
           id: 'dropdownEnvelops',
           cellWidth: '48px',
           Cell: ({ row }) => (
-            !row.original.CanHarvest ? (
+            !row.original.CanHarvest ?
               <CTooltip
                 content="Previous envelope must be handled first"
                 placement="top"
               >
                 <i className="fa-solid fa-ban"></i>
               </CTooltip>
-            ) : <DropdownHarvesting versionId={row.values.Version} countryCode={row.original.CountryCode} modalProps={props.modalProps}/>
+            : <DropdownHarvesting versionId={row.values.Version} countryCode={row.original.CountryCode} modalProps={props.modalProps}/>
           )
         },
       ],
