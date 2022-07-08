@@ -1,5 +1,13 @@
 {
     "SERVER_API_ENDPOINT": "https://n2kbackboneback-dev.azurewebsites.net/",
+    "SITECHANGES_GET": "https://n2kbackboneback-dev.azurewebsites.net/api/sitechanges/get/",
+    "SITECODES_GET": "https://n2kbackboneback-dev.azurewebsites.net/api/sitechanges/GetSiteCodes/",
+    "SITECHANGES_DETAIL": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteChanges/GetSiteChangesDetail/",
+    "COUNTRIES_WITH_DATA": "https://n2kbackboneback-dev.azurewebsites.net/api/Countries/GetWithData",
+    "MOVE_TO_PENDING": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteChanges/MoveToPending",
+    "ACCEPT_CHANGES": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteChanges/AcceptChanges",
+    "MARK_AS_JUSTIFICATION_REQUIRED": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteChanges/MarkAsJustificationRequired",
+    "REJECT_CHANGES": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteChanges/RejectChanges",
     "THEME_COLORS": {
       "PRIMARY": "#007bff",
       "SECONDARY": "#fc3"

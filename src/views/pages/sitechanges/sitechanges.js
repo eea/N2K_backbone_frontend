@@ -72,7 +72,7 @@ const Sitechanges = () => {
   let setBackToPending = (changes)=>{
     let rBody = !Array.isArray(changes)?[changes]:changes
 
-    return postRequest(ConfigData.SERVER_API_ENDPOINT+'/api/SiteChanges/MoveToPending', rBody)
+    return postRequest(ConfigData.MOVE_TO_PENDING, rBody)
     .then(data => {
         if(data.ok){
           forceRefreshData();
@@ -89,7 +89,7 @@ const Sitechanges = () => {
   let acceptChanges = (changes)=>{
     let rBody = !Array.isArray(changes)?[changes]:changes
 
-    return postRequest(ConfigData.SERVER_API_ENDPOINT+'/api/SiteChanges/AcceptChanges', rBody)
+    return postRequest(ConfigData.ACCEPT_CHANGES, rBody)
     .then(data => {
         if(data.ok){
           setRefreshSitechanges("pending",true);
@@ -108,7 +108,7 @@ const Sitechanges = () => {
   let rejectChanges = (changes)=>{
     let rBody = !Array.isArray(changes)?[changes]:changes
 
-    return postRequest(ConfigData.SERVER_API_ENDPOINT+'/api/SiteChanges/RejectChanges', rBody)
+    return postRequest(ConfigData.REJECT_CHANGES, rBody)
     .then(data => {
         if(data.ok){
           setRefreshSitechanges("pending",true);
@@ -127,7 +127,7 @@ const Sitechanges = () => {
   let switchMarkChanges = (changes)=>{
     let rBody =!Array.isArray(changes)?[changes]:changes 
 
-    return postRequest(ConfigData.SERVER_API_ENDPOINT+'/api/SiteChanges/MarkAsJustificationRequired', rBody)
+    return postRequest(ConfigData.MARK_AS_JUSTIFICATION_REQUIRED, rBody)
     .then(data => {
       if(data.ok){
         forceRefreshData();        
@@ -187,7 +187,7 @@ const Sitechanges = () => {
 
   //Initial set for countries
   if(countries.length === 0){
-    fetch(ConfigData.SERVER_API_ENDPOINT+'/api/Countries/GetWithData')
+    fetch(ConfigData.COUNTRIES_WITH_DATA)
     .then(response => response.json())
     .then(data => {
       let countriesList = [];

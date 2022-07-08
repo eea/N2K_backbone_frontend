@@ -268,14 +268,6 @@ const IndeterminateCheckbox = React.forwardRef(
     const [currentSize, setCurrentSize] = useState(30);
     const [levelCountry, setLevelCountry] = useState({});
 
-    useEffect(() => {
-      fetch(ConfigData.SERVER_API_ENDPOINT+'/api/sitechanges/get')
-      .then(response => response.json())
-      .then(data => {
-        setEvents(data);
-      });
-    }, [])
-
     let forceRefreshData = ()=> setChangesData({});
 
     let resetPagination = () =>{
@@ -481,7 +473,7 @@ const IndeterminateCheckbox = React.forwardRef(
     }
 
     let getSiteCodes= ()=>{
-      let url = ConfigData.SERVER_API_ENDPOINT+'/api/sitechanges/GetSiteCodes/';
+      let url = ConfigData.SITECODES_GET;
       url += 'country='+props.country;
       url += '&status='+props.status;
       url += '&level='+props.level;
@@ -505,7 +497,7 @@ const IndeterminateCheckbox = React.forwardRef(
           setLevelCountry({level:props.level,country:props.country});
         }
 
-        let url = ConfigData.SERVER_API_ENDPOINT+'/api/sitechanges/get/';
+        let url = ConfigData.SITECHANGES_GET;
         url += 'country='+ props.country;
         url += '&status='+props.status;
         url += '&level='+props.level;
