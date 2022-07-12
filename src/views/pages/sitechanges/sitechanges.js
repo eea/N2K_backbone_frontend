@@ -1,4 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react'
+import { AppFooter, AppHeader } from './../../../components/index'
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 import TableRSPag from './TableRSPag';
@@ -10,8 +11,6 @@ import {
   CNav,
   CNavItem,
   CNavLink,
-  CHeader,
-  CAvatar,
   CSidebar,
   CSidebarNav,
   CFormLabel,
@@ -22,33 +21,38 @@ import {
 } from '@coreui/react'
 
 import { ConfirmationModal } from './components/ConfirmationModal';
-import user from './../../../assets/images/avatars/user.png'
 import ConfigData from '../../../config.json';
 
 const xmlns = 'https://www.w3.org/2000/svg'
 
-let countries = [{name:"Austria",code:"AT"},{name:"Germany",code:"DE"},{name:"France",code:"FR"}];
-
 let refreshSitechanges={"pending":false,"accepted":false,"rejected":false}, 
   getRefreshSitechanges=(state)=>refreshSitechanges[state], 
   setRefreshSitechanges=(state,v)=>refreshSitechanges[state] = v;
+
 const Sitechanges = () => {
   const [activeTab, setActiveTab] = useState(1)
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [forceRefresh, setForceRefresh] = useState(0);
+  const [countries, setCountries] = useState([]);
   const [country, setCountry] = useState("DE");
   const [level, setLevel] = useState('Critical');
   const [disabledBtn, setDisabledBtn] = useState(true);
 
-  let selectedCodes=[], 
-  setSelectedCodes=(v)=>{
-    if(document.querySelectorAll('input[sitecode]:checked').length!==0 && v.length===0) return;
+  let selectedCodes = [],
+  setSelectedCodes = (v) => {
+    let checkAll = document.querySelector('.tab-pane.active [id^=sitechanges_check_all]');
+    if(document.querySelectorAll('input[sitecode]:checked').length !== 0 && v.length === 0) {
+      if(!checkAll.indeterminate && !checkAll.checked) {
+        setDisabledBtn(true);
+      }
+      return;
+    }
     selectedCodes = v;
     if (selectedCodes.length === 0) {
-      setDisabledBtn(true)
+      setDisabledBtn(true);
     } else {
-      setDisabledBtn(false)
+      setDisabledBtn(false);
     }
   };
 
@@ -65,10 +69,27 @@ const Sitechanges = () => {
     return fetch(url, options)
   }
 
+  let setBackToPending = (changes)=>{
+    let rBody = !Array.isArray(changes)?[changes]:changes
+
+    return postRequest(ConfigData.MOVE_TO_PENDING, rBody)
+    .then(data => {
+        if(data.ok){
+          forceRefreshData();
+          setForceRefresh(forceRefresh+1);
+        }else
+          alert("something went wrong!");
+        return data;
+    }).catch(e => {
+      alert("something went wrong!");
+      console.log(e);
+    });
+  }
+
   let acceptChanges = (changes)=>{
     let rBody = !Array.isArray(changes)?[changes]:changes
 
-    return postRequest(ConfigData.SERVER_API_ENDPOINT+'/api/SiteChanges/AcceptChanges', rBody)
+    return postRequest(ConfigData.ACCEPT_CHANGES, rBody)
     .then(data => {
         if(data.ok){
           setRefreshSitechanges("pending",true);
@@ -87,7 +108,7 @@ const Sitechanges = () => {
   let rejectChanges = (changes)=>{
     let rBody = !Array.isArray(changes)?[changes]:changes
 
-    return postRequest(ConfigData.SERVER_API_ENDPOINT+'/api/SiteChanges/RejectChanges', rBody)
+    return postRequest(ConfigData.REJECT_CHANGES, rBody)
     .then(data => {
         if(data.ok){
           setRefreshSitechanges("pending",true);
@@ -103,13 +124,13 @@ const Sitechanges = () => {
     });
   }
 
-  let markChanges = (changes)=>{
+  let switchMarkChanges = (changes)=>{
     let rBody =!Array.isArray(changes)?[changes]:changes 
 
-    return postRequest(ConfigData.SERVER_API_ENDPOINT+'/api/SiteChanges/MarkAsJustificationRequired', rBody)
+    return postRequest(ConfigData.MARK_AS_JUSTIFICATION_REQUIRED, rBody)
     .then(data => {
       if(data.ok){
-        //forceRefreshData();
+        forceRefreshData();        
       }
       else 
         alert("something went wrong!");
@@ -164,29 +185,23 @@ const Sitechanges = () => {
     forceRefreshData();
   }
 
+  //Initial set for countries
+  if(countries.length === 0){
+    fetch(ConfigData.COUNTRIES_WITH_DATA)
+    .then(response => response.json())
+    .then(data => {
+      let countriesList = [];
+      for(let i in data.Data){
+        countriesList.push({name:data.Data[i].Country,code:data.Data[i].Code});
+      }
+      setCountries(countriesList);
+    });      
+  }
+
   return (
     <>
       <div className="container--main min-vh-100">
-        <CHeader className="header--custom">
-          <CRow className="align-items-center">
-            <CCol className="header__title">
-              <div>Natura Change Manager</div>
-            </CCol>
-            <CCol className="header__links">
-              <ul className="btn--list justify-content-between">
-                <li><CButton color="link" className="btn-link--bold" href="/#/dashboard">Dashboard</CButton></li>
-                <li><CButton color="link" className="btn-link--bold" href="/#/harvesting">Harvesting</CButton></li>
-                <li className="header-active"><CButton color="link" className="btn-link--bold" href="/#/sitechanges">Site Changes</CButton></li>
-                <li><CButton color="link" className="btn-link--bold">Site Lineage</CButton></li>
-                <li><CButton color="link" className="btn-link--bold">Reports</CButton></li>
-                <li><CButton color="link" className="btn-link--bold">Reference Dataset</CButton></li>
-                <li><CAvatar src={user} /><CButton color="link" className="btn-link--bold">Username</CButton></li>
-              </ul>
-            </CCol>
-          </CRow>
-        </CHeader>
-        <CContainer fluid>
-        </CContainer>
+        <AppHeader page="sitechanges"/>
         <div className="content--wrapper">
           <CSidebar className="sidebar--light">
             <CSidebarNav>
@@ -219,8 +234,9 @@ const Sitechanges = () => {
                 </div>
                 <div>
                   <ul className="btn--list">
-                    <li><CButton color="secondary"  onClick={()=>updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(selectedCodes), "Cancel", ()=>{})} disabled={disabledBtn || activeTab!==1}>Reject changes</CButton></li>
-                    <li><CButton color="primary" onClick={()=>updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(selectedCodes), "Cancel", ()=>{})} disabled={disabledBtn || activeTab!==1}>Accept changes</CButton></li>
+                    {activeTab===1 && <li><CButton color="secondary"  onClick={()=>updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(selectedCodes), "Cancel", ()=>{})} disabled={disabledBtn || activeTab!==1}>Reject changes</CButton></li>}
+                    {activeTab===1 && <li><CButton color="primary" onClick={()=>updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(selectedCodes), "Cancel", ()=>{})} disabled={disabledBtn || activeTab!==1}>Accept changes</CButton></li>}
+                    {activeTab!==1 && <li><CButton color="primary" onClick={()=>updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", ()=>setBackToPending(selectedCodes), "Cancel", ()=>{})} disabled={disabledBtn || activeTab===1}>Back to Pending</CButton></li>}
                   </ul>
                 </div>
               </div>
@@ -299,7 +315,7 @@ const Sitechanges = () => {
                         setRefresh={setRefreshSitechanges}
                         accept={acceptChanges}
                         reject={rejectChanges}
-                        mark={markChanges}
+                        mark={switchMarkChanges}
                         updateModalValues={updateModalValues}
                       />
                     </CTabPane>
@@ -311,6 +327,8 @@ const Sitechanges = () => {
                         setSelected={setSelectedCodes} 
                         getRefresh={()=>getRefreshSitechanges("accepted")} 
                         setRefresh={setRefreshSitechanges}
+                        setBackToPending={setBackToPending}
+                        updateModalValues={updateModalValues}
                       />
                     </CTabPane>
                     <CTabPane role="tabpanel" aria-labelledby="rejected-tab" visible={activeTab === 3}>
@@ -321,6 +339,8 @@ const Sitechanges = () => {
                         setSelected={setSelectedCodes} 
                         getRefresh={()=>getRefreshSitechanges("rejected")} 
                         setRefresh={setRefreshSitechanges}
+                        setBackToPending={setBackToPending}
+                        updateModalValues={updateModalValues}
                       />
                     </CTabPane>                    
                     </CTabContent>

@@ -59,6 +59,8 @@ export class ModalChanges extends Component {
       showAlert: false,
       newComment: false,
       newDocument: false,
+      justificationRequired: false,
+      justificationProvided: false,
       modalValues : {
         visibility: false,
         close: () => {
@@ -299,8 +301,7 @@ export class ModalChanges extends Component {
     }
     this.setState({levels: levels, bookmark: ""});
   }
-
-
+  
   render_changes(){
     return(
       <CTabPane role="tabpanel" aria-labelledby="home-tab" visible={this.state.activeKey === 1}>
@@ -473,13 +474,13 @@ export class ModalChanges extends Component {
               </CPaginationItem>
             </CPagination>
           </CCol>
-          <CCol>
+          <CCol className="d-flex">
             <div className="checkbox">
-              <input type="checkbox" className="input-checkbox" id="modal_justification_req"/>
+              <input type="checkbox" className="input-checkbox" id="modal_justification_req" checked={this.props.justificationRequired} />
               <label htmlFor="modal_justification_req" className="input-label">Justification required</label>
             </div>
             <div className="checkbox">
-              <input type="checkbox" className="input-checkbox" id="modal_justification_prov"/>
+              <input type="checkbox" className="input-checkbox" id="modal_justification_prov" checked={this.props.justificationProvided}/>
               <label htmlFor="modal_justification_prov" className="input-label">Justification provided</label>
             </div>
           </CCol>
@@ -527,8 +528,9 @@ export class ModalChanges extends Component {
         </CModalBody>
         <CModalFooter>
           <div className="d-flex w-100 justify-content-between">
-            <CButton color="secondary" onClick={()=>this.props.updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>this.rejectChanges(), "Cancel", ()=>{})}>Reject changes</CButton>
-            <CButton color="primary" onClick={()=>this.props.updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>this.acceptChanges(), "Cancel", ()=>{})}>Accept changes</CButton>
+            {(this.props.status === 'pending') && <CButton color="secondary" onClick={()=>this.props.updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>this.rejectChanges(), "Cancel", ()=>{})}>Reject changes</CButton>}
+            {(this.props.status === 'pending') && <CButton color="primary" onClick={()=>this.props.updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>this.acceptChanges(), "Cancel", ()=>{})}>Accept changes</CButton>}
+            {(this.props.status !== 'pending') && <CButton color="primary" onClick={()=>this.props.updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", ()=>this.setBackToPending(), "Cancel", ()=>{})}>Back to Pending</CButton>}
           </div>
         </CModalFooter>
       </>
@@ -563,7 +565,7 @@ export class ModalChanges extends Component {
 
   load_data(){
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
-      fetch(ConfigData.SERVER_API_ENDPOINT+`/api/SiteChanges/GetSiteChangesDetail/siteCode=${this.props.item}&version=${this.props.version}`)
+      fetch(ConfigData.SITECHANGES_DETAIL+`siteCode=${this.props.item}&version=${this.props.version}`)
       .then(response => response.json())
       .then(data => this.setState({data: data.Data, loading: false}));
     }
@@ -582,6 +584,14 @@ export class ModalChanges extends Component {
     .then(data => {
         if(data?.ok)
           this.close(true);
+    });
+  }
+
+  setBackToPending(){
+    this.props.backToPending()
+    .then((data) => {
+      if(data?.ok)
+        this.close(true);
     });
   }
 }

@@ -22,8 +22,27 @@
       color: $black;
       vertical-align: middle;
       padding: 0.75rem 0.5rem;
-      .row-expand i {
-        color: $blue;
+      .row-expand {
+        font-size: 18px;
+        line-height: 18px;
+        height: 18px;
+        text-align: center;
+        i {
+          color: $blue;
+        }
+      }
+      .btn-group {
+        width: 100%;
+      }
+    }
+    .cell-sitecode {
+      max-width: 200px;
+      width: 30%;
+      div {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        cursor: default;
       }
     }
   }
