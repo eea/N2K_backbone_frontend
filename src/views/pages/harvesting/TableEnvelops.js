@@ -217,11 +217,10 @@ const IndeterminateCheckbox = React.forwardRef(
 
     const [events, setEvents] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [envelopsData, setEnvelopsData] = useState({});    
-    const [alertVisible, setAlertVisible] = useState(false);
+    const [envelopsData, setEnvelopsData] = useState({});
 
     useEffect(() => {
-      fetch(ConfigData.SERVER_API_ENDPOINT+'/api/Harvesting/PreHarvested')
+      fetch(ConfigData.HARVESTING_PRE_HARVESTED)
       .then(response => response.json())
       .then(data => {
         setEvents(data);
@@ -292,7 +291,7 @@ const IndeterminateCheckbox = React.forwardRef(
     let loadData = () => {
       if(!isLoading && Object.keys(envelopsData).length===0){
         setIsLoading(true);
-        fetch(ConfigData.SERVER_API_ENDPOINT+'/api/Harvesting/PreHarvested')
+        fetch(ConfigData.HARVESTING_PRE_HARVESTED)
         .then(response => response.json())
         .then(data => {
           setEnvelopsData(data.Data);
