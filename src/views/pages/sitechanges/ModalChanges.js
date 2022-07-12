@@ -35,22 +35,15 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilWarning } from '@coreui/icons'
-import CommentsModal from './components/CommentsModal';
 
 import { ConfirmationModal } from './components/ConfirmationModal';
-import DocumentsModal from './components/DocumentsModal';
-import CommentsM from './components/CommentsM';
-import DocumentsM from './components/DocumentsM';
-
-import moreicon from './../../../assets/images/three-dots.svg'
 import justificationprovided from './../../../assets/images/file-text.svg'
-import justificationrequired from './../../../assets/images/exclamation.svg'
-import trash from './../../../assets/images/trash.svg'
 
-const xmlns = 'https://www.w3.org/2000/svg'
+const xmlns = 'https://www.w3.org/2000/svg';
 
 export class ModalChanges extends Component {
-
+  
+  
   constructor(props) {
     super(props);
     this.state = {
@@ -66,6 +59,8 @@ export class ModalChanges extends Component {
       newDocument: false,
       justificationRequired: false,
       justificationProvided: false,
+      selectedFile: [],
+      isSelected: false,
       modalValues : {
         visibility: false,
         close: () => {
@@ -143,20 +138,88 @@ export class ModalChanges extends Component {
   }
 
   deleteComment(e){
-    // Delete comment
+    // Delete comment 
   }
 
   addDocument() {
     this.setState({newDocument: true})
   }
 
-  deleteDocument(e){
-    // Delete document
+  deleteAttachment(){    
+    this.setState({newDocument: false})    
+    this.setState({isSelected: false})
   }
 
-  uploadFile(e) {
-    document.getElementById("uploadFile").value = e.currentTarget.value;
+  getDocuments() {
+    fetch(ConfigData.SERVER_API_ENDPOINT+'api/sitedetails/getattachedfiles?sitecode=de1011404&version=1',{
+      method: 'GET',
+      body: "",
+    }) 
+    .then((response) => response.json())
+    .then((result) => {
+      console.log('Success', result);
+    })
+    .catch((error) => {
+      console.error('Error', error);
+    });
   }
+
+  getComments() {
+    return fetch(ConfigData.SERVER_API_ENDPOINT+'api/sitedetails/getsitecomments?sitecode=de1011404&version=1',{
+      method: 'GET',
+      body: "",
+    }) 
+    .then((response) => response.json())
+    .then((result) => {
+      console.log('Success', result);
+    })
+    .catch((error) => {
+      console.error('Error', error);
+    });
+
+  }
+  
+  changeHandler = (e) => {    
+    this.setState({selectedFile: e.target.files[0]});
+    this.setState({isSelected: true});    
+  }
+
+  handleSubmission = () =>{
+    let postRequest = (url,body)=>{
+      const options = {
+        method: 'POST',
+        headers: {        
+        'Content-Type': 'multipart/form-data; boundary=AaB03x' + 
+        '--AaB03x'+
+        'Content-Disposition: file' +
+        'Content-Type: png' +
+        'Content-Transfer-Encoding: binary' +
+        '...data...'+
+        '--AaB03x--',
+        'Accept': 'application/json',
+        'type': 'formData'
+        },
+        body: body,
+      };
+      return fetch(url, options)
+    }        
+    
+    return postRequest(ConfigData.SERVER_API_ENDPOINT+'api/sitedetails/uploadattachedfile?sitecode=de1011404&version=1', this.state.selectedFile)   
+    .then(data => {
+      if(data.ok){
+        //forceRefreshData();
+        console.log("Force Refresh data");
+        console.log("data", data);
+        console.log("data.json", data.json());
+      }
+      else 
+        alert("something went wrong!");
+      return data;
+    }).catch(e => {
+      alert("something went wrong!");
+      console.log(e);
+    });    
+}
 
   render_ValuesTable(changes){
     let heads = Object.keys(changes[0]).filter(v=> v!=="ChangeId" && v!=="Fields");
@@ -353,30 +416,30 @@ export class ModalChanges extends Component {
     )
   }
 
-  render_documents(){
+  render_documents (){
     return(
-      <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 2}>
-        <CRow className="py-3">
-        <CCol xs={12} lg={6}>
-            <CCard className="document--list">
-              <div className="d-flex justify-content-between align-items-center pb-2">
-                <b>Attached documents</b>
-                <CButton color="link" className="btn-link--dark" onClick={() => this.state.addDocument()}>Add document</CButton>
-              </div>
+      <CCol xs={12} lg={6}>
+        <CCard className="document--list">
+          <div className="d-flex justify-content-between align-items-center pb-2">
+            <b>Attached documents</b>
+            <CButton color="link" className="btn-link--dark" onClick={() => this.addDocument()}>Add document</CButton>                
+          </div>
               {this.state.newDocument &&
                 <div className="document--item new">
                   <div className="input-file">
                     <label htmlFor="uploadBtn">
                       Select file
                     </label>
-                    <input id="uploadBtn" type="file" onChange={this.state.uploadFile}/>
-                    <input id="uploadFile" placeholder="No file selected" disabled="disabled" />
-                  </div>
-                  <div>
+                    <input id="uploadBtn" type="file" onChange={(e) => this.changeHandler(e)}/>
+                    {this.state.isSelected ? (
+                      <input id="uploadFile" placeholder={this.state.selectedFile.name} disabled="disabled"/>
+                    ) : (<input id="uploadFile" placeholder="No file selected" disabled="disabled" />)}                    
+                  </div>                  
+                  <div> 
                     <div className="btn-icon">
-                      <i className="fa-solid fa-floppy-disk"></i>
+                      <i className="fa-solid fa-floppy-disk" onClick={() => this.handleSubmission()}></i>
                     </div>
-                    <div className="btn-icon">
+                    <div className="btn-icon" onClick={() => this.deleteAttachment()}>
                       <i className="fa-regular fa-trash-can"></i>
                     </div>
                   </div>
@@ -389,7 +452,7 @@ export class ModalChanges extends Component {
                 </div>
                 <div>
                   <CButton color="link" className="btn-link--dark">View</CButton>
-                  <div className="btn-icon" onClick={this.state.deleteDocument}>
+                  <div className="btn-icon" onClick={() => this.deleteDocument(e)}>
                     <i className="fa-regular fa-trash-can"></i>
                   </div>
                 </div>
@@ -418,72 +481,79 @@ export class ModalChanges extends Component {
                 <i className="fa-solid fa-angle-right"></i>
               </CPaginationItem>
             </CPagination>
-          </CCol> 
-          <CCol xs={12} lg={6}>
-            <CCard className="comment--list">
-              <div className="d-flex justify-content-between align-items-center pb-2">
-                <b>Comments</b>
-                <CButton color="link" className="btn-link--dark" onClick={() => this.addComment()}>Add comment</CButton>
-              </div>
-              {this.state.newComment &&
-                <div className="comment--item new">
-                  <div className="comment--text">
-                    <input type="text" placeholder="Add comment"/>
-                  </div>
-                  <div>
-                    <div className="btn-icon">
-                      <i className="fa-solid fa-floppy-disk"></i>
-                    </div>
-                    <div className="btn-icon">
-                      <i className="fa-regular fa-trash-can"></i>
-                    </div>
-                  </div>
-                </div>
-              }
-              <div className="comment--item">
-                <div className="comment--text">
-                  <input type="text" placeholder="Add comment" defaultValue="New to upload supporting emails" disabled/>
-                </div>
-                <div>
-                  <div className="btn-icon" onClick={(e) => this.updateComment(e)}>
-                    <i className="fa-solid fa-pencil"></i>
-                  </div>
-                  <div className="btn-icon" onClick={(e) => this.deleteComment(e)}>
-                    <i className="fa-regular fa-trash-can"></i>
-                  </div>
-                </div>
-              </div>
-              <div className="comment--item">
-                <div className="comment--text">
-                  <input type="text" placeholder="Add comment" defaultValue="Spatial file needed to approve change" disabled/>
-                </div>
-                <div>
-                  <div className="btn-icon" onClick={(e) => this.updateComment(e)}>
-                    <i className="fa-solid fa-pencil"></i>
-                  </div>
-                  <div className="btn-icon" onClick={(e) => this.deleteComment(e)}>
-                    <i className="fa-regular fa-trash-can"></i>
-                  </div>
-                </div>
-              </div>
-            </CCard>
-            <CPagination aria-label="Pagination" className="pt-3">
-              <CPaginationItem aria-label="Previous">
-                <i className="fa-solid fa-angle-left"></i>
-              </CPaginationItem>
-              <CPaginationItem>1</CPaginationItem>
-              <CPaginationItem>2</CPaginationItem>
-              <CPaginationItem>3</CPaginationItem>
-              <CPaginationItem aria-label="Next">
-                <i className="fa-solid fa-angle-right"></i>
-              </CPaginationItem>
-            </CPagination>
-          </CCol> 
-          {/* <DocumentsModal /> */}
-          {/* <CommentsModal /> */}
+        </CCol>)
+  }
 
-          {/* <DocumentsM />
-          <CommentsM /> */}
+  render_comments(){
+    return(
+      <CCol xs={12} lg={6}>
+        <CCard className="comment--list">
+          <div className="d-flex justify-content-between align-items-center pb-2">
+            <b>Comments</b>
+            <CButton color="link" className="btn-link--dark" onClick={() => this.addComment()}>Add comment</CButton>
+          </div>
+          {this.state.newComment &&
+            <div className="comment--item new">
+              <div className="comment--text">
+                <input type="text" placeholder="Add comment"/>
+              </div>
+              <div>
+                <div className="btn-icon">
+                  <i className="fa-solid fa-floppy-disk"></i>
+                </div>
+                <div className="btn-icon">
+                  <i className="fa-regular fa-trash-can"></i>
+                </div>
+              </div>
+            </div>
+          }
+          <div className="comment--item">
+            <div className="comment--text">
+              <input type="text" placeholder="Add comment" defaultValue="New to upload supporting emails" disabled/>
+            </div>
+            <div>
+              <div className="btn-icon" onClick={(e) => this.updateComment(e)}>
+                <i className="fa-solid fa-pencil"></i>
+              </div>
+              <div className="btn-icon" onClick={(e) => this.deleteComment(e)}>
+                <i className="fa-regular fa-trash-can"></i>
+              </div>
+            </div>
+          </div>
+          <div className="comment--item">
+            <div className="comment--text">
+              <input type="text" placeholder="Add comment" defaultValue="Spatial file needed to approve change" disabled/>
+            </div>
+            <div>
+              <div className="btn-icon" onClick={(e) => this.updateComment(e)}>
+                <i className="fa-solid fa-pencil"></i>
+              </div>
+              <div className="btn-icon" onClick={(e) => this.deleteComment(e)}>
+                <i className="fa-regular fa-trash-can"></i>
+              </div>
+            </div>
+          </div>
+        </CCard>
+        <CPagination aria-label="Pagination" className="pt-3">
+          <CPaginationItem aria-label="Previous">
+            <i className="fa-solid fa-angle-left"></i>
+          </CPaginationItem>
+          <CPaginationItem>1</CPaginationItem>
+          <CPaginationItem>2</CPaginationItem>
+          <CPaginationItem>3</CPaginationItem>
+          <CPaginationItem aria-label="Next">
+            <i className="fa-solid fa-angle-right"></i>
+          </CPaginationItem>
+        </CPagination>
+      </CCol>)
+  }
+  
+  render_block(){
+    return(
+      <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 2}>
+        <CRow className="py-3">
+          {this.render_documents()}
+          {this.render_comments()}
           <CCol className="d-flex">
             <div className="checkbox">
               <input type="checkbox" className="input-checkbox" id="modal_justification_req" checked={this.props.justificationRequired} />
@@ -498,6 +568,7 @@ export class ModalChanges extends Component {
       </CTabPane>
     )
   }
+
 
   render_modal() {
     let data = this.state.data;
@@ -532,8 +603,8 @@ export class ModalChanges extends Component {
             </CNavItem>
           </CNav>
     <CTabContent>
-      {this.render_changes()}
-      {this.render_documents()}
+      {this.render_changes()}      
+      {this.render_block()}      
     </CTabContent>
         </CModalBody>
         <CModalFooter>

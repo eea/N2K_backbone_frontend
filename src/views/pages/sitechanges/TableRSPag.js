@@ -326,10 +326,10 @@ const IndeterminateCheckbox = React.forwardRef(
     }).catch(e => {
           alert("something went wrong!");
     });   
-    }
-
-    let switchMarkChanges = (change) =>{
-      return props.mark({"SiteCode":change.SiteCode,"VersionId":change.Version,"Justification":true})
+    }    
+    
+    let switchMarkChanges = (change) =>{            
+      return props.mark({"SiteCode":change.SiteCode,"VersionId":change.Version,"Justification":Boolean(!change.JustificationRequired)})
       .then(data => {
         if(data?.ok){
           forceRefreshData();          
@@ -435,7 +435,7 @@ const IndeterminateCheckbox = React.forwardRef(
                 mark: ()=>props.updateModalValues(""+toggleMark+" Changes", "This will "+toggleMark+ " all the site changes", "Continue", ()=>switchMarkChanges(row.original), "Cancel", ()=>{}),
               }
               return row.canExpand ? (
-                <DropdownSiteChanges actions={contextActions} toggleMark = {toggleMark}/>          
+                <DropdownSiteChanges actions={contextActions} toggleMark = {toggleMark} />          
               ) : null
           }
         },
@@ -516,8 +516,8 @@ const IndeterminateCheckbox = React.forwardRef(
                         item={modalItem.SiteCode} 
                         version={modalItem.Version} 
                         updateModalValues = {props.updateModalValues}
-                        justificationRequired = {modalItem.JustificationRequired}
-                        justificationProvided = {modalItem.JustificationProvided}
+                        justificationRequired={modalItem.JustificationRequired}
+                        justificationProvided={modalItem.JustificationProvided}
           />
         </>
         )
