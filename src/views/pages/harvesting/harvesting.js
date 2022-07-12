@@ -85,7 +85,7 @@ const Harvesting = () => {
     let versionId = values.versionId;
     let countryCode = values.countryCode;
     // var harvested =[{"VersionId": versionId, "CountryCode": countryCode}];
-    // const response = await fetch(ConfigData.SERVER_API_ENDPOINT+'/api/Harvesting/Harvest', {
+    // const response = await fetch(ConfigData.HARVESTING_HARVEST, {
     //   method: 'POST',
     //   body: JSON.stringify(harvested),
     //   headers: {
@@ -105,7 +105,7 @@ const Harvesting = () => {
     let versionId = values.versionId;
     let countryCode = values.countryCode;
     // var harvested =[{"VersionId": versionId, "CountryCode": countryCode}];
-    // const response = await fetch(ConfigData.SERVER_API_ENDPOINT+'/api/Harvesting/Discard', {
+    // const response = await fetch(ConfigData.HARVESTING_DISCARD, {
     //   method: 'POST',
     //   body: JSON.stringify(harvested),
     //   headers: {

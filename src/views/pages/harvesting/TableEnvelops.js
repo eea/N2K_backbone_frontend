@@ -127,7 +127,7 @@ const IndeterminateCheckbox = React.forwardRef(
             Cell: ({ row }) => (
               !row.original.CanHarvest ?
                 <CTooltip
-                  content="Previous envelope must be handled first"
+                  content="Previous envelopes must be handled first"
                   placement="top"
                 >
                   <div className="checkbox"></div>
@@ -217,11 +217,10 @@ const IndeterminateCheckbox = React.forwardRef(
 
     const [events, setEvents] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [envelopsData, setEnvelopsData] = useState({});    
-    const [alertVisible, setAlertVisible] = useState(false);
+    const [envelopsData, setEnvelopsData] = useState({});
 
     useEffect(() => {
-      fetch(ConfigData.SERVER_API_ENDPOINT+'/api/Harvesting/PreHarvested')
+      fetch(ConfigData.HARVESTING_PRE_HARVESTED)
       .then(response => response.json())
       .then(data => {
         setEvents(data);
@@ -259,14 +258,7 @@ const IndeterminateCheckbox = React.forwardRef(
           id: 'dropdownEnvelops',
           cellWidth: '48px',
           Cell: ({ row }) => (
-            !row.original.CanHarvest ?
-              <CTooltip
-                content="Previous envelope must be handled first"
-                placement="top"
-              >
-                <i className="fa-solid fa-ban"></i>
-              </CTooltip>
-            : <DropdownHarvesting versionId={row.values.Version} countryCode={row.original.CountryCode} modalProps={props.modalProps}/>
+            <DropdownHarvesting canHarvest={row.original.CanHarvest} versionId={row.values.Version} countryCode={row.original.CountryCode} modalProps={props.modalProps}/>
           )
         },
       ],
@@ -277,21 +269,29 @@ const IndeterminateCheckbox = React.forwardRef(
       let row = {versionId: props.versionId, countryCode: props.countryCode};
       return (
         <CDropdown>
-          <CDropdownToggle className='btn-more' caret={false} size="sm">
+          <CDropdownToggle className="btn-more" caret={false} size="sm">
             <i className="fa-solid fa-ellipsis"></i>
           </CDropdownToggle>
           <CDropdownMenu>
-            <CDropdownItem onClick={() => props.modalProps.showHarvestModal(row)}>Harvest</CDropdownItem>
+            {!props.canHarvest ?
+              <CTooltip
+                content="Previous envelopes must be handled first"
+                placement="top"
+              >
+                <CDropdownItem disabled style={{pointerEvents:"auto"}}>Harvest</CDropdownItem>
+              </CTooltip>
+            : <CDropdownItem onClick={() => props.modalProps.showHarvestModal(row)} disabled={!props.canHarvest}>Harvest</CDropdownItem>
+            }
             <CDropdownItem onClick={() => props.modalProps.showDiscardModal(row)}>Discard</CDropdownItem>
           </CDropdownMenu>
         </CDropdown>
       )
     }
 
-    let load_data = () => {
+    let loadData = () => {
       if(!isLoading && Object.keys(envelopsData).length===0){
         setIsLoading(true);
-        fetch(ConfigData.SERVER_API_ENDPOINT+'/api/Harvesting/PreHarvested')
+        fetch(ConfigData.HARVESTING_PRE_HARVESTED)
         .then(response => response.json())
         .then(data => {
           setEnvelopsData(data.Data);
@@ -305,7 +305,7 @@ const IndeterminateCheckbox = React.forwardRef(
       }
     }
 
-    load_data();
+    loadData();
 
     if(isLoading) {
       return (<div className="loading-container"><em>Loading...</em></div>)
