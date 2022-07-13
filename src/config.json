@@ -1,5 +1,4 @@
 {
-    "SERVER_API_ENDPOINT": "https://n2kbacknonebackend.azurewebsites.net",
     "SERVER_API_ENDPOINT": "https://n2kbackboneback-dev.azurewebsites.net/",
     "SITECHANGES_GET": "https://n2kbackboneback-dev.azurewebsites.net/api/sitechanges/get/",
     "SITECODES_GET": "https://n2kbackboneback-dev.azurewebsites.net/api/sitechanges/GetSiteCodes/",
