@@ -8,6 +8,10 @@
     "ACCEPT_CHANGES": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteChanges/AcceptChanges",
     "MARK_AS_JUSTIFICATION_REQUIRED": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteChanges/MarkAsJustificationRequired",
     "REJECT_CHANGES": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteChanges/RejectChanges",
+    "GET_SITE_COMMENTS": "http://n2kbackboneback-dev.azurewebsites.net/api/SiteDetails/GetSiteComments/",
+    "ADD_COMMENT": "http://n2kbackboneback-dev.azurewebsites.net/api/SiteDetails/SiteComments/Add",
+    "UPDATE_COMMENT": "http://n2kbackboneback-dev.azurewebsites.net/api/SiteDetails/SiteComments/Update",
+    "DELETE_COMMENT": "http://n2kbackboneback-dev.azurewebsites.net/api/SiteDetails/SiteComments/Delete",
     "THEME_COLORS": {
       "PRIMARY": "#007bff",
       "SECONDARY": "#fc3"
