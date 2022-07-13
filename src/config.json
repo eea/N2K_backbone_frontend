@@ -1,4 +1,5 @@
 {
+    "SERVER_API_ENDPOINT": "https://n2kbacknonebackend.azurewebsites.net",
     "SERVER_API_ENDPOINT": "https://n2kbackboneback-dev.azurewebsites.net/",
     "SITECHANGES_GET": "https://n2kbackboneback-dev.azurewebsites.net/api/sitechanges/get/",
     "SITECODES_GET": "https://n2kbackboneback-dev.azurewebsites.net/api/sitechanges/GetSiteCodes/",
@@ -12,6 +13,9 @@
     "ADD_COMMENT": "http://n2kbackboneback-dev.azurewebsites.net/api/SiteDetails/SiteComments/Add",
     "UPDATE_COMMENT": "http://n2kbackboneback-dev.azurewebsites.net/api/SiteDetails/SiteComments/Update",
     "DELETE_COMMENT": "http://n2kbackboneback-dev.azurewebsites.net/api/SiteDetails/SiteComments/Delete",
+    "HARVESTING_PRE_HARVESTED":"https://n2kbackboneback-dev.azurewebsites.net/api/Harvesting/PreHarvested",
+    "HARVESTING_HARVEST":"https://n2kbackboneback-dev.azurewebsites.net/api/Harvesting/Harvest",
+    "HARVESTING_DISCARD":"https://n2kbackboneback-dev.azurewebsites.net/api/Harvesting/Discard",
     "THEME_COLORS": {
       "PRIMARY": "#007bff",
       "SECONDARY": "#fc3"
