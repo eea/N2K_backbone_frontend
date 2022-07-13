@@ -55,6 +55,7 @@ export class ModalChanges extends Component {
       levels:["Critical"],
       bookmark: "",
       bookmarks: [],
+      comments:[],
       showDetail: "",
       showAlert: false,
       newComment: false,
@@ -120,25 +121,76 @@ export class ModalChanges extends Component {
     }
   }
 
-  addComment() {
+  addNewComment() {
     this.setState({newComment: true})
   }
 
-  updateComment(e){
-    let input = e.currentTarget.closest(".comment--item").querySelector("input");
-    if (e.currentTarget.firstChild.classList.contains("fa-pencil")) {
+  updateComment(target){
+    let input = target.closest(".comment--item").querySelector("input");
+    if (target.firstChild.classList.contains("fa-pencil")) {
       input.disabled = false;
       input.focus();
-      e.currentTarget.firstChild.classList.replace("fa-pencil", "fa-floppy-disk");
+      target.firstChild.classList.replace("fa-pencil", "fa-floppy-disk");
     } else {
-      input.disabled = true;
-      e.currentTarget.firstChild.classList.replace("fa-floppy-disk", "fa-pencil");
-      // Update comment
+      this.saveComment(this.state.data.SiteCode,this.state.data.Version,input.value,target);
     }
   }
 
-  deleteComment(e){
-    // Delete comment
+  addComment(target){
+    let comment = target.closest(".comment--item").querySelector("input").value;
+    let body={
+      "SiteCode": this.state.data.SiteCode,
+      "Version": this.state.data.Version,
+      "comments": comment
+    }
+
+    this.sendRequest(ConfigData.ADD_COMMENT,"POST",body)
+    .then(response => response.json())
+    .then((data) => {
+      if(data?.Success){
+        //If the comment was added to the DB, we create the new comment 
+        let commentId = Math.max(...data.Data.map(e=>e.Id));
+        let cmts = this.state.comments;
+        cmts.push({
+          Comments: comment,
+          SiteCode: this.state.data.SiteCode,
+          Version: this.state.data.Version,
+          Id: commentId
+        })
+        this.setState({comments: cmts, newComment: false})
+      }
+    });
+  }
+
+  saveComment(code,version,comment,target){
+    let input = target.closest(".comment--item").querySelector("input");
+    let body={
+      "Id": input.getAttribute("msg_id"),
+      "SiteCode": code,
+      "Version": version,
+      "comments": comment
+    }
+
+    this.sendRequest(ConfigData.UPDATE_COMMENT,"PUT",body)
+    .then((data) => {
+      if(data?.ok){
+        input.disabled = true;
+        target.firstChild.classList.replace("fa-floppy-disk", "fa-pencil");
+      }
+    });
+  }
+
+  deleteComment(target){
+    let input = target.closest(".comment--item").querySelector("input");
+    let body=
+      input.getAttribute("msg_id");
+
+    this.sendRequest(ConfigData.DELETE_COMMENT,"DELETE",body)
+    .then((data) => {
+      if(data?.ok){
+        document.getElementById("cmtItem_"+input.getAttribute("msg_id")).remove();
+      }
+    });
   }
 
   addDocument() {
@@ -348,6 +400,55 @@ export class ModalChanges extends Component {
     )
   }
 
+  create_comment_element(id,comment){
+    return (
+      <div className="comment--item" key={"cmtItem_"+id} id={"cmtItem_"+id}>
+        <div className="comment--text" key={"cmtText_"+id}>
+          <input type="text" placeholder="Add comment" defaultValue={comment} msg_id={id} disabled/>
+        </div>
+        <div>
+          <div className="btn-icon" onClick={(e) => this.updateComment(e.currentTarget)} key={"cmtUpdate_"+id}>
+            <i className="fa-solid fa-pencil"></i>
+          </div>
+          <div className="btn-icon" onClick={(e) => this.deleteComment(e.currentTarget)} key={"cmtDelete_"+id}>
+            <i className="fa-regular fa-trash-can"></i>
+          </div>
+        </div>
+      </div>        
+    )
+  }
+
+  render_comments(){
+    let cmts = [];
+    cmts.push(
+      this.state.newComment &&
+          <div className="comment--item new" id="cmtItem_newItem">
+            <div className="comment--text">
+              <input type="text" placeholder="Add comment"/>
+            </div>
+            <div>
+              <div className="btn-icon" onClick={(e) => this.addComment(e.currentTarget)}> 
+                <i className="fa-solid fa-floppy-disk"></i>
+              </div>
+              <div className="btn-icon">
+                <i className="fa-regular fa-trash-can"></i>
+              </div>
+            </div>
+          </div>
+    )
+    for(let i in this.state.comments){
+      cmts.push(
+        this.create_comment_element(this.state.comments[i].Id,this.state.comments[i].Comments)
+      )
+    }
+    
+    return(
+      <span id="changes_comments">
+        {cmts}
+      </span>
+    )
+  }
+
   render_documents(){
     return(
       <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 2}>
@@ -418,61 +519,10 @@ export class ModalChanges extends Component {
             <CCard className="comment--list">
               <div className="d-flex justify-content-between align-items-center pb-2">
                 <b>Comments</b>
-                <CButton color="link" className="btn-link--dark" onClick={() => this.addComment()}>Add comment</CButton>
+                <CButton color="link" className="btn-link--dark" onClick={() => this.addNewComment()}>Add comment</CButton>
               </div>
-              {this.state.newComment &&
-                <div className="comment--item new">
-                  <div className="comment--text">
-                    <input type="text" placeholder="Add comment"/>
-                  </div>
-                  <div>
-                    <div className="btn-icon">
-                      <i className="fa-solid fa-floppy-disk"></i>
-                    </div>
-                    <div className="btn-icon">
-                      <i className="fa-regular fa-trash-can"></i>
-                    </div>
-                  </div>
-                </div>
-              }
-              <div className="comment--item">
-                <div className="comment--text">
-                  <input type="text" placeholder="Add comment" defaultValue="New to upload supporting emails" disabled/>
-                </div>
-                <div>
-                  <div className="btn-icon" onClick={(e) => this.updateComment(e)}>
-                    <i className="fa-solid fa-pencil"></i>
-                  </div>
-                  <div className="btn-icon" onClick={(e) => this.deleteComment(e)}>
-                    <i className="fa-regular fa-trash-can"></i>
-                  </div>
-                </div>
-              </div>
-              <div className="comment--item">
-                <div className="comment--text">
-                  <input type="text" placeholder="Add comment" defaultValue="Spatial file needed to approve change" disabled/>
-                </div>
-                <div>
-                  <div className="btn-icon" onClick={(e) => this.updateComment(e)}>
-                    <i className="fa-solid fa-pencil"></i>
-                  </div>
-                  <div className="btn-icon" onClick={(e) => this.deleteComment(e)}>
-                    <i className="fa-regular fa-trash-can"></i>
-                  </div>
-                </div>
-              </div>
+              {this.render_comments()}              
             </CCard>
-            <CPagination aria-label="Pagination" className="pt-3">
-              <CPaginationItem aria-label="Previous">
-                <i className="fa-solid fa-angle-left"></i>
-              </CPaginationItem>
-              <CPaginationItem>1</CPaginationItem>
-              <CPaginationItem>2</CPaginationItem>
-              <CPaginationItem>3</CPaginationItem>
-              <CPaginationItem aria-label="Next">
-                <i className="fa-solid fa-angle-right"></i>
-              </CPaginationItem>
-            </CPagination>
           </CCol>
           <CCol className="d-flex">
             <div className="checkbox">
@@ -539,7 +589,8 @@ export class ModalChanges extends Component {
 
   render_data(){
     
-    this.load_data()
+    this.load_data();
+    this.load_comments();
 
     let contents = this.state.loading
       ? <div className="loading-container"><em>Loading...</em></div>
@@ -570,6 +621,14 @@ export class ModalChanges extends Component {
       .then(data => this.setState({data: data.Data, loading: false}));
     }
   }
+
+  load_comments(){
+    if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
+      fetch(ConfigData.GET_SITE_COMMENTS+`siteCode=${this.props.item}&version=${this.props.version}`)
+      .then(response => response.json())
+      .then(data => this.setState({comments: data.Data}));
+    }
+  }
   
   acceptChanges(){
     this.props.accept()
@@ -593,5 +652,16 @@ export class ModalChanges extends Component {
       if(data?.ok)
         this.close(true);
     });
+  }
+
+  sendRequest(url,method,body){
+    const options = {
+      method: method,
+      headers: {
+      'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    };
+    return fetch(url, options)
   }
 }
