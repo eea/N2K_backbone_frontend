@@ -143,30 +143,21 @@ export class ModalChanges extends Component {
       "Version": this.state.data.Version,
       "comments": comment
     }
-    console.log(body);
 
     this.sendRequest(ConfigData.ADD_COMMENT,"POST",body)
     .then(response => response.json())
     .then((data) => {
-      console.log(data);
       if(data?.Success){
-        //If the comment was added to the DB, we create the new comment elementt
+        //If the comment was added to the DB, we create the new comment 
         let commentId = Math.max(...data.Data.map(e=>e.Id));
-        let newElement = this.create_comment_element(commentId,comment);
-        document.getElementById("changes_comments").appendChild(newElement);
-        /*
-        console.log(commentId);
-        let target_new = document.getElementById("cmtItem_newItem").cloneNode(true);
-        document.getElementById("changes_comments").appendChild(target_new);
-        let input = target_new.closest(".comment--item").querySelector("input");
-        input.disabled = true;
-        input.setAttribute("msg_id",commentId);
-        target_new.querySelector("i.fa-solid.fa-floppy-disk").setAttribute("onClick",(e) => this.updateComment(e.currentTarget));
-        target_new.querySelector("i.fa-solid.fa-floppy-disk").classList.replace("fa-floppy-disk", "fa-pencil");
-        target_new.querySelector("i.fa-regular.fa-trash-can").onClick= (e) => this.deleteComment(e.currentTarget)
-        target_new.id = "cmtItem_"+ commentId;
-        */
-        this.setState({newComment: false})
+        let cmts = this.state.comments;
+        cmts.push({
+          Comments: comment,
+          SiteCode: this.state.data.SiteCode,
+          Version: this.state.data.Version,
+          Id: commentId
+        })
+        this.setState({comments: cmts, newComment: false})
       }
     });
   }
@@ -180,12 +171,8 @@ export class ModalChanges extends Component {
       "comments": comment
     }
 
-    console.log(body);
-
     this.sendRequest(ConfigData.UPDATE_COMMENT,"PUT",body)
-    .then(response => response.json())
     .then((data) => {
-      console.log(data);
       if(data?.ok){
         input.disabled = true;
         target.firstChild.classList.replace("fa-floppy-disk", "fa-pencil");
@@ -432,7 +419,6 @@ export class ModalChanges extends Component {
   }
 
   render_comments(){
-    console.log(this.state.comments);
     let cmts = [];
     cmts.push(
       this.state.newComment &&
@@ -537,17 +523,6 @@ export class ModalChanges extends Component {
               </div>
               {this.render_comments()}              
             </CCard>
-            <CPagination aria-label="Pagination" className="pt-3">
-              <CPaginationItem aria-label="Previous">
-                <i className="fa-solid fa-angle-left"></i>
-              </CPaginationItem>
-              <CPaginationItem>1</CPaginationItem>
-              <CPaginationItem>2</CPaginationItem>
-              <CPaginationItem>3</CPaginationItem>
-              <CPaginationItem aria-label="Next">
-                <i className="fa-solid fa-angle-right"></i>
-              </CPaginationItem>
-            </CPagination>
           </CCol>
           <CCol className="d-flex">
             <div className="checkbox">
@@ -629,7 +604,6 @@ export class ModalChanges extends Component {
   }
 
   render() {
-    console.log(this.state);
     return(
       <>
         <CModal scrollable size="xl" visible={this.isVisible()} onClose={this.close.bind(this)}>
