@@ -137,11 +137,11 @@ export class ModalChanges extends Component {
   }
 
   addComment(target){
-    let input = target.closest(".comment--item").querySelector("input");
+    let comment = target.closest(".comment--item").querySelector("input").value;
     let body={
       "SiteCode": this.state.data.SiteCode,
       "Version": this.state.data.Version,
-      "comments": input.value
+      "comments": comment
     }
     console.log(body);
 
@@ -149,11 +149,24 @@ export class ModalChanges extends Component {
     .then(response => response.json())
     .then((data) => {
       console.log(data);
-      if(data?.ok){
-        console.log(data.Data);
-        let input = target.closest(".comment--item").querySelector("input");
+      if(data?.Success){
+        //If the comment was added to the DB, we create the new comment elementt
+        let commentId = Math.max(...data.Data.map(e=>e.Id));
+        let newElement = this.create_comment_element(commentId,comment);
+        document.getElementById("changes_comments").appendChild(newElement);
+        /*
+        console.log(commentId);
+        let target_new = document.getElementById("cmtItem_newItem").cloneNode(true);
+        document.getElementById("changes_comments").appendChild(target_new);
+        let input = target_new.closest(".comment--item").querySelector("input");
         input.disabled = true;
-        target.firstChild.classList.replace("fa-floppy-disk", "fa-pencil");
+        input.setAttribute("msg_id",commentId);
+        target_new.querySelector("i.fa-solid.fa-floppy-disk").setAttribute("onClick",(e) => this.updateComment(e.currentTarget));
+        target_new.querySelector("i.fa-solid.fa-floppy-disk").classList.replace("fa-floppy-disk", "fa-pencil");
+        target_new.querySelector("i.fa-regular.fa-trash-can").onClick= (e) => this.deleteComment(e.currentTarget)
+        target_new.id = "cmtItem_"+ commentId;
+        */
+        this.setState({newComment: false})
       }
     });
   }
@@ -400,12 +413,30 @@ export class ModalChanges extends Component {
     )
   }
 
+  create_comment_element(id,comment){
+    return (
+      <div className="comment--item" key={"cmtItem_"+id} id={"cmtItem_"+id}>
+        <div className="comment--text" key={"cmtText_"+id}>
+          <input type="text" placeholder="Add comment" defaultValue={comment} msg_id={id} disabled/>
+        </div>
+        <div>
+          <div className="btn-icon" onClick={(e) => this.updateComment(e.currentTarget)} key={"cmtUpdate_"+id}>
+            <i className="fa-solid fa-pencil"></i>
+          </div>
+          <div className="btn-icon" onClick={(e) => this.deleteComment(e.currentTarget)} key={"cmtDelete_"+id}>
+            <i className="fa-regular fa-trash-can"></i>
+          </div>
+        </div>
+      </div>        
+    )
+  }
+
   render_comments(){
     console.log(this.state.comments);
     let cmts = [];
     cmts.push(
       this.state.newComment &&
-          <div className="comment--item new">
+          <div className="comment--item new" id="cmtItem_newItem">
             <div className="comment--text">
               <input type="text" placeholder="Add comment"/>
             </div>
@@ -421,26 +452,14 @@ export class ModalChanges extends Component {
     )
     for(let i in this.state.comments){
       cmts.push(
-        <div className="comment--item" key={"cmtItem_"+this.state.comments[i].Id} id={"cmtItem_"+this.state.comments[i].Id}>
-          <div className="comment--text" key={"cmtText_"+this.state.comments[i].Id}>
-            <input type="text" placeholder="Add comment" defaultValue={this.state.comments[i].Comments} msg_id={this.state.comments[i].Id} disabled/>
-          </div>
-          <div>
-            <div className="btn-icon" onClick={(e) => this.updateComment(e.currentTarget)} key={"cmtUpdate_"+this.state.comments[i].Id}>
-              <i className="fa-solid fa-pencil"></i>
-            </div>
-            <div className="btn-icon" onClick={(e) => this.deleteComment(e.currentTarget)} key={"cmtDelete_"+this.state.comments[i].Id}>
-              <i className="fa-regular fa-trash-can"></i>
-            </div>
-          </div>
-        </div>        
+        this.create_comment_element(this.state.comments[i].Id,this.state.comments[i].Comments)
       )
     }
     
     return(
-      <>
+      <span id="changes_comments">
         {cmts}
-      </>
+      </span>
     )
   }
 
