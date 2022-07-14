@@ -180,6 +180,50 @@ export class ModalChanges extends Component {
     });
   }
 
+  addComment(target){
+    let comment = target.closest(".comment--item").querySelector("input").value;
+    let body={
+      "SiteCode": this.state.data.SiteCode,
+      "Version": this.state.data.Version,
+      "comments": comment
+    }
+
+    this.sendRequest(ConfigData.ADD_COMMENT,"POST",body)
+    .then(response => response.json())
+    .then((data) => {
+      if(data?.Success){
+        //If the comment was added to the DB, we create the new comment 
+        let commentId = Math.max(...data.Data.map(e=>e.Id));
+        let cmts = this.state.comments;
+        cmts.push({
+          Comments: comment,
+          SiteCode: this.state.data.SiteCode,
+          Version: this.state.data.Version,
+          Id: commentId
+        })
+        this.setState({comments: cmts, newComment: false})
+      }
+    });
+  }
+
+  saveComment(code,version,comment,target){
+    let input = target.closest(".comment--item").querySelector("input");
+    let body={
+      "Id": input.getAttribute("msg_id"),
+      "SiteCode": code,
+      "Version": version,
+      "comments": comment
+    }
+
+    this.sendRequest(ConfigData.UPDATE_COMMENT,"PUT",body)
+    .then((data) => {
+      if(data?.ok){
+        input.disabled = true;
+        target.firstChild.classList.replace("fa-floppy-disk", "fa-pencil");
+      }
+    });
+  }
+
   deleteComment(target){
     let input = target.closest(".comment--item").querySelector("input");
     let body=
