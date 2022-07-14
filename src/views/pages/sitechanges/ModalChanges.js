@@ -260,12 +260,12 @@ export class ModalChanges extends Component {
     });
   }
   
-  changeHandler = (e) => {    
+  changeHandler (e) {    
     this.setState({selectedFile: e.target.files[0]});
     this.setState({isSelected: true});    
   }
 
-  handleSubmission = () =>{
+  handleSubmission () {
     let postRequest = (url,body)=>{
       const options = {
         method: 'POST',
