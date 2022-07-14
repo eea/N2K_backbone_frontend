@@ -81,6 +81,9 @@
     &:hover {
       background-color: $primary-25;
     }
+    &.disabled {
+      opacity: 0.2;
+    }
   }
 }
 
