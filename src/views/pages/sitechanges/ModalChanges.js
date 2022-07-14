@@ -247,10 +247,7 @@ export class ModalChanges extends Component {
   }
 
   getDocuments() {
-    fetch(ConfigData.GET_ATTACHED_FILES+'?sitecode=de1011404&version=1',{
-      method: 'GET',
-      body: "",
-    }) 
+    sendRequest(ConfigData.GET_ATTACHED_FILES+'?sitecode=de1011404&version=1','POST','')
     .then((response) => response.json())
     .then((result) => {
       console.log('Success', result);
@@ -266,32 +263,29 @@ export class ModalChanges extends Component {
   }
 
   handleSubmission () {
-    let postRequest = (url,body)=>{
-      const options = {
-        method: 'POST',
-        headers: {        
-        'Content-Type': 'multipart/form-data; boundary=AaB03x' + 
-        '--AaB03x'+
-        'Content-Disposition: file' +
-        'Content-Type: png' +
-        'Content-Transfer-Encoding: binary' +
-        '...data...'+
-        '--AaB03x--',
-        'Accept': 'application/json',
-        'type': 'formData'
-        },
-        body: body,
-      };
-      return fetch(url, options)
-    }        
+    // let postRequest = (url,body)=>{
+    //   const options = {
+    //     method: 'POST',
+    //     headers: {        
+    //     'Content-Type': 'multipart/form-data; boundary=AaB03x' + 
+    //     '--AaB03x'+
+    //     'Content-Disposition: file' +
+    //     'Content-Type: png' +
+    //     'Content-Transfer-Encoding: binary' +
+    //     '...data...'+
+    //     '--AaB03x--',
+    //     'Accept': 'application/json',
+    //     'type': 'formData'
+    //     },
+    //     body: body,
+    //   };
+    //   return fetch(url, options)
+    // }        
     
-    return postRequest(ConfigData.UPLOAD_ATTACHED_FILE+'?sitecode=de1011404&version=1', this.state.selectedFile)
+    return this.sendRequest(ConfigData.UPLOAD_ATTACHED_FILE+'?sitecode=de1011404&version=1', "POST", this.state.selectedFile)
     .then(data => {
       if(data.ok){
-        //forceRefreshData();
-        console.log("Force Refresh data");
-        console.log("data", data);
-        console.log("data.json", data.json());
+        //forceRefreshData();                
       }
       else 
         alert("something went wrong!");
