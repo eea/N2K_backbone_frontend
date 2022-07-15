@@ -331,10 +331,10 @@ const IndeterminateCheckbox = React.forwardRef(
     }).catch(e => {
           alert("something went wrong!");
     });   
-    }
-
-    let switchMarkChanges = (change) =>{
-      return props.mark({"SiteCode":change.SiteCode,"VersionId":change.Version,"Justification":true})
+    }    
+    
+    let switchMarkChanges = (change) =>{            
+      return props.mark({"SiteCode":change.SiteCode,"VersionId":change.Version,"Justification":Boolean(!change.JustificationRequired)})
       .then(data => {
         if(data?.ok){
           forceRefreshData();          
@@ -455,7 +455,7 @@ const IndeterminateCheckbox = React.forwardRef(
             review: ()=>openModal(row.original),
             accept: ()=>props.updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(row.original), "Cancel", ()=>{}),
             reject: ()=>props.updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(row.original), "Cancel", ()=>{}),
-            mark: ()=>props.updateModalValues("Mark Changes", "This will mark all the site changes", "Continue", ()=>markChanges(row.original), "Cancel", ()=>{}),
+            mark: ()=>props.updateModalValues("Mark Changes", "This will mark all the site changes", "Continue", ()=>switchMarkChanges(row.original), "Cancel", ()=>{}),
           }
         case 'accepted':
           return {
@@ -547,8 +547,8 @@ const IndeterminateCheckbox = React.forwardRef(
                         item={modalItem.SiteCode} 
                         version={modalItem.Version} 
                         updateModalValues = {props.updateModalValues}
-                        justificationRequired = {modalItem.JustificationRequired}
-                        justificationProvided = {modalItem.JustificationProvided}
+                        justificationRequired={modalItem.JustificationRequired}
+                        justificationProvided={modalItem.JustificationProvided}
           />
         </>
         )

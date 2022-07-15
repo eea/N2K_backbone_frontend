@@ -37,15 +37,13 @@ import CIcon from '@coreui/icons-react'
 import { cilWarning } from '@coreui/icons'
 
 import { ConfirmationModal } from './components/ConfirmationModal';
-import moreicon from './../../../assets/images/three-dots.svg'
 import justificationprovided from './../../../assets/images/file-text.svg'
-import justificationrequired from './../../../assets/images/exclamation.svg'
-import trash from './../../../assets/images/trash.svg'
 
-const xmlns = 'https://www.w3.org/2000/svg'
+const xmlns = 'https://www.w3.org/2000/svg';
 
 export class ModalChanges extends Component {
-
+  
+  
   constructor(props) {
     super(props);
     this.state = {
@@ -62,6 +60,8 @@ export class ModalChanges extends Component {
       newDocument: false,
       justificationRequired: false,
       justificationProvided: false,
+      selectedFile: [],
+      isSelected: false,
       modalValues : {
         visibility: false,
         close: () => {
@@ -180,6 +180,50 @@ export class ModalChanges extends Component {
     });
   }
 
+  addComment(target){
+    let comment = target.closest(".comment--item").querySelector("input").value;
+    let body={
+      "SiteCode": this.state.data.SiteCode,
+      "Version": this.state.data.Version,
+      "comments": comment
+    }
+
+    this.sendRequest(ConfigData.ADD_COMMENT,"POST",body)
+    .then(response => response.json())
+    .then((data) => {
+      if(data?.Success){
+        //If the comment was added to the DB, we create the new comment 
+        let commentId = Math.max(...data.Data.map(e=>e.Id));
+        let cmts = this.state.comments;
+        cmts.push({
+          Comments: comment,
+          SiteCode: this.state.data.SiteCode,
+          Version: this.state.data.Version,
+          Id: commentId
+        })
+        this.setState({comments: cmts, newComment: false})
+      }
+    });
+  }
+
+  saveComment(code,version,comment,target){
+    let input = target.closest(".comment--item").querySelector("input");
+    let body={
+      "Id": input.getAttribute("msg_id"),
+      "SiteCode": code,
+      "Version": version,
+      "comments": comment
+    }
+
+    this.sendRequest(ConfigData.UPDATE_COMMENT,"PUT",body)
+    .then((data) => {
+      if(data?.ok){
+        input.disabled = true;
+        target.firstChild.classList.replace("fa-floppy-disk", "fa-pencil");
+      }
+    });
+  }
+
   deleteComment(target){
     let input = target.closest(".comment--item").querySelector("input");
     let body=
@@ -197,13 +241,60 @@ export class ModalChanges extends Component {
     this.setState({newDocument: true})
   }
 
-  deleteDocument(e){
-    // Delete document
+  deleteAttachment(){    
+    this.setState({newDocument: false})    
+    this.setState({isSelected: false})
   }
 
-  uploadFile(e) {
-    document.getElementById("uploadFile").value = e.currentTarget.value;
+  getDocuments() {
+    sendRequest(ConfigData.GET_ATTACHED_FILES+'?sitecode=de1011404&version=1','POST','')
+    .then((response) => response.json())
+    .then((result) => {
+      console.log('Success', result);
+    })
+    .catch((error) => {
+      console.error('Error', error);
+    });
   }
+  
+  changeHandler (e) {    
+    this.setState({selectedFile: e.target.files[0]});
+    this.setState({isSelected: true});    
+  }
+
+  handleSubmission () {
+    // let postRequest = (url,body)=>{
+    //   const options = {
+    //     method: 'POST',
+    //     headers: {        
+    //     'Content-Type': 'multipart/form-data; boundary=AaB03x' + 
+    //     '--AaB03x'+
+    //     'Content-Disposition: file' +
+    //     'Content-Type: png' +
+    //     'Content-Transfer-Encoding: binary' +
+    //     '...data...'+
+    //     '--AaB03x--',
+    //     'Accept': 'application/json',
+    //     'type': 'formData'
+    //     },
+    //     body: body,
+    //   };
+    //   return fetch(url, options)
+    // }        
+    
+    return this.sendRequest(ConfigData.UPLOAD_ATTACHED_FILE+'?sitecode=de1011404&version=1', "POST", this.state.selectedFile)
+    .then(data => {
+      if(data.ok){
+        //forceRefreshData();                
+      }
+      else 
+        alert("something went wrong!");
+      return data;
+    }).catch(e => {
+      alert("something went wrong!");
+      console.log(e);
+    });    
+}
 
   render_ValuesTable(changes){
     let heads = Object.keys(changes[0]).filter(v=> v!=="ChangeId" && v!=="Fields");
@@ -372,7 +463,7 @@ export class ModalChanges extends Component {
                   <label htmlFor="modal_check_warning" className="input-label badge color--warning">Warning</label>
                 </div>
               </li>
-              <li className="nav-item">
+                <li className="nav-item">
                 <div className="checkbox">
                   <input type="checkbox" className="input-checkbox" id="modal_check_info" onClick={(e)=>this.set_level("Info")} checked={this.state.levels.includes("Info")} readOnly/>
                   <label htmlFor="modal_check_info" className="input-label badge color--info">Info</label>
@@ -447,32 +538,35 @@ export class ModalChanges extends Component {
         {cmts}
       </span>
     )
-  }
+  }  
 
+ 
   render_documents(){
     return(
       <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 2}>
         <CRow className="py-3">
-          <CCol xs={12} lg={6}>
-            <CCard className="document--list">
-              <div className="d-flex justify-content-between align-items-center pb-2">
-                <b>Attached documents</b>
-                <CButton color="link" className="btn-link--dark" onClick={() => this.addDocument()}>Add document</CButton>
-              </div>
+        <CCol xs={12} lg={6}>
+        <CCard className="document--list">
+          <div className="d-flex justify-content-between align-items-center pb-2">
+            <b>Attached documents</b>
+            <CButton color="link" className="btn-link--dark" onClick={() => this.addDocument()}>Add document</CButton>                
+          </div>
               {this.state.newDocument &&
                 <div className="document--item new">
                   <div className="input-file">
                     <label htmlFor="uploadBtn">
                       Select file
                     </label>
-                    <input id="uploadBtn" type="file" onChange={(e) => this.uploadFile(e)}/>
-                    <input id="uploadFile" placeholder="No file selected" disabled="disabled" />
-                  </div>
-                  <div>
+                    <input id="uploadBtn" type="file" onChange={(e) => this.changeHandler(e)}/>
+                    {this.state.isSelected ? (
+                      <input id="uploadFile" placeholder={this.state.selectedFile.name} disabled="disabled"/>
+                    ) : (<input id="uploadFile" placeholder="No file selected" disabled="disabled" />)}                    
+                  </div>                  
+                  <div> 
                     <div className="btn-icon">
-                      <i className="fa-solid fa-floppy-disk"></i>
+                      <i className="fa-solid fa-floppy-disk" onClick={() => this.handleSubmission()}></i>
                     </div>
-                    <div className="btn-icon">
+                    <div className="btn-icon" onClick={() => this.deleteAttachment()}>
                       <i className="fa-regular fa-trash-can"></i>
                     </div>
                   </div>
@@ -485,7 +579,7 @@ export class ModalChanges extends Component {
                 </div>
                 <div>
                   <CButton color="link" className="btn-link--dark">View</CButton>
-                  <div className="btn-icon" onClick={() => this.deleteDocument()}>
+                  <div className="btn-icon" onClick={() => this.deleteDocument(e)}>
                     <i className="fa-regular fa-trash-can"></i>
                   </div>
                 </div>
@@ -502,19 +596,8 @@ export class ModalChanges extends Component {
                   </div>
                 </div>
               </div>
-            </CCard>
-            <CPagination aria-label="Pagination" className="pt-3">
-              <CPaginationItem aria-label="Previous">
-                  <i className="fa-solid fa-angle-left"></i>
-              </CPaginationItem>
-              <CPaginationItem>1</CPaginationItem>
-              <CPaginationItem>2</CPaginationItem>
-              <CPaginationItem>3</CPaginationItem>
-              <CPaginationItem aria-label="Next">
-                <i className="fa-solid fa-angle-right"></i>
-              </CPaginationItem>
-            </CPagination>
-          </CCol>
+            </CCard>            
+          </CCol>   
           <CCol xs={12} lg={6}>
             <CCard className="comment--list">
               <div className="d-flex justify-content-between align-items-center pb-2">
@@ -572,8 +655,8 @@ export class ModalChanges extends Component {
             </CNavItem>
           </CNav>
     <CTabContent>
-      {this.render_changes()}
-      {this.render_documents()}
+      {this.render_changes()}      
+      {this.render_documents()}      
     </CTabContent>
         </CModalBody>
         <CModalFooter>
