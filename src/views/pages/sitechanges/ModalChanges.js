@@ -39,6 +39,8 @@ import { cilWarning } from '@coreui/icons'
 import { ConfirmationModal } from './components/ConfirmationModal';
 import justificationprovided from './../../../assets/images/file-text.svg'
 
+import MapViewer from './components/MapViewer'
+
 const xmlns = 'https://www.w3.org/2000/svg';
 
 export class ModalChanges extends Component {
@@ -543,7 +545,7 @@ export class ModalChanges extends Component {
  
   render_documents(){
     return(
-      <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 2}>
+      <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 3}>
         <CRow className="py-3">
         <CCol xs={12} lg={6}>
         <CCard className="document--list">
@@ -622,6 +624,16 @@ export class ModalChanges extends Component {
     )
   }
 
+  renderGeometry(){
+    return(
+      <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 2}>
+        <CRow >
+          <MapViewer siteCode={this.props.item} version={this.props.version}/>
+        </CRow>
+      </CTabPane>
+    )
+  }
+
   render_modal() {
     let data = this.state.data;
     return(
@@ -635,7 +647,7 @@ export class ModalChanges extends Component {
             Justification required
           </CAlert>
           <CNav variant="tabs" role="tablist">
-            <CNavItem>
+          <CNavItem>
               <CNavLink
                 href="javascript:void(0);"
                 active={this.state.activeKey === 1}
@@ -650,6 +662,15 @@ export class ModalChanges extends Component {
                 active={this.state.activeKey === 2}
                 onClick={() => this.setActiveKey(2)}
               >
+                Geometry
+              </CNavLink>
+            </CNavItem>
+            <CNavItem>
+              <CNavLink
+                href="javascript:void(0);"
+                active={this.state.activeKey === 3}
+                onClick={() => this.setActiveKey(3)}
+              >
                 Documents & Comments
               </CNavLink>
             </CNavItem>
@@ -657,6 +678,7 @@ export class ModalChanges extends Component {
     <CTabContent>
       {this.render_changes()}      
       {this.render_documents()}      
+      {this.renderGeometry()}
     </CTabContent>
         </CModalBody>
         <CModalFooter>
