@@ -132,7 +132,7 @@ const IndeterminateCheckbox = React.forwardRef(
                 >
                   <div className="checkbox"></div>
                 </CTooltip>
-              : <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} id={"harvesting_check_" + row.Version}/>
+              : <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} id={"harvesting_check_" + row.values.Version}/>
             ),
           },
           ...columns,
