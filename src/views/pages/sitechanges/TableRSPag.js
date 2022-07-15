@@ -4,6 +4,8 @@ import DropdownSiteChanges from './components/DropdownSiteChanges';
 import {
   CPagination,
   CPaginationItem,
+  CImage,
+  CTooltip
 } from '@coreui/react'
 
 import ConfigData from '../../../config.json';
@@ -11,6 +13,8 @@ import ConfigData from '../../../config.json';
 import {matchSorter} from 'match-sorter'
 
 import { ModalChanges } from './ModalChanges';
+import justificationrequired from './../../../assets/images/exclamation.svg'
+import justificationprovided from './../../../assets/images/file-text.svg'
 
 const IndeterminateCheckbox = React.forwardRef(
     ({ indeterminate, ...rest }, ref) => {
@@ -23,7 +27,10 @@ const IndeterminateCheckbox = React.forwardRef(
   
       return (
         <>
-          <input type="checkbox" ref={resolvedRef} {...rest} />
+          <div className={"checkbox" + (rest.hidden ? " d-none" :"")} >
+            <input type="checkbox" className="input-checkbox" ref={resolvedRef} {...rest}/>
+            <label htmlFor={rest.id}></label>
+          </div>
         </>
       )
     }
@@ -85,7 +92,7 @@ const IndeterminateCheckbox = React.forwardRef(
   
   fuzzyTextFilterFn.autoRemove = val => !val
 
-  function Table({ columns, data, setSelected, siteCodes, currentPage, currentSize, loadPage }) {
+  function Table({ columns, data, setSelected, siteCodes, currentPage, currentSize, loadPage, status }) {
 
     const [pgCount, setPgCount] = useState(Math.ceil(siteCodes.length / currentSize));
 
@@ -147,19 +154,16 @@ const IndeterminateCheckbox = React.forwardRef(
       hooks => {
         hooks.visibleColumns.push(columns => [
           {
-            id: 'selection',          
+            id: 'selection',
+            cellWidth: '48px',
             Header: ({ getToggleAllPageRowsSelectedProps }) => (
-              <div key="th_selection">
-                <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} />
-              </div>
+              <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} id={"sitechanges_check_all_" + status} />
             ),
             Cell: ({ row }) => (
               row.canExpand ?(
-              <div key={"div_"+row.id}>
-                <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} name={"chk_"+row.original.SiteCode} sitecode={row.original.SiteCode} />
-              </div>
+                <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} name={"chk_"+row.original.SiteCode} sitecode={row.original.SiteCode} id={"sitechanges_check_" +  row.original.SiteCode} />
               ): null
-            ),            
+            ),
           },
           ...columns,
         ])
@@ -180,7 +184,7 @@ const IndeterminateCheckbox = React.forwardRef(
             {headerGroups.map(headerGroup => (
               <tr {...headerGroup.getHeaderGroupProps()}>
                 {headerGroup.headers.map(column => (
-                  <th key={column.id}>
+                  <th key={column.id} style={{width:column.cellWidth}}>
                       {column.render('Header')}
                         {/*<div>{column.canFilter ? column.render('Filter') : null}</div>*/}
                   </th>
@@ -196,7 +200,7 @@ const IndeterminateCheckbox = React.forwardRef(
               return (
                 <tr {...row.getRowProps()}>
                   {row.cells.map(cell => {
-                    return <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                    return <td {...cell.getCellProps()} className={cell.column.className}>{cell.render('Cell')}</td>
                   })}
                 </tr>
               )
@@ -214,7 +218,7 @@ const IndeterminateCheckbox = React.forwardRef(
           <CPaginationItem onClick={() => changePage(0,gotoPage(0))} disabled={!canPreviousPage}>
             <i className="fa-solid fa-angles-left"></i>
           </CPaginationItem>
-          <CPaginationItem onClick={() => changePage(pageIndex,previousPage())} disabled={!canPreviousPage}>
+          <CPaginationItem onClick={() => changePage(pageIndex-1,previousPage())} disabled={!canPreviousPage}>
             <i className="fa-solid fa-angle-left"></i>
           </CPaginationItem>
           <span>
@@ -264,14 +268,6 @@ const IndeterminateCheckbox = React.forwardRef(
     const [currentSize, setCurrentSize] = useState(30);
     const [levelCountry, setLevelCountry] = useState({});
 
-    useEffect(() => {
-      fetch(ConfigData.SERVER_API_ENDPOINT+'/api/sitechanges/get')
-      .then(response => response.json())
-      .then(data => {
-        setEvents(data);
-      });
-    }, [])
-
     let forceRefreshData = ()=> setChangesData({});
 
     let resetPagination = () =>{
@@ -294,6 +290,19 @@ const IndeterminateCheckbox = React.forwardRef(
       setModalVisible(false);
       setModalItem({});
       if(refresh) forceRefreshData(); //To force refresh
+    }
+
+    let setBackToPending = (change)=>{
+      return props.setBackToPending({"SiteCode":change.SiteCode,"VersionId":change.Version})
+      .then(data => {
+          if(data?.ok){
+            forceRefreshData();
+            //props.setRefresh("pending",false);
+            //props.setRefresh("accepted",true);
+            //props.setRefresh("rejected",true);
+          }
+          return data;
+      });
     }
 
     let acceptChanges = (change)=>{
@@ -321,38 +330,76 @@ const IndeterminateCheckbox = React.forwardRef(
         return data;
     }).catch(e => {
           alert("something went wrong!");
-    });
+    });   
+    }
+
+    let switchMarkChanges = (change) =>{
+      return props.mark({"SiteCode":change.SiteCode,"VersionId":change.Version,"Justification":true})
+      .then(data => {
+        if(data?.ok){
+          forceRefreshData();          
+        }else
+          alert("something went wrong!");
+        return data;
+      }).catch(e => {
+        alert("something went wrong!");
+      });    
    }
 
     const columns = React.useMemo(
       () => [
         {
-            id: 'expander',
-            Cell: ({ row }) =>              
-              row.canExpand ? (
-                <span
-                  {...row.getToggleRowExpandedProps({
-                    style: {                      
-                      paddingLeft: `${row.depth * 2}rem`,
-                    },
-                  })}
-                  className="row-expand"
-                >
-                  {row.isExpanded ? 
-                    <i className="fa-solid fa-square-minus"></i>
-                    : 
-                    <i className="fa-solid fa-square-plus"></i>
-                  }
-                </span>
-              ) : null,
+          id: 'expander',
+          cellWidth: '48px',
+          Cell: ({ row }) =>
+            row.canExpand ? (
+              <div
+                {...row.getToggleRowExpandedProps({
+                  style: {
+                    paddingLeft: `${row.depth * 2}rem`,
+                  },
+                })}
+                className="row-expand"
+              >
+                {row.isExpanded ? 
+                  <i className="fa-solid fa-square-minus"></i>
+                  : 
+                  <i className="fa-solid fa-square-plus"></i>
+                }
+              </div>
+            ) : null,
         },
         {
           Header: 'Sitecode',
           accessor: 'SiteCode',
+          className:"cell-sitecode",
+          Cell: ({ row }) => {
+            return (
+              row.values.SiteCode ? (
+                <CTooltip
+                  content={row.original.SiteName}
+                  placement="top"
+                >
+                  <div>
+                    {row.values.SiteCode + " - " + row.original.SiteName}
+                  </div>
+                </CTooltip>
+              ) : null
+            )
+          }
         },
         {
           Header: 'Level',
           accessor: 'Level',
+          Cell: ({ row }) => {
+            return (
+              row.original.Level ? (
+                <span className={"badge badge--" + row.original.Level.toLowerCase()}>
+                  {row.values.Level}
+                </span>
+              ) : null
+            )
+          }
         },
         {
           Header: 'Change Category',
@@ -367,16 +414,33 @@ const IndeterminateCheckbox = React.forwardRef(
           accessor: 'Country',
         },
         {
+          Header: () => null,
+          accessor: "JustificationRequired",
+          Cell: ({ row }) => (
+            row.canExpand ? <> {row.values.JustificationRequired === true ? <CImage src={justificationrequired} className="ico--md "></CImage> : null } </> : null
+          )                     
+        },    
+        {
+          Header: () => null,
+          accessor: "JustificationProvided",
+          Cell: ({ row }) => (
+            row.canExpand ? <> {row.values.JustificationProvided === true ? <CImage src={justificationprovided} className="ico--md "></CImage> : null  } </> : null             
+          ),
+        },    
+        {
           Header: () => null, 
           id: 'dropdownsiteChanges',
+          cellWidth: '48px',
           Cell: ({ row }) => {
+              const toggleMark = row.values.JustificationRequired === true ? "Unmark" : "Mark";
               const contextActions = {
                 review: ()=>openModal(row.original),
                 accept: ()=>props.updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(row.original), "Cancel", ()=>{}),
                 reject: ()=>props.updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(row.original), "Cancel", ()=>{}),
+                mark: ()=>props.updateModalValues(""+toggleMark+" Changes", "This will "+toggleMark+ " all the site changes", "Continue", ()=>switchMarkChanges(row.original), "Cancel", ()=>{}),
               }
               return row.canExpand ? (
-                <DropdownSiteChanges actions={contextActions}/>          
+                <DropdownSiteChanges actions={getContextActions(row)} toggleMark = {toggleMark}/>          
               ) : null
           }
         },
@@ -384,8 +448,32 @@ const IndeterminateCheckbox = React.forwardRef(
       []
     )
 
+    let getContextActions = (row)=>{
+      switch(props.status){
+        case 'pending':
+          return {
+            review: ()=>openModal(row.original),
+            accept: ()=>props.updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(row.original), "Cancel", ()=>{}),
+            reject: ()=>props.updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(row.original), "Cancel", ()=>{}),
+            mark: ()=>props.updateModalValues("Mark Changes", "This will mark all the site changes", "Continue", ()=>markChanges(row.original), "Cancel", ()=>{}),
+          }
+        case 'accepted':
+          return {
+            review: ()=>openModal(row.original),
+            backPending: ()=>props.updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", ()=>setBackToPending(row.original), "Cancel", ()=>{}),
+          }
+        case 'rejected':
+          return {
+            review: ()=>openModal(row.original),
+            backPending: ()=>props.updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", ()=>setBackToPending(row.original), "Cancel", ()=>{}),
+          }
+        default:
+          return {}
+      }
+    }
+
     let getSiteCodes= ()=>{
-      let url = ConfigData.SERVER_API_ENDPOINT+'/api/sitechanges/GetSiteCodes/';
+      let url = ConfigData.SITECODES_GET;
       url += 'country='+props.country;
       url += '&status='+props.status;
       url += '&level='+props.level;
@@ -405,12 +493,11 @@ const IndeterminateCheckbox = React.forwardRef(
         
         if(props.getRefresh()||(levelCountry==={})||(levelCountry.level!==props.level)||(levelCountry.country!==props.country)){
           props.setRefresh(props.status,false);  //For the referred status, data is updated
-          resetPagination();
           promises.push(getSiteCodes());
           setLevelCountry({level:props.level,country:props.country});
         }
 
-        let url = ConfigData.SERVER_API_ENDPOINT+'/api/sitechanges/get/';
+        let url = ConfigData.SITECHANGES_GET;
         url += 'country='+ props.country;
         url += '&status='+props.status;
         url += '&level='+props.level;
@@ -448,14 +535,20 @@ const IndeterminateCheckbox = React.forwardRef(
             currentPage={currentPage}
             currentSize={currentSize} 
             loadPage = {loadPage}
+            status={props.status}
           />        
           <ModalChanges visible = {modalVisible} 
                         close = {closeModal} 
                         accept={()=>acceptChanges(modalItem)} 
                         reject={()=>rejectChanges(modalItem)} 
+                        backToPending={()=>setBackToPending(modalItem)}
+                        mark={()=>switchMarkChanges(modalItem)}
+                        status={props.status}
                         item={modalItem.SiteCode} 
                         version={modalItem.Version} 
                         updateModalValues = {props.updateModalValues}
+                        justificationRequired = {modalItem.JustificationRequired}
+                        justificationProvided = {modalItem.JustificationProvided}
           />
         </>
         )

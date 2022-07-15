@@ -1,129 +1,172 @@
-import React, { lazy } from 'react'
-import { AppSidebar, AppFooter, AppHeader } from './../../../components/index'
-import { FetchEnvelops } from './FetchEnvelops';
+import React, { lazy, useState } from 'react'
+import { AppFooter, AppHeader } from './../../../components/index'
 import TableEnvelops from './TableEnvelops';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 import {
   CButton,
-  CAvatar,
-  CHeader,
   CSidebar,
   CSidebarNav,
   CCol,
   CContainer,
   CRow,
-  CDropdown,
-  CDropdownItem,
-  CDropdownMenu,
-  CDropdownToggle,
   CFormLabel,
-  CFormSelect,  
-  CPagination,
-  CPaginationItem,   
+  CFormSelect,
+  CAlert
 } from '@coreui/react'
 
-import moreicon from './../../../assets/images/three-dots.svg'
-import user from './../../../assets/images/avatars/user.png'
+import { ConfirmationModal } from './components/ConfirmationModal';
 
 const Harvesting = () => {
+  const [disabledBtn, setDisabledBtn] = useState(true);
+  const [alertValues, setAlertValues] = useState({
+    visible: false,
+    text: ''
+  });
+  const [modalValues, setModalValues] = useState({
+    visibility: false,
+    close: () => {
+      setModalValues((prevState) => ({
+        ...prevState,
+        visibility: false
+      }));
+    }
+  });
+
+  let selectedCodes = [],
+  setSelectedCodes = (v) => {
+    if(document.querySelectorAll('input[sitecode]:checked').length !== 0 && v.length === 0) return;
+    selectedCodes = v;
+    if (selectedCodes.length === 0) {
+      setDisabledBtn(true)
+    } else {
+      setDisabledBtn(false)
+    }
+  };
+
+  function updateModalValues(title, text, primaryButtonText, primaryButtonFunction, secondaryButtonText, secondaryButtonFunction) {
+    setModalValues({
+      visibility: true,
+      title: title,
+      text: text,
+      primaryButton: (
+        primaryButtonText && primaryButtonFunction ? {
+          text: primaryButtonText,
+          function: () => primaryButtonFunction(),
+        }
+        : ''
+      ),
+      secondaryButton: (
+        secondaryButtonText && secondaryButtonFunction ? {
+          text: secondaryButtonText,
+          function: () => secondaryButtonFunction(),
+        }
+        : ''
+      ),
+    });
+  }
+
+  let modalProps = {
+    showAlert(text) {
+      setAlertValues({
+        visibility: true,
+        text: text
+      });
+    },
+    showHarvestModal(values) {
+      updateModalValues("Harvest Envelopes", "This will harvest this envelope", "Continue", () => harvestHandler(values), "Cancel", () => modalProps.close);
+    },
+    showDiscardModal(values) {
+      updateModalValues("Discard Envelopes", "This will discard this envelope", "Continue", () => discardHandler(values), "Cancel", () => modalProps.close);
+    }
+  }
+
+  async function harvestHandler(values) {
+    let versionId = values.versionId;
+    let countryCode = values.countryCode;
+    // var harvested =[{"VersionId": versionId, "CountryCode": countryCode}];
+    // const response = await fetch(ConfigData.HARVESTING_HARVEST, {
+    //   method: 'POST',
+    //   body: JSON.stringify(harvested),
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //     'accept': 'application/json'
+    //   }
+    // });
+    // const data = await response.json();
+    // if (data.Success)  {
+    //   modalProps.showAlert("Envelope successfully harvested");
+    // }
+    // else 
+    //   console.log("Error:" + data.Message);
+  }
+
+  async function discardHandler(values) {
+    let versionId = values.versionId;
+    let countryCode = values.countryCode;
+    // var harvested =[{"VersionId": versionId, "CountryCode": countryCode}];
+    // const response = await fetch(ConfigData.HARVESTING_DISCARD, {
+    //   method: 'POST',
+    //   body: JSON.stringify(harvested),
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //     'accept': 'application/json'
+    //   }
+    // });
+    // const data = await response.json();
+    // if (data.Success)  {
+    //   modalProps.showAlert("Envelope successfully discarded");
+    // }
+    // else 
+    //   console.log("Error:" + data.Message);
+  }
+
   return (
     <div className="container--main min-vh-100">
-      <CHeader className="header--custom">
-        <CRow className="align-items-center">
-          <CCol className="header__title">
-            <div>Natura Change Manager</div>
-          </CCol>
-          <CCol className="header__links">
-            <ul className="btn--list justify-content-between">
-              <li><CButton color="link" className="btn-link--bold" href="/#/dashboard">Dashboard</CButton></li>
-              <li className="header-active"><CButton color="link" className="btn-link--bold" href="/#/harvesting">Harvesting</CButton></li>
-              <li><CButton color="link" className="btn-link--bold" href="/#/sitechanges">Site Changes</CButton></li>
-              <li><CButton color="link" className="btn-link--bold">Site Lineage</CButton></li>
-              <li><CButton color="link" className="btn-link--bold">Reports</CButton></li>
-              <li><CButton color="link" className="btn-link--bold">Reference Dataset</CButton></li>
-              <li><CAvatar src={user} /><CButton color="link" className="btn-link--bold">Username</CButton></li>
-            </ul>
-          </CCol>
-        </CRow>
-      </CHeader>
-      <CContainer fluid>
-        
-      </CContainer>
-        <div className="content--wrapper">
-          <CSidebar className="sidebar--light">
-            <CSidebarNav>
-              <li className="nav-title">Harvesting</li>
-              <li className="nav-item">
-                <a className="nav-link active">
-                  <i className="fa-solid fa-bookmark"></i>
-                  New Envelops
-                </a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link">
-                  <i className="fa-solid fa-bookmark"></i>
-                  Harvested Envelopes History
-                </a>
-              </li>
-            </CSidebarNav>
-          </CSidebar>
-          <div className="main-content">
-            <CContainer fluid>
-              <div className="d-flex justify-content-between py-3">
-                <div className="page-title">
-                  <h1 className="h1">New Envelops</h1>
-                </div>
-                <div>
-                  <ul className="btn--list">
-                    <li><CButton color="secondary">Discard</CButton></li>
-                    <li><CButton color="primary">Harvest</CButton></li>
-                  </ul>
-                </div>
+      <AppHeader page="harvesting"/>
+      <div className="content--wrapper">
+        <CSidebar className="sidebar--light">
+          <CSidebarNav>
+            <li className="nav-title">Harvesting</li>
+            <li className="nav-item">
+              <a className="nav-link active">
+                <i className="fa-solid fa-bookmark"></i>
+                New Envelopes
+              </a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link">
+                <i className="fa-solid fa-bookmark"></i>
+                Harvested Envelopes History
+              </a>
+            </li>
+          </CSidebarNav>
+        </CSidebar>
+        <div className="main-content">
+          <CContainer fluid>
+            <div className="d-flex justify-content-between py-3">
+              <div className="page-title">
+                <h1 className="h1">New Envelopes</h1>
               </div>
-            <div className="d-flex justify-content-between">
               <div>
-                <CDropdown>
-                  <CDropdownToggle color="link--dropdown" className="me-5">Filters</CDropdownToggle>
-                  <CDropdownMenu>
-                      <CDropdownItem >Action</CDropdownItem>
-                      <CDropdownItem >Another action</CDropdownItem>
-                      <CDropdownItem >Something else here</CDropdownItem>
-                  </CDropdownMenu>
-                  </CDropdown>
-                  <CDropdown>
-                  <CDropdownToggle color="link--dropdown" className="me-5">Options</CDropdownToggle>
-                  <CDropdownMenu>
-                      <CDropdownItem >Action</CDropdownItem>
-                      <CDropdownItem >Another action</CDropdownItem>
-                      <CDropdownItem >Something else here</CDropdownItem>
-                  </CDropdownMenu>
-                </CDropdown>
-              </div>
-              <div className="select--right">
-                <CFormLabel htmlFor="exampleFormControlInput1" className="form-label form-label-reporting col-md-4 col-form-label">Reporting date</CFormLabel>
-                <CFormSelect aria-label="Default select example" className="form-select-reporting">
-                  <option></option>
-                  <option value="1">One</option>
-                  <option value="2">Two</option>
-                  <option value="3">Three</option>
-                </CFormSelect>
+                <ul className="btn--list">
+                  <li><CButton color="secondary" disabled={disabledBtn} onClick={() => modalProps.showDiscardModal(selectedCodes)}>Discard</CButton></li>
+                  <li><CButton color="primary" disabled={disabledBtn} onClick={() => modalProps.showHarvestModal(selectedCodes)}>Harvest</CButton></li>
+                </ul>
               </div>
             </div>
-          {/* table */}
-          <CRow>
-            <CCol md={12} lg={12}>
-              {/* <FetchEnvelops /> */}
-              <TableEnvelops />
-            </CCol>
-          </CRow>
-            </CContainer>
-          </div>
+            <CRow>
+              <CCol md={12} lg={12}>
+                <TableEnvelops setSelected={setSelectedCodes} modalProps={modalProps} />
+                <ConfirmationModal modalValues={modalValues}/>
+                <CAlert color="primary" dismissible visible={alertValues.visible} onClose={() => setAlertValues({visible:false})}>{alertValues.text}</CAlert>
+              </CCol>
+            </CRow>
+          </CContainer>
         </div>
+      </div>
     </div>
-    
   )
 }
-
 
 export default Harvesting
