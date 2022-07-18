@@ -17,7 +17,8 @@ import {
   CFormSelect,
   CFormCheck,
   CTabContent,
-  CTabPane
+  CTabPane,
+  CFormInput
 } from '@coreui/react'
 
 import { ConfirmationModal } from './components/ConfirmationModal';
@@ -38,6 +39,7 @@ const Sitechanges = () => {
   const [country, setCountry] = useState("DE");
   const [level, setLevel] = useState('Critical');
   const [disabledBtn, setDisabledBtn] = useState(true);
+  const [disabledSearchBtn, setDisabledSearchBtn] = useState(true);
 
   let selectedCodes = [],
   setSelectedCodes = (v) => {
@@ -175,12 +177,32 @@ const Sitechanges = () => {
     });
   }
 
-  let changeLevel= (level)=>{
+  let showSearch = () => {
+    document.querySelector(".search--results").classList.remove("d-none");
+  }
+
+  let hideSearch = () => {
+    document.querySelector(".search--results").classList.add("d-none");
+  }
+
+  let clearSearch = () => {
+    document.getElementById("sitechanges_search").value = "";
+    setDisabledSearchBtn(true);
+  }
+
+  let selectSearchOption = (e) => {
+    let value = e.currentTarget.children[1].innerText + " - " + e.currentTarget.children[0].innerText;
+    document.getElementById("sitechanges_search").value = value;
+    e.currentTarget.parentElement.classList.add("d-none");
+    setDisabledSearchBtn(false);
+  }
+
+  let changeLevel = (level)=>{
     setLevel(level);
     forceRefreshData();
   }
 
-  let changeCountry= (country)=>{
+  let changeCountry = (country)=>{
     setCountry(country)
     forceRefreshData();
   }
@@ -264,15 +286,49 @@ const Sitechanges = () => {
                     </li>
                   </ul>
                 </div>
-                <div className="select--right">    
-                  <CFormLabel htmlFor="exampleFormControlInput1" className='form-label form-label-reporting col-md-4 col-form-label'>Country </CFormLabel>
-                    <CFormSelect aria-label="Default select example" className='form-select-reporting' value={country} onChange={(e)=>changeCountry(e.target.value)}>
+              </div>
+              <CRow>
+                <CCol sm={12} md={6} lg={6} className="d-flex mb-4">
+                  <div className="search--input">
+                    <CFormInput
+                      id="sitechanges_search"
+                      placeholder="Search sites by site name or site code"
+                      autoComplete="off"
+                      onClick={()=>showSearch()}
+                      onBlur={()=>hideSearch()}
+                    />
+                    <span className="btn-icon" onClick={()=>clearSearch()}>
+                      <i className="fa-solid fa-xmark"></i>
+                    </span>
+                    <div className="search--results d-none">
+                      <div className="search--option" onMouseDown={(e)=>selectSearchOption(e)}>
+                        <div>SPA Östliche Deutsche Bucht</div>
+                        <div className="search--suboption">DE1011401</div>
+                      </div>
+                      <div className="search--option" onMouseDown={(e)=>selectSearchOption(e)}>
+                        <div>NSG Rantumbecken</div>
+                        <div className="search--suboption">DE1115301</div>
+                      </div>
+                      {/* <div className="search--option">Results not found</div> */}
+                    </div>
+                  </div>
+                  <CButton disabled={disabledSearchBtn}>
+                    <i className="fa-solid fa-magnifying-glass"></i>
+                  </CButton>
+                  <></>
+                </CCol>
+                <CCol sm={12} md={6} lg={6} className="mb-4">
+                  <div className="select--right">
+                    <CFormLabel htmlFor="exampleFormControlInput1" className='form-label form-label-reporting col-md-4 col-form-label'>Country </CFormLabel>
+                      <CFormSelect aria-label="Default select example" className='form-select-reporting' value={country} onChange={(e)=>changeCountry(e.target.value)}>
                       {
                         countries.map((e)=><option value={e.code} key={e.code}>{e.name}</option>)
                       }
-                    </CFormSelect>          
-                </div>            
-              </div>
+                    </CFormSelect>
+                  </div>
+                </CCol>
+              </CRow>
+
               <CRow>
                   <CCol md={12} lg={12}>
                     {/*   tabs */}
