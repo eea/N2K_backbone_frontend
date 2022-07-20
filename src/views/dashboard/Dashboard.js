@@ -1,4 +1,6 @@
-import React, { lazy } from 'react'
+import React, { useState, lazy } from 'react'
+
+import Highcharts from 'highcharts'
 
 import {
   CCard,
@@ -75,8 +77,108 @@ import spain from './../../../src/assets/images/flags/spain.png'
 import sweden from './../../../src/assets/images/flags/sweden.png'
 import switzerland from './../../../src/assets/images/flags/switzerland.png'
 
+import ConfigData from '../../config.json';
+
 const Dashboard = () => {  
-  let countries = ['Albania', 'Austria', 'Belgium', 'Bulgaria','Croatia', 'Cyprus', 'Czech Republic', 'Denmark', 'Estonia', 'Finland', 'France', 'Germany', 'Greece', 'Hungary', 'Iceland', 'Ireland', 'Italy', 'Latvia', 'Liechtenstein', 'Lithuania', 'Luxembourg', 'North Macedonia', 'Malta', 'Montenegro', 'Netherlands', 'Norway', 'Poland', 'Portugal', 'Romania', 'Serbia', 'Slovakia', 'Slovenia', 'Spain', 'Sweden', 'Switzerland'];
+  //let countries = ['Albania', 'Austria', 'Belgium', 'Bulgaria','Croatia', 'Cyprus', 'Czech Republic', 'Denmark', 'Estonia', 'Finland', 'France', 'Germany', 'Greece', 'Hungary', 'Iceland', 'Ireland', 'Italy', 'Latvia', 'Liechtenstein', 'Lithuania', 'Luxembourg', 'North Macedonia', 'Malta', 'Montenegro', 'Netherlands', 'Norway', 'Poland', 'Portugal', 'Romania', 'Serbia', 'Slovakia', 'Slovenia', 'Spain', 'Sweden', 'Switzerland'];
+  
+  const [countriesData, setCountriesData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  function populateCountriesData() {
+    if(isLoading)
+      fetch(ConfigData.SERVER_API_ENDPOINT+'/api/Countries/GetPendingLevel')
+        .then(response => response.json())
+        .then(data => {
+          setIsLoading(false);
+          setCountriesData(data.Data);
+        });
+  }
+  
+  const getPending = () => {
+    populateCountriesData();
+    return countriesData.map((c) => ({
+      name: c.Country,
+      pendingInfo: c.NumInfo,
+      pendingWarning: c.NumWarning,
+      pendingCritical: c.NumCritical
+    }))
+  }
+  
+  let pendingCountries = getPending();
+  
+  function sumTotal(total, current) {
+    return total + current;
+  }
+  
+  let totalPendingInfo = pendingCountries.map((c) => c.pendingInfo).reduce(sumTotal, 0);
+  let totalPendingWarning = pendingCountries.map((c) => c.pendingWarning).reduce(sumTotal, 0);
+  let totalPendingCritical = pendingCountries.map((c) => c.pendingCritical).reduce(sumTotal, 0);
+
+  const renderCards = () => {
+    let countryPath;
+    let result = []
+    pendingCountries.map((country) => {
+      countryPath = country.name.toLowerCase();
+      if (countryPath.includes("czech")) {
+        countryPath = countryPath.split(" ")[0];
+      } else if (countryPath.includes("macedonia")) {
+        countryPath = countryPath.split(" ")[1]
+      }
+    result.push(
+      <CCol xs={12} md={6} lg={4} xl={3}>
+        <CCard className="country-card">
+          <div className="country-card-left">
+            <CCardImage className="card-img--flag" src={require("./../../../src/assets/images/flags/" + countryPath + ".png")} width="32px" />
+          </div>
+          <div className="country-card-right">
+            <div className="country-card-header">
+              <span className="country-card-title">{country.name}</span>
+              <i className="fa-solid fa-arrow-right"></i>
+            </div>
+            <div className="country-card-body">
+              <span className="badge color--critical"><b>{country.pendingCritical}</b> Critical</span>
+              <span className="badge color--warning"><b>{country.pendingWarning}</b> Warning</span>
+              <span className="badge color--info"><b>{country.pendingInfo}</b> Info</span>
+            </div>
+          </div>
+        </CCard>
+      </CCol>
+    )
+    });
+    return (<>{result}</>);
+  }
+  
+  const renderGraph = () => {
+    Highcharts.chart('chart', {
+      chart: {
+          type: 'column'
+      },
+      credits: {
+          enabled: false
+      },
+      title: {
+          text: 'Sites (Pending/Accepted/Rejected)'
+      },
+      xAxis: {
+          categories: countries
+      },
+      yAxis: {
+          min: 0,
+          reversedStacks: false,
+          title: {
+              text: ''
+          }
+      },
+      plotOptions: {
+          series: {
+              stacking: 'percent'
+          }
+      },
+      series: getData()
+    })
+  }
+
   return (
     <>
       <CContainer fluid>
@@ -164,41 +266,14 @@ const Dashboard = () => {
             <h1 className="h1-main me-5">Countries</h1>
             <div>
               <span className="badge badge--all active me-2">All</span>
-              <span className="badge badge--critical radio me-2"><b>17</b> Critical</span>
-              <span className="badge badge--warning me-2"><b>15</b> Warning</span>
-              <span className="badge badge--info me-2"><b>18</b> Info</span>
+              <span className="badge badge--critical radio me-2"><b>{totalPendingCritical}</b> Critical</span>
+              <span className="badge badge--warning me-2"><b>{totalPendingWarning}</b> Warning</span>
+              <span className="badge badge--info me-2"><b>{totalPendingInfo}</b> Info</span>
             </div>
           </div>
           <div className="bg-white rounded-2 mb-5">
             <CRow className="grid">
-              {countries.map((country)=>{
-                let countryPath = country.toLowerCase();
-                if (countryPath.includes("czech")) {
-                  countryPath = countryPath.split(" ")[0];
-                } else if (countryPath.includes("macedonia")) {
-                  countryPath = countryPath.split(" ")[1]
-                }
-                return (
-                  <CCol xs={12} md={6} lg={4} xl={3}>
-                    <CCard className="country-card">
-                      <div className="country-card-left">
-                        <CCardImage className="card-img--flag" src={require("./../../../src/assets/images/flags/" + countryPath + ".png")} width="32px" />
-                      </div>
-                      <div className="country-card-right">
-                        <div className="country-card-header">
-                          <span className="country-card-title">{country}</span>
-                          <i className="fa-solid fa-arrow-right"></i>
-                        </div>
-                        <div className="country-card-body">
-                          <span className="badge color--critical"><b>2</b> Critical</span>
-                          <span className="badge color--warning"><b>7</b> Warning</span>
-                          <span className="badge color--info"><b>2</b> Info</span>
-                        </div>
-                      </div>
-                    </CCard>
-                  </CCol>
-                )
-              })}
+              {renderCards()}
             </CRow>
           </div>
           <div className="dashboard-title">

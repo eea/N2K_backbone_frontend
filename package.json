@@ -43,6 +43,7 @@
     "enzyme": "^3.11.0",
     "eslint-plugin-react": "^7.29.4",
     "esri-loader": "^3.6.0",
+    "highcharts": "^10.2.0",
     "match-sorter": "^6.3.1",
     "moment": "^2.29.3",
     "prop-types": "^15.7.2",
