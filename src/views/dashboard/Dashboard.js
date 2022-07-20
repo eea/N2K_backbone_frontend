@@ -1,6 +1,7 @@
 import React, { useState, lazy } from 'react'
 
 import Highcharts from 'highcharts'
+import HighchartsReact from 'highcharts-react-official'
 
 import {
   CCard,
@@ -82,28 +83,33 @@ import ConfigData from '../../config.json';
 const Dashboard = () => {  
   //let countries = ['Albania', 'Austria', 'Belgium', 'Bulgaria','Croatia', 'Cyprus', 'Czech Republic', 'Denmark', 'Estonia', 'Finland', 'France', 'Germany', 'Greece', 'Hungary', 'Iceland', 'Ireland', 'Italy', 'Latvia', 'Liechtenstein', 'Lithuania', 'Luxembourg', 'North Macedonia', 'Malta', 'Montenegro', 'Netherlands', 'Norway', 'Poland', 'Portugal', 'Romania', 'Serbia', 'Slovakia', 'Slovenia', 'Spain', 'Sweden', 'Switzerland'];
   
-  const [countriesData, setCountriesData] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  /*
+  ------- Pending Cards -------
+  */
   
-  function populateCountriesData() {
-    if(isLoading)
+  const [pendingCountriesData, setPendingCountriesData] = useState([]);
+  const [isPendingLoading, setIsPendingLoading] = useState(true);
+  
+  function populatependingCountriesData() {
+    if(isPendingLoading)
       fetch(ConfigData.SERVER_API_ENDPOINT+'/api/Countries/GetPendingLevel')
         .then(response => response.json())
         .then(data => {
-          setIsLoading(false);
-          setCountriesData(data.Data);
+          setIsPendingLoading(false);
+          setPendingCountriesData(data.Data);
         });
   }
   
   const getPending = () => {
-    populateCountriesData();
-    return countriesData.map((c) => ({
+    populatependingCountriesData();
+    return pendingCountriesData.map((c) => ({
       name: c.Country,
       pendingInfo: c.NumInfo,
       pendingWarning: c.NumWarning,
       pendingCritical: c.NumCritical
     }))
   }
+
   
   let pendingCountries = getPending();
   
@@ -149,35 +155,72 @@ const Dashboard = () => {
     return (<>{result}</>);
   }
   
-  const renderGraph = () => {
-    Highcharts.chart('chart', {
-      chart: {
-          type: 'column'
-      },
-      credits: {
-          enabled: false
-      },
-      title: {
-          text: 'Sites (Pending/Accepted/Rejected)'
-      },
-      xAxis: {
-          categories: countries
-      },
-      yAxis: {
-          min: 0,
-          reversedStacks: false,
-          title: {
-              text: ''
+  /*
+  ------- Sites Chart -------
+  */
+
+  let countries = pendingCountries.map((e) => e.name);
+
+  const [sitesCountriesData, setSitesCountriesData] = useState([]);
+  const [isSitesLoading, setIsSitesLoading] = useState(true);
+
+  function populateSitesCountriesData() {
+    if(isSitesLoading)
+      fetch(ConfigData.SERVER_API_ENDPOINT+'/api/Countries/GetSiteCount')
+        .then(response => response.json())
+        .then(data => {
+          let chngPending = [], chngAccepted = [], chngRejected = [];
+          for(let i in data.Data) {
+              chngPending.push(data.Data[i].NumPending);
+              chngAccepted.push(data.Data[i].NumAccepted);
+              chngRejected.push(data.Data[i].NumRejected);
           }
-      },
-      plotOptions: {
-          series: {
-              stacking: 'percent'
-          }
-      },
-      series: getData()
-    })
+          let result = [
+              {name: 'Pending',   index: 1,   data: chngPending,  color: '#db6c70'},
+              {name: 'Accepted',  index: 2,   data: chngAccepted, color: '#c6db6c'},
+              {name: 'Rejected',  index: 3,   data: chngRejected, color: '#6cdb90'}
+          ]
+          setIsSitesLoading(false);
+          setSitesCountriesData(result);
+        });
   }
+  
+  populateSitesCountriesData();
+  
+  const options = {
+        chart: {
+            type: 'column'
+        },
+        credits: {
+            enabled: false
+        },
+        title: {
+            text: 'Sites (Pending/Accepted/Rejected)'
+        },
+        xAxis: {
+            categories: countries
+        },
+        yAxis: {
+            min: 0,
+            reversedStacks: false,
+            title: {
+                text: ''
+            }
+        },
+        plotOptions: {
+            series: {
+                stacking: 'percent'
+            }
+        },
+        series: sitesCountriesData
+  }
+
+  const renderChart = () => (
+    <HighchartsReact
+      highcharts={Highcharts}
+      options={options}
+    />
+    )
 
   return (
     <>
@@ -360,71 +403,7 @@ const Dashboard = () => {
           </div>
           <div className="container-card-dashboard mb-5">
             <CRow className="grid">
-              <CCol xs={12} md={4} lg={4}>
-                <CCard className="chart-card">
-                  <h3>Activity (accepted/rejected changes)</h3>
-                    <CChartBar
-                      height={"300px"}
-                      data={{
-                        labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-                        datasets: [
-                          {
-                            backgroundColor: '#1F4E79',
-                            data: [40, 20, 12, 39, 10, 40, 39, 80, 40],
-                          },
-                        ],
-                      }}
-                      labels="months"
-                    />
-                </CCard>
-              </CCol>
-              <CCol xs={12} md={4} lg={4}>
-                <CCard className="chart-card">
-                  <h3>Recent site changes per country</h3>
-                  <CChartPie
-                    height={"300px"}
-                    data={{
-                      labels: ['Spain', 'Italy', 'France', 'Poland'],
-                      datasets: [
-                        { 
-                          data: [100, 300, 50, 100],
-                          backgroundColor: ['#D0E3F4', '#ADCDF1', '#418BCF', '#1F4E79'],
-                        },
-                      ],
-                    }}
-                    labels="Percentage"
-                  />
-                </CCard>
-              </CCol>
-              <CCol xs={12} md={4} lg={4}>
-                <CCard className="chart-card">
-                  <h3>Submissions received and pending</h3>
-                  <CChartLine
-                    height={"300px"}
-                    data={{
-                      labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-                      datasets: [
-                        {
-                          label: 'My First dataset',
-                          backgroundColor: '#1F4E79',
-                          borderColor: 'rgba(220, 220, 220, 1)',
-                          pointBackgroundColor: 'rgba(220, 220, 220, 1)',
-                          pointBorderColor: '#fff',
-                          data: [40, 20, 12, 39, 10, 40, 39, 80, 40],
-                        },
-                        {
-                          label: 'My Second dataset',
-                          backgroundColor: 'rgba(151, 187, 205, 0.2)',
-                          borderColor: 'rgba(151, 187, 205, 1)',
-                          pointBackgroundColor: 'rgba(151, 187, 205, 1)',
-                          pointBorderColor: '#fff',
-                          data: [50, 12, 28, 29, 7, 25, 12, 70, 60],
-                        },
-                      ],
-                    }}
-                  />
-                </CCard>
-              </CCol>
+                  {renderChart()}
             </CRow>
           </div>
       </CContainer>
