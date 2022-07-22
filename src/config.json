@@ -18,6 +18,8 @@
     "GET_ATTACHED_FILES":"https://n2kbackboneback-dev.azurewebsites.net/api/SiteDetails/GetAttachedFiles",
     "UPLOAD_ATTACHED_FILE":"https://n2kbackboneback-dev.azurewebsites.net/api/SiteDetails/UploadAttachedFile",
     "DELETE_ATTACHED_FILE":"https://n2kbackboneback-dev.azurewebsites.net/api/SiteDetails/DeleteAttachedFile",
+    "GET_PENDING_LEVEL":"https://n2kbackboneback-dev.azurewebsites.net/api/Countries/GetPendingLevel",
+    "GET_SITE_COUNT":"https://n2kbackboneback-dev.azurewebsites.net/api/Countries/GetSiteCount",
     "THEME_COLORS": {
       "PRIMARY": "#007bff",
       "SECONDARY": "#fc3"
