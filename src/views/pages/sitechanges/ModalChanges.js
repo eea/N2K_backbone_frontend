@@ -41,8 +41,6 @@ import justificationprovided from './../../../assets/images/file-text.svg'
 
 import MapViewer from './components/MapViewer'
 
-const xmlns = 'https://www.w3.org/2000/svg';
-
 export class ModalChanges extends Component {
   
   
@@ -62,8 +60,10 @@ export class ModalChanges extends Component {
       newDocument: false,
       justificationRequired: false,
       justificationProvided: false,
-      selectedFile: [],
+      selectedFile: "",
       isSelected: false,
+      notValidComment: "",
+      notValidDocument: "",
       modalValues : {
         visibility: false,
         close: () => {
@@ -123,6 +123,21 @@ export class ModalChanges extends Component {
     }
   }
 
+  showErrorMessage(target, message) {
+    if (target === "comment") {
+      this.setState({notValidComment: message});
+      setTimeout(() => {
+        this.setState({notValidComment: ""});
+      }, 5000);
+    }
+    else if (target === "document") {
+      this.setState({notValidDocument: message});
+      setTimeout(() => {
+        this.setState({notValidDocument: ""});
+      }, 5000);
+    }
+  }
+
   addNewComment() {
     this.setState({newComment: true})
   }
@@ -134,83 +149,49 @@ export class ModalChanges extends Component {
       input.focus();
       target.firstChild.classList.replace("fa-pencil", "fa-floppy-disk");
     } else {
-      this.saveComment(this.state.data.SiteCode,this.state.data.Version,input.value,target);
+      if (!input.value) {
+        this.showErrorMessage("comment", "Add comment");
+      }
+      else {
+        this.saveComment(this.state.data.SiteCode,this.state.data.Version,input.value,target);
+      }
     }
   }
 
   addComment(target){
-    let comment = target.closest(".comment--item").querySelector("input").value;
-    let body={
-      "SiteCode": this.state.data.SiteCode,
-      "Version": this.state.data.Version,
-      "comments": comment
+    let input = target.closest(".comment--item").querySelector("input");
+    let comment = input.value;
+    if (!comment) {
+      this.showErrorMessage("comment", "Add a comment");
     }
-
-    this.sendRequest(ConfigData.ADD_COMMENT,"POST",body)
-    .then(response => response.json())
-    .then((data) => {
-      if(data?.Success){
-        //If the comment was added to the DB, we create the new comment 
-        let commentId = Math.max(...data.Data.map(e=>e.Id));
-        let cmts = this.state.comments;
-        cmts.push({
-          Comments: comment,
-          SiteCode: this.state.data.SiteCode,
-          Version: this.state.data.Version,
-          Id: commentId
-        })
-        this.setState({comments: cmts, newComment: false})
+    else {
+      let body = {
+        "SiteCode": this.state.data.SiteCode,
+        "Version": this.state.data.Version,
+        "comments": comment
       }
-    });
+  
+      this.sendRequest(ConfigData.ADD_COMMENT,"POST",body)
+      .then(response => response.json())
+      .then((data) => {
+        if(data?.Success){
+          let commentId = Math.max(...data.Data.map(e=>e.Id));
+          let cmts = this.state.comments;
+          cmts.push({
+            Comments: comment,
+            SiteCode: this.state.data.SiteCode,
+            Version: this.state.data.Version,
+            Id: commentId
+          })
+          this.setState({comments: cmts, newComment: false})
+        }
+      });
+    }
   }
 
   saveComment(code,version,comment,target){
     let input = target.closest(".comment--item").querySelector("input");
-    let body={
-      "Id": input.getAttribute("msg_id"),
-      "SiteCode": code,
-      "Version": version,
-      "comments": comment
-    }
-
-    this.sendRequest(ConfigData.UPDATE_COMMENT,"PUT",body)
-    .then((data) => {
-      if(data?.ok){
-        input.disabled = true;
-        target.firstChild.classList.replace("fa-floppy-disk", "fa-pencil");
-      }
-    });
-  }
-
-  addComment(target){
-    let comment = target.closest(".comment--item").querySelector("input").value;
-    let body={
-      "SiteCode": this.state.data.SiteCode,
-      "Version": this.state.data.Version,
-      "comments": comment
-    }
-
-    this.sendRequest(ConfigData.ADD_COMMENT,"POST",body)
-    .then(response => response.json())
-    .then((data) => {
-      if(data?.Success){
-        //If the comment was added to the DB, we create the new comment 
-        let commentId = Math.max(...data.Data.map(e=>e.Id));
-        let cmts = this.state.comments;
-        cmts.push({
-          Comments: comment,
-          SiteCode: this.state.data.SiteCode,
-          Version: this.state.data.Version,
-          Id: commentId
-        })
-        this.setState({comments: cmts, newComment: false})
-      }
-    });
-  }
-
-  saveComment(code,version,comment,target){
-    let input = target.closest(".comment--item").querySelector("input");
-    let body={
+    let body = {
       "Id": input.getAttribute("msg_id"),
       "SiteCode": code,
       "Version": version,
@@ -227,41 +208,53 @@ export class ModalChanges extends Component {
   }
 
   deleteComment(target){
-    let input = target.closest(".comment--item").querySelector("input");
-    let body=
-      input.getAttribute("msg_id");
-
-    this.sendRequest(ConfigData.DELETE_COMMENT,"DELETE",body)
-    .then((data) => {
-      if(data?.ok){
-        document.getElementById("cmtItem_"+input.getAttribute("msg_id")).remove();
-      }
-    });
+    if(target) {
+      let input = target.closest(".comment--item").querySelector("input");
+      let body = input.getAttribute("msg_id");
+      this.sendRequest(ConfigData.DELETE_COMMENT,"DELETE",body)
+      .then((data) => {
+        if(data?.ok){
+          document.getElementById("cmtItem_"+input.getAttribute("msg_id")).remove();
+        }
+      });
+    }
+    else {
+      this.setState({newComment: false});
+    }
   }
 
   addDocument() {
     this.setState({newDocument: true})
   }
 
-  deleteAttachment(){    
-    this.setState({newDocument: false})    
-    this.setState({isSelected: false})
+  deleteDocument(target){
+    if(target) {
+      let doc = target.closest(".document--item").id;
+      this.sendRequest(ConfigData.DELETE_ATTACHED_FILE+"?justificationId="+justificationId,"DELETE","")
+      .then((data) => {
+        if(data?.ok){
+          doc.remove();
+        }
+      });
+    }
+    else {
+      this.setState({newDocument: false})
+      this.setState({isSelected: false})
+    }
   }
 
-  getDocuments() {
-    sendRequest(ConfigData.GET_ATTACHED_FILES+'?sitecode=de1011404&version=1','POST','')
-    .then((response) => response.json())
-    .then((result) => {
-      console.log('Success', result);
-    })
-    .catch((error) => {
-      console.error('Error', error);
-    });
-  }
-  
-  changeHandler (e) {    
-    this.setState({selectedFile: e.target.files[0]});
-    this.setState({isSelected: true});    
+  changeHandler (e) {
+    let formats = ConfigData.ACCEPTED_DOCUMENT_FORMATS;
+    let file = e.currentTarget.closest("input").value;
+    let extension = file.substring(file.lastIndexOf('.'), file.length) || file;
+    if (formats.includes(extension)) {
+      this.setState({selectedFile: e.target.files[0]});
+      this.setState({isSelected: true});
+    }
+    else {
+      e.currentTarget.closest("#uploadBtn").value = "";
+      this.showErrorMessage("document", "File not valid, use a valid format: .pdf, .doc, .docx, .xls, .xlsx, .txt, .tif, .json, .kml, .gml, .xml, .zip, .7z");
+    }
   }
 
   handleSubmission () {
@@ -282,23 +275,35 @@ export class ModalChanges extends Component {
     //     body: body,
     //   };
     //   return fetch(url, options)
-    // }        
-    
-    return this.sendRequest(ConfigData.UPLOAD_ATTACHED_FILE+'?sitecode=de1011404&version=1', "POST", this.state.selectedFile)
-    .then(data => {
-      if(data.ok){
-        //forceRefreshData();                
+    // }
+    if (this.state.selectedFile) {
+      this.setState({notValidDocument:""})
+      let siteCode = this.state.data.SiteCode;
+      let version = this.state.data.Version;
+      let files = [];
+      files.push(this.state.selectedFile)
+      let body = {
+        "SiteCode": this.state.data.SiteCode,
+        "Version": this.state.data.Version,
+        "Files": files
       }
-      else 
-        alert("something went wrong!");
-      return data;
-    }).catch(e => {
-      alert("something went wrong!");
-      console.log(e);
-    });    
+      return this.sendRequest(ConfigData.UPLOAD_ATTACHED_FILE+'?sitecode='+siteCode+'&version='+version,"POST",body,true)
+      .then(response => response.json())
+      .then((data) => {
+        if(data?.Success){
+          
+        }
+        else {
+          this.showErrorMessage("document", "File upload failed");
+        }
+      });
+    }
+    else {
+      this.showErrorMessage("document", "Add a file");
+    }
 }
 
-  render_ValuesTable(changes){
+  renderValuesTable(changes){
     let heads = Object.keys(changes[0]).filter(v=> v!=="ChangeId" && v!=="Fields");
     let fields= Object.keys(changes[0]["Fields"]);
     let titles = heads.concat(fields).map(v => {return(<CTableHeaderCell scope="col" key={v}> {v} </CTableHeaderCell>)});
@@ -334,7 +339,6 @@ export class ModalChanges extends Component {
         if (!Array.isArray(changes[i])) break;
         for(let j in changes[i]){
           let title = "";
-          //title += changes[i][j].ChangeCategory?changes[i][j].ChangeCategory:"";
           title += (title?' - ':"") + (changes[i][j].ChangeType?changes[i][j].ChangeType :"");
           title += changes[i].FieldName?' - '+ changes[i][j].FieldName:""
           list.push(
@@ -349,7 +353,7 @@ export class ModalChanges extends Component {
               </div>
               <CCollapse visible={this.state.showDetail===changes[i][j].ChangeCategory+title}>
                 <CCard>
-                  {this.state.showDetail && this.render_ValuesTable(changes[i][j].ChangedCodesDetail)}
+                  {this.state.showDetail && this.renderValuesTable(changes[i][j].ChangedCodesDetail)}
                 </CCard>
               </CCollapse>
             </div>
@@ -371,7 +375,7 @@ export class ModalChanges extends Component {
   bookmarkIsEmpty(bookmark){
     let isEmpty = true;
     for(let i in bookmark){
-      isEmpty = Array.isArray(bookmark[i])?isEmpty && (bookmark[i].length===0):isEmpty;
+      isEmpty = Array.isArray(bookmark[i]) ? isEmpty && (bookmark[i].length===0) : isEmpty;
     }
     return isEmpty;
   }
@@ -388,22 +392,8 @@ export class ModalChanges extends Component {
           }
         }
       }
-      if(!this.state.bookmark && bookmarks.length > 0){
-        for(let i in bookmarks){
-          if (bookmarks[i] === "SiteInfo") {
-            this.state.bookmark = bookmarks[i];
-          } else {
-            if(bookmarks[i] === "Habitats") {
-              this.state.bookmark = bookmarks[i];
-            } else {
-              if(bookmarks[i] === "Sites") {
-                this.state.bookmark = bookmarks[i];
-              } else {
-                this.state.bookmark = bookmarks[i];
-              }
-            }
-          }
-        }
+      if(!this.state.bookmark && bookmarks.length > 0) {
+        bookmarks.includes("SiteInfo") ? this.state.bookmark = "SiteInfo" : bookmarks.includes("Habitats") ? this.state.bookmark = "Habitats" : bookmarks.includes("Sites") ? this.state.bookmark = "Site" : this.state.bookmark[0];
       }
     }
 
@@ -411,7 +401,7 @@ export class ModalChanges extends Component {
       <CSidebarNav className="pe-4">
         {bookmarks.includes("SiteInfo") && 
           <li className="nav-item mb-1">
-            <a className={"nav-link" + (this.state.bookmark == "SiteInfo" ? " active" : "")} onClick={() => this.setBookmark("SiteInfo")}>
+            <a className={"nav-link" + (this.state.bookmark === "SiteInfo" ? " active" : "")} onClick={() => this.setBookmark("SiteInfo")}>
               <i className="fa-solid fa-bookmark"></i>
               Site info
             </a>
@@ -419,7 +409,7 @@ export class ModalChanges extends Component {
         }
         {bookmarks.includes("Habitats") && 
           <li className="nav-item mb-1">
-            <a className={"nav-link" + (this.state.bookmark == "Habitats" ? " active" : "")} onClick={() => this.setBookmark("Habitats")}>
+            <a className={"nav-link" + (this.state.bookmark === "Habitats" ? " active" : "")} onClick={() => this.setBookmark("Habitats")}>
               <i className="fa-solid fa-bookmark"></i>
               Habitats
             </a>
@@ -427,7 +417,7 @@ export class ModalChanges extends Component {
         }
         {bookmarks.includes("Species") && 
           <li className="nav-item mb-1">
-            <a className={"nav-link" + (this.state.bookmark == "Species" ? " active" : "")} onClick={() => this.setBookmark("Species")}>
+            <a className={"nav-link" + (this.state.bookmark === "Species" ? " active" : "")} onClick={() => this.setBookmark("Species")}>
               <i className="fa-solid fa-bookmark"></i>
               Species
             </a>
@@ -437,7 +427,7 @@ export class ModalChanges extends Component {
     )
   }
   
-  set_level(level){
+  setLevel(level){
     let levels = this.state.levels;
     if(levels.includes(level)) {
       levels = levels.filter(e => e!==level);
@@ -447,7 +437,7 @@ export class ModalChanges extends Component {
     this.setState({levels: levels, bookmark: ""});
   }
   
-  render_changes(){
+  renderChanges(){
     return(
       <CTabPane role="tabpanel" aria-labelledby="home-tab" visible={this.state.activeKey === 1}>
         <CRow className="p-3">
@@ -455,19 +445,19 @@ export class ModalChanges extends Component {
             <CSidebarNav className="pe-5">
               <li className="nav-item">
                 <div className="checkbox">
-                  <input type="checkbox" className="input-checkbox" id="modal_check_critical" onClick={(e)=>this.set_level("Critical")} checked={this.state.levels.includes("Critical")} readOnly/>
+                  <input type="checkbox" className="input-checkbox" id="modal_check_critical" onClick={(e)=>this.setLevel("Critical")} checked={this.state.levels.includes("Critical")} readOnly/>
                   <label htmlFor="modal_check_critical" className="input-label badge color--critical">Critical</label>
                 </div>
               </li>
               <li className="nav-item">
                 <div className="checkbox">
-                  <input type="checkbox" className="input-checkbox" id="modal_check_warning" onClick={(e)=>this.set_level("Warning")} checked={this.state.levels.includes("Warning")} readOnly/>
+                  <input type="checkbox" className="input-checkbox" id="modal_check_warning" onClick={(e)=>this.setLevel("Warning")} checked={this.state.levels.includes("Warning")} readOnly/>
                   <label htmlFor="modal_check_warning" className="input-label badge color--warning">Warning</label>
                 </div>
               </li>
                 <li className="nav-item">
                 <div className="checkbox">
-                  <input type="checkbox" className="input-checkbox" id="modal_check_info" onClick={(e)=>this.set_level("Info")} checked={this.state.levels.includes("Info")} readOnly/>
+                  <input type="checkbox" className="input-checkbox" id="modal_check_info" onClick={(e)=>this.setLevel("Info")} checked={this.state.levels.includes("Info")} readOnly/>
                   <label htmlFor="modal_check_info" className="input-label badge color--info">Info</label>
                 </div>
               </li>
@@ -493,13 +483,43 @@ export class ModalChanges extends Component {
     )
   }
 
-  create_comment_element(id,comment){
+  renderComments(){
+    let cmts = [];
+    cmts.push(
+      this.state.newComment &&
+      <div className="comment--item new" id="cmtItem_newItem">
+        <div className="comment--text">
+          <input type="text" placeholder="Add comment"/>
+        </div>
+        <div>
+          <div className="btn-icon" onClick={(e) => this.addComment(e.currentTarget)}> 
+            <i className="fa-solid fa-floppy-disk"></i>
+          </div>
+          <div className="btn-icon" onClick={() => this.deleteComment()}>
+            <i className="fa-regular fa-trash-can"></i>
+          </div>
+        </div>
+      </div>
+    )
+    for(let i in this.state.comments){
+      cmts.push(
+        this.createCommentElement(this.state.comments[i].Id,this.state.comments[i].Comments)
+      )
+    }
+    return(
+      <div id="changes_comments">
+        {cmts}
+      </div>
+    )
+  }
+
+  createCommentElement(id,comment){
     return (
       <div className="comment--item" key={"cmtItem_"+id} id={"cmtItem_"+id}>
         <div className="comment--text" key={"cmtText_"+id}>
           <input type="text" placeholder="Add comment" defaultValue={comment} msg_id={id} disabled/>
         </div>
-        <div>
+        <div className="comment--icons">
           <div className="btn-icon" onClick={(e) => this.updateComment(e.currentTarget)} key={"cmtUpdate_"+id}>
             <i className="fa-solid fa-pencil"></i>
           </div>
@@ -507,117 +527,104 @@ export class ModalChanges extends Component {
             <i className="fa-regular fa-trash-can"></i>
           </div>
         </div>
-      </div>        
+      </div>
     )
   }
 
-  render_comments(){
-    let cmts = [];
-    cmts.push(
-      this.state.newComment &&
-          <div className="comment--item new" id="cmtItem_newItem">
-            <div className="comment--text">
-              <input type="text" placeholder="Add comment"/>
-            </div>
-            <div>
-              <div className="btn-icon" onClick={(e) => this.addComment(e.currentTarget)}> 
-                <i className="fa-solid fa-floppy-disk"></i>
-              </div>
-              <div className="btn-icon">
-                <i className="fa-regular fa-trash-can"></i>
-              </div>
-            </div>
+  renderDocuments(){
+    let docs = [];
+    docs.push(
+      this.state.newDocument &&
+      <div className="document--item new">
+        <div className="input-file">
+          <label htmlFor="uploadBtn">
+            Select file
+          </label>
+          <input id="uploadBtn" type="file" onChange={(e) => this.changeHandler(e)} accept={ConfigData.ACCEPTED_DOCUMENT_FORMATS}/>
+          {this.state.isSelected ? (
+            <input id="uploadFile" placeholder={this.state.selectedFile.name} disabled="disabled"/>
+          ) : (<input id="uploadFile" placeholder="No file selected" disabled="disabled" />)}
+        </div>
+        <div className="document--icons">
+          <div className="btn-icon">
+            <i className="fa-solid fa-floppy-disk" onClick={() => this.handleSubmission()}></i>
           </div>
+          <div className="btn-icon" onClick={() => this.deleteDocument()}>
+            <i className="fa-regular fa-trash-can"></i>
+          </div>
+        </div>
+      </div>
     )
-    for(let i in this.state.comments){
-      cmts.push(
-        this.create_comment_element(this.state.comments[i].Id,this.state.comments[i].Comments)
+    for(let i in this.state.documents){
+      docs.push(
+        this.createDocumentElement(this.state.documents[i].Id,this.state.documents[i].Path)
       )
     }
-    
     return(
-      <span id="changes_comments">
-        {cmts}
-      </span>
+      <div id="changes_documents">
+        {docs}
+      </div>
     )
-  }  
+  }
 
- 
-  render_documents(){
+  createDocumentElement(id,path){
+    return (
+      <div className="document--item" key={"docItem_"+id} id={"docItem_"+id}>
+        <div className="my-auto document--text">
+          <CImage src={justificationprovided} className="ico--md me-3"></CImage>
+          <span>{path.replace(/^.*[\\\/]/, '')}</span>
+        </div>
+        <div className="document--icons">
+          <CButton color="link" className="btn-link--dark"><a href={path} target="_blank">View</a></CButton>
+          <div className="btn-icon" onClick={(e) => this.deleteDocument(e.currentTarget)}>
+            <i className="fa-regular fa-trash-can"></i>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  renderAttachments(){
     return(
       <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 3}>
         <CRow className="py-3">
-        <CCol xs={12} lg={6}>
-        <CCard className="document--list">
-          <div className="d-flex justify-content-between align-items-center pb-2">
-            <b>Attached documents</b>
-            <CButton color="link" className="btn-link--dark" onClick={() => this.addDocument()}>Add document</CButton>                
+        <CCol className="mb-3" xs={12} lg={6}>
+          <CCard className="document--list">
+            {this.state.notValidDocument &&
+              <CAlert color="danger">
+                {this.state.notValidDocument}
+              </CAlert>
+            }
+            <div className="d-flex justify-content-between align-items-center pb-2">
+              <b>Attached documents</b>
+              <CButton color="link" className="btn-link--dark" onClick={() => this.addDocument()}>Add document</CButton>
+            </div>
+            {this.renderDocuments()}
+          </CCard>
+        </CCol>
+        <CCol className="mb-3" xs={12} lg={6}>
+          <CCard className="comment--list">
+            {this.state.notValidComment &&
+              <CAlert color="danger">
+                {this.state.notValidComment}
+              </CAlert>
+            }
+            <div className="d-flex justify-content-between align-items-center pb-2">
+              <b>Comments</b>
+              <CButton color="link" className="btn-link--dark" onClick={() => this.addNewComment()}>Add comment</CButton>
+            </div>
+            {this.renderComments()}
+          </CCard>
+        </CCol>
+        <CCol className="d-flex">
+          <div className="checkbox">
+            <input type="checkbox" className="input-checkbox" id="modal_justification_req" checked={this.props.justificationRequired} />
+            <label htmlFor="modal_justification_req" className="input-label">Justification required</label>
           </div>
-              {this.state.newDocument &&
-                <div className="document--item new">
-                  <div className="input-file">
-                    <label htmlFor="uploadBtn">
-                      Select file
-                    </label>
-                    <input id="uploadBtn" type="file" onChange={(e) => this.changeHandler(e)}/>
-                    {this.state.isSelected ? (
-                      <input id="uploadFile" placeholder={this.state.selectedFile.name} disabled="disabled"/>
-                    ) : (<input id="uploadFile" placeholder="No file selected" disabled="disabled" />)}                    
-                  </div>                  
-                  <div> 
-                    <div className="btn-icon">
-                      <i className="fa-solid fa-floppy-disk" onClick={() => this.handleSubmission()}></i>
-                    </div>
-                    <div className="btn-icon" onClick={() => this.deleteAttachment()}>
-                      <i className="fa-regular fa-trash-can"></i>
-                    </div>
-                  </div>
-                </div>
-              }
-              <div className="document--item">
-                <div className="my-auto">
-                  <CImage src={justificationprovided} className="ico--md me-3"></CImage>
-                  <span>File name</span>
-                </div>
-                <div>
-                  <CButton color="link" className="btn-link--dark">View</CButton>
-                  <div className="btn-icon" onClick={() => this.deleteDocument(e)}>
-                    <i className="fa-regular fa-trash-can"></i>
-                  </div>
-                </div>
-              </div>
-              <div className="document--item">
-                <div className="my-auto">
-                  <CImage src={justificationprovided} className="ico--md me-3"></CImage>
-                  <span>File name</span>
-                </div>
-                <div>
-                  <CButton color="link" className="btn-link--dark">View</CButton>
-                  <div className="btn-icon">
-                    <i className="fa-regular fa-trash-can"></i>
-                  </div>
-                </div>
-              </div>
-            </CCard>            
-          </CCol>   
-          <CCol xs={12} lg={6}>
-            <CCard className="comment--list">
-              <div className="d-flex justify-content-between align-items-center pb-2">
-                <b>Comments</b>
-                <CButton color="link" className="btn-link--dark" onClick={() => this.addNewComment()}>Add comment</CButton>
-              </div>
-              {this.render_comments()}              
-            </CCard>
-          </CCol>
-          <CCol className="d-flex">
-            <div className="checkbox">
-              <input type="checkbox" className="input-checkbox" id="modal_justification_req" checked={this.props.justificationRequired} />
-              <label htmlFor="modal_justification_req" className="input-label">Justification required</label>
-            </div>
-            <div className="checkbox">
-              <input type="checkbox" className="input-checkbox" id="modal_justification_prov" checked={this.props.justificationProvided}/>
-              <label htmlFor="modal_justification_prov" className="input-label">Justification provided</label>
-            </div>
+          <div className="checkbox">
+            <input type="checkbox" className="input-checkbox" id="modal_justification_prov" checked={this.props.justificationProvided}/>
+            <label htmlFor="modal_justification_prov" className="input-label">Justification provided</label>
+          </div>
           </CCol>
         </CRow>
       </CTabPane>
@@ -634,7 +641,7 @@ export class ModalChanges extends Component {
     )
   }
 
-  render_modal() {
+  renderModal() {
     let data = this.state.data;
     return(
       <>
@@ -676,8 +683,8 @@ export class ModalChanges extends Component {
             </CNavItem>
           </CNav>
     <CTabContent>
-      {this.render_changes()}      
-      {this.render_documents()}      
+      {this.renderChanges()}
+      {this.renderAttachments()}
       {this.renderGeometry()}
     </CTabContent>
         </CModalBody>
@@ -692,18 +699,18 @@ export class ModalChanges extends Component {
     )
   }
 
-  render_data(){
-    
-    this.load_data();
-    this.load_comments();
+  renderData(){
+    this.loadData();
+    this.loadComments();
+    this.loadDocuments();
 
     let contents = this.state.loading
       ? <div className="loading-container"><em>Loading...</em></div>
-      : this.render_modal();
+      : this.renderModal();
 
     return (
-      <>        
-        {contents}        
+      <>
+        {contents}
       </>
     )
   }
@@ -712,14 +719,14 @@ export class ModalChanges extends Component {
     return(
       <>
         <CModal scrollable size="xl" visible={this.isVisible()} onClose={this.close.bind(this)}>
-          {this.render_data()}
+          {this.renderData()}
         </CModal>
         <ConfirmationModal modalValues={this.state.modalValues}/>
       </>
     )
   }
 
-  load_data(){
+  loadData(){
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
       fetch(ConfigData.SITECHANGES_DETAIL+`siteCode=${this.props.item}&version=${this.props.version}`)
       .then(response => response.json())
@@ -727,14 +734,22 @@ export class ModalChanges extends Component {
     }
   }
 
-  load_comments(){
+  loadComments(){
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
       fetch(ConfigData.GET_SITE_COMMENTS+`siteCode=${this.props.item}&version=${this.props.version}`)
       .then(response => response.json())
       .then(data => this.setState({comments: data.Data}));
     }
   }
-  
+
+  loadDocuments(){
+    if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
+      fetch(ConfigData.GET_ATTACHED_FILES+`siteCode=${this.props.item}&version=${this.props.version}`)
+      .then(response => response.json())
+      .then(data => this.setState({documents: data.Data}));
+    }
+  }
+
   acceptChanges(){
     this.props.accept()
     .then((data) => {
@@ -759,11 +774,11 @@ export class ModalChanges extends Component {
     });
   }
 
-  sendRequest(url,method,body){
+  sendRequest(url,method,body,path){
     const options = {
       method: method,
       headers: {
-      'Content-Type': 'application/json',
+      'Content-Type': path? 'multipart/form-data' :'application/json',
       },
       body: JSON.stringify(body),
     };
