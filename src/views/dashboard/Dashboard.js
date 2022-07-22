@@ -1,4 +1,4 @@
-import React, { useState, lazy } from 'react'
+import React, { useState } from 'react'
 
 import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
@@ -13,76 +13,17 @@ import {
   CFormSelect,
   CContainer,
   CRow,
-  CCardTitle,
   CButton,
   CImage
 } from '@coreui/react'
 
-import {
-  CChartBar,
-  CChartLine,
-  CChartPie,  
-} from '@coreui/react-chartjs'
-
 import '@fortawesome/fontawesome-free/css/all.min.css';
-
-import MapImg from './../../assets/images/map.jpg'
-import moreicon from './../../assets/images/three-dots.svg'
 
 import justificationrequired from './../../assets/images/exclamation.svg'
 import justificationprovided from './../../assets/images/file-text.svg'
-import trash from './../../assets/images/trash.svg'
-import flag from './../../assets/images/flag.svg'
-
-import albania from './../../../src/assets/images/flags/albania.png'
-import austria from './../../../src/assets/images/flags/austria.png'
-import belgium from './../../../src/assets/images/flags/belgium.png'
-import bulgaria from './../../../src/assets/images/flags/bulgaria.png'
-
-import croatia from './../../../src/assets/images/flags/croatia.png'
-import cyprus from './../../../src/assets/images/flags/cyprus.png'
-import czech from './../../../src/assets/images/flags/czech.png'
-import denmark from './../../../src/assets/images/flags/denmark.png'
-
-import estonia from './../../../src/assets/images/flags/estonia.png'
-import finland from './../../../src/assets/images/flags/finland.png'
-import france from './../../../src/assets/images/flags/france.png'
-import germany from './../../../src/assets/images/flags/germany.png'
-
-import greece from './../../../src/assets/images/flags/greece.png'
-import hungary from './../../../src/assets/images/flags/hungary.png'
-import iceland from './../../../src/assets/images/flags/iceland.png'
-
-import ireland from './../../../src/assets/images/flags/ireland.png'
-import italy from './../../../src/assets/images/flags/italy.png'
-import latvia from './../../../src/assets/images/flags/latvia.png'
-import liechtenstein from './../../../src/assets/images/flags/liechtenstein.png'
-
-import lithuania from './../../../src/assets/images/flags/lithuania.png'
-import luxembourg from './../../../src/assets/images/flags/luxembourg.png'
-import macedonia from './../../../src/assets/images/flags/macedonia.png'
-import malta from './../../../src/assets/images/flags/malta.png'
-
-import montenegro from './../../../src/assets/images/flags/montenegro.png'
-import netherlands from './../../../src/assets/images/flags/netherlands.png'
-import norway from './../../../src/assets/images/flags/norway.png'
-import poland from './../../../src/assets/images/flags/poland.png'
-
-import portugal from './../../../src/assets/images/flags/portugal.png'
-import romania from './../../../src/assets/images/flags/romania.png'
-import serbia from './../../../src/assets/images/flags/serbia.png'
-import slovakia from './../../../src/assets/images/flags/slovakia.png'
-
-import slovenia from './../../../src/assets/images/flags/slovenia.png'
-import spain from './../../../src/assets/images/flags/spain.png'
-import sweden from './../../../src/assets/images/flags/sweden.png'
-import switzerland from './../../../src/assets/images/flags/switzerland.png'
-
 import ConfigData from '../../config.json';
 
 const Dashboard = () => {  
-  //let countries = ['Albania', 'Austria', 'Belgium', 'Bulgaria','Croatia', 'Cyprus', 'Czech Republic', 'Denmark', 'Estonia', 'Finland', 'France', 'Germany', 'Greece', 'Hungary', 'Iceland', 'Ireland', 'Italy', 'Latvia', 'Liechtenstein', 'Lithuania', 'Luxembourg', 'North Macedonia', 'Malta', 'Montenegro', 'Netherlands', 'Norway', 'Poland', 'Portugal', 'Romania', 'Serbia', 'Slovakia', 'Slovenia', 'Spain', 'Sweden', 'Switzerland'];
-  
   /*
   ------- Pending Cards -------
   */
@@ -90,9 +31,9 @@ const Dashboard = () => {
   const [pendingCountriesData, setPendingCountriesData] = useState([]);
   const [isPendingLoading, setIsPendingLoading] = useState(true);
   
-  function populatependingCountriesData() {
+  function populatePendingCountriesData() {
     if(isPendingLoading)
-      fetch(ConfigData.SERVER_API_ENDPOINT+'/api/Countries/GetPendingLevel')
+      fetch(ConfigData.GET_PENDING_LEVEL)
         .then(response => response.json())
         .then(data => {
           setIsPendingLoading(false);
@@ -101,7 +42,7 @@ const Dashboard = () => {
   }
   
   const getPending = () => {
-    populatependingCountriesData();
+    populatePendingCountriesData();
     return pendingCountriesData.map((c) => ({
       name: c.Country,
       pendingInfo: c.NumInfo,
@@ -109,7 +50,6 @@ const Dashboard = () => {
       pendingCritical: c.NumCritical
     }))
   }
-
   
   let pendingCountries = getPending();
   
@@ -132,7 +72,7 @@ const Dashboard = () => {
         countryPath = countryPath.split(" ")[1]
       }
     result.push(
-      <CCol xs={12} md={6} lg={4} xl={3}>
+      <CCol key={country.name+"Card"} xs={12} md={6} lg={4} xl={3}>
         <CCard className="country-card">
           <div className="country-card-left">
             <CCardImage className="card-img--flag" src={require("./../../../src/assets/images/flags/" + countryPath + ".png")} width="32px" />
@@ -166,7 +106,7 @@ const Dashboard = () => {
 
   function populateSitesCountriesData() {
     if(isSitesLoading)
-      fetch(ConfigData.SERVER_API_ENDPOINT+'/api/Countries/GetSiteCount')
+      fetch(ConfigData.GET_SITE_COUNT)
         .then(response => response.json())
         .then(data => {
           let chngPending = [], chngAccepted = [], chngRejected = [];
@@ -188,31 +128,34 @@ const Dashboard = () => {
   populateSitesCountriesData();
   
   const options = {
-        chart: {
-            type: 'column'
-        },
-        credits: {
-            enabled: false
-        },
-        title: {
-            text: 'Sites (Pending/Accepted/Rejected)'
-        },
-        xAxis: {
-            categories: countries
-        },
-        yAxis: {
-            min: 0,
-            reversedStacks: false,
-            title: {
-                text: ''
-            }
-        },
-        plotOptions: {
-            series: {
-                stacking: 'percent'
-            }
-        },
-        series: sitesCountriesData
+    chart: {
+      type: 'column'
+    },
+    credits: {
+      enabled: false
+    },
+    title: {
+      text: 'Sites (Pending/Accepted/Rejected)'
+    },
+    xAxis: {
+      categories: countries
+    },
+    yAxis: {
+      min: 0,
+      reversedStacks: false,
+      title: {
+        text: ''
+      }
+    },
+    plotOptions: {
+      series: {
+        stacking: 'percent'
+      }
+    },
+    accessibility: {
+      enabled: false
+    },
+    series: sitesCountriesData
   }
 
   const renderChart = () => (
