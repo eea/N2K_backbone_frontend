@@ -60,6 +60,8 @@ export class ModalChanges extends Component {
       newDocument: false,
       justificationRequired: false,
       justificationProvided: false,
+      checked: false,
+      disabled: false,
       selectedFile: [],
       isSelected: false,
       modalValues : {
@@ -241,6 +243,19 @@ export class ModalChanges extends Component {
     this.setState({newDocument: true})
   }
 
+  deleteDocument(target){
+    let input = target.closest(".comment--item").querySelector("input");
+    let body=
+      input.getAttribute("document_id");
+
+    this.sendRequest(ConfigData.DELETE_ATTACHED_FILE,"DELETE",body)
+    .then((data) => {
+      if(data?.ok){
+        document.getElementById("cmtItem_"+input.getAttribute("doctument_id")).remove();
+      }
+    });
+  }
+
   deleteAttachment(){    
     this.setState({newDocument: false})    
     this.setState({isSelected: false})
@@ -262,39 +277,14 @@ export class ModalChanges extends Component {
     this.setState({isSelected: true});    
   }
 
-  handleSubmission () {
-    // let postRequest = (url,body)=>{
-    //   const options = {
-    //     method: 'POST',
-    //     headers: {        
-    //     'Content-Type': 'multipart/form-data; boundary=AaB03x' + 
-    //     '--AaB03x'+
-    //     'Content-Disposition: file' +
-    //     'Content-Type: png' +
-    //     'Content-Transfer-Encoding: binary' +
-    //     '...data...'+
-    //     '--AaB03x--',
-    //     'Accept': 'application/json',
-    //     'type': 'formData'
-    //     },
-    //     body: body,
-    //   };
-    //   return fetch(url, options)
-    // }        
-    
-    return this.sendRequest(ConfigData.UPLOAD_ATTACHED_FILE+'?sitecode=de1011404&version=1', "POST", this.state.selectedFile)
-    .then(data => {
-      if(data.ok){
-        //forceRefreshData();                
-      }
-      else 
-        alert("something went wrong!");
-      return data;
-    }).catch(e => {
-      alert("something went wrong!");
-      console.log(e);
-    });    
-}
+  checkChange (value) {
+    if (checked.indexof(value) !== -1){
+      this.setState(checked.filter((checkbox) => checkBox !== value));
+    }
+    else {
+      this.setState(checked, value);
+    }
+  }
 
   render_ValuesTable(changes){
     let heads = Object.keys(changes[0]).filter(v=> v!=="ChangeId" && v!=="Fields");
@@ -445,6 +435,42 @@ export class ModalChanges extends Component {
     this.setState({levels: levels, bookmark: ""});
   }
   
+  switchMarkChanges (e) {      
+    console.log(e);
+    console.log("this.state: ", this.state);    
+    console.log("Checked", e.target.checked);
+    let dis = true;
+    dis = e.target.checked === true ? true : false;
+    this.setState({disabled: dis});
+    console.log ("disabled: ", this.state.disabled);
+  }
+
+  handleCheckbox (evt) {
+    const value = evt.target.type === "checkbox" ? evt.target.checked : evt.target.value;
+    this.setState({disabled: value});
+    console.log("value", value);
+    console.log("evt", evt);
+    console.log("evt.target", evt.target);
+  }
+  
+  render_Checkbox(e){
+    this.props.justificationRequired === true ? "" : "disabled";
+    const stylePointer = (this.props.justificationRequired === true ? "" : "not-allowed");
+    return(      
+      <div className="checkbox">
+        <input type="checkbox" className="input-checkbox" id="modal_justification_prov" 
+        onClick={(e)=>this.props.updateModalValues("Changes Justification Provided", "This will change the Justification Provided", "Continue", (e)=>this.switchProvideJustification(e), "Cancel", ()=>{})} 
+        checked={this.props.justificationProvided} 
+        disabled={(this.props.justificationRequired === true ? false : true)}
+        style={{cursor: stylePointer}}
+        readOnly
+        />
+        <label htmlFor="modal_justification_prov" style={{cursor: stylePointer}} className="input-label" disabled={(this.props.justificationRequired === true ? false : true)}
+        >Justification provided</label>
+      </div>
+    )
+  }
+
   render_changes(){
     return(
       <CTabPane role="tabpanel" aria-labelledby="home-tab" visible={this.state.activeKey === 1}>
@@ -539,9 +565,9 @@ export class ModalChanges extends Component {
       </span>
     )
   }  
-
  
   render_documents(){
+    
     return(
       <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 2}>
         <CRow className="py-3">
@@ -579,12 +605,12 @@ export class ModalChanges extends Component {
                 </div>
                 <div>
                   <CButton color="link" className="btn-link--dark">View</CButton>
-                  <div className="btn-icon" onClick={() => this.deleteDocument(e)}>
+                  <div className="btn-icon" onClick={(e) => this.deleteDocument(e.currentTarget)} key={"cmtDelete_"}>
                     <i className="fa-regular fa-trash-can"></i>
                   </div>
                 </div>
               </div>
-              <div className="document--item">
+              <div className="document--item"> 
                 <div className="my-auto">
                   <CImage src={justificationprovided} className="ico--md me-3"></CImage>
                   <span>File name</span>
@@ -606,16 +632,15 @@ export class ModalChanges extends Component {
               </div>
               {this.render_comments()}              
             </CCard>
-          </CCol>
+          </CCol>          
           <CCol className="d-flex">
             <div className="checkbox">
-              <input type="checkbox" className="input-checkbox" id="modal_justification_req" checked={this.props.justificationRequired} />
-              <label htmlFor="modal_justification_req" className="input-label">Justification required</label>
+              <input type="checkbox" className="input-checkbox" id="modal_justification_req" 
+              onClick={(e)=>this.props.updateModalValues("Changes", "This will change the Justification Required", "Continue", (e)=>this.switchMarkChanges(e), "Cancel", ()=>{})} 
+              checked={this.props.justificationRequired}/>
+              <label htmlFor="modal_justification_req" className="input-label">Justification required</label>              
             </div>
-            <div className="checkbox">
-              <input type="checkbox" className="input-checkbox" id="modal_justification_prov" checked={this.props.justificationProvided}/>
-              <label htmlFor="modal_justification_prov" className="input-label">Justification provided</label>
-            </div>
+            {this.render_Checkbox()}
           </CCol>
         </CRow>
       </CTabPane>
@@ -734,6 +759,22 @@ export class ModalChanges extends Component {
     .then((data) => {
       if(data?.ok)
         this.close(true);
+    });
+  }
+
+  switchMarkChanges(){
+    this.props.mark()
+    .then(data => {
+      if(data?.ok)
+      this.close(false);
+    });
+  }
+
+  switchProvideJustification(){
+    this.props.switchProvideJustification()
+    .then(data => {
+      if(data?.ok)
+      this.close(false);
     });
   }
 

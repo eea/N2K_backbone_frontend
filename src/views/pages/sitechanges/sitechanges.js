@@ -139,8 +139,25 @@ const Sitechanges = () => {
       alert("something went wrong!");
       console.log(e);
     });
-
   }
+
+  let switchProvideJustification = (changes)=>{
+    let rBody =!Array.isArray(changes)?[changes]:changes 
+
+    return postRequest(ConfigData.PROVIDE_JUSTIFICATION, rBody)
+    .then(data => {
+      if(data.ok){
+        forceRefreshData();        
+      }
+      else 
+        alert("something went wrong!");
+      return data;
+    }).catch(e => {
+      alert("something went wrong!");
+      console.log(e);
+    });
+  }
+
 
   const [modalValues, setModalValues] = useState({
     visibility: false,
@@ -316,6 +333,7 @@ const Sitechanges = () => {
                         accept={acceptChanges}
                         reject={rejectChanges}
                         mark={switchMarkChanges}
+                        switchProvideJustification={switchProvideJustification}
                         updateModalValues={updateModalValues}
                       />
                     </CTabPane>
