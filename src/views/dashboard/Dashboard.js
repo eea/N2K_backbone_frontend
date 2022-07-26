@@ -45,6 +45,7 @@ const Dashboard = () => {
     populatePendingCountriesData();
     return pendingCountriesData.map((c) => ({
       name: c.Country,
+      code: c.Code,
       pendingInfo: c.NumInfo,
       pendingWarning: c.NumWarning,
       pendingCritical: c.NumCritical
@@ -73,22 +74,24 @@ const Dashboard = () => {
       }
     result.push(
       <CCol key={country.name+"Card"} xs={12} md={6} lg={4} xl={3}>
-        <CCard className="country-card">
-          <div className="country-card-left">
-            <CCardImage className="card-img--flag" src={require("./../../../src/assets/images/flags/" + countryPath + ".png")} width="32px" />
-          </div>
-          <div className="country-card-right">
-            <div className="country-card-header">
-              <span className="country-card-title">{country.name}</span>
-              <i className="fa-solid fa-arrow-right"></i>
+        <a className="country-card-link" href={"/#/sitechanges?country=" + country.code}>
+          <CCard className="country-card">
+            <div className="country-card-left">
+              <CCardImage className="card-img--flag" src={require("./../../../src/assets/images/flags/" + countryPath + ".png")} width="32px" />
             </div>
-            <div className="country-card-body">
-              <span className="badge color--critical"><b>{country.pendingCritical}</b> Critical</span>
-              <span className="badge color--warning"><b>{country.pendingWarning}</b> Warning</span>
-              <span className="badge color--info"><b>{country.pendingInfo}</b> Info</span>
+            <div className="country-card-right">
+              <div className="country-card-header">
+                <span className="country-card-title">{country.name}</span>
+                <i className="fa-solid fa-arrow-right"></i>
+              </div>
+              <div className="country-card-body">
+                <span className="badge color--critical"><b>{country.pendingCritical}</b> Critical</span>
+                <span className="badge color--warning"><b>{country.pendingWarning}</b> Warning</span>
+                <span className="badge color--info"><b>{country.pendingInfo}</b> Info</span>
+              </div>
             </div>
-          </div>
-        </CCard>
+          </CCard>
+        </a>
       </CCol>
     )
     });
@@ -116,9 +119,9 @@ const Dashboard = () => {
               chngRejected.push(data.Data[i].NumRejected);
           }
           let result = [
-              {name: 'Pending',   index: 1,   data: chngPending,  color: '#db6c70'},
-              {name: 'Accepted',  index: 2,   data: chngAccepted, color: '#c6db6c'},
-              {name: 'Rejected',  index: 3,   data: chngRejected, color: '#6cdb90'}
+              {name: 'Pending',   index: 1,   data: chngPending,  color: '#033166'},
+              {name: 'Accepted',  index: 2,   data: chngAccepted, color: '#22a4fb'},
+              {name: 'Rejected',  index: 3,   data: chngRejected, color: '#e3f2fd'}
           ]
           setIsSitesLoading(false);
           setSitesCountriesData(result);
