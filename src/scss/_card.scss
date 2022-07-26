@@ -89,6 +89,7 @@
     background-color: $gray-25;
     cursor: pointer;
     transition: $transition-base;
+    text-decoration: underline;
   }
   &-left {
     margin-right: 1rem;
@@ -123,6 +124,9 @@
       padding: 0;
       margin-right: 0.5rem;
     }
+  }
+  &-link {
+    text-decoration: none;
   }
 }
 
