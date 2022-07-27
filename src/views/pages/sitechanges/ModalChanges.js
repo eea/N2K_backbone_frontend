@@ -53,6 +53,7 @@ export class ModalChanges extends Component {
       levels:["Critical"],
       bookmark: "",
       bookmarks: [],
+      bookmarkUpdate: false,
       comments:[],
       showDetail: "",
       showAlert: false,
@@ -369,6 +370,7 @@ export class ModalChanges extends Component {
   }
 
   setBookmark(val){
+    this.state.bookmarkUpdate = false;
     this.setState({bookmark: val});
   }
 
@@ -388,12 +390,15 @@ export class ModalChanges extends Component {
       for(let i in this.state.data[levels[l]]){
         if(!this.bookmarkIsEmpty(this.state.data[levels[l]][i])) {
           if(!bookmarks.includes(i)) {
-            bookmarks.push(i);
+            if(i == "SiteInfo")
+              bookmarks = [i].concat(bookmarks);
+            else
+              bookmarks.push(i);
           }
         }
       }
-      if(!this.state.bookmark && bookmarks.length > 0) {
-        bookmarks.includes("SiteInfo") ? this.state.bookmark = "SiteInfo" : bookmarks.includes("Habitats") ? this.state.bookmark = "Habitats" : bookmarks.includes("Sites") ? this.state.bookmark = "Site" : this.state.bookmark[0];
+      if((!this.state.bookmark && bookmarks.length > 0) || this.state.bookmarkUpdate) {
+        bookmarks.includes("SiteInfo") ? this.setBookmark("SiteInfo") : bookmarks.includes("Habitats") ? this.setBookmark("Habitats") : bookmarks.includes("Sites") ? this.setBookmark("Site") : this.state.bookmark[0];
       }
     }
 
@@ -434,7 +439,7 @@ export class ModalChanges extends Component {
     } else {
       levels.push(level);
     }
-    this.setState({levels: levels, bookmark: ""});
+    this.setState({levels: levels, bookmark: "", bookmarkUpdate: true});
   }
   
   renderChanges(){
