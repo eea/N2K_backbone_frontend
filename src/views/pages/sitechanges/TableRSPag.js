@@ -334,7 +334,7 @@ const IndeterminateCheckbox = React.forwardRef(
     }    
     
     let switchMarkChanges = (change) =>{            
-      return props.mark({"SiteCode":change.SiteCode,"VersionId":change.Version,"Justification":Boolean(!change.JustificationRequired)})
+      return props.mark({"SiteCode":change.SiteCode,"VersionId":change.Version,"Justification":!change.JustificationRequired})
       .then(data => {
         if(data?.ok){
           if (change.justificationRequired === false){
@@ -350,7 +350,7 @@ const IndeterminateCheckbox = React.forwardRef(
    }
 
     let switchProvideJustification = (change) => {    
-      return props.switchProvideJustification({"SiteCode":change.SiteCode,"VersionId":change.Version,"Justification":Boolean(!change.JustificationProvided)})
+      return props.switchProvideJustification({"SiteCode":change.SiteCode,"VersionId":change.Version,"Justification":!change.JustificationProvided})
       .then(data => {
         if(data?.ok){
           forceRefreshData();          
@@ -433,14 +433,14 @@ const IndeterminateCheckbox = React.forwardRef(
           Header: () => null,
           accessor: "JustificationRequired",
           Cell: ({ row }) => (
-            row.canExpand ? <> {row.values.JustificationRequired === true && row.values.JustificationProvided === false ? <CImage src={justificationrequired} className="ico--md "></CImage> : null } </> : null
+            row.canExpand ? <> {row.values.JustificationRequired && !row.values.JustificationProvided ? <CImage src={justificationrequired} className="ico--md "></CImage> : null } </> : null
           )                     
         },    
         {
           Header: () => null,
           accessor: "JustificationProvided",
           Cell: ({ row }) => (
-            row.canExpand ? <> {row.values.JustificationRequired === true && row.values.JustificationProvided === true ? <CImage src={justificationprovided} className="ico--md "></CImage> : null  } </> : null             
+            row.canExpand ? <> {row.values.JustificationRequired && row.values.JustificationProvided ? <CImage src={justificationprovided} className="ico--md "></CImage> : null  } </> : null             
           ),
         },    
         {
@@ -448,7 +448,7 @@ const IndeterminateCheckbox = React.forwardRef(
           id: 'dropdownsiteChanges',
           cellWidth: '48px',
           Cell: ({ row }) => {
-              const toggleMark = row.values.JustificationRequired === true ? "Unmark" : "Mark";
+              const toggleMark = row.values.JustificationRequired ? "Unmark" : "Mark";
               const contextActions = {
                 review: ()=>openModal(row.original),
                 accept: ()=>props.updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(row.original), "Cancel", ()=>{}),

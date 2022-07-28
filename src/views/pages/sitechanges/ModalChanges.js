@@ -584,7 +584,7 @@ export class ModalChanges extends Component {
     )
   }
 
-  render_Checkbox(e){
+  renderCheckbox(e){
     this.props.justificationRequired === true ? "" : "disabled";
     const stylePointer = (this.props.justificationRequired === true ? "" : "not-allowed");
     return(      
@@ -675,7 +675,7 @@ export class ModalChanges extends Component {
               checked={this.props.justificationRequired}/>
               <label htmlFor="modal_justification_req" className="input-label">Justification required</label>              
             </div>
-            {this.render_Checkbox()}
+            {this.renderCheckbox()}
           </CCol>
         </CRow>
       </CTabPane>
