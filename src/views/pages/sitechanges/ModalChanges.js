@@ -40,6 +40,7 @@ import { ConfirmationModal } from './components/ConfirmationModal';
 import justificationprovided from './../../../assets/images/file-text.svg'
 
 import MapViewer from './components/MapViewer'
+import { getOptions } from 'highcharts';
 
 export class ModalChanges extends Component {
   
@@ -370,8 +371,7 @@ export class ModalChanges extends Component {
   }
 
   setBookmark(val){
-    this.state.bookmarkUpdate = false;
-    this.setState({bookmark: val});
+    this.setState({bookmark: val, bookmarkUpdate: false});
   }
 
   bookmarkIsEmpty(bookmark){
@@ -398,7 +398,9 @@ export class ModalChanges extends Component {
         }
       }
       if((!this.state.bookmark && bookmarks.length > 0) || this.state.bookmarkUpdate) {
-        bookmarks.includes("SiteInfo") ? this.setBookmark("SiteInfo") : bookmarks.includes("Habitats") ? this.setBookmark("Habitats") : bookmarks.includes("Sites") ? this.setBookmark("Site") : this.state.bookmark[0];
+        const options = ["SiteInfo", "Habitats", "Species"];
+        const getOptionsB = options.filter(op => bookmarks.includes(op));
+        this.setBookmark(getOptionsB[0]);
       }
     }
 
