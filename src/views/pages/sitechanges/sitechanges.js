@@ -25,6 +25,13 @@ import ConfigData from '../../../config.json';
 
 const xmlns = 'https://www.w3.org/2000/svg'
 
+const defaultCountry = () => {
+  const searchParams = new URLSearchParams(window.location.href.split('?')[1]);
+  const c = searchParams.get('country');
+  if(c) return c;
+  return "DE";
+}
+
 let refreshSitechanges={"pending":false,"accepted":false,"rejected":false}, 
   getRefreshSitechanges=(state)=>refreshSitechanges[state], 
   setRefreshSitechanges=(state,v)=>refreshSitechanges[state] = v;
@@ -35,7 +42,7 @@ const Sitechanges = () => {
   const [error, setError] = useState(null);
   const [forceRefresh, setForceRefresh] = useState(0);
   const [countries, setCountries] = useState([]);
-  const [country, setCountry] = useState("DE");
+  const [country, setCountry] = useState(defaultCountry);
   const [level, setLevel] = useState('Critical');
   const [disabledBtn, setDisabledBtn] = useState(true);
 
