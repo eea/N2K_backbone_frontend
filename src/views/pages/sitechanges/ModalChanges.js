@@ -398,14 +398,14 @@ export class ModalChanges extends Component {
         }
       }
       if((!this.state.bookmark && bookmarks.length > 0) || this.state.bookmarkUpdate) {
-        const options = ["SiteInfo", "Habitats", "Sites"];
-        const getOptions = (options) => {
-          let result = options.filter(op => bookmarks.includes(op));
-          if(!result.isEmpty)
+        const priorityBookmarks = ["SiteInfo", "Habitats", "Sites"];
+        const getBookmark = (bookmarkOptions) => {
+          let result = bookmarkOptions.filter(op => bookmarks.includes(op));
+          if(result.length >= 1)
             return result[0];
-          return bookmarks[bookmarks.length-1];
+          return bookmarks[0];
         }
-        this.setBookmark(getOptions(options));
+        this.setBookmark(getBookmark(priorityBookmarks));
       }
     }
 
