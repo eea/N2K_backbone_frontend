@@ -585,18 +585,18 @@ export class ModalChanges extends Component {
   }
 
   renderCheckbox(e){
-    this.props.justificationRequired === true ? "" : "disabled";
-    const stylePointer = (this.props.justificationRequired === true ? "" : "not-allowed");
+    this.props.justificationRequired ? "" : "disabled";
+    const stylePointer = (this.props.justificationRequired ? "" : "not-allowed");    
     return(      
       <div className="checkbox">
         <input type="checkbox" className="input-checkbox" id="modal_justification_prov" 
-        onClick={(e)=>this.props.updateModalValues("Changes Justification Provided", "This will change the Justification Provided", "Continue", (e)=>this.switchProvideJustification(e), "Cancel", ()=>{})} 
+        onClick={(e)=>this.props.updateModalValues("Changes", `This will ${this.props.justificationProvided ? "Unmark": "Mark"} change as Justification Provided`, "Continue", (e)=>this.switchProvideJustification(e), "Cancel", ()=>{})} 
         checked={this.props.justificationProvided} 
-        disabled={(this.props.justificationRequired === true ? false : true)}
+        disabled={(this.props.justificationRequired ? false : true)}
         style={{cursor: stylePointer}}
         readOnly
         />
-        <label htmlFor="modal_justification_prov" style={{cursor: stylePointer}} className="input-label" disabled={(this.props.justificationRequired === true ? false : true)}
+        <label htmlFor="modal_justification_prov" style={{cursor: stylePointer}} className="input-label" disabled={(this.props.justificationRequired ? false : true)}
         >Justification provided</label>
       </div>
     )
@@ -665,13 +665,14 @@ export class ModalChanges extends Component {
                 <b>Comments</b>
                 <CButton color="link" className="btn-link--dark" onClick={() => this.addNewComment()}>Add comment</CButton>
               </div>
-              {this.render_comments()}              
+              {this.renderComments()}              
             </CCard>
           </CCol>          
           <CCol className="d-flex">
             <div className="checkbox">
+              
               <input type="checkbox" className="input-checkbox" id="modal_justification_req" 
-              onClick={(e)=>this.props.updateModalValues("Changes", "This will change the Justification Required", "Continue", (e)=>this.switchMarkChanges(e), "Cancel", ()=>{})} 
+              onClick={(e)=>this.props.updateModalValues("Changes", `This will ${this.props.justificationRequired ? "Unmark" : "Mark"} change as Justification Required`, "Continue", (e)=>this.switchMarkChanges(e), "Cancel", ()=>{})} 
               checked={this.props.justificationRequired}/>
               <label htmlFor="modal_justification_req" className="input-label">Justification required</label>              
             </div>
