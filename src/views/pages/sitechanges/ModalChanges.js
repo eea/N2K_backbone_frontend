@@ -58,8 +58,8 @@ export class ModalChanges extends Component {
       showAlert: false,
       newComment: false,
       newDocument: false,
-      justificationRequired: false,
-      justificationProvided: false,
+      justificationRequired: this.props.justificationRequired,
+      justificationProvided: this.props.justificationProvided,
       selectedFile: "",
       isSelected: false,
       notValidComment: "",
@@ -74,7 +74,7 @@ export class ModalChanges extends Component {
           });
         }
       }
-    };
+    };    
   }
 
   updateModalValues(title, text, primaryButtonText, primaryButtonFunction, secondaryButtonText, secondaryButtonFunction) {
@@ -301,6 +301,49 @@ export class ModalChanges extends Component {
     else {
       this.showErrorMessage("document", "Add a file");
     }
+}
+
+handleJustRequired(){
+  let body = [{
+    "SiteCode": this.state.data.SiteCode,
+    "VersionId": this.state.data.Version,
+    "Justification": !this.props.justificationRequired,
+  }];
+
+  this.sendRequest(ConfigData.MARK_AS_JUSTIFICATION_REQUIRED, "POST", body)
+  //.then(response=> response.json())
+  .then((data)=> {
+    if(data?.ok){      
+      console.log("Mark/Unmark Jutification Required");
+      return data;
+    }
+    else {
+      this.showErrorMessage("Justification Required", "Update failed");
+      return data;
+    }
+  });
+}
+
+handleJustProvided(){
+  let body = [{
+    "SiteCode": this.state.data.SiteCode,
+    "VersionId": this.state.data.Version,
+    "Justification": !this.props.justificationProvided,
+  }];
+
+  this.sendRequest(ConfigData.PROVIDE_JUSTIFICATION, "POST", body)  
+  .then((data)=> {
+    if(data?.ok){      
+      console.log("Mark/Unmark Jutification Provided");      
+      this.setState({justificationProvided: !this.state.justificationProvided})
+      console.log("Justification Provided: ",this.state.justificationProvided);
+      this.setState({checked: !this.state.checked})
+    }
+    else {
+      this.showErrorMessage("Justification Provided", "Update failed");
+      return data;
+    }
+  });
 }
 
   renderValuesTable(changes){
@@ -589,9 +632,10 @@ export class ModalChanges extends Component {
     const stylePointer = (this.props.justificationRequired ? "" : "not-allowed");    
     return(      
       <div className="checkbox">
-        <input type="checkbox" className="input-checkbox" id="modal_justification_prov" 
-        onClick={(e)=>this.props.updateModalValues("Changes", `This will ${this.props.justificationProvided ? "Unmark": "Mark"} change as Justification Provided`, "Continue", (e)=>this.switchProvideJustification(e), "Cancel", ()=>{})} 
-        checked={this.props.justificationProvided} 
+        <input type="checkbox" className="input-checkbox" id="modal_justification_prov"         
+        onClick={(e)=>this.props.updateModalValues("Changes", `This will ${this.props.justificationProvided ? "Unmark": "Mark"} change as Justification Provided`, "Continue", ()=>this.handleJustProvided(), "Cancel", ()=>{})} 
+       // checked={this.props.justificationProvided} 
+       checked={this.state.justificationProvided} 
         disabled={(this.props.justificationRequired ? false : true)}
         style={{cursor: stylePointer}}
         readOnly
@@ -669,10 +713,9 @@ export class ModalChanges extends Component {
             </CCard>
           </CCol>          
           <CCol className="d-flex">
-            <div className="checkbox">
-              
-              <input type="checkbox" className="input-checkbox" id="modal_justification_req" 
-              onClick={(e)=>this.props.updateModalValues("Changes", `This will ${this.props.justificationRequired ? "Unmark" : "Mark"} change as Justification Required`, "Continue", (e)=>this.switchMarkChanges(e), "Cancel", ()=>{})} 
+            <div className="checkbox">              
+              <input type="checkbox" className="input-checkbox" id="modal_justification_req"               
+              onClick={(e)=>this.props.updateModalValues("Changes", `This will ${this.props.justificationRequired ? "Unmark" : "Mark"} change as Justification Required`, "Continue", ()=>this.handleJustRequired(), "Cancel", ()=>{})}               
               checked={this.props.justificationRequired}/>
               <label htmlFor="modal_justification_req" className="input-label">Justification required</label>              
             </div>
