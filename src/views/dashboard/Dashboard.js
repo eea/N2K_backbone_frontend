@@ -112,23 +112,27 @@ const Dashboard = () => {
       fetch(ConfigData.GET_SITE_COUNT)
         .then(response => response.json())
         .then(data => {
-          let chngPending = [], chngAccepted = [], chngRejected = [];
-          for(let i in data.Data) {
-              chngPending.push(data.Data[i].NumPending);
-              chngAccepted.push(data.Data[i].NumAccepted);
-              chngRejected.push(data.Data[i].NumRejected);
-          }
-          let result = [
-              {name: 'Pending',   index: 1,   data: chngPending,  color: '#033166'},
-              {name: 'Accepted',  index: 2,   data: chngAccepted, color: '#22a4fb'},
-              {name: 'Rejected',  index: 3,   data: chngRejected, color: '#e3f2fd'}
-          ]
           setIsSitesLoading(false);
-          setSitesCountriesData(result);
+          setSitesCountriesData(data);
         });
   }
   
-  populateSitesCountriesData();
+  const getSiteCountries = () => {
+    populateSitesCountriesData();
+    let chngPending = [], chngAccepted = [], chngRejected = [];
+    let data = sitesCountriesData;
+    for(let i in data.Data) {
+        chngAccepted.push(data.Data[i].NumAccepted);
+        chngPending.push(data.Data[i].NumPending);
+        chngRejected.push(data.Data[i].NumRejected);
+    }
+    let result = [
+        {name: 'Pending',   index: 1,   data: chngPending,  color: '#033166'},
+        {name: 'Accepted',  index: 2,   data: chngAccepted, color: '#22a4fb'},
+        {name: 'Rejected',  index: 3,   data: chngRejected, color: '#e3f2fd'}
+    ];
+    return result;
+  }  
   
   const options = {
     chart: {
@@ -158,7 +162,7 @@ const Dashboard = () => {
     accessibility: {
       enabled: false
     },
-    series: sitesCountriesData
+    series: getSiteCountries()
   }
 
   const renderChart = () => (
@@ -166,7 +170,7 @@ const Dashboard = () => {
       highcharts={Highcharts}
       options={options}
     />
-    )
+  )
 
   return (
     <>
