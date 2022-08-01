@@ -172,7 +172,7 @@ const Dashboard = () => {
     <>
       <CContainer fluid>
         <div className="dashboard-title">
-          <div className="select--right m-0">
+          <div hidden className="select--right m-0">
             <CFormLabel htmlFor="exampleFormControlInput1" className="form-label form-label-reporting col-md-4 col-form-label">Country</CFormLabel>
               <CFormSelect aria-label="Default select example" className="form-select-reporting">
                 <option>All</option>
@@ -265,10 +265,10 @@ const Dashboard = () => {
               {renderCards()}
             </CRow>
           </div>
-          <div className="dashboard-title">
+          <div hidden className="dashboard-title">
             <h1 className="h1-main">Pending Changes</h1>
           </div>
-          <div className="bg-white rounded-4 mb-5">
+          <div hidden className="bg-white rounded-4 mb-5">
             <CRow className="grid">
               <CCol xs={12} md={6} lg={4} xl={3}>
                 <CCard className="pending-card">
