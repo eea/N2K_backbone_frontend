@@ -336,10 +336,7 @@ const IndeterminateCheckbox = React.forwardRef(
     let switchMarkChanges = (change) =>{            
       return props.mark({"SiteCode":change.SiteCode,"VersionId":change.Version,"Justification":!change.JustificationRequired})
       .then(data => {
-        if(data?.ok){
-          if (change.justificationRequired === false){
-            switchProvideJustification(change);
-          }          
+        if(data?.ok){          
           forceRefreshData();          
         }else
           alert("something went wrong!");
@@ -348,19 +345,6 @@ const IndeterminateCheckbox = React.forwardRef(
         alert("something went wrong!");
       });    
    }
-
-    let switchProvideJustification = (change) => {    
-      return props.switchProvideJustification({"SiteCode":change.SiteCode,"VersionId":change.Version,"Justification":!change.JustificationProvided})
-      .then(data => {
-        if(data?.ok){
-          forceRefreshData();          
-        }else
-          alert("something went wrong!");
-        return data;
-      }).catch(e => {
-        alert("something went wrong!");
-      });   
-  }
 
     const columns = React.useMemo(
       () => [
@@ -453,7 +437,7 @@ const IndeterminateCheckbox = React.forwardRef(
                 review: ()=>openModal(row.original),
                 accept: ()=>props.updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(row.original), "Cancel", ()=>{}),
                 reject: ()=>props.updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(row.original), "Cancel", ()=>{}),
-                mark: ()=>props.updateModalValues(""+toggleMark+" Changes", "This will "+toggleMark+ " all the site changes", "Continue", ()=>switchMarkChanges(row.original), "Cancel", ()=>{}),                
+                mark: ()=>props.updateModalValues(`${toggleMark} Changes`, `This will ${toggleMark} all the site changes`, "Continue", ()=>switchMarkChanges(row.original), "Cancel", ()=>{}),                
               }
               return row.canExpand ? (
                 <DropdownSiteChanges actions={getContextActions(row, toggleMark)} toggleMark = {toggleMark}/>          
