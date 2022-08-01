@@ -659,68 +659,34 @@ handleJustProvided(){
     return(
       <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 3}>
         <CRow className="py-3">
-        <CCol xs={12} lg={6}>
-        <CCard className="document--list">
-          <div className="d-flex justify-content-between align-items-center pb-2">
-            <b>Attached documents</b>
-            <CButton color="link" className="btn-link--dark" onClick={() => this.addDocument()}>Add document</CButton>                
-          </div>
-              {this.state.newDocument &&
-                <div className="document--item new">
-                  <div className="input-file">
-                    <label htmlFor="uploadBtn">
-                      Select file
-                    </label>
-                    <input id="uploadBtn" type="file" onChange={(e) => this.changeHandler(e)}/>
-                    {this.state.isSelected ? (
-                      <input id="uploadFile" placeholder={this.state.selectedFile.name} disabled="disabled"/>
-                    ) : (<input id="uploadFile" placeholder="No file selected" disabled="disabled" />)}                    
-                  </div>                  
-                  <div> 
-                    <div className="btn-icon">
-                      <i className="fa-solid fa-floppy-disk" onClick={() => this.handleSubmission()}></i>
-                    </div>
-                    <div className="btn-icon" onClick={() => this.deleteAttachment()}>
-                      <i className="fa-regular fa-trash-can"></i>
-                    </div>
-                  </div>
-                </div>
+          <CCol className="mb-3" xs={12} lg={6}>
+            <CCard className="document--list">
+              {this.state.notValidDocument &&
+                <CAlert color="danger">
+                  {this.state.notValidDocument}
+                </CAlert>
               }
-              <div className="document--item">
-                <div className="my-auto">
-                  <CImage src={justificationprovided} className="ico--md me-3"></CImage>
-                  <span>File name</span>
-                </div>
-                <div>
-                  <CButton color="link" className="btn-link--dark">View</CButton>
-                  <div className="btn-icon" onClick={(e) => this.deleteDocument(e.currentTarget)} key={"cmtDelete_"}>
-                    <i className="fa-regular fa-trash-can"></i>
-                  </div>
-                </div>
+              <div className="d-flex justify-content-between align-items-center pb-2">
+                <b>Attached documents</b>
+                <CButton color="link" className="btn-link--dark" onClick={() => this.addDocument()}>Add document</CButton>
               </div>
-              <div className="document--item"> 
-                <div className="my-auto">
-                  <CImage src={justificationprovided} className="ico--md me-3"></CImage>
-                  <span>File name</span>
-                </div>
-                <div>
-                  <CButton color="link" className="btn-link--dark">View</CButton>
-                  <div className="btn-icon">
-                    <i className="fa-regular fa-trash-can"></i>
-                  </div>
-                </div>
-              </div>
-            </CCard>            
-          </CCol>   
-          <CCol xs={12} lg={6}>
+              {this.renderDocuments()}
+            </CCard>
+          </CCol>
+          <CCol className="mb-3" xs={12} lg={6}>
             <CCard className="comment--list">
+              {this.state.notValidComment &&
+                <CAlert color="danger">
+                  {this.state.notValidComment}
+                </CAlert>
+              }
               <div className="d-flex justify-content-between align-items-center pb-2">
                 <b>Comments</b>
                 <CButton color="link" className="btn-link--dark" onClick={() => this.addNewComment()}>Add comment</CButton>
               </div>
-              {this.renderComments()}              
+              {this.renderComments()}
             </CCard>
-          </CCol>          
+          </CCol>         
           <CCol className="d-flex">
             <div className="checkbox">              
               <input type="checkbox" className="input-checkbox" id="modal_justification_req"               
