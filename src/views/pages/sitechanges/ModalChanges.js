@@ -54,6 +54,7 @@ export class ModalChanges extends Component {
       bookmark: "",
       bookmarks: [],
       comments:[],
+      documents:[],
       showDetail: "",
       showAlert: false,
       newComment: false,
@@ -210,11 +211,13 @@ export class ModalChanges extends Component {
   deleteComment(target){
     if(target) {
       let input = target.closest(".comment--item").querySelector("input");
-      let body = input.getAttribute("msg_id");
+      let id = input.getAttribute("msg_id");
+      let body = id;
       this.sendRequest(ConfigData.DELETE_COMMENT,"DELETE",body)
       .then((data) => {
         if(data?.ok){
-          document.getElementById("cmtItem_"+input.getAttribute("msg_id")).remove();
+          let cmts = this.state.comments.filter(e => e.Id !== parseInt(id));
+          this.setState({comments: cmts});
         }
       });
     }
@@ -229,17 +232,18 @@ export class ModalChanges extends Component {
 
   deleteDocument(target){
     if(target) {
-      let doc = target.closest(".document--item").id;
-      this.sendRequest(ConfigData.DELETE_ATTACHED_FILE+"?justificationId="+justificationId,"DELETE","")
+      let doc = target.closest(".document--item");
+      let id = doc.getAttribute("doc_id");
+      this.sendRequest(ConfigData.DELETE_ATTACHED_FILE+"?justificationId="+id,"DELETE","")
       .then((data) => {
         if(data?.ok){
-          doc.remove();
+          let docs = this.state.documents.filter(e => e.Id !== parseInt(id));
+          this.setState({documents: docs});
         }
       });
     }
     else {
-      this.setState({newDocument: false})
-      this.setState({isSelected: false})
+      this.setState({newDocument: false, isSelected: false, selectedFile: "", notValidDocument: ""});
     }
   }
 
@@ -274,17 +278,24 @@ export class ModalChanges extends Component {
   }
 
   handleSubmission () {
-
     if (this.state.selectedFile) {
-      this.setState({notValidDocument:""})
-      
+      this.setState({notValidDocument:""});
       let formData = new FormData();
       formData.append("Files",this.state.selectedFile, this.state.selectedFile.name);
 
       return this.uploadFile(formData)
       .then(data => {
         if(data?.Success){
-          //Here the behavior if success
+          let documentId = Math.max(...data.Data.map(e=>e.Id));
+          let path = data.Data.find(e => e.Id === documentId).Path;
+          let docs = this.state.documents;
+          docs.push({
+            Id: documentId,
+            SiteCode: this.state.data.SiteCode,
+            Version: this.state.data.Version,
+            Path: path
+          })
+          this.setState({documents: docs, newDocument: false})
         }
         else {
           this.showErrorMessage("document", "File upload failed - "+data.Message);
@@ -562,7 +573,7 @@ export class ModalChanges extends Component {
 
   createDocumentElement(id,path){
     return (
-      <div className="document--item" key={"docItem_"+id} id={"docItem_"+id}>
+      <div className="document--item" key={"docItem_"+id} id={"docItem_"+id} doc_id={id}>
         <div className="my-auto document--text">
           <CImage src={justificationprovided} className="ico--md me-3"></CImage>
           <span>{path.replace(/^.*[\\\/]/, '')}</span>

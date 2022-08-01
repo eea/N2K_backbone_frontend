@@ -523,7 +523,7 @@ const IndeterminateCheckbox = React.forwardRef(
       return (<div className="loading-container"><em>Loading...</em></div>)
     else
       if(changesData==="nodata")
-        return (<p><em>No Data Avalaible</em></p>)
+        return (<div className="nodata-container"><em>No Data</em></div>)
       else
         return (
         <>
