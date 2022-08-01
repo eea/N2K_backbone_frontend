@@ -258,7 +258,6 @@ const Dashboard = () => {
           <div className="dashboard-title">
             <h1 className="h1-main me-5">Countries</h1>
             <div>
-              <span className="badge badge--all active me-2">All</span>
               <span className="badge badge--critical radio me-2"><b>{totalPendingCritical}</b> Critical</span>
               <span className="badge badge--warning me-2"><b>{totalPendingWarning}</b> Warning</span>
               <span className="badge badge--info me-2"><b>{totalPendingInfo}</b> Info</span>
