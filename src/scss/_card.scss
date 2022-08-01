@@ -113,7 +113,7 @@
     }
   }
   &-title {
-    font-size: 1.125rem;
+    font-size: 1.25rem;
     font-weight: bold;
     color: $primary-base;
   }
@@ -151,6 +151,42 @@
       border: none;
       padding: 0;
       margin-right: 0.5rem;
+    }
+  }
+  &-button {
+    .btn {
+      padding: 0;
+    }
+  }
+}
+
+.search-card {
+  box-shadow: $box-shadow;
+  border-radius: 10px;
+  padding: 1rem 0.75rem;
+  transition: $transition-base;
+  &:hover {
+    background-color: $gray-25;
+    transition: $transition-base;
+  }
+  &-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    font-size: 1.25rem;
+  }
+  &-title {
+    color: $primary-base;
+    font-weight: bold;
+    font-size: 1.25rem;
+  }
+  &-body {
+    margin-bottom: 0.5rem;
+  }
+  &-description {
+    b {
+      font-size: 1.125rem;
     }
   }
   &-button {
