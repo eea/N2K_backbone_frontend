@@ -33,22 +33,18 @@
     }
   }
 }
-.form-select {
-  border-color: $gray-300;
-  line-height: normal;
+.form-select{
   cursor: pointer;
-  &:focus {
-    border: solid 1px #000015 !important;
-    box-shadow: none !important;
-  }
 }
 .select--right {
-  position: absolute;
-  right: 0;
   display: flex;
   align-items: center;
-  box-shadow: none;
-  margin-right: 1rem;
+  line-height: 1.5;
+  justify-content: end;
+  width: 100%;
+  .form-select {
+    border-radius: 1rem;
+  }
 }
 .input--light {
   border-radius: 0.5rem;
