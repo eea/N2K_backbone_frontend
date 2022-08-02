@@ -1,6 +1,7 @@
 import React, {useCallback, useEffect, useState} from 'react'
 import { AppFooter, AppHeader } from './../../../components/index'
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import Turnstone from 'turnstone';
 
 import TableRSPag from './TableRSPag';
 import {
@@ -40,6 +41,8 @@ const Sitechanges = () => {
   const [level, setLevel] = useState('Critical');
   const [disabledBtn, setDisabledBtn] = useState(true);
   const [disabledSearchBtn, setDisabledSearchBtn] = useState(true);
+
+  const searchList = ['pen','pineapple','apple-pen'];
 
   let selectedCodes = [],
   setSelectedCodes = (v) => {
@@ -219,6 +222,7 @@ const Sitechanges = () => {
       setCountries(countriesList);
     });      
   }
+  console.log(searchList);
 
   return (
     <>
@@ -290,12 +294,19 @@ const Sitechanges = () => {
               <CRow>
                 <CCol sm={12} md={6} lg={6} className="d-flex mb-4">
                   <div className="search--input">
-                    <CFormInput
+                    {/*<CFormInput
                       id="sitechanges_search"
                       placeholder="Search sites by site name or site code"
                       autoComplete="off"
                       onClick={()=>showSearch()}
                       onBlur={()=>hideSearch()}
+                    />*/}
+                    <Turnstone
+                      id="sitechanges_search"
+                      listbox = {searchList}
+                      placeholder="Search sites by site name or site code"
+                      onClick={()=>console.log("click")}
+                      onBlur={()=>console.log("onblur")}
                     />
                     <span className="btn-icon" onClick={()=>clearSearch()}>
                       <i className="fa-solid fa-xmark"></i>
