@@ -18,8 +18,8 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import justificationrequired from './../../assets/images/exclamation.svg'
 import justificationprovided from './../../assets/images/file-text.svg'
 
-import FetchPendingData from './FetchPendingData';
-import FetchSiteData from './FetchSiteData';
+import PendingCards from './components/PendingCards';
+import SiteGraph from './components/SiteGraph';
 
 const Dashboard = () => {  
 
@@ -107,7 +107,7 @@ const Dashboard = () => {
               </CRow>
           </div>
           <div>
-            <FetchPendingData />
+            <PendingCards />
           </div>
           <div hidden className="dashboard-title">
             <h1 className="h1-main">Pending Changes</h1>
@@ -193,7 +193,7 @@ const Dashboard = () => {
           </div>
           <div className="container-card-dashboard mb-5">
             <CRow className="grid">
-              <FetchSiteData />
+              <SiteGraph />
             </CRow>
           </div>
       </CContainer>

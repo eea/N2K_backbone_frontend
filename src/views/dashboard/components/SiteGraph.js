@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import ConfigData from '../../config.json';
+import ConfigData from '../../../config.json';
 import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
 
-const FetchSiteData = () => {
+const SiteGraph = () => {
     const [sitesCountriesData, setSitesCountriesData] = useState([]);
     const [isSitesLoading, setIsSitesLoading] = useState(true);
 
@@ -74,4 +74,4 @@ const FetchSiteData = () => {
     );
 }
 
-export default FetchSiteData;
+export default SiteGraph;

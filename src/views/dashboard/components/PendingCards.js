@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import ConfigData from '../../config.json';
+import ConfigData from '../../../config.json';
 import { CRow, CCol, CCard, CCardImage } from '@coreui/react';
 
-const FetchPendingData = () => {
+const PendingCards = () => {
     const [pendingCountriesData, setPendingCountriesData] = useState([]);
     const [isPendingLoading, setIsPendingLoading] = useState(true);
 
@@ -52,7 +52,7 @@ const FetchPendingData = () => {
                     <a className="country-card-link" href={"/#/sitechanges?country=" + country.code}>
                         <CCard className="country-card">
                             <div className="country-card-left">
-                                <CCardImage className="card-img--flag" src={require("./../../../src/assets/images/flags/" + countryPath + ".png")} width="32px" />
+                                <CCardImage className="card-img--flag" src={require("../../../../src/assets/images/flags/" + countryPath + ".png")} width="32px" />
                             </div>
                             <div className="country-card-right">
                                 <div className="country-card-header">
@@ -91,4 +91,4 @@ const FetchPendingData = () => {
     );
 }
 
-export default FetchPendingData;
+export default PendingCards;
