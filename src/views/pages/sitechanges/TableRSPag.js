@@ -542,8 +542,7 @@ const IndeterminateCheckbox = React.forwardRef(
                         accept={()=>acceptChanges(modalItem)} 
                         reject={()=>rejectChanges(modalItem)} 
                         backToPending={()=>setBackToPending(modalItem)}
-                        mark={()=>switchMarkChanges(modalItem)}
-                        switchProvideJustification={()=>switchProvideJustification(modalItem)}
+                        mark={()=>switchMarkChanges(modalItem)}                        
                         status={props.status}
                         item={modalItem.SiteCode} 
                         version={modalItem.Version} 
