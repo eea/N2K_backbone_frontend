@@ -14,7 +14,6 @@ const FetchSiteData = () => {
                 .then(data => {
                     setIsSitesLoading(false);
                     setSitesCountriesData(data.Data);
-                    console.log("fetch_sites");
                 });
     })
     let seriesData = [];

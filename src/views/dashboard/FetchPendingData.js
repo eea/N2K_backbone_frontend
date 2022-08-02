@@ -15,7 +15,6 @@ const FetchPendingData = () => {
                 .then(data => {
                     setIsPendingLoading(false);
                     setPendingCountriesData(data.Data);
-                    console.log("fetch_pending");
                 });
     })
 
