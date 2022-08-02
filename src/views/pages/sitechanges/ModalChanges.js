@@ -647,7 +647,7 @@ handleJustProvided(){
     return(      
       <div className="checkbox">
         <input type="checkbox" className="input-checkbox" id="modal_justification_prov"         
-        onClick={(e)=>this.props.updateModalValues("Changes", `This will ${this.props.justificationProvided ? "Unmark": "Mark"} change as Justification Provided`, "Continue", ()=>this.handleJustProvided(), "Cancel", ()=>{})} 
+        onClick={(e)=>this.props.updateModalValues("Changes", `This will ${this.props.justificationProvided ? "unmark": "mark"} change as Justification Provided`, "Continue", ()=>this.handleJustProvided(), "Cancel", ()=>{})} 
        checked={this.state.justificationProvided} 
         disabled={(this.state.justificationRequired ? false : true)}
         style={{cursor: stylePointer}}
@@ -694,7 +694,7 @@ handleJustProvided(){
           <CCol className="d-flex">
             <div className="checkbox">              
               <input type="checkbox" className="input-checkbox" id="modal_justification_req"               
-              onClick={(e)=>this.props.updateModalValues("Changes", `This will ${this.props.justificationRequired ? "Unmark" : "Mark"} change as Justification Required`, "Continue", ()=>this.handleJustRequired(), "Cancel", ()=>{})}               
+              onClick={(e)=>this.props.updateModalValues("Changes", `This will ${this.props.justificationRequired ? "unmark" : "mark"} change as Justification Required`, "Continue", ()=>this.handleJustRequired(), "Cancel", ()=>{})}               
               checked={this.state.justificationRequired}/>
               <label htmlFor="modal_justification_req" className="input-label">Justification required</label>              
             </div>
