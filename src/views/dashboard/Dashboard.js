@@ -107,7 +107,7 @@ const Dashboard = () => {
               </CRow>
           </div>
           <div>
-            {FetchPendingData()}
+            <FetchPendingData />
           </div>
           <div hidden className="dashboard-title">
             <h1 className="h1-main">Pending Changes</h1>
@@ -193,7 +193,7 @@ const Dashboard = () => {
           </div>
           <div className="container-card-dashboard mb-5">
             <CRow className="grid">
-              {FetchSiteData()}
+              <FetchSiteData />
             </CRow>
           </div>
       </CContainer>
