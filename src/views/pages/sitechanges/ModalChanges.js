@@ -61,8 +61,8 @@ export class ModalChanges extends Component {
       showAlert: false,
       newComment: false,
       newDocument: false,
-      justificationRequired: false,
-      justificationProvided: false,
+      justificationRequired: this.props.justificationRequired,
+      justificationProvided: this.props.justificationProvided,
       selectedFile: "",
       isSelected: false,
       notValidComment: "",
@@ -77,7 +77,7 @@ export class ModalChanges extends Component {
           });
         }
       }
-    };
+    };    
   }
 
   updateModalValues(title, text, primaryButtonText, primaryButtonFunction, secondaryButtonText, secondaryButtonFunction) {
@@ -309,6 +309,47 @@ export class ModalChanges extends Component {
     }
 }
 
+handleJustRequired(){
+  let body = [{
+    "SiteCode": this.state.data.SiteCode,
+    "VersionId": this.state.data.Version,
+    "Justification": !this.props.justificationRequired,
+  }];
+
+  this.sendRequest(ConfigData.MARK_AS_JUSTIFICATION_REQUIRED, "POST", body)  
+  .then((data)=> {
+    if(data?.ok){      
+      this.setState({justificationRequired: !this.state.justificationRequired})
+      this.setState({checked: !this.state.justificationRequired})
+      return data;
+    }
+    else {
+      this.showErrorMessage("Justification Required", "Update failed");
+      return data;
+    }
+  });
+}
+
+handleJustProvided(){
+  let body = [{
+    "SiteCode": this.state.data.SiteCode,
+    "VersionId": this.state.data.Version,
+    "Justification": !this.props.justificationProvided,
+  }];
+
+  this.sendRequest(ConfigData.PROVIDE_JUSTIFICATION, "POST", body)  
+  .then((data)=> {
+    if(data?.ok){            
+      this.setState({justificationProvided: !this.state.justificationProvided})      
+      this.setState({checked: !this.state.checked})
+    }
+    else {
+      this.showErrorMessage("Justification Provided", "Update failed");
+      return data;
+    }
+  });
+}
+
   renderValuesTable(changes){
     let heads = Object.keys(changes[0]).filter(v=> v!=="ChangeId" && v!=="Fields");
     let fields= Object.keys(changes[0]["Fields"]);
@@ -452,7 +493,7 @@ export class ModalChanges extends Component {
     }
     this.setState({levels: levels, bookmark: "", bookmarkUpdate: true});
   }
-  
+
   renderChanges(){
     return(
       <CTabPane role="tabpanel" aria-labelledby="home-tab" visible={this.state.activeKey === 1}>
@@ -600,47 +641,64 @@ export class ModalChanges extends Component {
     )
   }
 
+  renderCheckbox(e){
+    this.state.justificationRequired ? "" : "disabled";
+    const stylePointer = (this.props.justificationRequired ? "" : "not-allowed");    
+    return(      
+      <div className="checkbox">
+        <input type="checkbox" className="input-checkbox" id="modal_justification_prov"         
+        onClick={(e)=>this.props.updateModalValues("Changes", `This will ${this.props.justificationProvided ? "Unmark": "Mark"} change as Justification Provided`, "Continue", ()=>this.handleJustProvided(), "Cancel", ()=>{})} 
+       checked={this.state.justificationProvided} 
+        disabled={(this.state.justificationRequired ? false : true)}
+        style={{cursor: stylePointer}}
+        readOnly
+        />
+        <label htmlFor="modal_justification_prov" style={{cursor: stylePointer}} className="input-label" disabled={(this.state.justificationRequired ? false : true)}
+        >Justification provided</label>
+      </div>
+    )
+  }
+  
   renderAttachments(){
     return(
       <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 3}>
         <CRow className="py-3">
-        <CCol className="mb-3" xs={12} lg={6}>
-          <CCard className="document--list">
-            {this.state.notValidDocument &&
-              <CAlert color="danger">
-                {this.state.notValidDocument}
-              </CAlert>
-            }
-            <div className="d-flex justify-content-between align-items-center pb-2">
-              <b>Attached documents</b>
-              <CButton color="link" className="btn-link--dark" onClick={() => this.addDocument()}>Add document</CButton>
+          <CCol className="mb-3" xs={12} lg={6}>
+            <CCard className="document--list">
+              {this.state.notValidDocument &&
+                <CAlert color="danger">
+                  {this.state.notValidDocument}
+                </CAlert>
+              }
+              <div className="d-flex justify-content-between align-items-center pb-2">
+                <b>Attached documents</b>
+                <CButton color="link" className="btn-link--dark" onClick={() => this.addDocument()}>Add document</CButton>
+              </div>
+              {this.renderDocuments()}
+            </CCard>
+          </CCol>
+          <CCol className="mb-3" xs={12} lg={6}>
+            <CCard className="comment--list">
+              {this.state.notValidComment &&
+                <CAlert color="danger">
+                  {this.state.notValidComment}
+                </CAlert>
+              }
+              <div className="d-flex justify-content-between align-items-center pb-2">
+                <b>Comments</b>
+                <CButton color="link" className="btn-link--dark" onClick={() => this.addNewComment()}>Add comment</CButton>
+              </div>
+              {this.renderComments()}
+            </CCard>
+          </CCol>         
+          <CCol className="d-flex">
+            <div className="checkbox">              
+              <input type="checkbox" className="input-checkbox" id="modal_justification_req"               
+              onClick={(e)=>this.props.updateModalValues("Changes", `This will ${this.props.justificationRequired ? "Unmark" : "Mark"} change as Justification Required`, "Continue", ()=>this.handleJustRequired(), "Cancel", ()=>{})}               
+              checked={this.state.justificationRequired}/>
+              <label htmlFor="modal_justification_req" className="input-label">Justification required</label>              
             </div>
-            {this.renderDocuments()}
-          </CCard>
-        </CCol>
-        <CCol className="mb-3" xs={12} lg={6}>
-          <CCard className="comment--list">
-            {this.state.notValidComment &&
-              <CAlert color="danger">
-                {this.state.notValidComment}
-              </CAlert>
-            }
-            <div className="d-flex justify-content-between align-items-center pb-2">
-              <b>Comments</b>
-              <CButton color="link" className="btn-link--dark" onClick={() => this.addNewComment()}>Add comment</CButton>
-            </div>
-            {this.renderComments()}
-          </CCard>
-        </CCol>
-        <CCol className="d-flex">
-          <div className="checkbox">
-            <input type="checkbox" className="input-checkbox" id="modal_justification_req" checked={this.props.justificationRequired} />
-            <label htmlFor="modal_justification_req" className="input-label">Justification required</label>
-          </div>
-          <div className="checkbox">
-            <input type="checkbox" className="input-checkbox" id="modal_justification_prov" checked={this.props.justificationProvided}/>
-            <label htmlFor="modal_justification_prov" className="input-label">Justification provided</label>
-          </div>
+            {this.renderCheckbox()}
           </CCol>
         </CRow>
       </CTabPane>
@@ -790,6 +848,22 @@ export class ModalChanges extends Component {
     });
   }
 
+  switchMarkChanges(){
+    this.props.mark()
+    .then(data => {
+      if(data?.ok)
+      this.close(false);
+    });
+  }
+
+  switchProvideJustification(){
+    this.props.switchProvideJustification()
+    .then(data => {
+      if(data?.ok)
+      this.close(false);
+    });
+  }
+    
   sendRequest(url,method,body,path){
     const options = {
       method: method,

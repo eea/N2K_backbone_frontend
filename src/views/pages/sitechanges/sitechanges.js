@@ -146,7 +146,6 @@ const Sitechanges = () => {
       alert("something went wrong!");
       console.log(e);
     });
-
   }
 
   const [modalValues, setModalValues] = useState({
@@ -322,7 +321,7 @@ const Sitechanges = () => {
                         setRefresh={setRefreshSitechanges}
                         accept={acceptChanges}
                         reject={rejectChanges}
-                        mark={switchMarkChanges}
+                        mark={switchMarkChanges}                        
                         updateModalValues={updateModalValues}
                       />
                     </CTabPane>
