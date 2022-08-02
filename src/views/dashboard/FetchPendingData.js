@@ -1,8 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import ConfigData from '../../config.json';
 import { CRow, CCol, CCard, CCardImage } from '@coreui/react';
-
-let pendingCountries = [];
 
 const FetchPendingData = () => {
     const [pendingCountriesData, setPendingCountriesData] = useState([]);
@@ -32,7 +30,7 @@ const FetchPendingData = () => {
         return total + current;
     }
 
-    pendingCountries = getPending();
+    let pendingCountries = getPending();
 
     const totalPendingInfo = pendingCountries.map((c) => c.pendingInfo).reduce(sumTotal, 0);
     const totalPendingWarning = pendingCountries.map((c) => c.pendingWarning).reduce(sumTotal, 0);

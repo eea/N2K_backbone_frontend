@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import ConfigData from '../../config.json';
 import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
