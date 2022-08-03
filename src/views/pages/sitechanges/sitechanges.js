@@ -224,6 +224,14 @@ const Sitechanges = () => {
   }
   console.log(searchList);
 
+  const listbox = [
+    {
+      name: "Items",
+      data: searchList,
+      searchType: "startswith"
+    }
+  ];
+
   return (
     <>
       <div className="container--main min-vh-100">
@@ -303,10 +311,10 @@ const Sitechanges = () => {
                     />*/}
                     <Turnstone
                       id="sitechanges_search"
-                      listbox = {searchList}
+                      listbox = {listbox}
                       placeholder="Search sites by site name or site code"
-                      onClick={()=>console.log("click")}
-                      onBlur={()=>console.log("onblur")}
+                      onClick={()=>showSearch()}
+                      onBlur={()=>hideSearch()}
                     />
                     <span className="btn-icon" onClick={()=>clearSearch()}>
                       <i className="fa-solid fa-xmark"></i>
