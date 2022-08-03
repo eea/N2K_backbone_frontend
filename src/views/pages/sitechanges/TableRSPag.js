@@ -480,6 +480,7 @@ const IndeterminateCheckbox = React.forwardRef(
       return fetch(url)
       .then(response => response.json())
       .then(data => {
+        props.setSitecodes(props.status,data.Data);
         setSitecodes(data.Data);
       });      
     }

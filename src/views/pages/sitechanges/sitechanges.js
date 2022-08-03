@@ -41,8 +41,26 @@ const Sitechanges = () => {
   const [level, setLevel] = useState('Critical');
   const [disabledBtn, setDisabledBtn] = useState(true);
   const [disabledSearchBtn, setDisabledSearchBtn] = useState(true);
+  const [siteCodes, setSitecodes] = useState({"pending": {}, "accepted": {}, "rejected": {}})
+  const [searchList, setSearchList] = useState({})
 
-  const searchList = ['pen','pineapple','apple-pen'];
+  let setCodes = (status,data)=> {
+    let codes = siteCodes;
+    codes[status] = data;
+    setSitecodes(codes);
+    setSearchList(getSitesList());
+  }
+
+  let getSitesList = () =>{
+    return Object.keys(siteCodes).map( v=>{
+        return {
+          name: v,
+          data: siteCodes[v].map?siteCodes[v].map(v=>v.SiteCode):[],
+          searchType: "startswith"
+        }
+      }
+      )
+  }
 
   let selectedCodes = [],
   setSelectedCodes = (v) => {
@@ -222,15 +240,6 @@ const Sitechanges = () => {
       setCountries(countriesList);
     });      
   }
-  console.log(searchList);
-
-  const listbox = [
-    {
-      name: "Items",
-      data: searchList,
-      searchType: "startswith"
-    }
-  ];
 
   return (
     <>
@@ -311,7 +320,7 @@ const Sitechanges = () => {
                     />*/}
                     <Turnstone
                       id="sitechanges_search"
-                      listbox = {listbox}
+                      listbox = {searchList}
                       placeholder="Search sites by site name or site code"
                       onClick={()=>showSearch()}
                       onBlur={()=>hideSearch()}
@@ -392,6 +401,7 @@ const Sitechanges = () => {
                         reject={rejectChanges}
                         mark={switchMarkChanges}
                         updateModalValues={updateModalValues}
+                        setSitecodes = {setCodes}
                       />
                     </CTabPane>
                     <CTabPane role="tabpanel" aria-labelledby="accepted-tab" visible={activeTab === 2}>                    
@@ -404,6 +414,7 @@ const Sitechanges = () => {
                         setRefresh={setRefreshSitechanges}
                         setBackToPending={setBackToPending}
                         updateModalValues={updateModalValues}
+                        setSitecodes = {setCodes}
                       />
                     </CTabPane>
                     <CTabPane role="tabpanel" aria-labelledby="rejected-tab" visible={activeTab === 3}>
@@ -416,6 +427,7 @@ const Sitechanges = () => {
                         setRefresh={setRefreshSitechanges}
                         setBackToPending={setBackToPending}
                         updateModalValues={updateModalValues}
+                        setSitecodes = {setCodes}
                       />
                     </CTabPane>                    
                     </CTabContent>
