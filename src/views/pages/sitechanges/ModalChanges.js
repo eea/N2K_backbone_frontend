@@ -46,7 +46,7 @@ export class ModalChanges extends Component {
   
   
   constructor(props) {
-    super(props);
+    super(props);        
     this.state = {
       activeKey: 1, 
       loading: true, 
@@ -61,8 +61,8 @@ export class ModalChanges extends Component {
       showAlert: false,
       newComment: false,
       newDocument: false,
-      justificationRequired: this.props.justificationRequired,
-      justificationProvided: this.props.justificationProvided,
+      justificationRequired: false,
+      justificationProvided: false,
       selectedFile: "",
       isSelected: false,
       notValidComment: "",
@@ -77,7 +77,7 @@ export class ModalChanges extends Component {
           });
         }
       }
-    };    
+    };            
   }
 
   updateModalValues(title, text, primaryButtonText, primaryButtonFunction, secondaryButtonText, secondaryButtonFunction) {
@@ -640,26 +640,26 @@ handleJustProvided(){
       </div>
     )
   }
-
-  renderCheckbox(e){
-    this.state.justificationRequired ? "" : "disabled";
-    const stylePointer = (this.props.justificationRequired ? "" : "not-allowed");    
+  
+  renderCheckbox(e){    
+    const stylePointer = (this.state.justificationRequired ? "" : "not-allowed");   
+    const disabled = (this.state.justificationRequired ? false : true);
     return(      
-      <div className="checkbox">
+      <div className="checkbox" style={{cursor: stylePointer}} disabled={disabled}>
         <input type="checkbox" className="input-checkbox" id="modal_justification_prov"         
-        onClick={(e)=>this.props.updateModalValues("Changes", `This will ${this.props.justificationProvided ? "Unmark": "Mark"} change as Justification Provided`, "Continue", ()=>this.handleJustProvided(), "Cancel", ()=>{})} 
-       checked={this.state.justificationProvided} 
-        disabled={(this.state.justificationRequired ? false : true)}
-        style={{cursor: stylePointer}}
+        onClick={(e)=>this.props.updateModalValues("Changes", `This will ${this.state.justificationProvided ? "unmark": "mark"} change as Justification Provided`, "Continue", ()=>this.handleJustProvided(), "Cancel", ()=>{})} 
+        checked={this.state.justificationProvided} 
+        disabled={disabled}
+        style={{cursor: stylePointer}}        
         readOnly
         />
-        <label htmlFor="modal_justification_prov" style={{cursor: stylePointer}} className="input-label" disabled={(this.state.justificationRequired ? false : true)}
+        <label htmlFor="modal_justification_prov" style={{cursor: stylePointer}} className="input-label" disabled={disabled}
         >Justification provided</label>
       </div>
     )
   }
   
-  renderAttachments(){
+  renderAttachments(){    
     return(
       <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 3}>
         <CRow className="py-3">
@@ -694,7 +694,7 @@ handleJustProvided(){
           <CCol className="d-flex">
             <div className="checkbox">              
               <input type="checkbox" className="input-checkbox" id="modal_justification_req"               
-              onClick={(e)=>this.props.updateModalValues("Changes", `This will ${this.props.justificationRequired ? "Unmark" : "Mark"} change as Justification Required`, "Continue", ()=>this.handleJustRequired(), "Cancel", ()=>{})}               
+              onClick={(e)=>this.props.updateModalValues("Changes", `This will ${this.state.justificationRequired ? "unmark" : "mark"} change as Justification Required`, "Continue", ()=>this.handleJustRequired(), "Cancel", ()=>{})}               
               checked={this.state.justificationRequired}/>
               <label htmlFor="modal_justification_req" className="input-label">Justification required</label>              
             </div>
@@ -804,7 +804,7 @@ handleJustProvided(){
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
       fetch(ConfigData.SITECHANGES_DETAIL+`siteCode=${this.props.item}&version=${this.props.version}`)
       .then(response => response.json())
-      .then(data => this.setState({data: data.Data, loading: false}));
+      .then(data => this.setState({data: data.Data, loading: false, justificationRequired: data.Data.JustificationRequired, justificationProvided: data.Data.JustificationProvided}));
     }
   }
 
