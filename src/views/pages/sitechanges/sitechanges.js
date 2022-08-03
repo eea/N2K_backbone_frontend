@@ -25,26 +25,29 @@ import ConfigData from '../../../config.json';
 
 const xmlns = 'https://www.w3.org/2000/svg'
 
-const defaultCountry = () => {
-  const searchParams = new URLSearchParams(window.location.href.split('?')[1]);
-  const c = searchParams.get('country');
-  if(c) return c;
-  return "DE";
-}
-
 let refreshSitechanges={"pending":false,"accepted":false,"rejected":false}, 
   getRefreshSitechanges=(state)=>refreshSitechanges[state], 
   setRefreshSitechanges=(state,v)=>refreshSitechanges[state] = v;
 
 const Sitechanges = () => {
+
+  const defaultCountry = () => {
+    const searchParams = new URLSearchParams(window.location.href.split('?')[1]);
+    const c = searchParams.get('country');
+    if(c) return c;
+    return "";
+  }
+
   const [activeTab, setActiveTab] = useState(1)
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [forceRefresh, setForceRefresh] = useState(0);
   const [countries, setCountries] = useState([]);
   const [country, setCountry] = useState(defaultCountry);
   const [level, setLevel] = useState('Critical');
   const [disabledBtn, setDisabledBtn] = useState(true);
+  
+  console.log(country);
 
   let selectedCodes = [],
   setSelectedCodes = (v) => {
@@ -63,7 +66,12 @@ const Sitechanges = () => {
     }
   };
 
-  let forceRefreshData = ()=>{for(let i in refreshSitechanges) setRefreshSitechanges(i,true)};
+  let forceRefreshData = ()=>{
+    setIsLoading(true);
+    for(let i in refreshSitechanges)
+      setRefreshSitechanges(i,true)
+    setIsLoading(false);
+    };
 
   let postRequest = (url,body)=>{
     const options = {
@@ -202,6 +210,8 @@ const Sitechanges = () => {
         countriesList.push({name:data.Data[i].Country,code:data.Data[i].Code});
       }
       setCountries(countriesList);
+      if(country === "")
+        setCountry(countries[0].code);
     });      
   }
 
@@ -273,7 +283,7 @@ const Sitechanges = () => {
                 </div>
                 <div className="select--right">    
                   <CFormLabel htmlFor="exampleFormControlInput1" className='form-label form-label-reporting col-md-4 col-form-label'>Country </CFormLabel>
-                    <CFormSelect aria-label="Default select example" className='form-select-reporting' value={country} onChange={(e)=>changeCountry(e.target.value)}>
+                    <CFormSelect aria-label="Default select example" className='form-select-reporting' disabled={isLoading} value={country} onChange={(e)=>changeCountry(e.target.value)}>
                       {
                         countries.map((e)=><option value={e.code} key={e.code}>{e.name}</option>)
                       }
