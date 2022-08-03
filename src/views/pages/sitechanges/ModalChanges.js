@@ -325,6 +325,7 @@ handleJustRequired(){
     if(data?.ok){      
       this.setState({justificationRequired: !this.state.justificationRequired})
       this.setState({checked: !this.state.justificationRequired})
+      (!this.state.justificationRequired ? this.setState({justificationProvided: false}) : null)
       return data;
     }
     else {
