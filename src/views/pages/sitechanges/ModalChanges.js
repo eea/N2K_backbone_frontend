@@ -256,7 +256,7 @@ export class ModalChanges extends Component {
     }
     else {
       e.currentTarget.closest("#uploadBtn").value = "";
-      this.showErrorMessage("document", "File not valid, use a valid format: .pdf, .doc, .docx, .xls, .xlsx, .txt, .tif, .json, .kml, .gml, .xml, .zip, .7z");
+      this.showErrorMessage("document", "File not valid, use a valid format: " + ConfigData.ACCEPTED_DOCUMENT_FORMATS);
     }
   }
 
@@ -264,16 +264,16 @@ export class ModalChanges extends Component {
     let siteCode = this.state.data.SiteCode;
     let version = this.state.data.Version;
     return new Promise((resolve,reject) =>{
-        const request = new XMLHttpRequest();
-        request.open("POST", ConfigData.UPLOAD_ATTACHED_FILE+'?sitecode='+siteCode+'&version='+version, true);
-        request.onload = (oEvent) => {
-          if (request.status >= 200 && request.status < 300) {
-              resolve(JSON.parse(request.response));
-          } else {
-              reject(request.statusText);
-          }
-        };
-        request.send(data)
+      const request = new XMLHttpRequest();
+      request.open("POST", ConfigData.UPLOAD_ATTACHED_FILE+'?sitecode='+siteCode+'&version='+version, true);
+      request.onload = (oEvent) => {
+        if (request.status >= 200 && request.status < 300) {
+          resolve(JSON.parse(request.response));
+        } else {
+          reject(request.statusText);
+        }
+      };
+      request.send(data)
     });
   }
 
@@ -286,15 +286,19 @@ export class ModalChanges extends Component {
       return this.uploadFile(formData)
       .then(data => {
         if(data?.Success){
-          let documentId = Math.max(...data.Data.map(e=>e.Id));
-          let path = data.Data.find(e => e.Id === documentId).Path;
           let docs = this.state.documents;
-          docs.push({
-            Id: documentId,
-            SiteCode: this.state.data.SiteCode,
-            Version: this.state.data.Version,
-            Path: path
-          })
+          let newDocs = data.Data.filter(({ Id: id1 }) => !docs.some(({ Id: id2 }) => id2 === id1));
+          for(let i in newDocs){
+            let document = newDocs[i];
+            let documentId = document.Id;
+            let path = document.Path;
+            docs.push({
+              Id: documentId,
+              SiteCode: this.state.data.SiteCode,
+              Version: this.state.data.Version,
+              Path: path
+            })
+          }
           this.setState({documents: docs, newDocument: false})
         }
         else {
@@ -315,7 +319,7 @@ export class ModalChanges extends Component {
     for(let i in changes){
       let values = heads.map(v=>changes[i][v]).concat(fields.map(v=>changes[i]["Fields"][v]));
       rows.push(
-        <CTableRow key={i}>
+        <CTableRow key={"row_"+i}>
           {values.map((v,j)=>{return(<CTableDataCell key={v+"_"+j}> {v} </CTableDataCell>)})}
         </CTableRow>
       )
@@ -513,6 +517,7 @@ export class ModalChanges extends Component {
     return(
       <div id="changes_comments">
         {cmts}
+        {this.state.comments.length == 0 && <div className="comment--item"><em>No comments</em></div>}
       </div>
     )
   }
@@ -567,6 +572,7 @@ export class ModalChanges extends Component {
     return(
       <div id="changes_documents">
         {docs}
+        {this.state.documents.length == 0 && <div className="document--item"><em>No documents</em></div>}
       </div>
     )
   }
@@ -654,7 +660,7 @@ export class ModalChanges extends Component {
         </CModalHeader>
         <CModalBody>
           <CAlert color="primary" className="d-flex align-items-center" visible={this.state.showAlert}>
-            <CIcon icon={cilWarning} size="md" className="me-2"/>
+            <CIcon icon={cilWarning} className="me-2"/>
             Justification required
           </CAlert>
           <CNav variant="tabs" role="tablist">
