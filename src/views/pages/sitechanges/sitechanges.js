@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react'
+import React, {useCallback, useEffect, useState, useRef} from 'react'
 import { AppFooter, AppHeader } from './../../../components/index'
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import Turnstone from 'turnstone';
@@ -42,7 +42,10 @@ const Sitechanges = () => {
   const [disabledBtn, setDisabledBtn] = useState(true);
   const [disabledSearchBtn, setDisabledSearchBtn] = useState(true);
   const [siteCodes, setSitecodes] = useState({"pending": {}, "accepted": {}, "rejected": {}})
-  const [searchList, setSearchList] = useState({})
+  const [searchList, setSearchList] = useState({});
+  const [selectOption, setSelectOption] = useState({});
+  const [showModal, setShowhowModal] = useState(false);
+  const turnstoneRef = useRef();
 
   let setCodes = (status,data)=> {
     let codes = siteCodes;
@@ -55,11 +58,20 @@ const Sitechanges = () => {
     return Object.keys(siteCodes).map( v=>{
         return {
           name: v,
-          data: siteCodes[v].map?siteCodes[v].map(v=>v.SiteCode):[],
-          searchType: "startswith"
+          data: siteCodes[v].map?siteCodes[v].map(x=>({"search":x.SiteCode+" - "+x.Name,...x})):[],
+          searchType: "contains",
         }
       }
-      )
+    )
+  }
+
+  let showModalSitechanges = (data) => {
+    if (data) {
+      setShowhowModal(data);
+    }
+    else {
+      setShowhowModal();
+    }
   }
 
   let selectedCodes = [],
@@ -194,28 +206,31 @@ const Sitechanges = () => {
         }
         : ''
       ),
-
     });
   }
 
-  let showSearch = () => {
-    document.querySelector(".search--results").classList.remove("d-none");
-  }
-
-  let hideSearch = () => {
-    document.querySelector(".search--results").classList.add("d-none");
-  }
-
   let clearSearch = () => {
-    document.getElementById("sitechanges_search").value = "";
+    turnstoneRef.current?.clear();
     setDisabledSearchBtn(true);
   }
 
   let selectSearchOption = (e) => {
-    let value = e.currentTarget.children[1].innerText + " - " + e.currentTarget.children[0].innerText;
-    document.getElementById("sitechanges_search").value = value;
-    e.currentTarget.parentElement.classList.add("d-none");
-    setDisabledSearchBtn(false);
+    if (e) {
+      setDisabledSearchBtn(false);
+      setSelectOption(e);
+    }
+    else {
+      setDisabledSearchBtn(true);
+    }
+  }
+
+  const item = (props) => {
+    return (
+      <div className="search--option">
+        <div>{props.item.Name}</div>
+        <div className="search--suboption">{props.item.SiteCode}</div>
+      </div>
+    )
   }
 
   let changeLevel = (level)=>{
@@ -238,7 +253,7 @@ const Sitechanges = () => {
         countriesList.push({name:data.Data[i].Country,code:data.Data[i].Code});
       }
       setCountries(countriesList);
-    });      
+    });
   }
 
   return (
@@ -311,36 +326,22 @@ const Sitechanges = () => {
               <CRow>
                 <CCol sm={12} md={6} lg={6} className="d-flex mb-4">
                   <div className="search--input">
-                    {/*<CFormInput
-                      id="sitechanges_search"
-                      placeholder="Search sites by site name or site code"
-                      autoComplete="off"
-                      onClick={()=>showSearch()}
-                      onBlur={()=>hideSearch()}
-                    />*/}
                     <Turnstone
                       id="sitechanges_search"
+                      className="form-control"
                       listbox = {searchList}
                       placeholder="Search sites by site name or site code"
-                      onClick={()=>showSearch()}
-                      onBlur={()=>hideSearch()}
+                      noItemsMessage="Site not found"
+                      styles={{input:"form-control", listbox:"search--results", groupHeading:"search--group", noItemsMessage:"search--option"}}
+                      onSelect={(e)=>selectSearchOption(e)}
+                      ref={turnstoneRef}
+                      Item={item}
                     />
                     <span className="btn-icon" onClick={()=>clearSearch()}>
                       <i className="fa-solid fa-xmark"></i>
                     </span>
-                    <div className="search--results d-none">
-                      <div className="search--option" onMouseDown={(e)=>selectSearchOption(e)}>
-                        <div>SPA Östliche Deutsche Bucht</div>
-                        <div className="search--suboption">DE1011401</div>
-                      </div>
-                      <div className="search--option" onMouseDown={(e)=>selectSearchOption(e)}>
-                        <div>NSG Rantumbecken</div>
-                        <div className="search--suboption">DE1115301</div>
-                      </div>
-                      {/* <div className="search--option">Results not found</div> */}
-                    </div>
                   </div>
-                  <CButton disabled={disabledSearchBtn}>
+                  <CButton disabled={disabledSearchBtn} onClick={()=>showModalSitechanges(selectOption)}>
                     <i className="fa-solid fa-magnifying-glass"></i>
                   </CButton>
                   <></>
@@ -402,6 +403,8 @@ const Sitechanges = () => {
                         mark={switchMarkChanges}
                         updateModalValues={updateModalValues}
                         setSitecodes = {setCodes}
+                        setShowModal={()=>showModalSitechanges()}
+                        showModal={showModal}
                       />
                     </CTabPane>
                     <CTabPane role="tabpanel" aria-labelledby="accepted-tab" visible={activeTab === 2}>                    
@@ -415,6 +418,8 @@ const Sitechanges = () => {
                         setBackToPending={setBackToPending}
                         updateModalValues={updateModalValues}
                         setSitecodes = {setCodes}
+                        setShowModal={()=>showModalSitechanges()}
+                        showModal={showModal}
                       />
                     </CTabPane>
                     <CTabPane role="tabpanel" aria-labelledby="rejected-tab" visible={activeTab === 3}>
@@ -428,8 +433,10 @@ const Sitechanges = () => {
                         setBackToPending={setBackToPending}
                         updateModalValues={updateModalValues}
                         setSitecodes = {setCodes}
+                        setShowModal={()=>showModalSitechanges()}
+                        showModal={showModal}
                       />
-                    </CTabPane>                    
+                    </CTabPane>
                     </CTabContent>
                   </CCol>
                 </CRow>
