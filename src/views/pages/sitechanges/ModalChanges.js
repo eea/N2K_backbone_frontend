@@ -313,7 +313,7 @@ export class ModalChanges extends Component {
     }
 }
 
-handleJustRequired(e){
+handleJustRequired(){
   let body = [{
     "SiteCode": this.state.data.SiteCode,
     "VersionId": this.state.data.Version,
@@ -321,9 +321,11 @@ handleJustRequired(e){
   }];  
   this.sendRequest(ConfigData.MARK_AS_JUSTIFICATION_REQUIRED, "POST", body)  
   .then((data)=> {
-    if(data?.ok){           
-      this.setState({justificationRequired: !this.state.justificationRequired})    
-      if(!this.state.justificationRequired) this.setState({justificationProvided: false})      
+    if(data?.ok){     
+      if(this.state.justificationRequired)
+        this.setState({justificationRequired: !this.state.justificationRequired, justificationProvided: false})
+      else
+        this.setState({justificationRequired: !this.state.justificationRequired})      
       return data;    
     }
     else {
