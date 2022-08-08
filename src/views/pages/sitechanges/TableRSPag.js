@@ -485,7 +485,7 @@ const IndeterminateCheckbox = React.forwardRef(
     }
   
     let loadData= ()=>{
-      
+     
       if(props.getRefresh()||(!isLoading && changesData!=="nodata" && Object.keys(changesData).length===0)){
 
         let promises=[];
@@ -517,6 +517,8 @@ const IndeterminateCheckbox = React.forwardRef(
       }
     }
     
+    console.log(props.country);
+    if(!props.country) return(<></>);
     loadData();
 
     if(isLoading)

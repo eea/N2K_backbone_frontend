@@ -33,9 +33,8 @@ const Sitechanges = () => {
 
   const defaultCountry = () => {
     const searchParams = new URLSearchParams(window.location.href.split('?')[1]);
-    const c = searchParams.get('country');
-    if(c) return c;
-    return "";
+    const parmCountry = searchParams.get('country');
+    return parmCountry?parmCountry:ConfigData.defaultCountry?ConfigData.defaultCountry:"";
   }
 
   const [activeTab, setActiveTab] = useState(1)
@@ -211,7 +210,7 @@ const Sitechanges = () => {
       }
       setCountries(countriesList);
       if(country === "")
-        setCountry(countries[0].code);
+        setCountry(countriesList[0]?.code);
     });      
   }
 
