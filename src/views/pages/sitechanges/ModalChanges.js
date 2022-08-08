@@ -317,17 +317,16 @@ handleJustRequired(){
   let body = [{
     "SiteCode": this.state.data.SiteCode,
     "VersionId": this.state.data.Version,
-    "Justification": !this.props.justificationRequired,
-  }];
-
+    "Justification": !this.state.justificationRequired,
+  }];  
   this.sendRequest(ConfigData.MARK_AS_JUSTIFICATION_REQUIRED, "POST", body)  
   .then((data)=> {
-    if(data?.ok){      
-      this.setState({justificationRequired: !this.state.justificationRequired})
-      this.setState({checked: !this.state.justificationRequired})      
-      this.setState({justificationProvided: !this.state.justificationRequired})
-      this.setState({checked: !this.state.checked})
-      return data;
+    if(data?.ok){     
+      if(this.state.justificationRequired)
+        this.setState({justificationRequired: !this.state.justificationRequired, justificationProvided: false})
+      else
+        this.setState({justificationRequired: !this.state.justificationRequired})      
+      return data;    
     }
     else {
       this.showErrorMessage("Justification Required", "Update failed");
@@ -340,14 +339,12 @@ handleJustProvided(){
   let body = [{
     "SiteCode": this.state.data.SiteCode,
     "VersionId": this.state.data.Version,
-    "Justification": !this.props.justificationProvided,
-  }];
-
+    "Justification": !this.state.justificationProvided,
+  }];  
   this.sendRequest(ConfigData.PROVIDE_JUSTIFICATION, "POST", body)  
   .then((data)=> {
     if(data?.ok){            
-      this.setState({justificationProvided: !this.state.justificationProvided})      
-      this.setState({checked: !this.state.checked})
+      this.setState({justificationProvided: !this.state.justificationProvided})                 
     }
     else {
       this.showErrorMessage("Justification Provided", "Update failed");
@@ -648,25 +645,7 @@ handleJustProvided(){
       </div>
     )
   }
-  
-  renderCheckbox(e){    
-    const stylePointer = (this.state.justificationRequired ? "" : "not-allowed");   
-    const disabled = (this.state.justificationRequired ? false : true);
-    return(      
-      <div className="checkbox" style={{cursor: stylePointer}} disabled={disabled}>
-        <input type="checkbox" className="input-checkbox" id="modal_justification_prov"         
-        onClick={(e)=>this.props.updateModalValues("Changes", `This will ${this.state.justificationProvided ? "unmark": "mark"} change as Justification Provided`, "Continue", ()=>this.handleJustProvided(), "Cancel", ()=>{})} 
-        checked={this.state.justificationProvided} 
-        disabled={disabled}
-        style={{cursor: stylePointer}}        
-        readOnly
-        />
-        <label htmlFor="modal_justification_prov" style={{cursor: stylePointer}} className="input-label" disabled={disabled}
-        >Justification provided</label>
-      </div>
-    )
-  }
-  
+
   renderAttachments(){    
     return(
       <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 3}>
@@ -702,11 +681,24 @@ handleJustProvided(){
           <CCol className="d-flex">
             <div className="checkbox">              
               <input type="checkbox" className="input-checkbox" id="modal_justification_req"               
-              onClick={(e)=>this.props.updateModalValues("Changes", `This will ${this.state.justificationRequired ? "unmark" : "mark"} change as Justification Required`, "Continue", ()=>this.handleJustRequired(), "Cancel", ()=>{})}               
-              checked={this.state.justificationRequired}/>
+              onClick={()=>this.props.updateModalValues("Changes", `This will ${this.state.justificationRequired ? "unmark" : "mark"} change as Justification Required`, "Continue", ()=>this.handleJustRequired(), "Cancel", ()=>{})}               
+              checked={this.state.justificationRequired}
+              readOnly
+              />
+              
               <label htmlFor="modal_justification_req" className="input-label">Justification required</label>              
+            </div>                            
+            <div className="checkbox" style={{cursor: this.state.justificationRequired ? "" : "not-allowed"}} disabled={(this.state.justificationRequired ? false : true)}>
+              <input type="checkbox" className="input-checkbox" id="modal_justification_prov"         
+                onClick={()=>this.props.updateModalValues("Changes", `This will ${this.state.justificationProvided ? "unmark": "mark"} change as Justification Provided`, "Continue", ()=>this.handleJustProvided(), "Cancel", ()=>{})} 
+                checked={this.state.justificationProvided} 
+                disabled={(this.state.justificationRequired ? false : true)}
+                style={{cursor: this.state.justificationRequired ? "" : "not-allowed"}}
+                readOnly
+              />
+              <label htmlFor="modal_justification_prov" style={{cursor: this.state.justificationRequired ? "" : "not-allowed"}} className="input-label" disabled={(this.state.justificationRequired ? false : true)}
+              >Justification provided</label>
             </div>
-            {this.renderCheckbox()}
           </CCol>
         </CRow>
       </CTabPane>
