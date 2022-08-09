@@ -153,10 +153,19 @@
       width: 10px;
       height: 12px;
       cursor: pointer;
-      border-bottom: solid 3px #22a4fb;
+      border-bottom: solid 3px $blue;
     }
   }
   .badge {
     font-weight: bold;
+  }
+}
+form {
+  label {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+  }
+  .form-control:disabled {
+    background: #e5e5e580;
   }
 }
