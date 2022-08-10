@@ -342,6 +342,7 @@ const Sitechanges = () => {
                       onSelect={(e)=>selectSearchOption(e)}
                       ref={turnstoneRef}
                       Item={item}
+                      typeahead={false}
                     />
                     <span className="btn-icon" onClick={()=>clearSearch()}>
                       <i className="fa-solid fa-xmark"></i>
