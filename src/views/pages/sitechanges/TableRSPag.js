@@ -93,7 +93,7 @@ const IndeterminateCheckbox = React.forwardRef(
   fuzzyTextFilterFn.autoRemove = val => !val
 
   function Table({ columns, data, setSelected, siteCodes, currentPage, currentSize, loadPage, status }) {
-
+    const [disabledBtn, setDisabledBtn] = useState(false);
     const [pgCount, setPgCount] = useState(Math.ceil(siteCodes.length / currentSize));
 
     const filterTypes = React.useMemo(
@@ -171,14 +171,26 @@ const IndeterminateCheckbox = React.forwardRef(
     )
 
     if(setSelected) setSelected(Object.keys(selectedRowIds).filter(v=>!v.includes(".")).map(v=>{return {SiteCode:data[v].SiteCode, VersionId: data[v].Version}}));
-
+    
     let changePage = (page,chunk)=>{
       loadPage(page,pageSize);
-    }
-
+    }    
+       
     // Render the UI for your table
     return (
-      <>        
+      <>     
+      {Object.keys(selectedRowIds).length > 0 ?
+       <div className='message-board'>
+           <span className="message-board-text">All {Object.keys(selectedRowIds).length} sitecodes on this page are selected</span>
+           <span className="message-board-link">Select all {} Sitecodes </span>
+          {/* <p>Selected Rows: {Object.keys(selectedRowIds).length}</p>
+          <p>Rows per page: {pageSize}</p>
+          <p>Total pagination: {pageSize * pageCount}</p>
+          <p>Select all {siteCodes.length} elements</p>
+          <p>Total pagination - siteCodes {((pageSize * pageCount-pageSize) - siteCodes.length)}</p>
+          <p>{pgCount}</p> */}
+        </div> : null
+      }
         <table  className="table" {...getTableProps()}>
           <thead>
             {headerGroups.map(headerGroup => (
@@ -267,6 +279,7 @@ const IndeterminateCheckbox = React.forwardRef(
     const [currentPage, setCurrentPage] = useState(0);
     const [currentSize, setCurrentSize] = useState(30);
     const [levelCountry, setLevelCountry] = useState({});
+    const [pageCount, setPageCount] = useState(0);
 
     let forceRefreshData = ()=> setChangesData({});
 
