@@ -1,7 +1,8 @@
-import React, { lazy, useState } from 'react'
+import React, { lazy, useState, useRef } from 'react'
 import { AppFooter, AppHeader } from '../../../components/index'
 import ConfigData from '../../../config.json';
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import Turnstone from 'turnstone';
 
 import {
   CButton,
@@ -30,6 +31,8 @@ const Siteedition = () => {
       }));
     }
   });
+  const [disabledSearchBtn, setDisabledSearchBtn] = useState(true);
+  const turnstoneRef = useRef();
 
   let openModal = (data)=>{
     setModalVisible(true);
@@ -48,8 +51,27 @@ const Siteedition = () => {
   let forceRefreshData = ()=> setSitecodes([]);
 
   let clearSearch = () => {
-    document.getElementById("siteedition_search").value = "";
+    turnstoneRef.current?.clear();
     setDisabledSearchBtn(true);
+  }
+
+  let selectSearchOption = (e) => {
+    if (e) {
+      setDisabledSearchBtn(false);
+      setSelectOption(e);
+    }
+    else {
+      setDisabledSearchBtn(true);
+    }
+  }
+
+  const item = (props) => {
+    return (
+      <div className="search--option">
+        <div>{props.item.Name}</div>
+        <div className="search--suboption">{props.item.SiteCode}</div>
+      </div>
+    )
   }
 
   let loadData = () => {
@@ -153,16 +175,23 @@ const Siteedition = () => {
             <CRow>
               <CCol md={12} lg={6} xl={9} className="d-flex mb-4">
                 <div className="search--input">
-                  <CFormInput
+                  <Turnstone
                     id="siteedition_search"
-                    placeholder="Search sites by site name, site code or country"
-                    autoComplete="off"
+                    className="form-control"
+                    //listbox = {searchList}
+                    placeholder="Search sites by site name or site code"
+                    noItemsMessage="Site not found"
+                    styles={{input:"form-control", listbox:"search--results", groupHeading:"search--group", noItemsMessage:"search--option"}}
+                    onSelect={(e)=>selectSearchOption(e)}
+                    ref={turnstoneRef}
+                    Item={item}
+                    typeahead={false}
                   />
                   <span className="btn-icon" onClick={()=>clearSearch()}>
                     <i className="fa-solid fa-xmark"></i>
                   </span>
                 </div>
-                <CButton>
+                <CButton disabled={disabledSearchBtn}>
                   <i className="fa-solid fa-magnifying-glass"></i>
                 </CButton>
               </CCol>
