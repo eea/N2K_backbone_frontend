@@ -1,87 +1,33 @@
-import React, { lazy } from 'react'
+import React from 'react'
 
 import {
   CCard,
   CCardBody,
-  CCardImage,
   CCardText,
   CFormLabel,
   CCol,
   CFormSelect,
   CContainer,
   CRow,
-  CCardTitle,
   CButton,
   CImage
 } from '@coreui/react'
 
-import {
-  CChartBar,
-  CChartLine,
-  CChartPie,  
-} from '@coreui/react-chartjs'
-
 import '@fortawesome/fontawesome-free/css/all.min.css';
-
-import MapImg from './../../assets/images/map.jpg'
-import moreicon from './../../assets/images/three-dots.svg'
 
 import justificationrequired from './../../assets/images/exclamation.svg'
 import justificationprovided from './../../assets/images/file-text.svg'
-import trash from './../../assets/images/trash.svg'
-import flag from './../../assets/images/flag.svg'
 
-import albania from './../../../src/assets/images/flags/albania.png'
-import austria from './../../../src/assets/images/flags/austria.png'
-import belgium from './../../../src/assets/images/flags/belgium.png'
-import bulgaria from './../../../src/assets/images/flags/bulgaria.png'
-
-import croatia from './../../../src/assets/images/flags/croatia.png'
-import cyprus from './../../../src/assets/images/flags/cyprus.png'
-import czech from './../../../src/assets/images/flags/czech.png'
-import denmark from './../../../src/assets/images/flags/denmark.png'
-
-import estonia from './../../../src/assets/images/flags/estonia.png'
-import finland from './../../../src/assets/images/flags/finland.png'
-import france from './../../../src/assets/images/flags/france.png'
-import germany from './../../../src/assets/images/flags/germany.png'
-
-import greece from './../../../src/assets/images/flags/greece.png'
-import hungary from './../../../src/assets/images/flags/hungary.png'
-import iceland from './../../../src/assets/images/flags/iceland.png'
-
-import ireland from './../../../src/assets/images/flags/ireland.png'
-import italy from './../../../src/assets/images/flags/italy.png'
-import latvia from './../../../src/assets/images/flags/latvia.png'
-import liechtenstein from './../../../src/assets/images/flags/liechtenstein.png'
-
-import lithuania from './../../../src/assets/images/flags/lithuania.png'
-import luxembourg from './../../../src/assets/images/flags/luxembourg.png'
-import macedonia from './../../../src/assets/images/flags/macedonia.png'
-import malta from './../../../src/assets/images/flags/malta.png'
-
-import montenegro from './../../../src/assets/images/flags/montenegro.png'
-import netherlands from './../../../src/assets/images/flags/netherlands.png'
-import norway from './../../../src/assets/images/flags/norway.png'
-import poland from './../../../src/assets/images/flags/poland.png'
-
-import portugal from './../../../src/assets/images/flags/portugal.png'
-import romania from './../../../src/assets/images/flags/romania.png'
-import serbia from './../../../src/assets/images/flags/serbia.png'
-import slovakia from './../../../src/assets/images/flags/slovakia.png'
-
-import slovenia from './../../../src/assets/images/flags/slovenia.png'
-import spain from './../../../src/assets/images/flags/spain.png'
-import sweden from './../../../src/assets/images/flags/sweden.png'
-import switzerland from './../../../src/assets/images/flags/switzerland.png'
+import PendingCards from './components/PendingCards';
+import SiteGraph from './components/SiteGraph';
 
 const Dashboard = () => {  
-  let countries = ['Albania', 'Austria', 'Belgium', 'Bulgaria','Croatia', 'Cyprus', 'Czech Republic', 'Denmark', 'Estonia', 'Finland', 'France', 'Germany', 'Greece', 'Hungary', 'Iceland', 'Ireland', 'Italy', 'Latvia', 'Liechtenstein', 'Lithuania', 'Luxembourg', 'North Macedonia', 'Malta', 'Montenegro', 'Netherlands', 'Norway', 'Poland', 'Portugal', 'Romania', 'Serbia', 'Slovakia', 'Slovenia', 'Spain', 'Sweden', 'Switzerland'];
+
   return (
     <>
       <CContainer fluid>
         <div className="dashboard-title">
-          <div className="select--right m-0">
+          <div hidden className="select--right m-0">
             <CFormLabel htmlFor="exampleFormControlInput1" className="form-label form-label-reporting col-md-4 col-form-label">Country</CFormLabel>
               <CFormSelect aria-label="Default select example" className="form-select-reporting">
                 <option>All</option>
@@ -160,51 +106,13 @@ const Dashboard = () => {
               </div>
               </CRow>
           </div>
-          <div className="dashboard-title">
-            <h1 className="h1-main me-5">Countries</h1>
-            <div>
-              <span className="badge badge--all active me-2">All</span>
-              <span className="badge badge--critical radio me-2"><b>17</b> Critical</span>
-              <span className="badge badge--warning me-2"><b>15</b> Warning</span>
-              <span className="badge badge--info me-2"><b>18</b> Info</span>
-            </div>
+          <div>
+            <PendingCards />
           </div>
-          <div className="bg-white rounded-2 mb-5">
-            <CRow className="grid">
-              {countries.map((country)=>{
-                let countryPath = country.toLowerCase();
-                if (countryPath.includes("czech")) {
-                  countryPath = countryPath.split(" ")[0];
-                } else if (countryPath.includes("macedonia")) {
-                  countryPath = countryPath.split(" ")[1]
-                }
-                return (
-                  <CCol xs={12} md={6} lg={4} xl={3}>
-                    <CCard className="country-card">
-                      <div className="country-card-left">
-                        <CCardImage className="card-img--flag" src={require("./../../../src/assets/images/flags/" + countryPath + ".png")} width="32px" />
-                      </div>
-                      <div className="country-card-right">
-                        <div className="country-card-header">
-                          <span className="country-card-title">{country}</span>
-                          <i className="fa-solid fa-arrow-right"></i>
-                        </div>
-                        <div className="country-card-body">
-                          <span className="badge color--critical"><b>2</b> Critical</span>
-                          <span className="badge color--warning"><b>7</b> Warning</span>
-                          <span className="badge color--info"><b>2</b> Info</span>
-                        </div>
-                      </div>
-                    </CCard>
-                  </CCol>
-                )
-              })}
-            </CRow>
-          </div>
-          <div className="dashboard-title">
+          <div hidden className="dashboard-title">
             <h1 className="h1-main">Pending Changes</h1>
           </div>
-          <div className="bg-white rounded-4 mb-5">
+          <div hidden className="bg-white rounded-4 mb-5">
             <CRow className="grid">
               <CCol xs={12} md={6} lg={4} xl={3}>
                 <CCard className="pending-card">
@@ -285,71 +193,7 @@ const Dashboard = () => {
           </div>
           <div className="container-card-dashboard mb-5">
             <CRow className="grid">
-              <CCol xs={12} md={4} lg={4}>
-                <CCard className="chart-card">
-                  <h3>Activity (accepted/rejected changes)</h3>
-                    <CChartBar
-                      height={"300px"}
-                      data={{
-                        labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-                        datasets: [
-                          {
-                            backgroundColor: '#1F4E79',
-                            data: [40, 20, 12, 39, 10, 40, 39, 80, 40],
-                          },
-                        ],
-                      }}
-                      labels="months"
-                    />
-                </CCard>
-              </CCol>
-              <CCol xs={12} md={4} lg={4}>
-                <CCard className="chart-card">
-                  <h3>Recent site changes per country</h3>
-                  <CChartPie
-                    height={"300px"}
-                    data={{
-                      labels: ['Spain', 'Italy', 'France', 'Poland'],
-                      datasets: [
-                        { 
-                          data: [100, 300, 50, 100],
-                          backgroundColor: ['#D0E3F4', '#ADCDF1', '#418BCF', '#1F4E79'],
-                        },
-                      ],
-                    }}
-                    labels="Percentage"
-                  />
-                </CCard>
-              </CCol>
-              <CCol xs={12} md={4} lg={4}>
-                <CCard className="chart-card">
-                  <h3>Submissions received and pending</h3>
-                  <CChartLine
-                    height={"300px"}
-                    data={{
-                      labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-                      datasets: [
-                        {
-                          label: 'My First dataset',
-                          backgroundColor: '#1F4E79',
-                          borderColor: 'rgba(220, 220, 220, 1)',
-                          pointBackgroundColor: 'rgba(220, 220, 220, 1)',
-                          pointBorderColor: '#fff',
-                          data: [40, 20, 12, 39, 10, 40, 39, 80, 40],
-                        },
-                        {
-                          label: 'My Second dataset',
-                          backgroundColor: 'rgba(151, 187, 205, 0.2)',
-                          borderColor: 'rgba(151, 187, 205, 1)',
-                          pointBackgroundColor: 'rgba(151, 187, 205, 1)',
-                          pointBorderColor: '#fff',
-                          data: [50, 12, 28, 29, 7, 25, 12, 70, 60],
-                        },
-                      ],
-                    }}
-                  />
-                </CCard>
-              </CCol>
+              <SiteGraph />
             </CRow>
           </div>
       </CContainer>

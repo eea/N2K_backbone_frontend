@@ -33,21 +33,15 @@
     }
   }
 }
-.form-select {
-  border-color: $gray-300;
-  line-height: normal;
+.form-select{
   cursor: pointer;
-  &:focus {
-    border: solid 1px #000015 !important;
-    box-shadow: none !important;
-  }
 }
 .select--right {
-    display: flex;
-    align-items: center;
-    line-height: 1.5;
-    justify-content: end;
-    width: 100%;
+  display: flex;
+  align-items: center;
+  line-height: 1.5;
+  justify-content: end;
+  width: 100%;
 }
 .search--input {
   position: relative;
@@ -214,10 +208,19 @@
       width: 10px;
       height: 12px;
       cursor: pointer;
-      border-bottom: solid 3px #22a4fb;
+      border-bottom: solid 3px $blue;
     }
   }
   .badge {
     font-weight: bold;
+  }
+}
+form {
+  label {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+  }
+  .form-control:disabled {
+    background: #e5e5e580;
   }
 }
