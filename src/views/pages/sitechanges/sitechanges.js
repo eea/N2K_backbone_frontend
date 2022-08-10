@@ -58,7 +58,7 @@ const Sitechanges = () => {
     return Object.keys(siteCodes).map( v=>{
         return {
           name: v,
-          data: siteCodes[v].map?siteCodes[v].map(x=>({"search":x.SiteCode+" - "+x.Name,...x})):[],
+          data: siteCodes[v].map?siteCodes[v].map(x=>({"search":x.SiteCode+" - "+x.Name,"status":v,...x})):[],
           searchType: "contains",
         }
       }
@@ -165,7 +165,7 @@ const Sitechanges = () => {
     return postRequest(ConfigData.MARK_AS_JUSTIFICATION_REQUIRED, rBody)
     .then(data => {
       if(data.ok){
-        forceRefreshData();
+        forceRefreshData();        
       }
       else 
         alert("something went wrong!");
@@ -336,7 +336,6 @@ const Sitechanges = () => {
                       onSelect={(e)=>selectSearchOption(e)}
                       ref={turnstoneRef}
                       Item={item}
-                      typeahead={false}
                     />
                     <span className="btn-icon" onClick={()=>clearSearch()}>
                       <i className="fa-solid fa-xmark"></i>

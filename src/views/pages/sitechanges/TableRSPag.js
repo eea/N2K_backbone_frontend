@@ -282,14 +282,16 @@ const IndeterminateCheckbox = React.forwardRef(
     }
 
     let showModal = (data) => {
-      if (Object.keys(modalItem).length === 0) {
+      if ((Object.keys(modalItem).length === 0) &&
+      (data.status === props.status)
+      ) {
         openModal(data);
       }
     }
 
     let openModal = (data)=>{
-      setModalVisible(true);
       setModalItem(data);
+      setModalVisible(true);
     }
   
     let closeModal = (refresh)=>{
@@ -415,6 +417,10 @@ const IndeterminateCheckbox = React.forwardRef(
         {
           Header: 'Change Type',
           accessor: 'ChangeType',
+        },
+        {
+          Header: 'Country',
+          accessor: 'Country',
         },
         {
           Header: () => null,
