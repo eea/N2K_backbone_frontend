@@ -13,9 +13,9 @@ class MapViewer extends React.Component {
 
     componentDidMount(){
         loadModules(
-            ["esri/Map", "esri/views/MapView", "esri/widgets/Zoom", "esri/layers/GeoJSONLayer"],
+            ["esri/Map", "esri/views/MapView", "esri/widgets/Zoom", "esri/layers/GeoJSONLayer", "esri/widgets/LayerList"],
             { css: true }
-          ).then(([Map, MapView, Zoom, _GeoJSONLayer]) => {
+          ).then(([Map, MapView, Zoom, _GeoJSONLayer, LayerList]) => {
             GeoJSONLayer = _GeoJSONLayer;
             this.map = new Map({
               basemap: "topo"
@@ -39,27 +39,81 @@ class MapViewer extends React.Component {
                 position: "top-right"
             });
 
+            let layerList = new LayerList({view: this.view});
+            this.view.ui.add(layerList,{position: "top-right"});
+
             this.getGeometry(this.props.siteCode,'0');
         });
 
     }
 
     getGeometry(code,version){
-        let url=
+        let url1=
         `https://maps-corda.eea.europa.eu/arcgis/rest/services/N2KBackbone/N2KBackboneReference/MapServer/0/query?where=SiteCode%3D%27${code}%27+AND+Version%3D%27${version}%27&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=&having=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&historicMoment=&returnDistinctValues=false&resultOffset=&resultRecordCount=&queryByDistance=&returnExtentOnly=false&datumTransformation=&parameterValues=&rangeValues=&quantizationParameters=&featureEncoding=esriDefault&f=geojson`;
+        let url2=
+        `https://n2kbackboneback-dev.azurewebsites.net/api/SiteDetails/GetSiteGeometry/siteCode=${code}&version=${version}`;
 
-        fetch(url)
+        fetch(url1)
         .then(response => response.json())
         .then(data => {
+            console.log(data);
             const blob = new Blob([JSON.stringify(data)], {
                 type: "application/json"
             });
-            const url = URL.createObjectURL(blob);
-            let geojsonLayer = new GeoJSONLayer({
+            let         url = URL.createObjectURL(blob);
+
+            const renderer = {
+                type : "simple",
+                symbol : {
+                    type : "simple-fill",
+                    color : "green", 
+                    outline : { 
+                        color : "white",
+                        width : 0.7
+                    }
+                }};
+
+            let geojsonRef = new GeoJSONLayer({
+                url,
+                renderer: renderer
+            });
+            geojsonRef.title = "Reference geometry";
+            this.map.add(geojsonRef);
+        });
+
+        fetch(url2)
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+
+            //Reported Geometry
+            let reportedGeo = JSON.parse(data.Data.ReportedGeom);
+            console.log(reportedGeo);
+            const blobRep = new Blob([JSON.stringify(reportedGeo)], {
+            //const blob = new Blob([JSON.stringify(data)], {
+                type: "application/json"
+            });
+            let url = URL.createObjectURL(blobRep);
+            let geojsonRep = new GeoJSONLayer({
                 url
             });
-            this.map.add(geojsonLayer);
-            geojsonLayer.when(a=>this.view.extent = geojsonLayer.fullExtent);
+            geojsonRep.title = "Reported geometry";
+            this.map.add(geojsonRep);
+            geojsonRep.when(a=>this.view.extent = geojsonRep.fullExtent);
+            /*
+            //Reference Geometry
+            let referenceGeo = JSON.parse(data.Data.ReferenceGeom);
+            console.log(referenceGeo);
+            const blobRef = new Blob([JSON.stringify(referenceGeo)], {
+                type: "application/json"
+            });
+            url = URL.createObjectURL(blobRef);
+            let geojsonRef = new GeoJSONLayer({
+                url
+            });
+            geojsonRef.title = "Reference geometry";
+            this.map.add(geojsonRef);
+            */
         });
 
     }
