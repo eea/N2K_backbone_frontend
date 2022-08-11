@@ -92,7 +92,7 @@ const IndeterminateCheckbox = React.forwardRef(
   
   fuzzyTextFilterFn.autoRemove = val => !val
 
-  function Table({ columns, data, setSelected, siteCodes, currentPage, currentSize, loadPage, status }) {
+  function Table({ columns, data, setSelected, siteCodes, currentPage, currentSize, loadPage, status, updateModalValues }) {
     const [disabledBtn, setDisabledBtn] = useState(false);
     const [pgCount, setPgCount] = useState(Math.ceil(siteCodes.length / currentSize));
 
@@ -175,20 +175,13 @@ const IndeterminateCheckbox = React.forwardRef(
     let changePage = (page,chunk)=>{
       loadPage(page,pageSize);
     }    
-       
     // Render the UI for your table
     return (
       <>     
-      {Object.keys(selectedRowIds).length > 0 ?
-       <div className='message-board'>
-           <span className="message-board-text">All {Object.keys(selectedRowIds).length} sitecodes on this page are selected</span>
-           <span className="message-board-link">Select all {} Sitecodes </span>
-          {/* <p>Selected Rows: {Object.keys(selectedRowIds).length}</p>
-          <p>Rows per page: {pageSize}</p>
-          <p>Total pagination: {pageSize * pageCount}</p>
-          <p>Select all {siteCodes.length} elements</p>
-          <p>Total pagination - siteCodes {((pageSize * pageCount-pageSize) - siteCodes.length)}</p>
-          <p>{pgCount}</p> */}
+      {Object.keys(selectedRowIds).length > 0 && status === 'pending' ?
+        <div className='message-board'>          
+          <span className="message-board-text">You selected the {page.length} sites of this page</span>
+          <span className="message-board-link" onClick={()=>updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(selectedCodes), "Cancel", ()=>{})}>Select {siteCodes.length} sites </span>           
         </div> : null
       }
         <table  className="table" {...getTableProps()}>
@@ -573,6 +566,8 @@ const IndeterminateCheckbox = React.forwardRef(
             currentSize={currentSize} 
             loadPage = {loadPage}
             status={props.status}
+            updateModalValues={props.updateModalValues}
+
           />
           {props.showModal && showModal(props.showModal)}
           <ModalChanges visible = {modalVisible} 
