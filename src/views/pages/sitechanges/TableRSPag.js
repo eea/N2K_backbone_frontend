@@ -294,12 +294,21 @@ const IndeterminateCheckbox = React.forwardRef(
       forceRefreshData();
     }
 
+    let showModal = (data) => {
+      if ((Object.keys(modalItem).length === 0) &&
+      (data.status === props.status)
+      ) {
+        openModal(data);
+      }
+    }
+
     let openModal = (data)=>{
-      setModalVisible(true);
       setModalItem(data);
+      setModalVisible(true);
     }
   
     let closeModal = (refresh)=>{
+      props.setShowModal();
       setModalVisible(false);
       setModalItem({});
       if(refresh) forceRefreshData(); //To force refresh
@@ -423,10 +432,6 @@ const IndeterminateCheckbox = React.forwardRef(
           accessor: 'ChangeType',
         },
         {
-          Header: 'Country',
-          accessor: 'Country',
-        },
-        {
           Header: () => null,          
           accessor: 'Justification',          
           Cell: ({row}) => (<>
@@ -511,6 +516,7 @@ const IndeterminateCheckbox = React.forwardRef(
       return fetch(url)
       .then(response => response.json())
       .then(data => {
+        props.setSitecodes(props.status,data.Data);
         setSitecodes(data.Data);
       });      
     }
@@ -567,7 +573,8 @@ const IndeterminateCheckbox = React.forwardRef(
             currentSize={currentSize} 
             loadPage = {loadPage}
             status={props.status}
-          />        
+          />
+          {props.showModal && showModal(props.showModal)}
           <ModalChanges visible = {modalVisible} 
                         close = {closeModal} 
                         accept={()=>acceptChanges(modalItem)} 
