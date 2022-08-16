@@ -133,6 +133,7 @@ const IndeterminateCheckbox = React.forwardRef(
       previousPage,
       setPageSize, 
       initialExpanded,
+      isAllPageRowsSelected,      
       state: { pageIndex, pageSize, selectedRowIds, expanded, expandSubRows },
     } = useTable(
       {
@@ -178,7 +179,7 @@ const IndeterminateCheckbox = React.forwardRef(
     // Render the UI for your table
     return (
       <>     
-      {Object.keys(selectedRowIds).length > 0 && status === 'pending' ?
+      {isAllPageRowsSelected && status === 'pending' ?
         <div className='message-board'>          
           <span className="message-board-text">You selected the {page.length} sites of this page</span>
           <span className="message-board-link" onClick={()=>updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(selectedCodes), "Cancel", ()=>{})}>Select {siteCodes.length} sites </span>           
