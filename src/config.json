@@ -21,6 +21,11 @@
     "DELETE_ATTACHED_FILE":"https://n2kbackboneback-dev.azurewebsites.net/api/SiteDetails/DeleteAttachedFile",
     "GET_PENDING_LEVEL":"https://n2kbackboneback-dev.azurewebsites.net/api/Countries/GetPendingLevel",
     "GET_SITE_COUNT":"https://n2kbackboneback-dev.azurewebsites.net/api/Countries/GetSiteCount",
+    "SITEEDITION_GET":"https://n2kbackboneback-dev.azurewebsites.net/api/SiteChanges/GetSiteCodes/",
+    "SITEDETAIL_GET":"https://n2kbackboneback-dev.azurewebsites.net/api/SiteDetails/GetReferenceEditInfo",
+    "SITEDETAIL_SAVE":"https://n2kbackboneback-dev.azurewebsites.net/api/SiteDetails/SaveEdition",
+    "SITETYPES_GET": "https://n2kbackboneback-dev.azurewebsites.net/api/MasterData/MasterData/GetSiteTypes",
+    "BIOREGIONS_GET": "https://n2kbackboneback-dev.azurewebsites.net/api/MasterData/MasterData/GetBioRegionTypes",
     "THEME_COLORS": {
       "PRIMARY": "#007bff",
       "SECONDARY": "#fc3"

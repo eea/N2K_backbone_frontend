@@ -75,17 +75,17 @@ export class ModalEdition extends Component {
     return this.props.visible;
   }
 
-  showErrorMessage(target, message) {
+  showErrorMessage(message) {
     this.setState({notValidField: message});
     setTimeout(() => {
       this.setState({notValidField: ""});
     }, 5000);
   }
 
-  renderFields(data){
+  renderFields(){
     return(
       <CTabPane role="tabpanel" aria-labelledby="home-tab" visible={this.state.activeKey === 1}>
-        <CForm>
+        <CForm id="siteedition_form">
           <CRow className="p-3">
             {this.state.notValidField &&
               <CAlert color="danger">
@@ -101,82 +101,175 @@ export class ModalEdition extends Component {
 
   createFieldElement(){
     let fields = [];
-    //let data = this.state.data;
-    let data = {"SiteCode":"DE1011401","Name":"SPA Östliche Deutsche Bucht","Type":"Habitat Directive Sites", "BioReg":"Atlantic","Area":"31.4","Length":"12","CentreX":"00.0","CentreY":"00.0"};
+    let data = this.state.data;
+    data = JSON.parse(JSON.stringify( data, ["SiteCode","SiteName","SiteType","BioRegion","Area","Length","CentreX","CentreY"]));
     for(let i in Object.keys(data)){
       let field = Object.keys(data)[i]
+      let id = "field_" + field;
       let value = data[field];
-      let disabled = false;
-      let type = "text";
-      let options = [];
       let label;
       let placeholder;
+      let name = field;
       switch (field) {
         case "SiteCode":
           label = "Site Code";
           placeholder = "Site code";
-          disabled = true;
           break;
-        case "Name":
+        case "SiteName":
           label = "Site Name";
           placeholder = "Site name";
           break;
-        case "Type":
+        case "SiteType":
           label = "Site Type";
           placeholder = "Select site type";
-          options = [
-            "Habitats Directive Sites",
-            "Habitats Directive Sites"
-          ]
-          type = "select"
           break;
-        case "BioReg":
+        case "BioRegion":
           label = "Biogeographycal region";
           placeholder = "Select a region";
-          options = [
-            "Alpine",
-            "Atlantic",
-            "Black Sea",
-            "Boreal",
-            "Continental",
-            "Macaronesian",
-            "Mediterranean",
-            "Pannonian",
-            "Steppic"
-          ]
-          type = "select"
           break;
         case "Area":
           label = "Area";
           placeholder = "Site area";
-          type = "number"
           break;
         case "Length":
           label = "Length";
           placeholder = "Site length";
-          type = "number"
           break;
         case "CentreX":
           label = "Centre X";
           placeholder = "Site centre location longitude";
-          type = "number"
           break;
         case "CentreY":
           label = "Centre Y";
           placeholder = "Site centre location latitude";
-          type = "number"
           break;
       }
       fields.push(
         <CCol xs={12} md={12} lg={6} key={"fd_"+field} className="mb-4">
-          <label>{label}</label>
-          {type === "select" &&
+          {field === "SiteCode" &&
+            <>
+              <label>{label}</label>
+                <CFormInput
+                id={id}
+                name={name}
+                type="text"
+                defaultValue={value}
+                placeholder={placeholder}
+                autoComplete="off"
+                disabled={true}
+              />
+            </>
+          }
+          {field === "SiteName" &&
+            <>
+              <label>{label}</label>
+                <CFormInput
+                id={id}
+                name={name}
+                type="text"
+                defaultValue={value}
+                placeholder={placeholder}
+                autoComplete="off"
+              />
+            </>
+          }
+          {field === "SiteType" &&
+            <>
+              <label>{label}</label>
+              <CFormSelect
+                id={id}
+                name={name}
+                defaultValue={value}
+                placeholder={placeholder}
+              >
+                {this.props.types.map((elem, index) => <option value={elem.Code} key={"opt_type_"+index}>{elem.Classification}</option>)}
+              </CFormSelect>
+            </>
+          }
+          {field === "BioRegion" &&
+            <>
+              <label>{label}</label>
+              <CFormSelect
+                id={id}
+                name={name}
+                defaultValue={value}
+                placeholder={placeholder}
+                multiple
+              >
+                {this.props.regions.map((elem, index) => <option value={elem.Code} key={"opt_reg_"+index}>{elem.RefBioGeoName}</option>)}
+              </CFormSelect>
+            </>
+          }
+          {field === "Area" &&
+            <>
+              <label>{label}</label>
+              <CFormInput
+                id={id}
+                name={name}
+                type="number"
+                defaultValue={value}
+                placeholder={placeholder}
+                autoComplete="off"
+              />
+            </>
+          }
+          {field === "Length" &&
+            <>
+              <label>{label}</label>
+              <CFormInput
+                id={id}
+                name={name}
+                type="number"
+                defaultValue={value}
+                placeholder={placeholder}
+                autoComplete="off"
+              />
+            </>
+          }
+          {field === "CentreX" &&
+            <>
+              <label>{label}</label>
+              <CFormInput
+                id={id}
+                name={name}
+                type="number"
+                defaultValue={value}
+                placeholder={placeholder}
+                autoComplete="off"
+              />
+            </>
+          }
+          {field === "CentreY" &&
+            <>
+              <label>{label}</label>
+              <CFormInput
+                id={id}
+                name={name}
+                type="number"
+                defaultValue={value}
+                placeholder={placeholder}
+                autoComplete="off"
+              />
+            </>
+          }
+          {/* <label>{label}</label>
+          {type === "types" &&
             <CFormSelect
               id={"field_"+field}
               defaultValue={value}
               placeholder={placeholder}
             >
-              {options.map((element, index) => <option key={index}>{element}</option>) }
+              {options.map((elem, index) => <option value={elem.Code} key={"opt_type_"+index}>{elem.Classification}</option>)}
+            </CFormSelect>
+          }
+          {type === "regions" &&
+            <CFormSelect
+              id={"field_"+field}
+              defaultValue={value}
+              placeholder={placeholder}
+              multiple
+            >
+              {options.map((elem, index) => <option value={elem.Code} key={"opt_reg_"+index}>{elem.RefBioGeoName}</option>)}
             </CFormSelect>
           }
           {type === "text" &&
@@ -197,7 +290,7 @@ export class ModalEdition extends Component {
               placeholder={placeholder}
               autoComplete="off"
             />
-          }
+          } */}
         </CCol>
       )
     }
@@ -209,7 +302,7 @@ export class ModalEdition extends Component {
     return(
       <>
         <CModalHeader>
-          <CModalTitle>{data.SiteCode} - {data.Name}</CModalTitle>
+          <CModalTitle>{data.SiteCode} - {data.SiteName}</CModalTitle>
         </CModalHeader>
         <CModalBody>
           <CNav variant="tabs" role="tablist">
@@ -224,12 +317,12 @@ export class ModalEdition extends Component {
             </CNavItem>
           </CNav>
           <CTabContent>
-            {this.renderFields(data)}
+            {this.renderFields()}
           </CTabContent>
         </CModalBody>
         <CModalFooter>
           <div className="d-flex w-100 justify-content-between">
-            <CButton color="secondary" onClick={()=>this.updateModalValues("Cancel changes", "This will cancel the site changes", "Continue", ()=>this.cancelChanges(), "Cancel", ()=>{})}>Cancel</CButton>
+            <CButton color="secondary" onClick={()=>this.cancelChanges()}>Cancel</CButton>
             <CButton color="primary" onClick={()=>this.updateModalValues("Save changes", "This will save the site changes", "Continue", ()=>this.saveChanges(), "Cancel", ()=>{})}>Save</CButton>
           </div>
         </CModalFooter>
@@ -264,7 +357,7 @@ export class ModalEdition extends Component {
 
   loadData(){
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
-      fetch(ConfigData.SITECHANGES_DETAIL+`siteCode=${this.props.item}&version=${this.props.version}`) //add correct URL
+      fetch(ConfigData.SITEDETAIL_GET+"?siteCode="+this.props.item)
       .then(response => response.json())
       .then(data =>
         this.setState({data: data.Data, loading: false})
@@ -273,11 +366,28 @@ export class ModalEdition extends Component {
   }
 
   saveChanges(){
-    fetch(ConfigData.SITECHANGES_DETAIL+`siteCode=${this.props.item}&version=${this.props.version}`) //add correct URL
-    .then((data) => {
-      if(data?.ok)
-        this.close(true);
-    });
+    let body = Object.fromEntries(new FormData(document.querySelector("form")));
+    body.BioRegion = Array.from(document.getElementsByName("BioRegion")).map(el => el.value);
+    body.Area = +body.Area;
+    body.Length = +body.Length;
+    body.CentreX = +body.CentreX;
+    body.CentreY = +body.CentreY;
+    body.Version = this.props.version;
+    body.SiteCode = this.props.item;
+    if(Object.values(body).some(val => val === null || val === "")){
+      this.showErrorMessage("Empty fields are not allowed");
+    }
+    else {
+      this.sendRequest(ConfigData.SITEDETAIL_SAVE, "POST", body)
+      .then((data)=> {
+        if(data?.ok){
+          this.close();
+        }
+        else {
+          this.showErrorMessage("Something went wrong");
+        }
+      });
+    }
   }
 
   cancelChanges(){
