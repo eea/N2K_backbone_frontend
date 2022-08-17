@@ -42,6 +42,9 @@
     "core-js": "^3.19.1",
     "enzyme": "^3.11.0",
     "eslint-plugin-react": "^7.29.4",
+    "esri-loader": "^3.6.0",
+    "highcharts": "^10.2.0",
+    "highcharts-react-official": "^3.1.0",
     "match-sorter": "^6.3.1",
     "moment": "^2.29.3",
     "prop-types": "^15.7.2",
@@ -54,7 +57,8 @@
     "react-table": "^7.7.0",
     "redux": "4.1.2",
     "save": "^2.4.0",
-    "simplebar-react": "^2.3.6"
+    "simplebar-react": "^2.3.6",
+    "turnstone": "^2.2.0"
   },
   "devDependencies": {
     "auto-changelog": "~2.3.0",

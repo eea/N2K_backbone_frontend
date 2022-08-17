@@ -281,12 +281,21 @@ const IndeterminateCheckbox = React.forwardRef(
       forceRefreshData();
     }
 
+    let showModal = (data) => {
+      if ((Object.keys(modalItem).length === 0) &&
+      (data.status === props.status)
+      ) {
+        openModal(data);
+      }
+    }
+
     let openModal = (data)=>{
-      setModalVisible(true);
       setModalItem(data);
+      setModalVisible(true);
     }
   
     let closeModal = (refresh)=>{
+      props.setShowModal();
       setModalVisible(false);
       setModalItem({});
       if(refresh) forceRefreshData(); //To force refresh
@@ -331,12 +340,12 @@ const IndeterminateCheckbox = React.forwardRef(
     }).catch(e => {
           alert("something went wrong!");
     });   
-    }
-
-    let switchMarkChanges = (change) =>{
-      return props.mark({"SiteCode":change.SiteCode,"VersionId":change.Version,"Justification":true})
+    }    
+    
+    let switchMarkChanges = (change) =>{            
+      return props.mark({"SiteCode":change.SiteCode,"VersionId":change.Version,"Justification":!change.JustificationRequired})
       .then(data => {
-        if(data?.ok){
+        if(data?.ok){          
           forceRefreshData();          
         }else
           alert("something went wrong!");
@@ -410,37 +419,51 @@ const IndeterminateCheckbox = React.forwardRef(
           accessor: 'ChangeType',
         },
         {
-          Header: 'Country',
-          accessor: 'Country',
+          Header: () => null,          
+          accessor: 'Justification',          
+          Cell: ({row}) => (<>
+            {row.values.JustificationRequired ? 
+            row.canExpand ? <> {row.values.JustificationRequired && !row.values.JustificationProvided ? 
+              <CTooltip
+                content="Justification Required"
+                placement="top"
+              > 
+                <CImage src={justificationrequired} className="ico--md "></CImage> 
+              </CTooltip>
+            : null } </> : null : null } 
+            
+            {row.values.JustificationProvided ?
+             row.canExpand ? <> {row.values.JustificationRequired && row.values.JustificationProvided ?
+              <CTooltip
+                content="Justification Provided"
+                placement="top">
+                <CImage src={justificationprovided} className="ico--md "></CImage>
+              </CTooltip>
+                : null  } </> : null : null} 
+            </>)
         },
         {
           Header: () => null,
-          accessor: "JustificationRequired",
-          Cell: ({ row }) => (
-            row.canExpand ? <> {row.values.JustificationRequired === true ? <CImage src={justificationrequired} className="ico--md "></CImage> : null } </> : null
-          )                     
+          accessor: "JustificationRequired",                            
         },    
         {
           Header: () => null,
-          accessor: "JustificationProvided",
-          Cell: ({ row }) => (
-            row.canExpand ? <> {row.values.JustificationProvided === true ? <CImage src={justificationprovided} className="ico--md "></CImage> : null  } </> : null             
-          ),
+          accessor: "JustificationProvided",         
         },    
         {
           Header: () => null, 
           id: 'dropdownsiteChanges',
           cellWidth: '48px',
           Cell: ({ row }) => {
-              const toggleMark = row.values.JustificationRequired === true ? "Unmark" : "Mark";
+              const toggleMark = row.values.JustificationRequired ? "Unmark" : "Mark";
               const contextActions = {
                 review: ()=>openModal(row.original),
                 accept: ()=>props.updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(row.original), "Cancel", ()=>{}),
                 reject: ()=>props.updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(row.original), "Cancel", ()=>{}),
-                mark: ()=>props.updateModalValues(""+toggleMark+" Changes", "This will "+toggleMark+ " all the site changes", "Continue", ()=>switchMarkChanges(row.original), "Cancel", ()=>{}),
+                mark: ()=>props.updateModalValues(`${toggleMark} Changes`, `This will ${(toggleMark.toLowerCase())} all the site changes`, "Continue", ()=>switchMarkChanges(row.original), "Cancel", ()=>{}),                
               }
               return row.canExpand ? (
-                <DropdownSiteChanges actions={getContextActions(row)} toggleMark = {toggleMark}/>          
+                <DropdownSiteChanges actions={getContextActions(row, toggleMark)} toggleMark = {toggleMark}/>          
               ) : null
           }
         },
@@ -448,14 +471,14 @@ const IndeterminateCheckbox = React.forwardRef(
       []
     )
 
-    let getContextActions = (row)=>{
+    let getContextActions = (row, toggleMark)=>{
       switch(props.status){
         case 'pending':
           return {
             review: ()=>openModal(row.original),
             accept: ()=>props.updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(row.original), "Cancel", ()=>{}),
             reject: ()=>props.updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(row.original), "Cancel", ()=>{}),
-            mark: ()=>props.updateModalValues("Mark Changes", "This will mark all the site changes", "Continue", ()=>markChanges(row.original), "Cancel", ()=>{}),
+            mark: ()=>props.updateModalValues(`${toggleMark} Changes`, `This will ${toggleMark.toLowerCase()} all the site changes`, "Continue", ()=>switchMarkChanges(row.original), "Cancel", ()=>{}),            
           }
         case 'accepted':
           return {
@@ -480,6 +503,7 @@ const IndeterminateCheckbox = React.forwardRef(
       return fetch(url)
       .then(response => response.json())
       .then(data => {
+        props.setSitecodes(props.status,data.Data);
         setSitecodes(data.Data);
       });      
     }
@@ -523,7 +547,7 @@ const IndeterminateCheckbox = React.forwardRef(
       return (<div className="loading-container"><em>Loading...</em></div>)
     else
       if(changesData==="nodata")
-        return (<p><em>No Data Avalaible</em></p>)
+        return (<div className="nodata-container"><em>No Data</em></div>)
       else
         return (
         <>
@@ -536,19 +560,20 @@ const IndeterminateCheckbox = React.forwardRef(
             currentSize={currentSize} 
             loadPage = {loadPage}
             status={props.status}
-          />        
+          />
+          {props.showModal && showModal(props.showModal)}
           <ModalChanges visible = {modalVisible} 
                         close = {closeModal} 
                         accept={()=>acceptChanges(modalItem)} 
                         reject={()=>rejectChanges(modalItem)} 
                         backToPending={()=>setBackToPending(modalItem)}
-                        mark={()=>switchMarkChanges(modalItem)}
+                        mark={()=>switchMarkChanges(modalItem)}                        
                         status={props.status}
                         item={modalItem.SiteCode} 
                         version={modalItem.Version} 
                         updateModalValues = {props.updateModalValues}
-                        justificationRequired = {modalItem.JustificationRequired}
-                        justificationProvided = {modalItem.JustificationProvided}
+                        justificationRequired={modalItem.JustificationRequired}
+                        justificationProvided={modalItem.JustificationProvided}
           />
         </>
         )
