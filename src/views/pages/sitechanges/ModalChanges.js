@@ -804,7 +804,7 @@ handleJustProvided(){
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
       fetch(ConfigData.SITECHANGES_DETAIL+`siteCode=${this.props.item}&version=${this.props.version}`)
       .then(response => response.json())
-      .then(data => this.setState({data: data.Data, loading: false, justificationRequired: data.Data.JustificationRequired, justificationProvided: data.Data.JustificationProvided}));
+      .then(data => this.setState({data: data.Data, loading: false, justificationRequired: data.Data?.JustificationRequired, justificationProvided: data.Data?.JustificationProvided}));
     }
   }
 
