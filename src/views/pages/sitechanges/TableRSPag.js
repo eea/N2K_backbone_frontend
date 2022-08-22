@@ -95,6 +95,7 @@ const IndeterminateCheckbox = React.forwardRef(
   function Table({ columns, data, setSelected, siteCodes, currentPage, currentSize, loadPage, status, updateModalValues }) {
     const [disabledBtn, setDisabledBtn] = useState(false);
     const [pgCount, setPgCount] = useState(Math.ceil(siteCodes.length / currentSize));
+    const [selectedRows, setSelectedRows] = useState(0);
 
     const filterTypes = React.useMemo(
         () => ({
@@ -158,7 +159,10 @@ const IndeterminateCheckbox = React.forwardRef(
             id: 'selection',
             cellWidth: '48px',
             Header: ({ getToggleAllPageRowsSelectedProps }) => (
+              <>
               <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} id={"sitechanges_check_all_" + status} />
+              {isAllPageRowsSelected ? null : setSelectedRows(0)}
+              </>
             ),
             Cell: ({ row }) => (
               row.canExpand ?(
@@ -179,10 +183,15 @@ const IndeterminateCheckbox = React.forwardRef(
     // Render the UI for your table
     return (
       <>     
-      {isAllPageRowsSelected && status === 'pending' ?
-        <div className='message-board'>          
+      {isAllPageRowsSelected && status === 'pending' && selectedRows !== siteCodes.length ?
+        <div className='message-board'>
           <span className="message-board-text">You selected the {page.length} sites of this page</span>
-          <span className="message-board-link" onClick={()=>updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(selectedCodes), "Cancel", ()=>{})}>Select {siteCodes.length} sites </span>           
+          <span className="message-board-link" onClick={() =>(setSelectedRows(siteCodes.length))}>Select {siteCodes.length} sites </span>
+        </div> : null
+      }
+      {isAllPageRowsSelected && status === 'pending' && selectedRows === siteCodes.length ? <div className='message-board'>
+          <span className="message-board-text">You selected all the {siteCodes.length} of this page</span>
+          <span className="message-board-link" onClick={() =>(setSelectedRows(0))}>Clear selection </span>
         </div> : null
       }
         <table  className="table" {...getTableProps()}>
