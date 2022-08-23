@@ -7,6 +7,7 @@
     "MOVE_TO_PENDING": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteChanges/MoveToPending",
     "ACCEPT_CHANGES": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteChanges/AcceptChanges",
     "MARK_AS_JUSTIFICATION_REQUIRED": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteChanges/MarkAsJustificationRequired",
+    "PROVIDE_JUSTIFICATION": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteChanges/ProvideJustification",
     "REJECT_CHANGES": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteChanges/RejectChanges",
     "GET_SITE_COMMENTS": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteDetails/GetSiteComments/",
     "ADD_COMMENT": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteDetails/SiteComments/Add",

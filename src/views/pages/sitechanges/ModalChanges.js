@@ -46,7 +46,7 @@ export class ModalChanges extends Component {
   
   
   constructor(props) {
-    super(props);
+    super(props);        
     this.state = {
       activeKey: 1, 
       loading: true, 
@@ -56,6 +56,7 @@ export class ModalChanges extends Component {
       bookmarks: [],
       bookmarkUpdate: false,
       comments:[],
+      documents:[],
       showDetail: "",
       showAlert: false,
       newComment: false,
@@ -76,7 +77,7 @@ export class ModalChanges extends Component {
           });
         }
       }
-    };
+    };            
   }
 
   updateModalValues(title, text, primaryButtonText, primaryButtonFunction, secondaryButtonText, secondaryButtonFunction) {
@@ -172,7 +173,7 @@ export class ModalChanges extends Component {
         "Version": this.state.data.Version,
         "comments": comment
       }
-  
+
       this.sendRequest(ConfigData.ADD_COMMENT,"POST",body)
       .then(response => response.json())
       .then((data) => {
@@ -212,11 +213,13 @@ export class ModalChanges extends Component {
   deleteComment(target){
     if(target) {
       let input = target.closest(".comment--item").querySelector("input");
-      let body = input.getAttribute("msg_id");
+      let id = input.getAttribute("msg_id");
+      let body = id;
       this.sendRequest(ConfigData.DELETE_COMMENT,"DELETE",body)
       .then((data) => {
         if(data?.ok){
-          document.getElementById("cmtItem_"+input.getAttribute("msg_id")).remove();
+          let cmts = this.state.comments.filter(e => e.Id !== parseInt(id));
+          this.setState({comments: cmts});
         }
       });
     }
@@ -231,17 +234,18 @@ export class ModalChanges extends Component {
 
   deleteDocument(target){
     if(target) {
-      let doc = target.closest(".document--item").id;
-      this.sendRequest(ConfigData.DELETE_ATTACHED_FILE+"?justificationId="+justificationId,"DELETE","")
+      let doc = target.closest(".document--item");
+      let id = doc.getAttribute("doc_id");
+      this.sendRequest(ConfigData.DELETE_ATTACHED_FILE+"?justificationId="+id,"DELETE","")
       .then((data) => {
         if(data?.ok){
-          doc.remove();
+          let docs = this.state.documents.filter(e => e.Id !== parseInt(id));
+          this.setState({documents: docs});
         }
       });
     }
     else {
-      this.setState({newDocument: false})
-      this.setState({isSelected: false})
+      this.setState({newDocument: false, isSelected: false, selectedFile: "", notValidDocument: ""});
     }
   }
 
@@ -250,59 +254,103 @@ export class ModalChanges extends Component {
     let file = e.currentTarget.closest("input").value;
     let extension = file.substring(file.lastIndexOf('.'), file.length) || file;
     if (formats.includes(extension)) {
-      this.setState({selectedFile: e.target.files[0]});
-      this.setState({isSelected: true});
+      this.setState({selectedFile: e.target.files[0],isSelected: true});
     }
     else {
       e.currentTarget.closest("#uploadBtn").value = "";
-      this.showErrorMessage("document", "File not valid, use a valid format: .pdf, .doc, .docx, .xls, .xlsx, .txt, .tif, .json, .kml, .gml, .xml, .zip, .7z");
+      this.showErrorMessage("document", "File not valid, use a valid format: " + ConfigData.ACCEPTED_DOCUMENT_FORMATS);
     }
   }
 
+  uploadFile(data){
+    let siteCode = this.state.data.SiteCode;
+    let version = this.state.data.Version;
+    return new Promise((resolve,reject) =>{
+      const request = new XMLHttpRequest();
+      request.open("POST", ConfigData.UPLOAD_ATTACHED_FILE+'?sitecode='+siteCode+'&version='+version, true);
+      request.onload = (oEvent) => {
+        if (request.status >= 200 && request.status < 300) {
+          resolve(JSON.parse(request.response));
+        } else {
+          reject(request.statusText);
+        }
+      };
+      request.send(data)
+    });
+  }
+
   handleSubmission () {
-    // let postRequest = (url,body)=>{
-    //   const options = {
-    //     method: 'POST',
-    //     headers: {        
-    //     'Content-Type': 'multipart/form-data; boundary=AaB03x' + 
-    //     '--AaB03x'+
-    //     'Content-Disposition: file' +
-    //     'Content-Type: png' +
-    //     'Content-Transfer-Encoding: binary' +
-    //     '...data...'+
-    //     '--AaB03x--',
-    //     'Accept': 'application/json',
-    //     'type': 'formData'
-    //     },
-    //     body: body,
-    //   };
-    //   return fetch(url, options)
-    // }
     if (this.state.selectedFile) {
-      this.setState({notValidDocument:""})
-      let siteCode = this.state.data.SiteCode;
-      let version = this.state.data.Version;
-      let files = [];
-      files.push(this.state.selectedFile)
-      let body = {
-        "SiteCode": this.state.data.SiteCode,
-        "Version": this.state.data.Version,
-        "Files": files
-      }
-      return this.sendRequest(ConfigData.UPLOAD_ATTACHED_FILE+'?sitecode='+siteCode+'&version='+version,"POST",body,true)
-      .then(response => response.json())
-      .then((data) => {
+      this.setState({notValidDocument:""});
+      let formData = new FormData();
+      formData.append("Files",this.state.selectedFile, this.state.selectedFile.name);
+
+      return this.uploadFile(formData)
+      .then(data => {
         if(data?.Success){
-          
+          let docs = this.state.documents;
+          let newDocs = data.Data.filter(({ Id: id1 }) => !docs.some(({ Id: id2 }) => id2 === id1));
+          for(let i in newDocs){
+            let document = newDocs[i];
+            let documentId = document.Id;
+            let path = document.Path;
+            docs.push({
+              Id: documentId,
+              SiteCode: this.state.data.SiteCode,
+              Version: this.state.data.Version,
+              Path: path
+            })
+          }
+          this.setState({documents: docs, newDocument: false})
         }
         else {
-          this.showErrorMessage("document", "File upload failed");
+          this.showErrorMessage("document", "File upload failed - "+data.Message);
         }
       });
     }
     else {
       this.showErrorMessage("document", "Add a file");
     }
+}
+
+handleJustRequired(){
+  let body = [{
+    "SiteCode": this.state.data.SiteCode,
+    "VersionId": this.state.data.Version,
+    "Justification": !this.state.justificationRequired,
+  }];  
+  this.sendRequest(ConfigData.MARK_AS_JUSTIFICATION_REQUIRED, "POST", body)  
+  .then((data)=> {
+    if(data?.ok){     
+      if(this.state.justificationRequired)
+        this.setState({justificationRequired: !this.state.justificationRequired, justificationProvided: false})
+      else
+        this.setState({justificationRequired: !this.state.justificationRequired})      
+      return data;    
+    }
+    else {
+      this.showErrorMessage("Justification Required", "Update failed");
+      return data;
+    }
+  });
+}
+
+handleJustProvided(){
+  let body = [{
+    "SiteCode": this.state.data.SiteCode,
+    "VersionId": this.state.data.Version,
+    "Justification": !this.state.justificationProvided,
+  }];  
+  this.sendRequest(ConfigData.PROVIDE_JUSTIFICATION, "POST", body)  
+  .then((data)=> {
+    if(data?.ok){            
+      this.setState({justificationProvided: !this.state.justificationProvided})                 
+    }
+    else {
+      this.showErrorMessage("Justification Provided", "Update failed");
+      return data;
+    }
+  });
 }
 
   renderValuesTable(changes){
@@ -313,7 +361,7 @@ export class ModalChanges extends Component {
     for(let i in changes){
       let values = heads.map(v=>changes[i][v]).concat(fields.map(v=>changes[i]["Fields"][v]));
       rows.push(
-        <CTableRow key={i}>
+        <CTableRow key={"row_"+i}>
           {values.map((v,j)=>{return(<CTableDataCell key={v+"_"+j}> {v} </CTableDataCell>)})}
         </CTableRow>
       )
@@ -448,7 +496,7 @@ export class ModalChanges extends Component {
     }
     this.setState({levels: levels, bookmark: "", bookmarkUpdate: true});
   }
-  
+
   renderChanges(){
     return(
       <CTabPane role="tabpanel" aria-labelledby="home-tab" visible={this.state.activeKey === 1}>
@@ -521,6 +569,7 @@ export class ModalChanges extends Component {
     return(
       <div id="changes_comments">
         {cmts}
+        {this.state.comments.length == 0 && <div className="comment--item"><em>No comments</em></div>}
       </div>
     )
   }
@@ -552,7 +601,7 @@ export class ModalChanges extends Component {
           <label htmlFor="uploadBtn">
             Select file
           </label>
-          <input id="uploadBtn" type="file" onChange={(e) => this.changeHandler(e)} accept={ConfigData.ACCEPTED_DOCUMENT_FORMATS}/>
+          <input id="uploadBtn" type="file" name="Files" onChange={(e) => this.changeHandler(e)} accept={ConfigData.ACCEPTED_DOCUMENT_FORMATS}/>
           {this.state.isSelected ? (
             <input id="uploadFile" placeholder={this.state.selectedFile.name} disabled="disabled"/>
           ) : (<input id="uploadFile" placeholder="No file selected" disabled="disabled" />)}
@@ -575,13 +624,14 @@ export class ModalChanges extends Component {
     return(
       <div id="changes_documents">
         {docs}
+        {this.state.documents.length == 0 && <div className="document--item"><em>No documents</em></div>}
       </div>
     )
   }
 
   createDocumentElement(id,path){
     return (
-      <div className="document--item" key={"docItem_"+id} id={"docItem_"+id}>
+      <div className="document--item" key={"docItem_"+id} id={"docItem_"+id} doc_id={id}>
         <div className="my-auto document--text">
           <CImage src={justificationprovided} className="ico--md me-3"></CImage>
           <span>{path.replace(/^.*[\\\/]/, '')}</span>
@@ -596,47 +646,59 @@ export class ModalChanges extends Component {
     )
   }
 
-  renderAttachments(){
+  renderAttachments(){    
     return(
       <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 3}>
         <CRow className="py-3">
-        <CCol className="mb-3" xs={12} lg={6}>
-          <CCard className="document--list">
-            {this.state.notValidDocument &&
-              <CAlert color="danger">
-                {this.state.notValidDocument}
-              </CAlert>
-            }
-            <div className="d-flex justify-content-between align-items-center pb-2">
-              <b>Attached documents</b>
-              <CButton color="link" className="btn-link--dark" onClick={() => this.addDocument()}>Add document</CButton>
+          <CCol className="mb-3" xs={12} lg={6}>
+            <CCard className="document--list">
+              {this.state.notValidDocument &&
+                <CAlert color="danger">
+                  {this.state.notValidDocument}
+                </CAlert>
+              }
+              <div className="d-flex justify-content-between align-items-center pb-2">
+                <b>Attached documents</b>
+                <CButton color="link" className="btn-link--dark" onClick={() => this.addDocument()}>Add document</CButton>
+              </div>
+              {this.renderDocuments()}
+            </CCard>
+          </CCol>
+          <CCol className="mb-3" xs={12} lg={6}>
+            <CCard className="comment--list">
+              {this.state.notValidComment &&
+                <CAlert color="danger">
+                  {this.state.notValidComment}
+                </CAlert>
+              }
+              <div className="d-flex justify-content-between align-items-center pb-2">
+                <b>Comments</b>
+                <CButton color="link" className="btn-link--dark" onClick={() => this.addNewComment()}>Add comment</CButton>
+              </div>
+              {this.renderComments()}
+            </CCard>
+          </CCol>         
+          <CCol className="d-flex">
+            <div className="checkbox">              
+              <input type="checkbox" className="input-checkbox" id="modal_justification_req"               
+              onClick={()=>this.props.updateModalValues("Changes", `This will ${this.state.justificationRequired ? "unmark" : "mark"} change as Justification Required`, "Continue", ()=>this.handleJustRequired(), "Cancel", ()=>{})}               
+              checked={this.state.justificationRequired}
+              readOnly
+              />
+              
+              <label htmlFor="modal_justification_req" className="input-label">Justification required</label>              
+            </div>                            
+            <div className="checkbox" style={{cursor: this.state.justificationRequired ? "" : "not-allowed"}} disabled={(this.state.justificationRequired ? false : true)}>
+              <input type="checkbox" className="input-checkbox" id="modal_justification_prov"         
+                onClick={()=>this.props.updateModalValues("Changes", `This will ${this.state.justificationProvided ? "unmark": "mark"} change as Justification Provided`, "Continue", ()=>this.handleJustProvided(), "Cancel", ()=>{})} 
+                checked={this.state.justificationProvided} 
+                disabled={(this.state.justificationRequired ? false : true)}
+                style={{cursor: this.state.justificationRequired ? "" : "not-allowed"}}
+                readOnly
+              />
+              <label htmlFor="modal_justification_prov" style={{cursor: this.state.justificationRequired ? "" : "not-allowed"}} className="input-label" disabled={(this.state.justificationRequired ? false : true)}
+              >Justification provided</label>
             </div>
-            {this.renderDocuments()}
-          </CCard>
-        </CCol>
-        <CCol className="mb-3" xs={12} lg={6}>
-          <CCard className="comment--list">
-            {this.state.notValidComment &&
-              <CAlert color="danger">
-                {this.state.notValidComment}
-              </CAlert>
-            }
-            <div className="d-flex justify-content-between align-items-center pb-2">
-              <b>Comments</b>
-              <CButton color="link" className="btn-link--dark" onClick={() => this.addNewComment()}>Add comment</CButton>
-            </div>
-            {this.renderComments()}
-          </CCard>
-        </CCol>
-        <CCol className="d-flex">
-          <div className="checkbox">
-            <input type="checkbox" className="input-checkbox" id="modal_justification_req" checked={this.props.justificationRequired} />
-            <label htmlFor="modal_justification_req" className="input-label">Justification required</label>
-          </div>
-          <div className="checkbox">
-            <input type="checkbox" className="input-checkbox" id="modal_justification_prov" checked={this.props.justificationProvided}/>
-            <label htmlFor="modal_justification_prov" className="input-label">Justification provided</label>
-          </div>
           </CCol>
         </CRow>
       </CTabPane>
@@ -662,7 +724,7 @@ export class ModalChanges extends Component {
         </CModalHeader>
         <CModalBody>
           <CAlert color="primary" className="d-flex align-items-center" visible={this.state.showAlert}>
-            <CIcon icon={cilWarning} size="md" className="me-2"/>
+            <CIcon icon={cilWarning} className="me-2"/>
             Justification required
           </CAlert>
           <CNav variant="tabs" role="tablist">
@@ -742,7 +804,7 @@ export class ModalChanges extends Component {
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
       fetch(ConfigData.SITECHANGES_DETAIL+`siteCode=${this.props.item}&version=${this.props.version}`)
       .then(response => response.json())
-      .then(data => this.setState({data: data.Data, loading: false}));
+      .then(data => this.setState({data: data.Data, loading: false, justificationRequired: data.Data?.JustificationRequired, justificationProvided: data.Data?.JustificationProvided}));
     }
   }
 
@@ -786,14 +848,31 @@ export class ModalChanges extends Component {
     });
   }
 
+  switchMarkChanges(){
+    this.props.mark()
+    .then(data => {
+      if(data?.ok)
+      this.close(false);
+    });
+  }
+
+  switchProvideJustification(){
+    this.props.switchProvideJustification()
+    .then(data => {
+      if(data?.ok)
+      this.close(false);
+    });
+  }
+    
   sendRequest(url,method,body,path){
     const options = {
       method: method,
       headers: {
       'Content-Type': path? 'multipart/form-data' :'application/json',
       },
-      body: JSON.stringify(body),
+      body: path ? body : JSON.stringify(body),
     };
+    console.log(options);
     return fetch(url, options)
   }
 }
