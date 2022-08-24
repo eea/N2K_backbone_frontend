@@ -25,6 +25,7 @@
       "PRIMARY": "#007bff",
       "SECONDARY": "#fc3"
     },
+    "DEFAULT_COUNTRY": "DE",
     "ACCEPTED_DOCUMENT_FORMATS":".pdf, .doc, .docx, .xls, .xlsx, .txt, .tif, .json, .kml, .gml, .xml, .zip, .7z"
 }
 

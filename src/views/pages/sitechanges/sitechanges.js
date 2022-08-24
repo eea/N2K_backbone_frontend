@@ -36,7 +36,7 @@ const Sitechanges = () => {
   const defaultCountry = () => {
     const searchParams = new URLSearchParams(window.location.href.split('?')[1]);
     const parmCountry = searchParams.get('country');
-    return parmCountry?parmCountry:ConfigData.defaultCountry?ConfigData.defaultCountry:"";
+    return parmCountry?parmCountry:ConfigData.DEFAULT_COUNTRY?ConfigData.DEFAULT_COUNTRY:"";
   }
 
   const [activeTab, setActiveTab] = useState(1)
@@ -59,6 +59,7 @@ const Sitechanges = () => {
     codes[status] = data;
     setSitecodes(codes);
     setSearchList(getSitesList());
+    setIsLoading(false);
   }
 
   let getSitesList = () =>{
@@ -102,7 +103,7 @@ const Sitechanges = () => {
     setIsLoading(true);
     for(let i in refreshSitechanges)
       setRefreshSitechanges(i,true)
-    setIsLoading(false);
+    //setIsLoading(false);
     };
 
   let postRequest = (url,body)=>{

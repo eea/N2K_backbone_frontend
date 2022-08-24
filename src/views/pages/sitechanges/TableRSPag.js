@@ -541,7 +541,6 @@ const IndeterminateCheckbox = React.forwardRef(
       }
     }
     
-    console.log(props.country);
     if(!props.country) return(<></>);
     loadData();
 
