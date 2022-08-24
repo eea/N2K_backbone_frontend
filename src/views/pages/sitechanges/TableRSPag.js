@@ -35,6 +35,26 @@ const IndeterminateCheckbox = React.forwardRef(
       )
     }
   )
+
+  const ClearSelectionLink = React.forwardRef(
+    ({ indeterminate, ...rest }, ref) => {
+      const defaultRef = React.useRef()
+      const resolvedRef = ref || defaultRef
+  
+      React.useEffect(() => {
+        resolvedRef.current.indeterminate = indeterminate        
+      }, [resolvedRef, indeterminate])
+  
+      return (
+        <>
+         <div className={"hiddenCheckbox checkbox" + (rest.hidden ? " d-none" :"")} >
+            <input  type="checkbox" className="input-checkbox" ref={resolvedRef} {...rest}/>
+            <label htmlFor={rest.id}><span className="message-board-link">Clear Selection</span></label>
+          </div>
+        </>
+      )
+    }
+  )
   
   function GlobalFilter({
     preGlobalFilteredRows,
@@ -135,6 +155,7 @@ const IndeterminateCheckbox = React.forwardRef(
       setPageSize, 
       initialExpanded,
       isAllPageRowsSelected,      
+      getToggleAllPageRowsSelectedProps,   
       state: { pageIndex, pageSize, selectedRowIds, expanded, expandSubRows },
     } = useTable(
       {
@@ -191,7 +212,7 @@ const IndeterminateCheckbox = React.forwardRef(
       }
       {isAllPageRowsSelected && status === 'pending' && selectedRows === siteCodes.length ? <div className='message-board'>
           <span className="message-board-text">You selected all the {siteCodes.length} of this page</span>
-          <span className="message-board-link" onClick={() =>(setSelectedRows(0))}>Clear selection </span>
+          <ClearSelectionLink {...getToggleAllPageRowsSelectedProps()} id={"sitechanges_check_all_" + status} />
         </div> : null
       }
         <table  className="table" {...getTableProps()}>

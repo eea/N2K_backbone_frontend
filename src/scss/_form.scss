@@ -282,3 +282,28 @@ form {
     text-decoration: none;
     white-space: pre-wrap;
 }
+
+
+ .hiddenCheckbox { 
+    label {
+      &:before {
+        border: rgba(241, 243, 244, 0.871); 
+      }
+    }
+    input[type="checkbox"] {
+      
+      &:checked + label:after {
+        border-bottom: rgba(241, 243, 244, 0.871);
+        border-right: rgba(241, 243, 244, 0.871);
+      }
+      &:checked + label:before {
+        border-color: rgba(241, 243, 244, 0.871);
+      }
+      &:indeterminate + label:before {
+        border-color: rgba(241, 243, 244, 0.871);
+      }
+      &:indeterminate + label:after {        
+        border-bottom: rgba(241, 243, 244, 0.871);
+      }
+    }
+}
