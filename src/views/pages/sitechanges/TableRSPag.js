@@ -196,8 +196,14 @@ const IndeterminateCheckbox = React.forwardRef(
       }
     )
 
-    if(setSelected) setSelected(Object.keys(selectedRowIds).filter(v=>!v.includes(".")).map(v=>{return {SiteCode:data[v].SiteCode, VersionId: data[v].Version}}));
+    if (selectedRows === siteCodes.length){      
+      if(setSelected) setSelected(siteCodes.map(x =>{return {SiteCode: x.SiteCode, VersionId: x.Version}}));
+    }
+    else {
+      if(setSelected) setSelected(Object.keys(selectedRowIds).filter(v=>!v.includes(".")).map(v=>{return {SiteCode:data[v].SiteCode, VersionId: data[v].Version}}));
+    }
     
+        
     let changePage = (page,chunk)=>{
       loadPage(page,pageSize);
     }    
@@ -207,7 +213,7 @@ const IndeterminateCheckbox = React.forwardRef(
       {isAllPageRowsSelected && status === 'pending' && selectedRows !== siteCodes.length ?
         <div className='message-board'>
           <span className="message-board-text">You selected the {page.length} sites of this page</span>
-          <span className="message-board-link" onClick={() =>(setSelectedRows(siteCodes.length))}>Select {siteCodes.length} sites </span>
+          <span className="message-board-link" onClick={() =>(setSelectedRows(siteCodes.length), setSelected(siteCodes))}>Select {siteCodes.length} sites </span>
         </div> : null
       }
       {isAllPageRowsSelected && status === 'pending' && selectedRows === siteCodes.length ? <div className='message-board'>
@@ -546,7 +552,7 @@ const IndeterminateCheckbox = React.forwardRef(
     }
   
     let loadData= ()=>{
-      
+     
       if(props.getRefresh()||(!isLoading && changesData!=="nodata" && Object.keys(changesData).length===0)){
 
         let promises=[];
@@ -578,6 +584,7 @@ const IndeterminateCheckbox = React.forwardRef(
       }
     }
     
+    if(!props.country) return(<></>);
     loadData();
 
     if(isLoading)
@@ -597,8 +604,6 @@ const IndeterminateCheckbox = React.forwardRef(
             currentSize={currentSize} 
             loadPage = {loadPage}
             status={props.status}
-            updateModalValues={props.updateModalValues}
-
           />
           {props.showModal && showModal(props.showModal)}
           <ModalChanges visible = {modalVisible} 
