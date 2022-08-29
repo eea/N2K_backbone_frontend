@@ -90,9 +90,15 @@
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
+      resize: none;
+      outline: none;
     }
   }
   &--icons {
     white-space: nowrap;
+  }
+  &--input {
+    resize: none;
+    outline: none;
   }
 }
