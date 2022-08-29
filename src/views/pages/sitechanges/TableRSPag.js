@@ -196,13 +196,10 @@ const IndeterminateCheckbox = React.forwardRef(
       }
     )
 
-    if (selectedRows === siteCodes.length){      
-      if(setSelected) setSelected(siteCodes.map(x =>{return {SiteCode: x.SiteCode, VersionId: x.Version}}));
-    }
-    else {
-      if(setSelected) setSelected(Object.keys(selectedRowIds).filter(v=>!v.includes(".")).map(v=>{return {SiteCode:data[v].SiteCode, VersionId: data[v].Version}}));
-    }
-    
+    selectedRows === siteCodes.length && setSelected ?
+      setSelected(siteCodes.map(v =>{return {SiteCode: v.SiteCode, VersionId: v.Version}}))
+    :
+      setSelected(Object.keys(selectedRowIds).filter(v=>!v.includes(".")).map(v=>{return {SiteCode:data[v].SiteCode, VersionId: data[v].Version}}))
         
     let changePage = (page,chunk)=>{
       loadPage(page,pageSize);
