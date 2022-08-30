@@ -46,10 +46,10 @@ export class ModalChanges extends Component {
   
   
   constructor(props) {
-    super(props);        
+    super(props);
     this.state = {
-      activeKey: 1, 
-      loading: true, 
+      activeKey: 1,
+      loading: true,
       data: {}, 
       levels:["Critical"],
       bookmark: "",
@@ -58,7 +58,6 @@ export class ModalChanges extends Component {
       comments:[],
       documents:[],
       showDetail: "",
-      showAlert: false,
       newComment: false,
       newDocument: false,
       justificationRequired: false,
@@ -77,7 +76,7 @@ export class ModalChanges extends Component {
           });
         }
       }
-    };            
+    };
   }
 
   updateModalValues(title, text, primaryButtonText, primaryButtonFunction, secondaryButtonText, secondaryButtonFunction) {
@@ -719,7 +718,7 @@ handleJustProvided(){
           <CModalTitle>{data.SiteCode} - {data.Name}</CModalTitle>
         </CModalHeader>
         <CModalBody>
-          <CAlert color="primary" className="d-flex align-items-center" visible={this.state.showAlert}>
+          <CAlert color="primary" className="d-flex align-items-center" visible={this.state.justificationRequired}>
             <CIcon icon={cilWarning} className="me-2"/>
             Justification required
           </CAlert>
