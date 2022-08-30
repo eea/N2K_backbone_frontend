@@ -43,12 +43,20 @@ const PendingCards = () => {
             level: c.Level
         }))
     }
-
+    
     function sumTotal(total, current) {
         return total + current;
     }
+    
+    function find(data, countryCode, desiredLevel) {
+        return data.filter((c) => c.code == countryCode && c.level == desiredLevel);
+    }
 
+    let pendingSites = getPendingSites();
     let pendingCountries = getPendingCountries();
+    
+    console.log(find(pendingSites, "DE", "Critical"))
+    console.log(find(pendingSites, "DE", "Critical")[0].numSites)
 
     const totalPendingCountriesInfo = pendingCountries.map((c) => c.pendingInfo).reduce(sumTotal, 0);
     const totalPendingCountriesWarning = pendingCountries.map((c) => c.pendingWarning).reduce(sumTotal, 0);
@@ -81,6 +89,10 @@ const PendingCards = () => {
                                     <span className="badge color--critical"><b>{country.pendingCritical}</b> Critical</span>
                                     <span className="badge color--warning"><b>{country.pendingWarning}</b> Warning</span>
                                     <span className="badge color--info"><b>{country.pendingInfo}</b> Info</span>
+                                    <p></p>
+                                    <span className="badge color--critical"><b>{find(pendingSites, country.code, "Critical")[0].numSites}</b> Critical</span>
+                                    <span className="badge color--warning"><b>{find(pendingSites, country.code, "Warning")[0].numSites}</b> Warning</span>
+                                    <span className="badge color--info"><b>{find(pendingSites, country.code, "Info")[0].numSites}</b> Info</span>
                                 </div>
                             </div>
                         </CCard>
