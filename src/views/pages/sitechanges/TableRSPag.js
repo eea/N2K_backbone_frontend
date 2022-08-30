@@ -42,14 +42,16 @@ const IndeterminateCheckbox = React.forwardRef(
       const resolvedRef = ref || defaultRef
   
       React.useEffect(() => {
-        resolvedRef.current.indeterminate = indeterminate        
+        resolvedRef.current.indeterminate = indeterminate
       }, [resolvedRef, indeterminate])
   
       return (
         <>
-         <div className={"hiddenCheckbox checkbox" + (rest.hidden ? " d-none" :"")} >
+         <div className={"hiddenCheckbox" + (rest.hidden ? " d-none" :"")} >
             <input  type="checkbox" className="input-checkbox" ref={resolvedRef} {...rest}/>
-            <label htmlFor={rest.id}><span className="message-board-link">Clear Selection</span></label>
+            <label htmlFor={rest.id}>
+              <span className="message-board-link">Clear selection</span>
+            </label>
           </div>
         </>
       )
@@ -208,13 +210,14 @@ const IndeterminateCheckbox = React.forwardRef(
     return (
       <>     
       {isAllPageRowsSelected && status === 'pending' && selectedRows !== siteCodes.length ?
-        <div className='message-board'>
-          <span className="message-board-text">You selected the {page.length} sites of this page</span>
-          <span className="message-board-link" onClick={() =>(setSelectedRows(siteCodes.length), setSelected(siteCodes))}>Select {siteCodes.length} sites </span>
+        <div className="message-board">
+          <span className="message-board-text">The <b>{page.length}</b> sites of this page are selected</span>
+          <span className="message-board-link" onClick={() =>(setSelectedRows(siteCodes.length), setSelected(siteCodes))}>Select {siteCodes.length} sites</span>
         </div> : null
       }
-      {isAllPageRowsSelected && status === 'pending' && selectedRows === siteCodes.length ? <div className='message-board'>
-          <span className="message-board-text">You selected all the {siteCodes.length} of this page</span>
+      {isAllPageRowsSelected && status === 'pending' && selectedRows === siteCodes.length ?
+        <div className="message-board">
+          <span className="message-board-text">All the <b>{siteCodes.length}</b> sites are selected</span>
           <ClearSelectionLink {...getToggleAllPageRowsSelectedProps()} id={"sitechanges_check_all_" + status} />
         </div> : null
       }
@@ -228,7 +231,7 @@ const IndeterminateCheckbox = React.forwardRef(
                         {/*<div>{column.canFilter ? column.render('Filter') : null}</div>*/}
                   </th>
                 ))}
-              </tr>              
+              </tr>
             ))}
              <tr>
           </tr>

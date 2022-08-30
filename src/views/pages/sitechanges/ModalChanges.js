@@ -646,7 +646,7 @@ handleJustProvided(){
     )
   }
 
-  renderAttachments(){    
+  renderAttachments(){
     return(
       <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 3}>
         <CRow className="py-3">
@@ -677,27 +677,23 @@ handleJustProvided(){
               </div>
               {this.renderComments()}
             </CCard>
-          </CCol>         
+          </CCol>
           <CCol className="d-flex">
-            <div className="checkbox">              
-              <input type="checkbox" className="input-checkbox" id="modal_justification_req"               
+            <div className="checkbox">
+              <input type="checkbox" className="input-checkbox" id="modal_justification_req"
               onClick={()=>this.props.updateModalValues("Changes", `This will ${this.state.justificationRequired ? "unmark" : "mark"} change as Justification Required`, "Continue", ()=>this.handleJustRequired(), "Cancel", ()=>{})}               
               checked={this.state.justificationRequired}
               readOnly
               />
-              
-              <label htmlFor="modal_justification_req" className="input-label">Justification required</label>              
-            </div>                            
-            <div className="checkbox" style={{cursor: this.state.justificationRequired ? "" : "not-allowed"}} disabled={(this.state.justificationRequired ? false : true)}>
-              <input type="checkbox" className="input-checkbox" id="modal_justification_prov"         
+              <label htmlFor="modal_justification_req" className="input-label">Justification required</label>
+            </div>
+            <div className="checkbox" disabled={(this.state.justificationRequired ? false : true)}>
+              <input type="checkbox" className="input-checkbox" id="modal_justification_prov"
                 onClick={()=>this.props.updateModalValues("Changes", `This will ${this.state.justificationProvided ? "unmark": "mark"} change as Justification Provided`, "Continue", ()=>this.handleJustProvided(), "Cancel", ()=>{})} 
                 checked={this.state.justificationProvided} 
-                disabled={(this.state.justificationRequired ? false : true)}
-                style={{cursor: this.state.justificationRequired ? "" : "not-allowed"}}
                 readOnly
               />
-              <label htmlFor="modal_justification_prov" style={{cursor: this.state.justificationRequired ? "" : "not-allowed"}} className="input-label" disabled={(this.state.justificationRequired ? false : true)}
-              >Justification provided</label>
+              <label htmlFor="modal_justification_prov" className="input-label" disabled={(this.state.justificationRequired ? false : true)}>Justification provided</label>
             </div>
           </CCol>
         </CRow>
