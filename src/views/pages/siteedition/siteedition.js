@@ -20,9 +20,8 @@ import { ModalEdition } from './ModalEdition';
 
 const defaultCountry = () => {
   const searchParams = new URLSearchParams(window.location.href.split('?')[1]);
-  const c = searchParams.get('country');
-  if(c) return c;
-  return "DE";
+  const parmCountry = searchParams.get('country');
+  return parmCountry ? parmCountry : ConfigData.DEFAULT_COUNTRY ? ConfigData.DEFAULT_COUNTRY : "";
 }
 
 const Siteedition = () => {
@@ -63,7 +62,7 @@ const Siteedition = () => {
     });
   }
 
-  let changeCountry = (country)=>{
+  let changeCountry = (country) => {
     setCountry(country)
     forceRefreshData();
   }
@@ -86,7 +85,7 @@ const Siteedition = () => {
     });
   }
 
-  let getSitesList = (data) =>{
+  let getSitesList = (data) => {
     return {
       name: "sites",
       data: data.map?data.map(x=>({"search":x.SiteCode+" - "+x.Name,...x})):[],
@@ -100,12 +99,12 @@ const Siteedition = () => {
     }
   }
 
-  let openModal = (data)=>{
+  let openModal = (data) => {
     setModalVisible(true);
     setModalItem(data);
   }
 
-  let closeModal = (refresh)=>{
+  let closeModal = (refresh) => {
     setModalVisible(false);
     setModalItem({});
     if(refresh) {
@@ -113,11 +112,12 @@ const Siteedition = () => {
     }
   }
 
-  let forceRefreshData = ()=> setSitecodes([]);
+  let forceRefreshData = () => setSitecodes([]);
 
   let clearSearch = () => {
     turnstoneRef.current?.clear();
     setDisabledSearchBtn(true);
+    setSelectOption({});
   }
 
   let selectSearchOption = (e) => {
@@ -258,9 +258,11 @@ const Siteedition = () => {
                     Item={item}
                     typeahead={false}
                   />
-                  <span className="btn-icon" onClick={()=>clearSearch()}>
-                    <i className="fa-solid fa-xmark"></i>
-                  </span>
+                  {Object.keys(selectOption).length !== 0 &&
+                    <span className="btn-icon" onClick={()=>clearSearch()}>
+                      <i className="fa-solid fa-xmark"></i>
+                    </span>
+                  }
                 </div>
                 <CButton disabled={disabledSearchBtn} onClick={()=>showModalSitechanges(selectOption)}>
                   <i className="fa-solid fa-magnifying-glass"></i>
@@ -269,7 +271,7 @@ const Siteedition = () => {
               <CCol className="mb-4">
                   <div className="select--right">
                     <CFormLabel className="form-label form-label-reporting col-md-4 col-form-label">Country </CFormLabel>
-                    <CFormSelect aria-label="Default select example" className='form-select-reporting' value={country} onChange={(e)=>changeCountry(e.target.value)}>
+                    <CFormSelect aria-label="Default select example" className='form-select-reporting' disabled={isLoading} value={country} onChange={(e)=>changeCountry(e.target.value)}>
                       {
                         countries.map((e)=><option value={e.code} key={e.code}>{e.name}</option>)
                       }

@@ -1,5 +1,6 @@
 import ConfigData from '../../../config.json';
 import React, { Component, useState } from 'react';
+import Select from 'react-select';
 import {
   CButton,
   CCol,
@@ -69,6 +70,7 @@ export class ModalEdition extends Component {
 
   close(refresh){
     this.props.close(refresh);
+    this.state.data = {};
   }
 
   isVisible(){
@@ -107,6 +109,7 @@ export class ModalEdition extends Component {
       let field = Object.keys(data)[i]
       let id = "field_" + field;
       let value = data[field];
+      let options;
       let label;
       let placeholder;
       let name = field;
@@ -122,10 +125,14 @@ export class ModalEdition extends Component {
         case "SiteType":
           label = "Site Type";
           placeholder = "Select site type";
+          options = this.props.types.map(x => x = {label:x.Classification, value:x.Code});
+          value = options.find(y => y.value === value);
           break;
         case "BioRegion":
           label = "Biogeographycal region";
           placeholder = "Select a region";
+          options = this.props.regions.map(x => x = {label:x.RefBioGeoName, value:x.Code});
+          value = value.map(x => options.find(y => y.value === x));
           break;
         case "Area":
           label = "Area";
@@ -176,28 +183,31 @@ export class ModalEdition extends Component {
           {field === "SiteType" &&
             <>
               <label>{label}</label>
-              <CFormSelect
+              <Select
                 id={id}
                 name={name}
-                defaultValue={value}
+                className="multi-select"
+                classNamePrefix="multi-select"
                 placeholder={placeholder}
-              >
-                {this.props.types.map((elem, index) => <option value={elem.Code} key={"opt_type_"+index}>{elem.Classification}</option>)}
-              </CFormSelect>
+                defaultValue={value}
+                options={options}
+              />
             </>
           }
           {field === "BioRegion" &&
             <>
               <label>{label}</label>
-              <CFormSelect
+              <Select
                 id={id}
                 name={name}
-                defaultValue={value}
+                className="multi-select"
+                classNamePrefix="multi-select"
                 placeholder={placeholder}
-                multiple
-              >
-                {this.props.regions.map((elem, index) => <option value={elem.Code} key={"opt_reg_"+index}>{elem.RefBioGeoName}</option>)}
-              </CFormSelect>
+                defaultValue={value}
+                options={options}
+                isMulti={true}
+                closeMenuOnSelect={false}
+              />
             </>
           }
           {field === "Area" &&
@@ -252,45 +262,6 @@ export class ModalEdition extends Component {
               />
             </>
           }
-          {/* <label>{label}</label>
-          {type === "types" &&
-            <CFormSelect
-              id={"field_"+field}
-              defaultValue={value}
-              placeholder={placeholder}
-            >
-              {options.map((elem, index) => <option value={elem.Code} key={"opt_type_"+index}>{elem.Classification}</option>)}
-            </CFormSelect>
-          }
-          {type === "regions" &&
-            <CFormSelect
-              id={"field_"+field}
-              defaultValue={value}
-              placeholder={placeholder}
-              multiple
-            >
-              {options.map((elem, index) => <option value={elem.Code} key={"opt_reg_"+index}>{elem.RefBioGeoName}</option>)}
-            </CFormSelect>
-          }
-          {type === "text" &&
-            <CFormInput
-              id={"field_"+i}
-              type="text"
-              defaultValue={value}
-              placeholder={placeholder}
-              autoComplete="off"
-              disabled={disabled}
-            />
-          }
-          {type === "number" &&
-            <CFormInput
-              id={"field_"+i}
-              type="number"
-              defaultValue={value}
-              placeholder={placeholder}
-              autoComplete="off"
-            />
-          } */}
         </CCol>
       )
     }
