@@ -4,19 +4,28 @@ import { CRow, CCol, CCard, CCardImage } from '@coreui/react';
 
 const PendingCards = () => {
     const [pendingCountriesData, setPendingCountriesData] = useState([]);
-    const [isPendingLoading, setIsPendingLoading] = useState(true);
+    const [isPendingCountriesLoading, setIsPendingCountriesLoading] = useState(true);
+    const [pendingSitesData, setPendindSitesData] = useState([]);
+    const [isPendingSitesLoading, setIsPendingSitesLoading] = useState(true);
 
     useEffect(() => {
-        if (isPendingLoading)
+        if (isPendingCountriesLoading)
             fetch(ConfigData.GET_PENDING_LEVEL)
                 .then(response => response.json())
                 .then(data => {
-                    setIsPendingLoading(false);
+                    setIsPendingCountriesLoading(false);
                     setPendingCountriesData(data.Data);
                 });
+        if (isPendingSitesLoading)
+            fetch('https://localhost:7073/api/Countries/GetPendingSiteLevel')
+                .then(response => response.json())
+                .then(data => {
+                    setIsPendingSitesLoading(false);
+                    setPendindSitesData(data.Data);
+                })
     })
 
-    const getPending = () => {
+    const getPendingCountries = () => {
         return pendingCountriesData.map((c) => ({
             name: c.Country,
             code: c.Code,
@@ -25,16 +34,25 @@ const PendingCards = () => {
             pendingCritical: c.NumCritical
         }))
     }
+    
+    const getPendingSites = () => {
+        return pendingSitesData.map((c) => ({
+            name: c.Country,
+            code: c.Code,
+            numSites: c.ModifiedSites,
+            level: c.Level
+        }))
+    }
 
     function sumTotal(total, current) {
         return total + current;
     }
 
-    let pendingCountries = getPending();
+    let pendingCountries = getPendingCountries();
 
-    const totalPendingInfo = pendingCountries.map((c) => c.pendingInfo).reduce(sumTotal, 0);
-    const totalPendingWarning = pendingCountries.map((c) => c.pendingWarning).reduce(sumTotal, 0);
-    const totalPendingCritical = pendingCountries.map((c) => c.pendingCritical).reduce(sumTotal, 0);
+    const totalPendingCountriesInfo = pendingCountries.map((c) => c.pendingInfo).reduce(sumTotal, 0);
+    const totalPendingCountriesWarning = pendingCountries.map((c) => c.pendingWarning).reduce(sumTotal, 0);
+    const totalPendingCountriesCritical = pendingCountries.map((c) => c.pendingCritical).reduce(sumTotal, 0);
 
     const cards = () => {
         let countryPath;
@@ -77,9 +95,9 @@ const PendingCards = () => {
             <div className="dashboard-title">
                 <h1 className="h1-main me-5">Countries</h1>
                 <div>
-                    <span className="badge badge--critical radio me-2"><b>{totalPendingCritical}</b> Critical</span>
-                    <span className="badge badge--warning me-2"><b>{totalPendingWarning}</b> Warning</span>
-                    <span className="badge badge--info me-2"><b>{totalPendingInfo}</b> Info</span>
+                    <span className="badge badge--critical radio me-2"><b>{totalPendingCountriesCritical}</b> Critical</span>
+                    <span className="badge badge--warning me-2"><b>{totalPendingCountriesWarning}</b> Warning</span>
+                    <span className="badge badge--info me-2"><b>{totalPendingCountriesInfo}</b> Info</span>
                 </div>
             </div>
             <div className="bg-white rounded-2 mb-5">
