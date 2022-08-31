@@ -31,7 +31,10 @@ const PendingCards = () => {
             code: c.Code,
             pendingInfo: c.NumInfo,
             pendingWarning: c.NumWarning,
-            pendingCritical: c.NumCritical
+            pendingCritical: c.NumCritical,
+            numSitesInfo: getNumSites(c.Code, "Info"),
+            numSitesWarning: getNumSites(c.Code, "Warning"),
+            numSitesCritical: getNumSites(c.Code, "Critical"),
         }))
     }
     
@@ -39,7 +42,7 @@ const PendingCards = () => {
         return pendingSitesData.map((c) => ({
             name: c.Country,
             code: c.Code,
-            numSites: c.ModifiedSites,
+            num: c.ModifiedSites,
             level: c.Level
         }))
     }
@@ -48,16 +51,19 @@ const PendingCards = () => {
         return total + current;
     }
     
-    function find(data, countryCode, desiredLevel) {
+    function findData(data, countryCode, desiredLevel) {
         return data.filter((c) => c.code == countryCode && c.level == desiredLevel);
     }
 
     let pendingSites = getPendingSites();
     let pendingCountries = getPendingCountries();
     
-    console.log(find(pendingSites, "DE", "Critical"))
-    console.log(find(pendingSites, "DE", "Critical")[0].numSites)
-
+    function getNumSites(countryCode, desiredLevel) {
+        let siteData = findData(pendingSites, countryCode, desiredLevel);
+        if(siteData[0]) return siteData[0].num;
+        return 0;
+    }
+    
     const totalPendingCountriesInfo = pendingCountries.map((c) => c.pendingInfo).reduce(sumTotal, 0);
     const totalPendingCountriesWarning = pendingCountries.map((c) => c.pendingWarning).reduce(sumTotal, 0);
     const totalPendingCountriesCritical = pendingCountries.map((c) => c.pendingCritical).reduce(sumTotal, 0);
@@ -86,13 +92,13 @@ const PendingCards = () => {
                                     <i className="fa-solid fa-arrow-right"></i>
                                 </div>
                                 <div className="country-card-body">
-                                    <span className="badge color--critical"><b>{country.pendingCritical}</b> Critical</span>
-                                    <span className="badge color--warning"><b>{country.pendingWarning}</b> Warning</span>
-                                    <span className="badge color--info"><b>{country.pendingInfo}</b> Info</span>
-                                    <p></p>
-                                    <span className="badge color--critical"><b>{find(pendingSites, country.code, "Critical")[0].numSites}</b> Critical</span>
-                                    <span className="badge color--warning"><b>{find(pendingSites, country.code, "Warning")[0].numSites}</b> Warning</span>
-                                    <span className="badge color--info"><b>{find(pendingSites, country.code, "Info")[0].numSites}</b> Info</span>
+                                    <span className="badge color--critical"><b> {country.pendingCritical}</b> Critical</span>
+                                    <span className="badge color--warning"><b>  {country.pendingWarning}</b> Warning</span>
+                                    <span className="badge color--info"><b>     {country.pendingInfo}</b> Info</span>
+                                    <p/>
+                                    <span className="badge color--critical"><b> {country.numSitesCritical}</b> Critical</span>
+                                    <span className="badge color--warning"><b>  {country.numSitesWarning}</b> Warning</span>
+                                    <span className="badge color--info"><b>     {country.numSitesInfo}</b> Info</span>
                                 </div>
                             </div>
                         </CCard>
