@@ -4,25 +4,46 @@ import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
 
 const SiteGraph = () => {
-    const [sitesCountriesData, setSitesCountriesData] = useState([]);
+    const [changesCountriesData, setChangesCountriesData] = useState([]);
+    const [isChangesLoading, setIsChangesLoading] = useState(true);
+    const [sitesPendingData, setSitesPendingData] = useState([]);
+    const [sitesAcceptedData, setSitesAcceptedData] = useState([]);
+    const [sitesRejectedData, setSitesRejectedData] = useState([]);
     const [isSitesLoading, setIsSitesLoading] = useState(true);
 
     useEffect(() => {
-        if (isSitesLoading)
+        if (isChangesLoading)
             fetch(ConfigData.GET_SITE_COUNT)
                 .then(response => response.json())
                 .then(data => {
-                    setIsSitesLoading(false);
-                    setSitesCountriesData(data.Data);
+                    setIsChangesLoading(false);
+                    setChangesCountriesData(data.Data);
                 });
+        if (isSitesLoading) {
+            fetch('https://localhost:7073/api/Countries/GetSiteLevel?status=Pending')
+                .then(response => response.json())
+                .then(data => {
+                    setSitesPendingData(data.Data);
+                });
+            fetch('https://localhost:7073/api/Countries/GetSiteLevel?status=Accepted')
+                .then(response => response.json())
+                .then(data => {
+                    setSitesAcceptedData(data.Data);
+                });
+            fetch('https://localhost:7073/api/Countries/GetSiteLevel?status=Rejected')
+                .then(response => response.json())
+                .then(data => {
+                    setSitesRejectedData(data.Data);
+                });
+            setIsSitesLoading(false);
+        }
     })
     let seriesData = [];
     let countryList = [];
 
     let chngPending = [], chngAccepted = [], chngRejected = [];
-    let data = sitesCountriesData;
+    let data = changesCountriesData;
     for (let i in data) {
-        //console.log(data)
         chngAccepted.push(data[i].NumAccepted);
         chngPending.push(data[i].NumPending);
         chngRejected.push(data[i].NumRejected);
@@ -33,8 +54,40 @@ const SiteGraph = () => {
         { name: 'Rejected', index: 3, data: chngRejected, color: '#e3f2fd' }
     ];
 
-    countryList = sitesCountriesData.map((e) => e.Country);
+    countryList = changesCountriesData.map((e) => e.Country);
+    
+    const getSites = (data) => {
+        return data.map((c) => ({
+            name: c.Country,
+            code: c.Code,
+            num: c.ModifiedSites,
+            level: c.Level
+        }))
+    }
+    
+    function findData(data, country) {
+        return getSites(data).filter((c) => c.name == country);
+    }
 
+    function sumTotal(total, current) {
+        return total + current;
+    }
+    
+    function sumSites(data) {
+        return data.map((d) => d.num).reduce(sumTotal, 0);
+    }
+
+    function getNumSites(country, desiredStatus) {
+        let siteData = [];
+        switch(desiredStatus) {
+            case "Pending": siteData = findData(sitesPendingData, country); break;
+            case "Accepted": siteData = findData(sitesAcceptedData, country); break;
+            case "Rejected": siteData = findData(sitesRejectedData, country); break;
+        }
+        if(siteData[0]) return sumSites(siteData);
+        return 0;
+    }
+    
     const options = {
         chart: {
             type: 'column'
@@ -43,7 +96,7 @@ const SiteGraph = () => {
             enabled: false
         },
         title: {
-            text: 'Sites (Pending/Accepted/Rejected)'
+            text: 'Changes (Pending/Accepted/Rejected)'
         },
         xAxis: {
             categories: countryList
@@ -53,6 +106,13 @@ const SiteGraph = () => {
             reversedStacks: false,
             title: {
                 text: ''
+            }
+        },
+        tooltip: {
+            formatter: function () {
+                return '<b>' + this.x + '</b><br/>' +
+                    this.series.name + ' changes: ' + '<b>' + this.y + '</b>' + '<br/>' +
+                    'Affected sites: ' + '<b>' + getNumSites(this.x, this.series.name) + '</b>';
             }
         },
         plotOptions: {
