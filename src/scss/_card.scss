@@ -82,14 +82,20 @@
   margin: 0;
   padding: 1rem 0.75rem;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   height: 100%;
   transition: $transition-base;
   &:hover {
     background-color: $gray-25;
     cursor: pointer;
     transition: $transition-base;
-    text-decoration: underline;
+  }
+  &-top {
+    display: flex;
+    flex-direction: row;
+    i {
+      align-items: flex-end;
+    }
   }
   &-left {
     margin-right: 1rem;
@@ -106,17 +112,20 @@
   }
   &-header {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    justify-content: left;
     margin-bottom: 0.5rem;
-    i {
+    &-arrow {
       color: $primary-base;
+      align-items: right;
     }
   }
   &-title {
     font-size: 1.25rem;
     font-weight: bold;
     color: $primary-base;
+    &:hover {
+      text-decoration: underline;
+    }
   }
   &-body {
     .badge {

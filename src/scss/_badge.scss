@@ -3,6 +3,14 @@
   font-weight: normal;
   font-size: 0.85rem;
   line-height: initial;
+  &--type {
+    color: black;
+    font-size: 0.85rem;
+    font-weight: lighter;
+    &:hover {
+      text-decoration: none;
+    }
+  }
   &--critical {
     border-color: $danger-base;
     color: $danger-base;
@@ -82,6 +90,6 @@
     color: $success-base;
   } 
   &--bookmark {
-    color:black
+    color:black,
   }
 }
