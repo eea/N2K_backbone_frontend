@@ -17,7 +17,7 @@ const PendingCards = () => {
                     setPendingCountriesData(data.Data);
                 });
         if (isPendingSitesLoading)
-            fetch('https://localhost:7073/api/Countries/GetSiteLevel?status=Pending')
+            fetch(ConfigData.GET_SITE_LEVEL + '?status=Pending')
                 .then(response => response.json())
                 .then(data => {
                     setIsPendingSitesLoading(false);

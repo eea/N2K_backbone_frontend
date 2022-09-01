@@ -20,17 +20,17 @@ const SiteGraph = () => {
                     setChangesCountriesData(data.Data);
                 });
         if (isSitesLoading) {
-            fetch('https://localhost:7073/api/Countries/GetSiteLevel?status=Pending')
+            fetch(ConfigData.GET_SITE_LEVEL + '?status=Pending')
                 .then(response => response.json())
                 .then(data => {
                     setSitesPendingData(data.Data);
                 });
-            fetch('https://localhost:7073/api/Countries/GetSiteLevel?status=Accepted')
+            fetch(ConfigData.GET_SITE_LEVEL + '?status=Accepted')
                 .then(response => response.json())
                 .then(data => {
                     setSitesAcceptedData(data.Data);
                 });
-            fetch('https://localhost:7073/api/Countries/GetSiteLevel?status=Rejected')
+            fetch(ConfigData.GET_SITE_LEVEL + '?status=Rejected')
                 .then(response => response.json())
                 .then(data => {
                     setSitesRejectedData(data.Data);
