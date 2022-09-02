@@ -83,14 +83,14 @@ const PendingCards = () => {
                 <CCol key={country.name + "Card"} xs={12} md={6} lg={4} xl={3}>
                     <a className="country-card-link" href={"/#/sitechanges?country=" + country.code}>
                         <CCard className="country-card">
-                            <div className="country-card-top">
-                                <div className="country-card-header">
-                                    <div className="country-card-left">
-                                        <CCardImage className="card-img--flag" src={require("../../../../src/assets/images/flags/" + countryPath + ".png")} width="32px" />
-                                    </div>
+                            <div className="country-card-header">
+                                <div className="country-card-left">
+                                    <CCardImage className="card-img--flag" src={require("../../../../src/assets/images/flags/" + countryPath + ".png")} width="32px" />
                                     <span className="country-card-title">{country.name}</span>
                                 </div>
-                                <i className="fa-solid fa-arrow-right"></i>
+                                <div className="country-card-right">
+                                    <i className="fa-solid fa-arrow-right"></i>
+                                </div>
                             </div>
                             <div className="country-card-body">
                                 <div>
@@ -99,8 +99,6 @@ const PendingCards = () => {
                                     <span className="badge color--critical"><b> {country.pendingCritical}</b> Critical</span>
                                     <span className="badge color--warning"><b>  {country.pendingWarning}</b> Warning</span>
                                     <span className="badge color--info"><b>     {country.pendingInfo}</b> Info</span>
-                            </div>
-                            <div className="country-card-body">
                                 <div>
                                     <span className="badge--type">Affected sites: </span>
                                 </div>

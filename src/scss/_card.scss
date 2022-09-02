@@ -56,26 +56,6 @@
   }
 }
 
-.country-title{
-  position: static;
-  width: 40px;
-  height: 32px;
-  left: 10px;
-  top: 0px;
-
-  font-family: 'Open Sans';
-  font-style: normal;
-  font-weight: 700;
-  font-size: 18px;
-  line-height: 32px;
-  color: #01579B;
-
-  flex: none;
-  order: 1;
-  flex-grow: 0;
-  margin: 0px 18px;
-}
-
 .country-card {
   box-shadow: $box-shadow;
   border-radius: 10px;
@@ -90,11 +70,14 @@
     cursor: pointer;
     transition: $transition-base;
   }
-  &-top {
+  &-header {
     display: flex;
-    flex-direction: row;
-    i {
-      align-items: flex-end;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    &-arrow {
+      color: $primary-base;
+      align-items: right;
     }
   }
   &-left {
@@ -102,30 +85,15 @@
     .card-img {
       &--flag {
         width: 2.5rem;
+        margin-right: 1rem;
       }
-    }
-  }
-  &-right {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-  }
-  &-header {
-    display: flex;
-    justify-content: left;
-    margin-bottom: 0.5rem;
-    &-arrow {
-      color: $primary-base;
-      align-items: right;
     }
   }
   &-title {
     font-size: 1.25rem;
     font-weight: bold;
     color: $primary-base;
-    &:hover {
-      text-decoration: underline;
-    }
+    vertical-align: middle;
   }
   &-body {
     .badge {
