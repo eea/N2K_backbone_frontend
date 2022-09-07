@@ -1,7 +1,8 @@
 import React, { lazy, useState } from 'react'
-import { AppFooter, AppHeader } from './../../../components/index'
+import { AppFooter, AppHeader } from '../../../components/index'
 import TableEnvelops from './TableEnvelops';
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import {ReactComponent as ReactLogo} from './../../../assets/images/harvesting.svg';
 
 import {
   CButton,
@@ -10,8 +11,6 @@ import {
   CCol,
   CContainer,
   CRow,
-  CFormLabel,
-  CFormSelect,
   CAlert
 } from '@coreui/react'
 
@@ -129,7 +128,7 @@ const Harvesting = () => {
           <CSidebarNav>
             <li className="nav-title">Harvesting</li>
             <li className="nav-item">
-              <a className="nav-link active">
+              <a className="nav-link active" href="/#/harvesting/incoming">
                 <i className="fa-solid fa-bookmark"></i>
                 Incoming
               </a>
@@ -164,18 +163,20 @@ const Harvesting = () => {
           <CContainer fluid>
             <div className="d-flex justify-content-between py-3">
               <div className="page-title">
-                <h1 className="h1">New Envelopes</h1>
+                <h1 className="h1">Incoming</h1>
               </div>
               <div>
                 <ul className="btn--list">
                   <li><CButton color="secondary" disabled={disabledBtn} onClick={() => modalProps.showDiscardModal(selectedCodes)}>Discard</CButton></li>
-                  <li><CButton color="primary" disabled={disabledBtn} onClick={() => modalProps.showHarvestModal(selectedCodes)}>Harvest</CButton></li>
                 </ul>
               </div>
             </div>
+            <div className="text-center mb-4">
+              <ReactLogo className="harvesting-chart" id="incoming_chart"/>
+            </div>
             <CRow>
               <CCol md={12} lg={12}>
-                <TableEnvelops setSelected={setSelectedCodes} modalProps={modalProps} />
+                <TableEnvelops setSelected={setSelectedCodes} modalProps={modalProps} tableType="incoming"/>
                 <ConfirmationModal modalValues={modalValues}/>
                 <CAlert color="primary" dismissible visible={alertValues.visible} onClose={() => setAlertValues({visible:false})}>{alertValues.text}</CAlert>
               </CCol>
