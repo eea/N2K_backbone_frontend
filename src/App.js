@@ -13,7 +13,12 @@ const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'))
 
 // Pages
 // const Template = React.lazy(() => import('./views/pages/template/Template'))
-const Harvesting = React.lazy(() => import('./views/pages/harvesting/harvesting'))
+//const Harvesting = React.lazy(() => import('./views/pages/harvesting/harvesting'))
+const HarvestingIncoming = React.lazy(() => import('./views/pages/harvesting/incoming'))
+const HarvestingReady = React.lazy(() => import('./views/pages/harvesting/ready'))
+const HarvestingReadProgress = React.lazy(() => import('./views/pages/harvesting/progress'))
+const HarvestingReadPocessed = React.lazy(() => import('./views/pages/harvesting/processed'))
+const HarvestingReadAll = React.lazy(() => import('./views/pages/harvesting/all'))
 const SiteChanges = React.lazy(() => import('./views/pages/sitechanges/sitechanges'))
 const SiteEdition = React.lazy(() => import('./views/pages/siteedition/siteedition'))
 
@@ -24,7 +29,11 @@ class App extends Component {
         <React.Suspense fallback={loading}>
           <Switch>
             {/* <Route exact path="/template" name="Template Page" render={(props) => <Template {...props} />}/> */}
-            <Route exact path="/harvesting" name="Harvesting" render={(props) => <Harvesting {...props} />}/>
+            <Route exact path="/harvesting/incoming" name="Harvesting" render={(props) => <HarvestingIncoming {...props} />}/>
+            <Route exact path="/harvesting/ready" name="Harvesting" render={(props) => <HarvestingReady {...props} />}/>
+            <Route exact path="/harvesting/progress" name="Harvesting" render={(props) => <HarvestingReadProgress {...props} />}/>
+            <Route exact path="/harvesting/processed" name="Harvesting" render={(props) => <HarvestingReadPocessed {...props} />}/>
+            <Route exact path="/harvesting/all" name="Harvesting" render={(props) => <HarvestingReadAll {...props} />}/>
             <Route exact path="/sitechanges" name="Sitechanges" render={(props) => <SiteChanges {...props} />}/>
             <Route exact path="/siteedition" name="Siteedition" render={(props) => <SiteEdition {...props} />}/>
             <Route path="/" name="Home" render={(props) => <DefaultLayout {...props} />} />

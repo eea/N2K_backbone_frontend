@@ -100,3 +100,17 @@ html {
       height: auto;
     }
 }
+
+.harvesting-chart {
+  height: 10rem;
+  margin: auto;
+  &#incoming_chart g:not(#incoming) {
+    opacity: 0.2;
+  }
+  &#ready_chart g:not(#incoming, #ready) {
+    opacity: 0.2;
+  }
+  &#progress_chart g:not(#incoming, #ready, #progress) {
+    opacity: 0.2;
+  }
+}
