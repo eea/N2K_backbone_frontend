@@ -47,6 +47,26 @@
       color: $white;
     }
   }
+  &--incoming {
+    border-color: $gray-700;
+    color: $gray-700;
+  }
+  &--ready {
+    border-color: $blue;
+    color: $blue;
+  }
+  &--progress {
+    border-color: $primary-base;
+    color: $primary-base;
+  }
+  &--discarded {
+    border-color: $danger-base;
+    color: $danger-base;
+  }
+  &--completed {
+    border-color: $success-base;
+    color: $success-base;
+  }
   &--light {
     background: $gray-100;
     color: $gray-900;

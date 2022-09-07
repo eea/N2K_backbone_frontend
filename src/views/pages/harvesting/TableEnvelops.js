@@ -9,9 +9,9 @@ import {
   CDropdownToggle,
   CDropdownMenu,
   CDropdownItem,
-  CTooltip,
-  CImage
 } from '@coreui/react'
+
+const status = ConfigData.HARVESTING_STATUS;
 
 const IndeterminateCheckbox = React.forwardRef(
     ({ indeterminate, ...rest }, ref) => {
@@ -65,8 +65,7 @@ const IndeterminateCheckbox = React.forwardRef(
   
   fuzzyTextFilterFn.autoRemove = val => !val
 
-  function Table({ columns, data, setSelected }) {
-
+  function Table({ columns, data, setSelected, modalProps, tableType }) {
     const filterTypes = React.useMemo(
       () => ({
         fuzzyText: fuzzyTextFilterFn,
@@ -83,10 +82,25 @@ const IndeterminateCheckbox = React.forwardRef(
       }),
       []
     )
-
+    function DropdownHarvesting(props) {
+      let row = {versionId: props.versionId, countryCode: props.countryCode};
+      return (
+        <CDropdown>
+          <CDropdownToggle className="btn-more" caret={false} size="sm">
+            <i className="fa-solid fa-ellipsis"></i>
+          </CDropdownToggle>
+          <CDropdownMenu>
+            {tableType === "ready" &&
+              <CDropdownItem onClick={() => props.modalProps.showHarvestModal(row)}>Harvest</CDropdownItem>
+            }
+            <CDropdownItem onClick={() => props.modalProps.showDiscardModal(row)}>Discard</CDropdownItem>
+          </CDropdownMenu>
+        </CDropdown>
+      )
+    }
     const defaultColumn = React.useMemo(
       () => ({
-          Filter: DefaultColumnFilter,
+        Filter: DefaultColumnFilter,
       })
     )
     const {
@@ -101,7 +115,7 @@ const IndeterminateCheckbox = React.forwardRef(
       pageSize,
       gotoPage,
       nextPage,
-      previousPage, 
+      previousPage,
       state: { pageIndex, selectedRowIds },
     } = useTable(
       {
@@ -117,26 +131,61 @@ const IndeterminateCheckbox = React.forwardRef(
       usePagination,
       useRowSelect,
       hooks => {
-        hooks.visibleColumns.push(columns => [
-          {
-            id: 'selection',
-            cellWidth: '48px',
-            Header: ({ getToggleAllPageRowsSelectedProps }) => (
-              <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} id="harvesting_check_all"/>
-            ),
-            Cell: ({ row }) => (
-              !row.original.CanHarvest ?
-                <CTooltip
-                  content="Previous envelopes must be handled first"
-                  placement="top"
-                >
-                  <div className="checkbox"></div>
-                </CTooltip>
-              : <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} id={"harvesting_check_" + row.values.Version}/>
-            ),
-          },
-          ...columns,
-        ])
+        if(tableType==="incoming" || tableType==="ready"){
+          hooks.visibleColumns.push(columns => [
+            {
+              id: 'selection',
+              cellWidth: '48px',
+              Header: ({ getToggleAllPageRowsSelectedProps }) => (
+                <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} id="harvesting_check_all"/>
+              ),
+              Cell: ({ row }) => (
+                <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} id={"harvesting_check_" + row.values.Version}/>
+              ),
+            },
+            ...columns,
+            {
+              Header: () => null, 
+              id: 'dropdownEnvelops',
+              cellWidth: "48px",
+              Cell: ({ row }) => (
+                tableType === "incoming" || tableType === "ready" ?
+                  <DropdownHarvesting canHarvest={row.original.CanHarvest} versionId={row.values.Version} countryCode={row.original.CountryCode} modalProps={modalProps}/>
+                : <i className="fa-solid fa-arrow-right"></i>
+              )
+            },
+          ])
+        }
+        if(tableType==="progress"){
+          hooks.visibleColumns.push(columns => [
+            ...columns,
+            {
+              Header: () => null, 
+              id: 'dropdownEnvelops',
+              cellWidth: "48px",
+              Cell: ({ row }) => (
+                <a href={"/#/sitechanges?country=" + row.original.CountryCode}>
+                  <i className="fa-solid fa-arrow-right"></i>
+                </a>
+              )
+            },
+          ])
+        }
+        if(tableType==="processed"){
+          hooks.visibleColumns.push(columns => [
+            ...columns,
+            {
+              Header: () => null, 
+              id: 'dropdownEnvelops',
+              cellWidth: "48px",
+              Cell: ({ row }) => (
+                <a href="">
+                  <i className="fa-solid fa-arrow-right"></i>
+                </a>
+              )
+            },
+          ])
+        }
       }
     )
     if(setSelected) setSelected(Object.keys(selectedRowIds).filter(v=>!v.includes(".")).map(v=>{return {CountryCode:data[v].CountryCode, VersionId: data[v].Version}}))
@@ -243,8 +292,19 @@ const IndeterminateCheckbox = React.forwardRef(
           accessor: 'Version',
         },
         {
+          Header: 'Status',
+          accessor: 'Status',
+          Cell: ({ cell }) => (
+            <span className={"badge badge--"+props.tableType}>{status[props.tableType]}</span>
+          )
+        },
+        {
           Header: 'Country',
           accessor: 'Country',
+        },
+        {
+          Header: 'Changes',
+          accessor: 'Changes',
         },
         {
           Header: 'Submission date',
@@ -253,40 +313,9 @@ const IndeterminateCheckbox = React.forwardRef(
             formatDate(cell.value)
           )
         },
-        {
-          Header: () => null, 
-          id: 'dropdownEnvelops',
-          cellWidth: '48px',
-          Cell: ({ row }) => (
-            <DropdownHarvesting canHarvest={row.original.CanHarvest} versionId={row.values.Version} countryCode={row.original.CountryCode} modalProps={props.modalProps}/>
-          )
-        },
       ],
       []
     )
-
-    function DropdownHarvesting(props) {
-      let row = {versionId: props.versionId, countryCode: props.countryCode};
-      return (
-        <CDropdown>
-          <CDropdownToggle className="btn-more" caret={false} size="sm">
-            <i className="fa-solid fa-ellipsis"></i>
-          </CDropdownToggle>
-          <CDropdownMenu>
-            {!props.canHarvest ?
-              <CTooltip
-                content="Previous envelopes must be handled first"
-                placement="top"
-              >
-                <CDropdownItem disabled style={{pointerEvents:"auto"}}>Harvest</CDropdownItem>
-              </CTooltip>
-            : <CDropdownItem onClick={() => props.modalProps.showHarvestModal(row)} disabled={!props.canHarvest}>Harvest</CDropdownItem>
-            }
-            <CDropdownItem onClick={() => props.modalProps.showDiscardModal(row)}>Discard</CDropdownItem>
-          </CDropdownMenu>
-        </CDropdown>
-      )
-    }
 
     let loadData = () => {
       if(!isLoading && Object.keys(envelopsData).length===0){
@@ -316,7 +345,7 @@ const IndeterminateCheckbox = React.forwardRef(
     else {
       return (
         <>
-          <Table columns={columns} data={envelopsData} setSelected={props.setSelected}/>
+          <Table columns={columns} data={envelopsData} tableType={props.tableType} setSelected={props.setSelected} modalProps={props.modalProps}/>
         </>
       )
     }
