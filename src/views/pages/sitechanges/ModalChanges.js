@@ -32,6 +32,8 @@ import {
   CCollapse,
   CCard,
   CAlert,
+  CForm,
+  CFormTextarea,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilWarning } from '@coreui/icons'
@@ -145,7 +147,7 @@ export class ModalChanges extends Component {
   }
 
   updateComment(target){
-    let input = target.closest(".comment--item").querySelector("input");
+    let input = target.closest(".comment--item").querySelector("textarea");
     if (target.firstChild.classList.contains("fa-pencil")) {
       input.disabled = false;
       input.focus();
@@ -161,7 +163,7 @@ export class ModalChanges extends Component {
   }
 
   addComment(target){
-    let input = target.closest(".comment--item").querySelector("input");
+    let input = target.closest(".comment--item").querySelector("textarea");
     let comment = input.value;
     if (!comment) {
       this.showErrorMessage("comment", "Add a comment");
@@ -192,9 +194,9 @@ export class ModalChanges extends Component {
   }
 
   saveComment(code,version,comment,target){
-    let input = target.closest(".comment--item").querySelector("input");
+    let input = target.closest(".comment--item").querySelector("textarea");
     let body = {
-      "Id": input.getAttribute("msg_id"),
+      "Id": input.getAttribute("id"),
       "SiteCode": code,
       "Version": version,
       "comments": comment
@@ -211,8 +213,8 @@ export class ModalChanges extends Component {
 
   deleteComment(target){
     if(target) {
-      let input = target.closest(".comment--item").querySelector("input");
-      let id = input.getAttribute("msg_id");
+      let input = target.closest(".comment--item").querySelector("textarea");
+      let id = input.getAttribute("id");
       let body = id;
       this.sendRequest(ConfigData.DELETE_COMMENT,"DELETE",body)
       .then((data) => {
@@ -548,7 +550,13 @@ handleJustProvided(){
       this.state.newComment &&
       <div className="comment--item new" id="cmtItem_newItem">
         <div className="comment--text">
-          <input type="text" placeholder="Add comment"/>
+          <CForm>
+            <CFormTextarea
+              rows="5"
+              placeholder="Add a comment"
+              className="comment--input"
+            ></CFormTextarea>
+          </CForm>
         </div>
         <div>
           <div className="btn-icon" onClick={(e) => this.addComment(e.currentTarget)}> 
@@ -577,7 +585,15 @@ handleJustProvided(){
     return (
       <div className="comment--item" key={"cmtItem_"+id} id={"cmtItem_"+id}>
         <div className="comment--text" key={"cmtText_"+id}>
-          <input type="text" placeholder="Add comment" defaultValue={comment} msg_id={id} disabled/>
+          <CForm>
+            <CFormTextarea
+              id={id}
+              disabled
+              readOnly
+              value={comment}
+              className="comment--input"
+            ></CFormTextarea>
+          </CForm>
         </div>
         <div className="comment--icons">
           <div className="btn-icon" onClick={(e) => this.updateComment(e.currentTarget)} key={"cmtUpdate_"+id}>
