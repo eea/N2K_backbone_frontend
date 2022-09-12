@@ -338,7 +338,7 @@ export class ModalEdition extends Component {
 
   saveChanges(){
     let body = Object.fromEntries(new FormData(document.querySelector("form")));
-    body.BioRegion = Array.from(document.getElementsByName("BioRegion")).map(el => el.value);
+    body.BioRegion = Array.from(document.getElementsByName("BioRegion")).map(el => el.value).toString();
     body.Area = +body.Area;
     body.Length = +body.Length;
     body.CentreX = +body.CentreX;
