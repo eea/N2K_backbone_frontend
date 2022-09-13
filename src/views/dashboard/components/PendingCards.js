@@ -4,25 +4,27 @@ import { CRow, CCol, CCard, CCardImage } from '@coreui/react';
 
 const PendingCards = () => {
     const [pendingCountriesData, setPendingCountriesData] = useState([]);
-    const [isPendingCountriesLoading, setIsPendingCountriesLoading] = useState(true);
     const [pendingSitesData, setPendindSitesData] = useState([]);
-    const [isPendingSitesLoading, setIsPendingSitesLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
-        if (isPendingCountriesLoading)
-            fetch(ConfigData.GET_PENDING_LEVEL)
-                .then(response => response.json())
-                .then(data => {
-                    setIsPendingCountriesLoading(false);
-                    setPendingCountriesData(data.Data);
-                });
-        if (isPendingSitesLoading)
-            fetch(ConfigData.GET_SITE_LEVEL + '?status=Pending')
-                .then(response => response.json())
-                .then(data => {
-                    setIsPendingSitesLoading(false);
-                    setPendindSitesData(data.Data);
-                })
+        loadData();
+    }, [])
+
+    const loadData = (() => {
+        let promises = [];
+        setIsLoading(true);
+        promises.push(fetch(ConfigData.GET_PENDING_LEVEL)
+            .then(response => response.json())
+            .then(data => {
+                setPendingCountriesData(data.Data);
+            }));
+        promises.push(fetch(ConfigData.GET_SITE_LEVEL + '?status=Pending')
+            .then(response => response.json())
+            .then(data => {
+                setPendindSitesData(data.Data);
+            }));
+        Promise.all(promises).then(d => setIsLoading(false));
     })
 
     const getPendingCountries = () => {
@@ -125,7 +127,7 @@ const PendingCards = () => {
             </div>
             <div className="bg-white rounded-2 mb-5">
                 <CRow className="grid">
-                    {cards()}
+                    {isLoading ? <h1 style={{"textAlign": "center"}}>Loading data...</h1> : cards()}
                 </CRow>
             </div>
         </>

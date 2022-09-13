@@ -135,18 +135,17 @@ const SiteGraph = () => {
         series: seriesData
     }
 
-    if(isLoading) {
+    if(isLoading)
         return (
             <h1 style={{"textAlign": "center"}}>Loading data...</h1>
         )
-    } else {
+    else
         return (
             <HighchartsReact
                 highcharts={Highcharts}
                 options={options}
             />
         );
-    }
 }
 
 export default SiteGraph;
