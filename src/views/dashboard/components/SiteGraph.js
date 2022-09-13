@@ -5,39 +5,41 @@ import HighchartsReact from 'highcharts-react-official'
 
 const SiteGraph = () => {
     const [changesCountriesData, setChangesCountriesData] = useState([]);
-    const [isChangesLoading, setIsChangesLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
     const [sitesPendingData, setSitesPendingData] = useState([]);
     const [sitesAcceptedData, setSitesAcceptedData] = useState([]);
     const [sitesRejectedData, setSitesRejectedData] = useState([]);
-    const [isSitesLoading, setIsSitesLoading] = useState(true);
-
+    
     useEffect(() => {
-        if (isChangesLoading)
-            fetch(ConfigData.GET_SITE_COUNT)
-                .then(response => response.json())
-                .then(data => {
-                    setIsChangesLoading(false);
-                    setChangesCountriesData(data.Data);
-                });
-        if (isSitesLoading) {
-            fetch(ConfigData.GET_SITE_LEVEL + '?status=Pending')
-                .then(response => response.json())
-                .then(data => {
-                    setSitesPendingData(data.Data);
-                });
-            fetch(ConfigData.GET_SITE_LEVEL + '?status=Accepted')
-                .then(response => response.json())
-                .then(data => {
-                    setSitesAcceptedData(data.Data);
-                });
-            fetch(ConfigData.GET_SITE_LEVEL + '?status=Rejected')
-                .then(response => response.json())
-                .then(data => {
-                    setSitesRejectedData(data.Data);
-                });
-            setIsSitesLoading(false);
-        }
+        loadData();
     })
+
+    const loadData = (() => {
+        let promises = [];
+        setIsLoading(true);
+        promises.push(fetch(ConfigData.GET_SITE_COUNT)
+            .then(response => response.json())
+            .then(data => {
+                setChangesCountriesData(data.Data);
+            }));
+        promises.push(fetch(ConfigData.GET_SITE_LEVEL + '?status=Pending')
+            .then(response => response.json())
+            .then(data => {
+                setSitesPendingData(data.Data);
+            }));
+        promises.push(fetch(ConfigData.GET_SITE_LEVEL + '?status=Accepted')
+            .then(response => response.json())
+            .then(data => {
+                setSitesAcceptedData(data.Data);
+            }));
+        promises.push(fetch(ConfigData.GET_SITE_LEVEL + '?status=Rejected')
+            .then(response => response.json())
+            .then(data => {
+                setSitesRejectedData(data.Data);
+            }));
+        Promise.all(promises).then(d => setIsLoading(false));
+    })
+    
     let seriesData = [];
     let countryList = [];
 
@@ -87,7 +89,7 @@ const SiteGraph = () => {
         if(siteData[0]) return sumSites(siteData);
         return 0;
     }
-    
+
     const options = {
         chart: {
             type: 'column'
@@ -115,6 +117,13 @@ const SiteGraph = () => {
                     'Affected sites: ' + '<b>' + getNumSites(this.x, this.series.name) + '</b>';
             }
         },
+        tooltip: {
+            formatter: function () {
+                return '<b>' + this.x + '</b><br/>' +
+                    this.series.name + ' changes: ' + '<b>' + this.y + '</b>' + '<br/>' +
+                    'Affected sites: ' + '<b>' + getNumSites(this.x, this.series.name) + '</b>';
+            }
+        },
         plotOptions: {
             series: {
                 stacking: 'percent'
@@ -126,12 +135,18 @@ const SiteGraph = () => {
         series: seriesData
     }
 
-    return (
-        <HighchartsReact
-            highcharts={Highcharts}
-            options={options}
-        />
-    );
+    if(isLoading) {
+        return (
+            <h1>Loading...</h1>
+        )
+    } else {
+        return (
+            <HighchartsReact
+                highcharts={Highcharts}
+                options={options}
+            />
+        );
+    }
 }
 
 export default SiteGraph;
