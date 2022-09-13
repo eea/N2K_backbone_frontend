@@ -12,7 +12,7 @@ const SiteGraph = () => {
     
     useEffect(() => {
         loadData();
-    })
+    }, [])
 
     const loadData = (() => {
         let promises = [];
@@ -137,7 +137,7 @@ const SiteGraph = () => {
 
     if(isLoading) {
         return (
-            <h1>Loading...</h1>
+            <h1 style={{"textAlign": "center"}}>Loading data...</h1>
         )
     } else {
         return (
