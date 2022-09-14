@@ -3,6 +3,7 @@ import React, { Component, useState } from 'react';
 import Select from 'react-select';
 import {
   CButton,
+  CSpinner,
   CCol,
   CRow,
   CNav,
@@ -40,7 +41,8 @@ export class ModalEdition extends Component {
             }
           });
         }
-      }
+      },
+      updatingData: false
     };
   }
 
@@ -275,7 +277,7 @@ export class ModalEdition extends Component {
         <CModalHeader>
           <CModalTitle>{data.SiteCode} - {data.SiteName}</CModalTitle>
         </CModalHeader>
-        <CModalBody>
+        <CModalBody >
           <CNav variant="tabs" role="tablist">
           <CNavItem>
               <CNavLink
@@ -293,8 +295,11 @@ export class ModalEdition extends Component {
         </CModalBody>
         <CModalFooter>
           <div className="d-flex w-100 justify-content-between">
-            <CButton color="secondary" onClick={()=>this.cancelChanges()}>Cancel</CButton>
-            <CButton color="primary" onClick={()=>this.updateModalValues("Save changes", "This will save the site changes", "Continue", ()=>this.saveChanges(), "Cancel", ()=>{})}>Save</CButton>
+            <CButton color="secondary" disabled= {this.state.updatingData} onClick={()=>this.cancelChanges()}>Cancel</CButton>
+            <CButton color="primary" disabled= {this.state.updatingData} onClick={()=>this.updateModalValues("Save changes", "This will save the site changes", "Continue", ()=>this.saveChanges(), "Cancel", ()=>{})}>
+              {this.state.updatingData && <CSpinner size="sm"/>}
+              {this.state.updatingData? " Saving":"Save"}
+            </CButton>
           </div>
         </CModalFooter>
       </>
@@ -338,7 +343,7 @@ export class ModalEdition extends Component {
 
   saveChanges(){
     let body = Object.fromEntries(new FormData(document.querySelector("form")));
-    body.BioRegion = Array.from(document.getElementsByName("BioRegion")).map(el => el.value);
+    body.BioRegion = Array.from(document.getElementsByName("BioRegion")).map(el => el.value).toString();
     body.Area = +body.Area;
     body.Length = +body.Length;
     body.CentreX = +body.CentreX;
@@ -352,12 +357,14 @@ export class ModalEdition extends Component {
       this.sendRequest(ConfigData.SITEDETAIL_SAVE, "POST", body)
       .then((data)=> {
         if(data?.ok){
+          this.setState({updatingData:false});
           this.close();
         }
         else {
           this.showErrorMessage("Something went wrong");
         }
       });
+      this.setState({updatingData:true});
     }
   }
 
