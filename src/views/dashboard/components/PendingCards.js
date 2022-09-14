@@ -127,7 +127,7 @@ const PendingCards = () => {
             </div>
             <div className="bg-white rounded-2 mb-5">
                 <CRow className="grid">
-                    {isLoading ? <h1 style={{"textAlign": "center"}}>Loading data...</h1> : cards()}
+                    {isLoading ? <em className="loading-container">Loading...</em> : cards()}
                 </CRow>
             </div>
         </>

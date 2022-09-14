@@ -137,7 +137,7 @@ const SiteGraph = () => {
 
     if(isLoading)
         return (
-            <h1 style={{"textAlign": "center"}}>Loading data...</h1>
+            <em className="loading-container">Loading...</em>
         )
     else
         return (
