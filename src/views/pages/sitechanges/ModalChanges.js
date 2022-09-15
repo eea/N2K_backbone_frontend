@@ -31,10 +31,11 @@ import {
   CTabPane,
   CCollapse,
   CCard,
-  CAlert,
-  CForm,
-  CFormTextarea,
+  CAlert
 } from '@coreui/react'
+
+import TextareaAutosize from 'react-textarea-autosize';
+
 import CIcon from '@coreui/icons-react'
 import { cilWarning } from '@coreui/icons'
 
@@ -43,6 +44,7 @@ import justificationprovided from './../../../assets/images/file-text.svg'
 
 import MapViewer from './components/MapViewer'
 import { getOptions } from 'highcharts';
+import reactTextareaAutosize from 'react-textarea-autosize';
 
 export class ModalChanges extends Component {
   
@@ -150,6 +152,7 @@ export class ModalChanges extends Component {
     let input = target.closest(".comment--item").querySelector("textarea");
     if (target.firstChild.classList.contains("fa-pencil")) {
       input.disabled = false;
+      input.readOnly = false;
       input.focus();
       target.firstChild.classList.replace("fa-pencil", "fa-floppy-disk");
     } else {
@@ -206,6 +209,7 @@ export class ModalChanges extends Component {
     .then((data) => {
       if(data?.ok){
         input.disabled = true;
+        input.readOnly = true;
         target.firstChild.classList.replace("fa-floppy-disk", "fa-pencil");
       }
     });
@@ -550,13 +554,11 @@ handleJustProvided(){
       this.state.newComment &&
       <div className="comment--item new" id="cmtItem_newItem">
         <div className="comment--text">
-          <CForm>
-            <CFormTextarea
-              rows="5"
-              placeholder="Add a comment"
-              className="comment--input"
-            ></CFormTextarea>
-          </CForm>
+          <TextareaAutosize
+            minRows={3}
+            placeholder="Add a comment"
+            className="comment--input"
+          ></TextareaAutosize>
         </div>
         <div>
           <div className="btn-icon" onClick={(e) => this.addComment(e.currentTarget)}> 
@@ -585,15 +587,12 @@ handleJustProvided(){
     return (
       <div className="comment--item" key={"cmtItem_"+id} id={"cmtItem_"+id}>
         <div className="comment--text" key={"cmtText_"+id}>
-          <CForm>
-            <CFormTextarea
-              id={id}
-              disabled
-              readOnly
-              value={comment}
-              className="comment--input"
-            ></CFormTextarea>
-          </CForm>
+          <TextareaAutosize
+            id={id}
+            disabled
+            defaultValue={comment}
+            className="comment--input"
+          ></TextareaAutosize>
         </div>
         <div className="comment--icons">
           <div className="btn-icon" onClick={(e) => this.updateComment(e.currentTarget)} key={"cmtUpdate_"+id}>
