@@ -64,7 +64,7 @@ const Harvesting = () => {
             </div>
             <CRow>
               <CCol md={12} lg={12}>
-                <TableEnvelops tableType="all"/>
+                <TableEnvelops tableType="all" status="Harvested,Discarded,PreHarvested,Closed,Pending"/>
               </CCol>
             </CRow>
           </CContainer>
