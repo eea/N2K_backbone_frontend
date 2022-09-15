@@ -25,7 +25,11 @@ let refreshEnvelopes=false,
 
 const Harvesting = () => {
   const [disabledBtn, setDisabledBtn] = useState(true);
-  const [updatingData, setUpdatingData] = useState(false);
+  const [updatingData, setUpdatingData] = useState({
+    updating: false,
+    harvesting: false,
+    discarding: false
+  });
   const [alertValues, setAlertValues] = useState({
     visible: false,
     text: ''
@@ -119,10 +123,18 @@ const Harvesting = () => {
         } else {
           showMessage("Something went wrong");
         }
-        setUpdatingData(false);
+        setUpdatingData(state => ({
+          ...state,
+          updating: false,
+          discarding: false,
+        }));
       });
     }
-    setUpdatingData(true);
+    setUpdatingData(state => ({
+      ...state,
+      updating: true,
+      discarding: true,
+    }));
   }
 
   return (
@@ -172,7 +184,12 @@ const Harvesting = () => {
               </div>
               <div>
                 <ul className="btn--list">
-                  <li><CButton color="secondary" disabled={disabledBtn} onClick={() => modalProps.showDiscardModal(selectedCodes)}>Discard</CButton></li>
+                  <li>
+                    <CButton color="secondary" disabled={disabledBtn || updatingData.updating} onClick={() => modalProps.showDiscardModal(selectedCodes)}>
+                      {updatingData.discarding && <CSpinner size="sm"/>}
+                      {updatingData.discarding ? " Discarding" : "Discard"}
+                    </CButton>
+                  </li>
                 </ul>
               </div>
             </div>
@@ -181,11 +198,6 @@ const Harvesting = () => {
             </div>
             <CRow>
               <CCol md={12} lg={12}>
-                {updatingData &&
-                  <div className="text-center">
-                    <CSpinner size="sm"/>
-                  </div>
-                }
                 <TableEnvelops
                   getRefresh={()=>getRefreshEnvelopes()}
                   setRefresh={setRefreshEnvelopes}
