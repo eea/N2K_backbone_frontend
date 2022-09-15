@@ -11,7 +11,7 @@ import {
   CDropdownItem,
 } from '@coreui/react'
 
-const status = ConfigData.HARVESTING_STATUS;
+const confStatus = ConfigData.HARVESTING_STATUS;
 
 const IndeterminateCheckbox = React.forwardRef(
     ({ indeterminate, ...rest }, ref) => {
@@ -83,7 +83,7 @@ const IndeterminateCheckbox = React.forwardRef(
       []
     )
     function DropdownHarvesting(props) {
-      let row = {versionId: props.versionId, countryCode: props.countryCode};
+      let row = {version: props.version, country: props.country};
       return (
         <CDropdown>
           <CDropdownToggle className="btn-more" caret={false} size="sm">
@@ -140,7 +140,7 @@ const IndeterminateCheckbox = React.forwardRef(
                 <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} id="harvesting_check_all"/>
               ),
               Cell: ({ row }) => (
-                <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} id={"harvesting_check_" + row.values.Version}/>
+                <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} id={"harvesting_check_" + row.values.Id}/>
               ),
             },
             ...columns,
@@ -150,7 +150,7 @@ const IndeterminateCheckbox = React.forwardRef(
               cellWidth: "48px",
               Cell: ({ row }) => (
                 tableType === "incoming" || tableType === "ready" ?
-                  <DropdownHarvesting canHarvest={row.original.CanHarvest} versionId={row.values.Version} countryCode={row.original.CountryCode} modalProps={modalProps}/>
+                  <DropdownHarvesting version={row.original.Version} country={row.original.Country} modalProps={modalProps}/>
                 : <i className="fa-solid fa-arrow-right"></i>
               )
             },
@@ -164,7 +164,7 @@ const IndeterminateCheckbox = React.forwardRef(
               id: 'dropdownEnvelops',
               cellWidth: "48px",
               Cell: ({ row }) => (
-                <a href={"/#/sitechanges?country=" + row.original.CountryCode}>
+                <a href={"/#/sitechanges?country=" + row.original.Country}>
                   <i className="fa-solid fa-arrow-right"></i>
                 </a>
               )
@@ -188,7 +188,7 @@ const IndeterminateCheckbox = React.forwardRef(
         }
       }
     )
-    if(setSelected) setSelected(Object.keys(selectedRowIds).filter(v=>!v.includes(".")).map(v=>{return {CountryCode:data[v].CountryCode, VersionId: data[v].Version}}))
+    if(setSelected) setSelected(Object.keys(selectedRowIds).filter(v=>!v.includes(".")).map(v=>{return {country:data[v].Country, version: data[v].Version}}))
   
     // Render the UI for your table
     return (
@@ -265,16 +265,16 @@ const IndeterminateCheckbox = React.forwardRef(
   function TableEnvelops(props) {
 
     const [events, setEvents] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [envelopsData, setEnvelopsData] = useState({});
+    const [isLoading, setIsLoading] = useState(props.isLoading);
+    const [envelopsData, setEnvelopsData] = useState([]);
 
-    useEffect(() => {
-      fetch(ConfigData.HARVESTING_PRE_HARVESTED)
-      .then(response => response.json())
-      .then(data => {
-        setEvents(data);
-      });
-    }, [])
+    // useEffect(() => {
+    //   fetch(ConfigData.HARVESTING_PRE_HARVESTED)
+    //   .then(response => response.json())
+    //   .then(data => {
+    //     setEvents(data);
+    //   });
+    // }, [])
 
     const formatDate = (date) => {
       date = new Date(date);
@@ -289,26 +289,26 @@ const IndeterminateCheckbox = React.forwardRef(
       () => [
         {
           Header: 'Envelope ID',
-          accessor: 'Version',
+          accessor: 'Id',
         },
         {
           Header: 'Status',
           accessor: 'Status',
-          Cell: ({ cell }) => (
-            <span className={"badge badge--"+props.tableType}>{status[props.tableType]}</span>
+          Cell: ({ row }) => (
+            <span className={"badge badge--"+row.values.Status.toLowerCase()}>{confStatus[row.values.Status]}</span>
           )
         },
         {
           Header: 'Country',
-          accessor: 'Country',
+          accessor: 'Name',
         },
         {
           Header: 'Changes',
-          accessor: 'Changes',
+          accessor: 'ChangesTotal',
         },
         {
           Header: 'Submission date',
-          accessor: 'ImportDate',
+          accessor: 'SubmissionDate',
           Cell: ({ cell }) => (
             formatDate(cell.value)
           )
@@ -318,37 +318,61 @@ const IndeterminateCheckbox = React.forwardRef(
     )
 
     let loadData = () => {
-      if(!isLoading && Object.keys(envelopsData).length===0){
+      if((!isLoading && envelopsData !== "nodata" && Object.keys(envelopsData).length===0)){
+        let promises = [];
         setIsLoading(true);
-        fetch(ConfigData.HARVESTING_PRE_HARVESTED)
-        .then(response => response.json())
-        .then(data => {
-          setEnvelopsData(data.Data);
-          if(Object.keys(envelopsData).length === 0){
-            setIsLoading(false);
+        let status = props.status.split(",");
+        for (let i in status) {
+          promises.push(
+            fetch(ConfigData.HARVESTING_GET_STATUS+"?status="+status[i])
+            .then(response => response.json())
+            .then(data => {
+              if(Object.keys(data.Data).length === 0) {
+                if(status.length === 1) {
+                  setEnvelopsData("nodata");
+                }
+              }
+              else {
+                setEnvelopsData(envelopsData[status[i]]=data.Data);
+              }
+            })
+          )
+        }
+        Promise.all(promises).then(v=>{
+          let data = Object.keys(envelopsData).reduce(function(res, v) {
+            return res.concat(envelopsData[v]);
+          }, []);
+          if(data.length === 0){
+            setEnvelopsData("nodata");
           }
           else {
-            setIsLoading('nodata');
+            setEnvelopsData(data);
           }
+          setIsLoading(false);
         });
       }
     }
 
-    loadData();
-
-    if(isLoading) {
-      return (<div className="loading-container"><em>Loading...</em></div>)
-    }
-    else if (isLoading === 'nodata') {
-      return (<div className="nodata-container"><em>No Data</em></div>)
+    if(props.hasOwnProperty('getRefresh') && props.getRefresh()){
+      props.setRefresh(false);
+      setEnvelopsData([]);
+      loadData();
     }
     else {
+      loadData();
+    }
+
+    if(isLoading)
+      return (<div className="loading-container"><em>Loading...</em></div>)
+    else
+      if(envelopsData==="nodata")
+        return (<div className="nodata-container"><em>No Data</em></div>)
+      else
       return (
         <>
-          <Table columns={columns} data={envelopsData} tableType={props.tableType} setSelected={props.setSelected} modalProps={props.modalProps}/>
+          <Table columns={columns} data={envelopsData} tableType={props.tableType} setSelected={props.setSelected} modalProps={props.modalProps} status={props.status}/>
         </>
       )
-    }
   }
 
-  export default TableEnvelops
+export default TableEnvelops

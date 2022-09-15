@@ -39,15 +39,15 @@
       color: $white;
     }
   }
-  &--incoming {
+  &--pending {
     border-color: $gray-700;
     color: $gray-700;
   }
-  &--ready {
+  &--preharvested {
     border-color: $blue;
     color: $blue;
   }
-  &--progress {
+  &--harvested {
     border-color: $primary-base;
     color: $primary-base;
   }
@@ -55,7 +55,7 @@
     border-color: $danger-base;
     color: $danger-base;
   }
-  &--completed {
+  &--closed {
     border-color: $success-base;
     color: $success-base;
   }
