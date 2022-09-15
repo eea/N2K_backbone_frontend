@@ -224,6 +224,7 @@ const Sitechanges = () => {
   let clearSearch = () => {
     turnstoneRef.current?.clear();
     setDisabledSearchBtn(true);
+    setSelectOption({});
   }
 
   let selectSearchOption = (e) => {
@@ -352,9 +353,11 @@ const Sitechanges = () => {
                       Item={item}
                       typeahead={false}
                     />
-                    <span className="btn-icon" onClick={()=>clearSearch()}>
-                      <i className="fa-solid fa-xmark"></i>
-                    </span>
+                    {Object.keys(selectOption).length !== 0 &&
+                      <span className="btn-icon" onClick={()=>clearSearch()}>
+                        <i className="fa-solid fa-xmark"></i>
+                      </span>
+                    }
                   </div>
                   <CButton disabled={disabledSearchBtn} onClick={()=>showModalSitechanges(selectOption)}>
                     <i className="fa-solid fa-magnifying-glass"></i>

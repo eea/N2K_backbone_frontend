@@ -112,3 +112,27 @@
     }
   }
 }
+
+.message-board {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0.5rem 0;
+  padding: 1rem;
+  background-color: $primary-25;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  .message-board-link {
+    color: $primary-base;
+    font-size: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+    margin-left: 0.5rem;
+    padding: 0;
+  }
+  .hiddenCheckbox {
+    input {
+      display: none;
+    }
+  }
+}

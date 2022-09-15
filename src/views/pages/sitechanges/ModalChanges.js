@@ -31,8 +31,11 @@ import {
   CTabPane,
   CCollapse,
   CCard,
-  CAlert,
+  CAlert
 } from '@coreui/react'
+
+import TextareaAutosize from 'react-textarea-autosize';
+
 import CIcon from '@coreui/icons-react'
 import { cilWarning } from '@coreui/icons'
 
@@ -41,15 +44,16 @@ import justificationprovided from './../../../assets/images/file-text.svg'
 
 import MapViewer from './components/MapViewer'
 import { getOptions } from 'highcharts';
+import reactTextareaAutosize from 'react-textarea-autosize';
 
 export class ModalChanges extends Component {
   
   
   constructor(props) {
-    super(props);        
+    super(props);
     this.state = {
-      activeKey: 1, 
-      loading: true, 
+      activeKey: 1,
+      loading: true,
       data: {}, 
       levels:["Critical"],
       bookmark: "",
@@ -58,7 +62,6 @@ export class ModalChanges extends Component {
       comments:[],
       documents:[],
       showDetail: "",
-      showAlert: false,
       newComment: false,
       newDocument: false,
       justificationRequired: false,
@@ -77,7 +80,7 @@ export class ModalChanges extends Component {
           });
         }
       }
-    };            
+    };
   }
 
   updateModalValues(title, text, primaryButtonText, primaryButtonFunction, secondaryButtonText, secondaryButtonFunction) {
@@ -146,9 +149,10 @@ export class ModalChanges extends Component {
   }
 
   updateComment(target){
-    let input = target.closest(".comment--item").querySelector("input");
+    let input = target.closest(".comment--item").querySelector("textarea");
     if (target.firstChild.classList.contains("fa-pencil")) {
       input.disabled = false;
+      input.readOnly = false;
       input.focus();
       target.firstChild.classList.replace("fa-pencil", "fa-floppy-disk");
     } else {
@@ -162,7 +166,7 @@ export class ModalChanges extends Component {
   }
 
   addComment(target){
-    let input = target.closest(".comment--item").querySelector("input");
+    let input = target.closest(".comment--item").querySelector("textarea");
     let comment = input.value;
     if (!comment) {
       this.showErrorMessage("comment", "Add a comment");
@@ -193,9 +197,9 @@ export class ModalChanges extends Component {
   }
 
   saveComment(code,version,comment,target){
-    let input = target.closest(".comment--item").querySelector("input");
+    let input = target.closest(".comment--item").querySelector("textarea");
     let body = {
-      "Id": input.getAttribute("msg_id"),
+      "Id": input.getAttribute("id"),
       "SiteCode": code,
       "Version": version,
       "comments": comment
@@ -205,6 +209,7 @@ export class ModalChanges extends Component {
     .then((data) => {
       if(data?.ok){
         input.disabled = true;
+        input.readOnly = true;
         target.firstChild.classList.replace("fa-floppy-disk", "fa-pencil");
       }
     });
@@ -212,8 +217,8 @@ export class ModalChanges extends Component {
 
   deleteComment(target){
     if(target) {
-      let input = target.closest(".comment--item").querySelector("input");
-      let id = input.getAttribute("msg_id");
+      let input = target.closest(".comment--item").querySelector("textarea");
+      let id = input.getAttribute("id");
       let body = id;
       this.sendRequest(ConfigData.DELETE_COMMENT,"DELETE",body)
       .then((data) => {
@@ -549,7 +554,11 @@ handleJustProvided(){
       this.state.newComment &&
       <div className="comment--item new" id="cmtItem_newItem">
         <div className="comment--text">
-          <input type="text" placeholder="Add comment"/>
+          <TextareaAutosize
+            minRows={3}
+            placeholder="Add a comment"
+            className="comment--input"
+          ></TextareaAutosize>
         </div>
         <div>
           <div className="btn-icon" onClick={(e) => this.addComment(e.currentTarget)}> 
@@ -578,7 +587,12 @@ handleJustProvided(){
     return (
       <div className="comment--item" key={"cmtItem_"+id} id={"cmtItem_"+id}>
         <div className="comment--text" key={"cmtText_"+id}>
-          <input type="text" placeholder="Add comment" defaultValue={comment} msg_id={id} disabled/>
+          <TextareaAutosize
+            id={id}
+            disabled
+            defaultValue={comment}
+            className="comment--input"
+          ></TextareaAutosize>
         </div>
         <div className="comment--icons">
           <div className="btn-icon" onClick={(e) => this.updateComment(e.currentTarget)} key={"cmtUpdate_"+id}>
@@ -646,7 +660,7 @@ handleJustProvided(){
     )
   }
 
-  renderAttachments(){    
+  renderAttachments(){
     return(
       <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 3}>
         <CRow className="py-3">
@@ -677,27 +691,23 @@ handleJustProvided(){
               </div>
               {this.renderComments()}
             </CCard>
-          </CCol>         
+          </CCol>
           <CCol className="d-flex">
-            <div className="checkbox">              
-              <input type="checkbox" className="input-checkbox" id="modal_justification_req"               
+            <div className="checkbox">
+              <input type="checkbox" className="input-checkbox" id="modal_justification_req"
               onClick={()=>this.props.updateModalValues("Changes", `This will ${this.state.justificationRequired ? "unmark" : "mark"} change as Justification Required`, "Continue", ()=>this.handleJustRequired(), "Cancel", ()=>{})}               
               checked={this.state.justificationRequired}
               readOnly
               />
-              
-              <label htmlFor="modal_justification_req" className="input-label">Justification required</label>              
-            </div>                            
-            <div className="checkbox" style={{cursor: this.state.justificationRequired ? "" : "not-allowed"}} disabled={(this.state.justificationRequired ? false : true)}>
-              <input type="checkbox" className="input-checkbox" id="modal_justification_prov"         
+              <label htmlFor="modal_justification_req" className="input-label">Justification required</label>
+            </div>
+            <div className="checkbox" disabled={(this.state.justificationRequired ? false : true)}>
+              <input type="checkbox" className="input-checkbox" id="modal_justification_prov"
                 onClick={()=>this.props.updateModalValues("Changes", `This will ${this.state.justificationProvided ? "unmark": "mark"} change as Justification Provided`, "Continue", ()=>this.handleJustProvided(), "Cancel", ()=>{})} 
                 checked={this.state.justificationProvided} 
-                disabled={(this.state.justificationRequired ? false : true)}
-                style={{cursor: this.state.justificationRequired ? "" : "not-allowed"}}
                 readOnly
               />
-              <label htmlFor="modal_justification_prov" style={{cursor: this.state.justificationRequired ? "" : "not-allowed"}} className="input-label" disabled={(this.state.justificationRequired ? false : true)}
-              >Justification provided</label>
+              <label htmlFor="modal_justification_prov" className="input-label" disabled={(this.state.justificationRequired ? false : true)}>Justification provided</label>
             </div>
           </CCol>
         </CRow>
@@ -723,7 +733,7 @@ handleJustProvided(){
           <CModalTitle>{data.SiteCode} - {data.Name}</CModalTitle>
         </CModalHeader>
         <CModalBody>
-          <CAlert color="primary" className="d-flex align-items-center" visible={this.state.showAlert}>
+          <CAlert color="primary" className="d-flex align-items-center" visible={this.state.justificationRequired}>
             <CIcon icon={cilWarning} className="me-2"/>
             Justification required
           </CAlert>
