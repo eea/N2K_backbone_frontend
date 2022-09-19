@@ -21,6 +21,9 @@ const HarvestingReadPocessed = React.lazy(() => import('./views/pages/harvesting
 const HarvestingReadAll = React.lazy(() => import('./views/pages/harvesting/all'))
 const SiteChanges = React.lazy(() => import('./views/pages/sitechanges/sitechanges'))
 const SiteEdition = React.lazy(() => import('./views/pages/siteedition/siteedition'))
+const ReportsAdded = React.lazy(() => import('./views/pages/reports/added'))
+const ReportsDeleted = React.lazy(() => import('./views/pages/reports/deleted'))
+const ReportsChanges = React.lazy(() => import('./views/pages/reports/changes'))
 
 class App extends Component {
   render() {
@@ -36,6 +39,9 @@ class App extends Component {
             <Route exact path="/harvesting/all" name="Harvesting" render={(props) => <HarvestingReadAll {...props} />}/>
             <Route exact path="/sitechanges" name="Sitechanges" render={(props) => <SiteChanges {...props} />}/>
             <Route exact path="/siteedition" name="Siteedition" render={(props) => <SiteEdition {...props} />}/>
+            <Route exact path="/reports/added" name="Reports" render={(props) => <ReportsAdded {...props} />}/>
+            <Route exact path="/reports/deleted" name="Reports" render={(props) => <ReportsDeleted {...props} />}/>
+            <Route exact path="/reports/changes" name="Reports" render={(props) => <ReportsChanges {...props} />}/>
             <Route path="/" name="Home" render={(props) => <DefaultLayout {...props} />} />
           </Switch>
         </React.Suspense>
