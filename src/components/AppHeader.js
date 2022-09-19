@@ -33,8 +33,8 @@ const AppHeader = (props) => {
             <li className={props.page === 'siteedition' ? 'header-active' : ''}>
               <CButton color="link" className='btn-link--bold' href='/#/siteedition'>Site Edition</CButton>
             </li>
-            <li className={props.page === 'reports' ? 'header-active' : ''}>
-              <CButton color="link" className='btn-link--bold'>Reports</CButton>
+            <li className={props.page && props.page.includes('reports') ? 'header-active' : ''}>
+              <CButton color="link" className='btn-link--bold' href='/#/reports/added'>Reports</CButton>
             </li>
             <li className={props.page === 'user' ? 'header-active' : ''}>
               <CAvatar>
