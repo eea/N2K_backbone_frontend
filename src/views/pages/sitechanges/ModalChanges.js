@@ -46,6 +46,11 @@ import MapViewer from './components/MapViewer'
 import { getOptions } from 'highcharts';
 import reactTextareaAutosize from 'react-textarea-autosize';
 
+const getCurDate = () => {
+  date = new Date();
+  return date;
+};
+
 export class ModalChanges extends Component {
   
   
@@ -177,7 +182,7 @@ export class ModalChanges extends Component {
         "Version": this.state.data.Version,
         "comments": comment
       }
-
+      
       this.sendRequest(ConfigData.ADD_COMMENT,"POST",body)
       .then(response => response.json())
       .then((data) => {
@@ -188,7 +193,8 @@ export class ModalChanges extends Component {
             Comments: comment,
             SiteCode: this.state.data.SiteCode,
             Version: this.state.data.Version,
-            Id: commentId
+            Id: commentId,
+            CommentDate: this.state.data.Date
           })
           this.setState({comments: cmts, newComment: false})
         }
@@ -572,7 +578,7 @@ handleJustProvided(){
     )
     for(let i in this.state.comments){
       cmts.push(
-        this.createCommentElement(this.state.comments[i].Id,this.state.comments[i].Comments)
+        this.createCommentElement(this.state.comments[i].Id,this.state.comments[i].Comments,this.state.comments[i].Date)
       )
     }
     return(
@@ -583,7 +589,7 @@ handleJustProvided(){
     )
   }
 
-  createCommentElement(id,comment){
+  createCommentElement(id,comment,date){
     return (
       <div className="comment--item" key={"cmtItem_"+id} id={"cmtItem_"+id}>
         <div className="comment--text" key={"cmtText_"+id}>
@@ -593,6 +599,12 @@ handleJustProvided(){
             defaultValue={comment}
             className="comment--input"
           ></TextareaAutosize>
+          <label className="comment--date" for={id}>
+            {date ? 
+              "Commented on " + date.slice(0,10).split('-').reverse().join('/')
+              : "Just now"
+            }
+          </label>
         </div>
         <div className="comment--icons">
           <div className="btn-icon" onClick={(e) => this.updateComment(e.currentTarget)} key={"cmtUpdate_"+id}>
