@@ -376,8 +376,7 @@ const Sitechanges = () => {
                 <div>
                   <ul className="btn--list">
                     {!isLoading && activeTab === 1 &&
-                      pendingChanges && (pendingChanges > 5166 ?
-                      //searchList.length && (searchList.find(x=>x.name === "pending") > 0 ?
+                      pendingChanges && (pendingChanges > 0 ?
                         <>
                           <li>
                             <CButton color="secondary" onClick={()=>updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(selectedCodes), "Cancel", ()=>{})} disabled={disabledBtn || activeTab!==1}>
