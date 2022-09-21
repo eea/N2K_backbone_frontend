@@ -47,7 +47,11 @@ import { getOptions } from 'highcharts';
 import reactTextareaAutosize from 'react-textarea-autosize';
 
 const getCurDate = () => {
-  date = new Date();
+  let date = new Date();
+  let d = date.getDate();
+  let m = date.getMonth() + 1;
+  let y = date.getFullYear();
+  date = (d <= 9 ? '0' + d : d) + '/' + (m <= 9 ? '0' + m : m) + '/' + y;
   return date;
 };
 
@@ -202,13 +206,17 @@ export class ModalChanges extends Component {
     }
   }
 
+  // Date": "2022-09-21T11:58:34.495Z"
+
   saveComment(code,version,comment,target){
     let input = target.closest(".comment--item").querySelector("textarea");
+    let currentDate = new Date().toISOString();
     let body = {
       "Id": input.getAttribute("id"),
       "SiteCode": code,
       "Version": version,
-      "comments": comment
+      "comments": comment,
+      "Date": currentDate
     }
 
     this.sendRequest(ConfigData.UPDATE_COMMENT,"PUT",body)
@@ -600,9 +608,10 @@ handleJustProvided(){
             className="comment--input"
           ></TextareaAutosize>
           <label className="comment--date" for={id}>
+          Commented on 
             {date ? 
-              "Commented on " + date.slice(0,10).split('-').reverse().join('/')
-              : "Just now"
+              ' ' + date.slice(0,10).split('-').reverse().join('/')
+              : ' ' + getCurDate()
             }
           </label>
         </div>
