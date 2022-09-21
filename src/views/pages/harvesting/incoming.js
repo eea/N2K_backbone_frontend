@@ -204,7 +204,7 @@ const Harvesting = () => {
                   setSelected={setSelectedCodes}
                   modalProps={modalProps}
                   tableType="incoming"
-                  status="Pending"/>
+                  status="Pending,DataLoaded"/>
                 <ConfirmationModal modalValues={modalValues}/>
                 <CAlert color="primary" dismissible visible={alertValues.visible} onClose={() => setAlertValues({visible:false})}>{alertValues.text}</CAlert>
               </CCol>
