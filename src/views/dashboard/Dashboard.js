@@ -42,7 +42,7 @@ const Dashboard = () => {
           <div className="container-card-dashboard mb-5">
             <CRow className="grid">
               <div className="col-md-6 col-xl-3">
-                <a href="/#/harvesting">
+                <a href="/#/harvesting/incoming">
                   <CCard className="card-dashboard-new">
                       <CCardBody>
                         <div className="card-icon-new">

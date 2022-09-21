@@ -16,10 +16,9 @@ import {
   CSidebarNav,
   CFormLabel,
   CFormSelect,
-  CFormCheck,
   CTabContent,
   CTabPane,
-  CFormInput
+  CSpinner
 } from '@coreui/react'
 
 import { ConfirmationModal } from './components/ConfirmationModal';
@@ -48,18 +47,25 @@ const Sitechanges = () => {
   const [level, setLevel] = useState('Critical');
   const [disabledBtn, setDisabledBtn] = useState(true);
   const [disabledSearchBtn, setDisabledSearchBtn] = useState(true);
-  const [siteCodes, setSitecodes] = useState({"pending": {}, "accepted": {}, "rejected": {}})
+  const [siteCodes, setSitecodes] = useState({});
+  const [pendingChanges, setPendingChanges] = useState();
   const [searchList, setSearchList] = useState({});
   const [selectOption, setSelectOption] = useState({});
   const [showModal, setShowhowModal] = useState(false);
+  const [updatingData, setUpdatingData] = useState(false);
   const turnstoneRef = useRef();
 
-  let setCodes = (status,data)=> {
-    let codes = siteCodes;
-    codes[status] = data;
-    setSitecodes(codes);
-    setSearchList(getSitesList());
-    setIsLoading(false);
+  let setCodes = (status,data) => {
+    if(data) {
+      let codes = siteCodes;
+      codes[status] = data;
+      setSitecodes(codes);
+      setSearchList(getSitesList());
+      checkComplete();
+    }
+    else if (country){
+      setIsLoading(false);
+    }
   }
 
   let getSitesList = () =>{
@@ -73,6 +79,17 @@ const Sitechanges = () => {
     )
   }
 
+  let checkComplete = () => {
+    fetch(ConfigData.HARVESTING_GET_STATUS+"?status=Harvested")
+    .then(response => response.json())
+    .then(data => {
+      if(Object.keys(data.Data).length > 0) {
+        setPendingChanges(data.Data.find(x => x.Country === country).ChangesPending);
+      }
+      setIsLoading(false);
+    })
+  }
+
   let showModalSitechanges = (data) => {
     if (data) {
       setShowhowModal(data);
@@ -84,23 +101,29 @@ const Sitechanges = () => {
 
   let selectedCodes = [],
   setSelectedCodes = (v) => {
-    let checkAll = document.querySelector('.tab-pane.active [id^=sitechanges_check_all]');
-    if(document.querySelectorAll('input[sitecode]:checked').length !== 0 && v.length === 0) {
-      if(!checkAll.indeterminate && !checkAll.checked) {
-        setDisabledBtn(true);
+    if(!isLoading){
+      let checkAll = document.querySelector('.tab-pane.active [id^=sitechanges_check_all]');
+      if(document.querySelectorAll('input[sitecode]:checked').length !== 0 && v.length === 0) {
+        if(!checkAll.indeterminate && !checkAll.checked) {
+          setDisabledBtn(true);
+        }
+        return;
       }
-      return;
+      selectedCodes = v;
+      if (selectedCodes.length === 0) {
+        setDisabledBtn(true);
+      } else {
+        setDisabledBtn(false);
+      }
     }
-    selectedCodes = v;
-    if (selectedCodes.length === 0) {
+    else
       setDisabledBtn(true);
-    } else {
-      setDisabledBtn(false);
-    }
   };
 
   let forceRefreshData = ()=>{
     setIsLoading(true);
+    setSitecodes({});
+    setSearchList({});
     for(let i in refreshSitechanges)
       setRefreshSitechanges(i,true)
     //setIsLoading(false);
@@ -140,9 +163,9 @@ const Sitechanges = () => {
     return postRequest(ConfigData.ACCEPT_CHANGES, rBody)
     .then(data => {
         if(data.ok){
-          setRefreshSitechanges("pending",true);
-          setRefreshSitechanges("accepted",true);
-          //forceRefreshData();
+          // setRefreshSitechanges("pending",true);
+          // setRefreshSitechanges("accepted",true);
+          forceRefreshData();
           setForceRefresh(forceRefresh+1);
         }else
           alert("something went wrong!");
@@ -159,9 +182,9 @@ const Sitechanges = () => {
     return postRequest(ConfigData.REJECT_CHANGES, rBody)
     .then(data => {
         if(data.ok){
-          setRefreshSitechanges("pending",true);
-          setRefreshSitechanges("rejected",true);
-          //forceRefreshData();
+          // setRefreshSitechanges("pending",true);
+          // setRefreshSitechanges("rejected",true);
+          forceRefreshData();
           setForceRefresh(forceRefresh+1);
         }else
           alert("something went wrong!");
@@ -172,13 +195,44 @@ const Sitechanges = () => {
     });
   }
 
+  let completeEnvelope = () => {
+    let version = countries.find(x => x.code === country).version;
+    sendRequest(ConfigData.HARVESTING_CHANGE_STATUS+"?country="+country+"&version="+version+"&toStatus=Closed","POST","")
+      .then(response => response.json())
+      .then(data => {
+        if(data.Success) {
+          setUpdatingData(false);
+          setCountries([]);
+          setCountry();
+          setPendingChanges();
+          loadCountries();
+          setIsLoading(true);
+        }
+        else {
+          console.log("Error: " + data.Message);
+        }
+      })
+    setUpdatingData(true);
+  }
+
+  let sendRequest = (url,method,body,path)=>  {
+    const options = {
+      method: method,
+      headers: {
+      'Content-Type': path? 'multipart/form-data' :'application/json',
+      },
+      body: path ? body : JSON.stringify(body),
+    };
+    return fetch(url, options)
+  }
+
   let switchMarkChanges = (changes)=>{
     let rBody =!Array.isArray(changes)?[changes]:changes 
 
     return postRequest(ConfigData.MARK_AS_JUSTIFICATION_REQUIRED, rBody)
     .then(data => {
       if(data.ok){
-        forceRefreshData();        
+        forceRefreshData();
       }
       else 
         alert("something went wrong!");
@@ -253,22 +307,36 @@ const Sitechanges = () => {
 
   let changeCountry = (country)=>{
     setCountry(country)
-    forceRefreshData();
+    setSitecodes({});
+    setSearchList({});
+    setPendingChanges();
+    if(country !== "") {
+      forceRefreshData();
+    }
   }
 
-  //Initial set for countries
-  if(countries.length === 0){
+  let loadCountries = () => {
     fetch(ConfigData.COUNTRIES_WITH_DATA)
     .then(response => response.json())
     .then(data => {
       let countriesList = [];
       for(let i in data.Data){
-        countriesList.push({name:data.Data[i].Country,code:data.Data[i].Code});
+        countriesList.push({name:data.Data[i].Country,code:data.Data[i].Code,version:data.Data[i].Version});
       }
+      countriesList = [{name:"",code:""}, ...countriesList];
       setCountries(countriesList);
-      if(country === "")
+      if(!country) {
         setCountry(countriesList[0]?.code);
-    });      
+        if(countriesList[0]?.code === "") {
+          setIsLoading(false);
+        }
+      }
+    });
+  }
+
+  //Initial set for countries
+  if(countries.length === 0){
+    loadCountries();
   }
 
   return (
@@ -307,9 +375,36 @@ const Sitechanges = () => {
                 </div>
                 <div>
                   <ul className="btn--list">
-                    {activeTab===1 && <li><CButton color="secondary"  onClick={()=>updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(selectedCodes), "Cancel", ()=>{})} disabled={disabledBtn || activeTab!==1}>Reject changes</CButton></li>}
-                    {activeTab===1 && <li><CButton color="primary" onClick={()=>updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(selectedCodes), "Cancel", ()=>{})} disabled={disabledBtn || activeTab!==1}>Accept changes</CButton></li>}
-                    {activeTab!==1 && <li><CButton color="primary" onClick={()=>updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", ()=>setBackToPending(selectedCodes), "Cancel", ()=>{})} disabled={disabledBtn || activeTab===1}>Back to Pending</CButton></li>}
+                    {!isLoading && activeTab === 1 &&
+                      pendingChanges && (pendingChanges > 0 ?
+                        <>
+                          <li>
+                            <CButton color="secondary" onClick={()=>updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(selectedCodes), "Cancel", ()=>{})} disabled={disabledBtn || activeTab!==1}>
+                              Reject changes
+                            </CButton>
+                          </li>
+                          <li>
+                            <CButton color="primary" onClick={()=>updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(selectedCodes), "Cancel", ()=>{})} disabled={disabledBtn || activeTab!==1}>
+                              Accept changes
+                            </CButton>
+                          </li>
+                        </>
+                      :
+                        <li>
+                          <CButton color="primary" onClick={()=>updateModalValues("Complete Envelopes", "This will complete the envelope", "Continue", ()=>completeEnvelope(), "Cancel", ()=>{})} disabled={updatingData}>
+                            {updatingData && <CSpinner size="sm"/>}
+                            {updatingData ? " Completing Envelope" : "Complete Envelope"}
+                          </CButton>
+                        </li>
+                      )
+                    }
+                    {!isLoading && activeTab !== 1 &&
+                      <li>
+                        <CButton color="primary" onClick={()=>updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", ()=>setBackToPending(selectedCodes), "Cancel", ()=>{})} disabled={disabledBtn || activeTab===1}>
+                          Back to Pending
+                        </CButton>
+                      </li>
+                    }
                   </ul>
                 </div>
               </div>
@@ -418,14 +513,14 @@ const Sitechanges = () => {
                         setRefresh={setRefreshSitechanges}
                         accept={acceptChanges}
                         reject={rejectChanges}
-                        mark={switchMarkChanges}                        
+                        mark={switchMarkChanges}
                         updateModalValues={updateModalValues}
                         setSitecodes = {setCodes}
                         setShowModal={()=>showModalSitechanges()}
                         showModal={showModal}
                       />
                     </CTabPane>
-                    <CTabPane role="tabpanel" aria-labelledby="accepted-tab" visible={activeTab === 2}>                    
+                    <CTabPane role="tabpanel" aria-labelledby="accepted-tab" visible={activeTab === 2}>
                       <TableRSPag 
                         status="accepted" 
                         country = {country}

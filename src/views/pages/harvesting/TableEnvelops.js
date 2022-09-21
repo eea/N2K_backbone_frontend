@@ -116,6 +116,7 @@ const IndeterminateCheckbox = React.forwardRef(
       gotoPage,
       nextPage,
       previousPage,
+      setPageSize,
       state: { pageIndex, selectedRowIds },
     } = useTable(
       {
@@ -238,7 +239,7 @@ const IndeterminateCheckbox = React.forwardRef(
           <CPaginationItem onClick={() => nextPage()} disabled={!canNextPage}>
             <i className="fa-solid fa-angle-right"></i>
           </CPaginationItem>
-          <CPaginationItem onClick={() => gotoPage(pageCount - 1)} disabled={!canNextPage}>
+          <CPaginationItem onClick={() => gotoPage(pageOptions.length - 1)} disabled={!canNextPage}>
             <i className="fa-solid fa-angles-right"></i>
           </CPaginationItem>
           <div className='pagination-rows'>
@@ -305,6 +306,10 @@ const IndeterminateCheckbox = React.forwardRef(
         {
           Header: 'Changes',
           accessor: 'ChangesTotal',
+        },
+        {
+          Header: 'Affected Sites',
+          accessor: 'SitesTotal',
         },
         {
           Header: 'Submission date',
