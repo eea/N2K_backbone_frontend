@@ -62,7 +62,8 @@ const SiteGraph = () => {
         return data.map((c) => ({
             name: c.Country,
             code: c.Code,
-            num: c.ModifiedSites,
+            numModified: c.ModifiedSites,
+            numAffected: c.AffectedSites,
             level: c.Level
         }))
     }
@@ -86,7 +87,7 @@ const SiteGraph = () => {
             case "Accepted": siteData = findData(sitesAcceptedData, country); break;
             case "Rejected": siteData = findData(sitesRejectedData, country); break;
         }
-        if(siteData[0]) return sumSites(siteData);
+        if(siteData[0]) return siteData[0].numAffected;
         return 0;
     }
 
@@ -108,13 +109,6 @@ const SiteGraph = () => {
             reversedStacks: false,
             title: {
                 text: ''
-            }
-        },
-        tooltip: {
-            formatter: function () {
-                return '<b>' + this.x + '</b><br/>' +
-                    this.series.name + ' changes: ' + '<b>' + this.y + '</b>' + '<br/>' +
-                    'Affected sites: ' + '<b>' + getNumSites(this.x, this.series.name) + '</b>';
             }
         },
         tooltip: {
