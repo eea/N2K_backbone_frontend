@@ -206,8 +206,6 @@ export class ModalChanges extends Component {
     }
   }
 
-  // Date": "2022-09-21T11:58:34.495Z"
-
   saveComment(code,version,comment,target){
     let input = target.closest(".comment--item").querySelector("textarea");
     let currentDate = new Date().toISOString();
@@ -313,11 +311,13 @@ export class ModalChanges extends Component {
             let document = newDocs[i];
             let documentId = document.Id;
             let path = document.Path;
+            let currentDate = new Date().toISOString();
             docs.push({
               Id: documentId,
               SiteCode: this.state.data.SiteCode,
               Version: this.state.data.Version,
-              Path: path
+              Path: path,
+              Date: currentDate
             })
           }
           this.setState({documents: docs, newDocument: false})
@@ -653,7 +653,7 @@ handleJustProvided(){
     )
     for(let i in this.state.documents){
       docs.push(
-        this.createDocumentElement(this.state.documents[i].Id,this.state.documents[i].Path)
+        this.createDocumentElement(this.state.documents[i].Id,this.state.documents[i].Path,this.state.documents[i].Date)
       )
     }
     return(
@@ -664,11 +664,17 @@ handleJustProvided(){
     )
   }
 
-  createDocumentElement(id,path){
+  createDocumentElement(id,path,date){
     return (
       <div className="document--item" key={"docItem_"+id} id={"docItem_"+id} doc_id={id}>
         <div className="my-auto document--text">
           <CImage src={justificationprovided} className="ico--md me-3"></CImage>
+          <span className="document--date">
+            { date ?
+              date.slice(0,10).split('-').reverse().join('/') + ' '
+              : getCurDate() + ' '
+            }
+          </span>
           <span>{path.replace(/^.*[\\\/]/, '')}</span>
         </div>
         <div className="document--icons">
