@@ -72,14 +72,6 @@ const SiteGraph = () => {
         return getSites(data).filter((c) => c.name == country);
     }
 
-    function sumTotal(total, current) {
-        return total + current;
-    }
-    
-    function sumSites(data) {
-        return data.map((d) => d.num).reduce(sumTotal, 0);
-    }
-
     function getNumSites(country, desiredStatus) {
         let siteData = [];
         switch(desiredStatus) {
