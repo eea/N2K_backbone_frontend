@@ -29,6 +29,7 @@ import {
   CModalTitle,
   CTabContent,
   CTabPane,
+  CTooltip,
   CCollapse,
   CCard,
   CAlert
@@ -177,6 +178,7 @@ export class ModalChanges extends Component {
   addComment(target){
     let input = target.closest(".comment--item").querySelector("textarea");
     let comment = input.value;
+    let currentDate = new Date().toISOString();
     if (!comment) {
       this.showErrorMessage("comment", "Add a comment");
     }
@@ -184,7 +186,8 @@ export class ModalChanges extends Component {
       let body = {
         "SiteCode": this.state.data.SiteCode,
         "Version": this.state.data.Version,
-        "comments": comment
+        "comments": comment,
+        "Date": currentDate
       }
       
       this.sendRequest(ConfigData.ADD_COMMENT,"POST",body)
@@ -198,7 +201,7 @@ export class ModalChanges extends Component {
             SiteCode: this.state.data.SiteCode,
             Version: this.state.data.Version,
             Id: commentId,
-            CommentDate: this.state.data.Date
+            Date: this.state.data.Date
           })
           this.setState({comments: cmts, newComment: false})
         }
@@ -317,7 +320,7 @@ export class ModalChanges extends Component {
               SiteCode: this.state.data.SiteCode,
               Version: this.state.data.Version,
               Path: path,
-              Date: currentDate
+              ImportDate: currentDate
             })
           }
           this.setState({documents: docs, newDocument: false})
@@ -611,7 +614,7 @@ handleJustProvided(){
           Commented on 
             {date ? 
               ' ' + date.slice(0,10).split('-').reverse().join('/')
-              : ' ' + getCurDate()
+              : " Unkown"
             }
           </label>
         </div>
@@ -653,7 +656,7 @@ handleJustProvided(){
     )
     for(let i in this.state.documents){
       docs.push(
-        this.createDocumentElement(this.state.documents[i].Id,this.state.documents[i].Path,this.state.documents[i].Date)
+        this.createDocumentElement(this.state.documents[i].Id,this.state.documents[i].Path,this.state.documents[i].ImportDate)
       )
     }
     return(
@@ -669,15 +672,15 @@ handleJustProvided(){
       <div className="document--item" key={"docItem_"+id} id={"docItem_"+id} doc_id={id}>
         <div className="my-auto document--text">
           <CImage src={justificationprovided} className="ico--md me-3"></CImage>
-          <span className="document--date">
-            { date ?
-              date.slice(0,10).split('-').reverse().join('/') + ' '
-              : getCurDate() + ' '
-            }
-          </span>
           <span>{path.replace(/^.*[\\\/]/, '')}</span>
         </div>
         <div className="document--icons">
+          { date &&
+            <CTooltip 
+              content={"Edited on " + date.slice(0,10).split('-').reverse().join('/')}>
+              <i className="fa-solid fa-circle-info"></i>
+            </CTooltip>
+          }
           <CButton color="link" className="btn-link--dark"><a href={path} target="_blank">View</a></CButton>
           <div className="btn-icon" onClick={(e) => this.deleteDocument(e.currentTarget)}>
             <i className="fa-regular fa-trash-can"></i>
