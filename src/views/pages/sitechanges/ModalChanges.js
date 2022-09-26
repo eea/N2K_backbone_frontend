@@ -320,6 +320,7 @@ export class ModalChanges extends Component {
               SiteCode: this.state.data.SiteCode,
               Version: this.state.data.Version,
               Path: path,
+              Username: this.state.data.Username,
               ImportDate: currentDate
             })
           }
@@ -589,7 +590,11 @@ handleJustProvided(){
     )
     for(let i in this.state.comments){
       cmts.push(
-        this.createCommentElement(this.state.comments[i].Id,this.state.comments[i].Comments,this.state.comments[i].Date)
+        this.createCommentElement(
+          this.state.comments[i].Id
+          ,this.state.comments[i].Comments
+          ,this.state.comments[i].Date
+          ,this.state.comments[i].Owner)
       )
     }
     return(
@@ -600,7 +605,7 @@ handleJustProvided(){
     )
   }
 
-  createCommentElement(id,comment,date){
+  createCommentElement(id,comment,date,user){
     return (
       <div className="comment--item" key={"cmtItem_"+id} id={"cmtItem_"+id}>
         <div className="comment--text" key={"cmtText_"+id}>
@@ -611,10 +616,11 @@ handleJustProvided(){
             className="comment--input"
           ></TextareaAutosize>
           <label className="comment--date" for={id}>
-          Commented on 
-            {date ? 
-              ' ' + date.slice(0,10).split('-').reverse().join('/')
-              : " Unkown"
+            {date &&
+              "Commented on " + date.slice(0,10).split('-').reverse().join('/')
+            }
+            { user &&
+              " by " + user
             }
           </label>
         </div>
@@ -656,7 +662,11 @@ handleJustProvided(){
     )
     for(let i in this.state.documents){
       docs.push(
-        this.createDocumentElement(this.state.documents[i].Id,this.state.documents[i].Path,this.state.documents[i].ImportDate)
+        this.createDocumentElement(
+          this.state.documents[i].Id
+          ,this.state.documents[i].Path
+          ,this.state.documents[i].ImportDate
+          ,this.state.documents[i].Username)
       )
     }
     return(
@@ -667,7 +677,7 @@ handleJustProvided(){
     )
   }
 
-  createDocumentElement(id,path,date){
+  createDocumentElement(id,path,date,user){
     return (
       <div className="document--item" key={"docItem_"+id} id={"docItem_"+id} doc_id={id}>
         <div className="my-auto document--text">
@@ -675,9 +685,11 @@ handleJustProvided(){
           <span>{path.replace(/^.*[\\\/]/, '')}</span>
         </div>
         <div className="document--icons">
-          { date &&
+          { (date||user) &&
             <CTooltip 
-              content={"Edited on " + date.slice(0,10).split('-').reverse().join('/')}>
+              content={"Uploaded"
+                + (date && " on " + date.slice(0,10).split('-').reverse().join('/'))
+                + (user && " by " + user)}>
               <i className="fa-solid fa-circle-info"></i>
             </CTooltip>
           }
