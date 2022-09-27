@@ -251,7 +251,8 @@ const Harvesting = () => {
                   setSelected={setSelectedCodes}
                   modalProps={modalProps}
                   tableType="ready"
-                  status="PreHarvested"/>
+                  status="PreHarvested"
+                />
                 <ConfirmationModal modalValues={modalValues}/>
               </CCol>
             </CRow>
