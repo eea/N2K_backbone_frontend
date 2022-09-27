@@ -235,6 +235,7 @@ const IndeterminateCheckbox = React.forwardRef(
             <strong>
               {pageIndex + 1} of {pageOptions.length}
             </strong>{' '}
+            ({data.length === 1 ? data.length + " result" : data.length + " results"})
           </span>
           <CPaginationItem onClick={() => nextPage()} disabled={!canNextPage}>
             <i className="fa-solid fa-angle-right"></i>
@@ -375,7 +376,14 @@ const IndeterminateCheckbox = React.forwardRef(
       else
       return (
         <>
-          <Table columns={columns} data={envelopsData} tableType={props.tableType} setSelected={props.setSelected} modalProps={props.modalProps} status={props.status}/>
+          <Table
+            columns={columns}
+            data={envelopsData}
+            tableType={props.tableType}
+            setSelected={props.setSelected}
+            modalProps={props.modalProps}
+            status={props.status}
+          />
         </>
       )
   }
