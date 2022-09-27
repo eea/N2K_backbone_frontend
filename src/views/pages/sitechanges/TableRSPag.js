@@ -268,6 +268,7 @@ const IndeterminateCheckbox = React.forwardRef(
             <strong>
               {pageIndex+1} of {pageCount}
             </strong>{' '}
+            ({siteCodes.length === 1 ? siteCodes.length + " result" : siteCodes.length + " results"})
           </span>
           <CPaginationItem onClick={() => changePage(pageIndex+1,nextPage())} disabled={!canNextPage}>
             <i className="fa-solid fa-angle-right"></i>

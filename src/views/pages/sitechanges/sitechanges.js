@@ -18,7 +18,9 @@ import {
   CFormSelect,
   CTabContent,
   CTabPane,
-  CSpinner
+  CSpinner,
+  CPopover,
+  CTooltip
 } from '@coreui/react'
 
 import { ConfirmationModal } from './components/ConfirmationModal';
@@ -480,16 +482,17 @@ const Sitechanges = () => {
                           href="javascript:void(0);"
                           active={activeTab === 1}
                           onClick={() => {setActiveTab(1);}}
-                        > Pending
+                        >
+                          Pending <span className="badge">{Object.keys(siteCodes).length === 3 && siteCodes.pending.length}</span>
                         </CNavLink>
                       </CNavItem>
                       <CNavItem>
                         <CNavLink
                           href="javascript:void(0);"
                           active={activeTab === 2}
-                          onClick={(e) => {setActiveTab(2);}}
+                          onClick={() => {setActiveTab(2);}}
                         >
-                          Accepted
+                          Accepted <span className="badge">{Object.keys(siteCodes).length === 3 && siteCodes.accepted.length}</span>
                         </CNavLink>
                       </CNavItem>
                       <CNavItem>
@@ -498,7 +501,7 @@ const Sitechanges = () => {
                           active={activeTab === 3}
                           onClick={() => {setActiveTab(3);}}
                         >
-                          Rejected
+                          Rejected <span className="badge">{Object.keys(siteCodes).length === 3 && siteCodes.rejected.length}</span>
                         </CNavLink>
                       </CNavItem>
                     </CNav>
