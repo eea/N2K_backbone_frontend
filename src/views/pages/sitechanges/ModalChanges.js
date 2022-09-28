@@ -212,12 +212,16 @@ export class ModalChanges extends Component {
   saveComment(code,version,comment,target){
     let input = target.closest(".comment--item").querySelector("textarea");
     let currentDate = new Date().toISOString();
+    let edited = this.state.data.Edited;
+    let user = "";
     let body = {
       "Id": input.getAttribute("id"),
       "SiteCode": code,
       "Version": version,
       "comments": comment,
-      "Date": currentDate
+      "EditedDate": currentDate,
+      "Edited": 1,
+      "EditedBy": user
     }
 
     this.sendRequest(ConfigData.UPDATE_COMMENT,"PUT",body)
@@ -616,7 +620,7 @@ handleJustProvided(){
             className="comment--input"
           ></TextareaAutosize>
           <label className="comment--date" for={id}>
-            {date &&
+            { date &&
               "Commented on " + date.slice(0,10).split('-').reverse().join('/')
             }
             { user &&
