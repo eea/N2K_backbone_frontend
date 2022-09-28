@@ -34,18 +34,12 @@ let refreshSitechanges={"pending":false,"accepted":false,"rejected":false},
 
 const Sitechanges = () => {
 
-  const defaultCountry = () => {
-    const searchParams = new URLSearchParams(window.location.href.split('?')[1]);
-    const parmCountry = searchParams.get('country');
-    return parmCountry?parmCountry:ConfigData.DEFAULT_COUNTRY?ConfigData.DEFAULT_COUNTRY:"";
-  }
-
   const [activeTab, setActiveTab] = useState(1)
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [forceRefresh, setForceRefresh] = useState(0);
   const [countries, setCountries] = useState([]);
-  const [country, setCountry] = useState(defaultCountry);
+  const [country, setCountry] = useState("");
   const [level, setLevel] = useState('Critical');
   const [disabledBtn, setDisabledBtn] = useState(true);
   const [disabledSearchBtn, setDisabledSearchBtn] = useState(true);
@@ -327,11 +321,9 @@ const Sitechanges = () => {
       }
       countriesList = [{name:"",code:""}, ...countriesList];
       setCountries(countriesList);
-      if(!country) {
-        setCountry(countriesList[0]?.code);
-        if(countriesList[0]?.code === "") {
-          setIsLoading(false);
-        }
+      changeCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code)
+      if(countriesList[0]?.code === "") {
+        setIsLoading(false);
       }
     });
   }
@@ -442,6 +434,7 @@ const Sitechanges = () => {
                       id="sitechanges_search"
                       className="form-control"
                       listbox = {searchList}
+                      listboxIsImmutable = {false}
                       placeholder="Search sites by site name or site code"
                       noItemsMessage="Site not found"
                       styles={{input:"form-control", listbox:"search--results", groupHeading:"search--group", noItemsMessage:"search--option"}}
