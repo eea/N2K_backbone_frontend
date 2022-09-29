@@ -200,6 +200,7 @@ const Sitechanges = () => {
           setUpdatingData(false);
           setCountries([]);
           setCountry();
+          setSitecodes({});
           setPendingChanges();
           loadCountries();
           setIsLoading(true);
@@ -370,7 +371,7 @@ const Sitechanges = () => {
                 <div>
                   <ul className="btn--list">
                     {!isLoading && activeTab === 1 &&
-                      (pendingChanges > 0 ?
+                      pendingChanges !== undefined && (pendingChanges > 0 ?
                         <>
                           <li>
                             <CButton color="secondary" onClick={()=>updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(selectedCodes), "Cancel", ()=>{})} disabled={disabledBtn || activeTab!==1}>

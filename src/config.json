@@ -35,8 +35,7 @@
     "Pending": "Incoming",
     "PreHarvested": "Ready to Use",
     "Harvested": "In Progress",
-    "Closed": "Processed",
+    "Closed": "Completed",
     "Discarded": "Discarded"
   }
 }
-
