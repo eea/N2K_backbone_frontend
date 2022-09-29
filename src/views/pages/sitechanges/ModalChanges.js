@@ -187,7 +187,8 @@ export class ModalChanges extends Component {
         "SiteCode": this.state.data.SiteCode,
         "Version": this.state.data.Version,
         "comments": comment,
-        "Date": currentDate
+        "Date": currentDate,
+        "Edited": 0
       }
       
       this.sendRequest(ConfigData.ADD_COMMENT,"POST",body)
@@ -212,15 +213,17 @@ export class ModalChanges extends Component {
   saveComment(code,version,comment,target){
     let input = target.closest(".comment--item").querySelector("textarea");
     let currentDate = new Date().toISOString();
-    let edited = this.state.data.Edited;
+    let edited = this.state.data.Edited ? this.state.Edited : 0;
+    console.log(this.state.Edited);
+    console.log(edited);
     let user = "";
     let body = {
       "Id": input.getAttribute("id"),
       "SiteCode": code,
       "Version": version,
       "comments": comment,
+      "Edited": edited+1,
       "EditedDate": currentDate,
-      "Edited": 1,
       "EditedBy": user
     }
 
@@ -598,7 +601,10 @@ handleJustProvided(){
           this.state.comments[i].Id
           ,this.state.comments[i].Comments
           ,this.state.comments[i].Date
-          ,this.state.comments[i].Owner)
+          ,this.state.comments[i].Owner
+          ,this.state.comments[i].Edited
+          ,this.state.comments[i].EditDate
+          ,this.state.comments[i].EditedBy)
       )
     }
     return(
@@ -609,7 +615,8 @@ handleJustProvided(){
     )
   }
 
-  createCommentElement(id,comment,date,user){
+  createCommentElement(id,comment,date,user,edited,editeddate,editedby){
+    console.log(edited,editeddate,editedby);
     return (
       <div className="comment--item" key={"cmtItem_"+id} id={"cmtItem_"+id}>
         <div className="comment--text" key={"cmtText_"+id}>
@@ -626,6 +633,11 @@ handleJustProvided(){
             { user &&
               " by " + user
             }
+            { edited >= 1 &&
+              "\nLast edited on " + editeddate + " by " + editedby
+            }
+          </label>
+          <label className="comment--date-edit" for={id}>
           </label>
         </div>
         <div className="comment--icons">
