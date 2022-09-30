@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import ConfigData from '../../../config.json';
-import { CRow, CCol, CCard, CCardImage } from '@coreui/react';
+import { CRow, CCol, CCard } from '@coreui/react';
+import '@coreui/icons/css/flag.min.css';
 
 const PendingCards = () => {
     const [pendingCountriesData, setPendingCountriesData] = useState([]);
@@ -71,23 +72,16 @@ const PendingCards = () => {
     const totalPendingCountriesCritical = pendingCountries.map((c) => c.pendingCritical).reduce(sumTotal, 0);
 
     const cards = () => {
-        let countryPath;
         let result = []
 
         pendingCountries.map((country) => {
-            countryPath = country.name.toLowerCase();
-            if (countryPath.includes("czech")) {
-                countryPath = countryPath.split(" ")[0];
-            } else if (countryPath.includes("macedonia")) {
-                countryPath = countryPath.split(" ")[1]
-            }
             result.push(
                 <CCol key={country.name + "Card"} xs={12} md={6} lg={4} xl={3}>
                     <a className="country-card-link" href={"/#/sitechanges?country=" + country.code}>
                         <CCard className="country-card">
                             <div className="country-card-header">
                                 <div className="country-card-left">
-                                    <CCardImage className="card-img--flag" src={require("../../../../src/assets/images/flags/" + countryPath + ".png")} width="32px" />
+                                    <span className={"card-img--flag cif-" + country.code.toLowerCase()}></span>
                                     <span className="country-card-title">{country.name}</span>
                                 </div>
                                 <div className="country-card-right">
