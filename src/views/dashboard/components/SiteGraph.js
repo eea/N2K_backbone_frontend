@@ -51,9 +51,9 @@ const SiteGraph = () => {
         chngRejected.push(data[i].NumRejected);
     }
     seriesData = [
-        { name: 'Pending', index: 1, data: chngPending, color: '#033166' },
-        { name: 'Accepted', index: 2, data: chngAccepted, color: '#22a4fb' },
-        { name: 'Rejected', index: 3, data: chngRejected, color: '#e3f2fd' }
+        { name: 'Pending', index: 1, data: chngPending, color: '#e4e4e4' },
+        { name: 'Accepted', index: 2, data: chngAccepted, color: '#daf5d6' },
+        { name: 'Rejected', index: 3, data: chngRejected, color: '#f6cbcf' }
     ];
 
     countryList = changesCountriesData.map((e) => e.Country);
@@ -126,7 +126,12 @@ const SiteGraph = () => {
         },
         plotOptions: {
             series: {
-                stacking: 'percent'
+                stacking: 'percent',
+                states: {
+                    hover: {
+                      enabled: false,
+                    },
+                },
             }
         },
         accessibility: {

@@ -484,7 +484,7 @@ const Sitechanges = () => {
                           active={activeTab === 1}
                           onClick={() => {setActiveTab(1);}}
                         >
-                          Pending <span className="badge">{Object.keys(siteCodes).length === 3 && siteCodes.pending.length}</span>
+                          Pending <span className="badge badge--pending">{Object.keys(siteCodes).length === 3 && siteCodes.pending.length}</span>
                         </CNavLink>
                       </CNavItem>
                       <CNavItem>
@@ -493,7 +493,7 @@ const Sitechanges = () => {
                           active={activeTab === 2}
                           onClick={() => {setActiveTab(2);}}
                         >
-                          Accepted <span className="badge">{Object.keys(siteCodes).length === 3 && siteCodes.accepted.length}</span>
+                          Accepted <span className="badge badge--accepted">{Object.keys(siteCodes).length === 3 && siteCodes.accepted.length}</span>
                         </CNavLink>
                       </CNavItem>
                       <CNavItem>
@@ -502,7 +502,7 @@ const Sitechanges = () => {
                           active={activeTab === 3}
                           onClick={() => {setActiveTab(3);}}
                         >
-                          Rejected <span className="badge">{Object.keys(siteCodes).length === 3 && siteCodes.rejected.length}</span>
+                          Rejected <span className="badge badge--rejected">{Object.keys(siteCodes).length === 3 && siteCodes.rejected.length}</span>
                         </CNavLink>
                       </CNavItem>
                     </CNav>
