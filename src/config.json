@@ -34,6 +34,7 @@
   "ACCEPTED_DOCUMENT_FORMATS": ".pdf, .doc, .docx, .xls, .xlsx, .txt, .tif, .json, .kml, .gml, .xml, .zip, .7z",
   "HARVESTING_STATUS": {
     "Pending": "Incoming",
+    "DataLoaded": "Incoming",
     "PreHarvested": "Ready to Use",
     "Harvested": "In Progress",
     "Closed": "Processed",
