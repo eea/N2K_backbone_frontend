@@ -31,6 +31,7 @@ const Siteedition = () => {
   const [searchList, setSearchList] = useState({});
   const [selectOption, setSelectOption] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingCountries, setLoadingCountries] = useState(false);
   const [disabledSearchBtn, setDisabledSearchBtn] = useState(true);
   const [countries, setCountries] = useState([]);
   const [country, setCountry] = useState(defaultCountry);
@@ -50,15 +51,22 @@ const Siteedition = () => {
     }
   });
 
-  if(countries.length === 0){
+  if(countries.length === 0 && !loadingCountries){
+    setLoadingCountries(true);
     fetch(ConfigData.COUNTRIES_WITH_DATA)
     .then(response => response.json())
     .then(data => {
+      setLoadingCountries(false);
       let countriesList = [];
       for(let i in data.Data){
         countriesList.push({name:data.Data[i].Country,code:data.Data[i].Code});
       }
+      countriesList = [{name:"",code:""}, ...countriesList];
       setCountries(countriesList);
+      if(country === ""){
+          setCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code);
+          changeCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code)
+      }
     });
   }
 
@@ -140,7 +148,8 @@ const Siteedition = () => {
   }
 
   let loadData = () => {
-    if(!isLoading && siteCodes!=="nodata" && siteCodes.length === 0){
+    if(siteCodes.length !==0) return;
+    if(country !=="" && !isLoading && siteCodes!=="nodata" && siteCodes.length === 0){
       setIsLoading(true);
       fetch(ConfigData.SITEEDITION_GET+"country="+country+"?reference=true")
       .then(response =>response.json())

@@ -32,6 +32,12 @@ let refreshSitechanges={"pending":false,"accepted":false,"rejected":false},
   getRefreshSitechanges=(state)=>refreshSitechanges[state], 
   setRefreshSitechanges=(state,v)=>refreshSitechanges[state] = v;
 
+  const defaultCountry = () => {
+    const searchParams = new URLSearchParams(window.location.href.split('?')[1]);
+    const parmCountry = searchParams.get('country');
+    return parmCountry ? parmCountry : ConfigData.DEFAULT_COUNTRY ? ConfigData.DEFAULT_COUNTRY : "";
+  }  
+
 const Sitechanges = () => {
 
   const [activeTab, setActiveTab] = useState(1)
@@ -39,7 +45,7 @@ const Sitechanges = () => {
   const [error, setError] = useState(null);
   const [forceRefresh, setForceRefresh] = useState(0);
   const [countries, setCountries] = useState([]);
-  const [country, setCountry] = useState("");
+  const [country, setCountry] = useState(defaultCountry);
   const [level, setLevel] = useState('Critical');
   const [disabledBtn, setDisabledBtn] = useState(true);
   const [disabledSearchBtn, setDisabledSearchBtn] = useState(true);
@@ -322,7 +328,10 @@ const Sitechanges = () => {
       }
       countriesList = [{name:"",code:""}, ...countriesList];
       setCountries(countriesList);
-      changeCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code)
+      if(country === ""){
+          setCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code);
+          changeCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code)
+      }
       if(countriesList[0]?.code === "") {
         setIsLoading(false);
       }
