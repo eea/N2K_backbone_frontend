@@ -207,24 +207,22 @@ export class ModalChanges extends Component {
           this.setState({comments: cmts, newComment: false})
         }
       });
+      this.loadComments();
     }
   }
 
   saveComment(code,version,comment,target){
     let input = target.closest(".comment--item").querySelector("textarea");
+    let id = input.getAttribute("id");
     let currentDate = new Date().toISOString();
-    let edited = this.state.data.Edited ? this.state.Edited : 0;
-    console.log(this.state.Edited);
-    console.log(edited);
-    let user = "Joana";
+    let edited = this.state.comments.find(c => c.Id == parseInt(id)).Edited;
     let body = {
-      "Id": input.getAttribute("id"),
+      "Id": id,
       "SiteCode": code,
       "Version": version,
       "comments": comment,
       "Edited": edited+1,
       "EditedDate": currentDate,
-      "EditedBy": user
     }
 
     this.sendRequest(ConfigData.UPDATE_COMMENT,"PUT",body)
@@ -234,7 +232,8 @@ export class ModalChanges extends Component {
         input.readOnly = true;
         target.firstChild.classList.replace("fa-floppy-disk", "fa-pencil");
       }
-    });
+    })
+    this.loadComments();
   }
 
   deleteComment(target){
@@ -596,7 +595,6 @@ handleJustProvided(){
       </div>
     )
     for(let i in this.state.comments){
-      console.log(this.state.comments[i])
       cmts.push(
         this.createCommentElement(
           this.state.comments[i].Id
@@ -617,7 +615,6 @@ handleJustProvided(){
   }
 
   createCommentElement(id,comment,date,owner,edited,editeddate,editedby){
-    console.log(owner,edited,editeddate,editedby);
     return (
       <div className="comment--item" key={"cmtItem_"+id} id={"cmtItem_"+id}>
         <div className="comment--text" key={"cmtText_"+id}>
