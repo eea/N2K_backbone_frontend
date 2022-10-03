@@ -116,6 +116,7 @@ const IndeterminateCheckbox = React.forwardRef(
       gotoPage,
       nextPage,
       previousPage,
+      setPageSize,
       state: { pageIndex, selectedRowIds },
     } = useTable(
       {
@@ -234,11 +235,12 @@ const IndeterminateCheckbox = React.forwardRef(
             <strong>
               {pageIndex + 1} of {pageOptions.length}
             </strong>{' '}
+            ({data.length === 1 ? data.length + " result" : data.length + " results"})
           </span>
           <CPaginationItem onClick={() => nextPage()} disabled={!canNextPage}>
             <i className="fa-solid fa-angle-right"></i>
           </CPaginationItem>
-          <CPaginationItem onClick={() => gotoPage(pageCount - 1)} disabled={!canNextPage}>
+          <CPaginationItem onClick={() => gotoPage(pageOptions.length - 1)} disabled={!canNextPage}>
             <i className="fa-solid fa-angles-right"></i>
           </CPaginationItem>
           <div className='pagination-rows'>
@@ -307,6 +309,10 @@ const IndeterminateCheckbox = React.forwardRef(
           accessor: 'ChangesTotal',
         },
         {
+          Header: 'Affected Sites',
+          accessor: 'SitesTotal',
+        },
+        {
           Header: 'Submission date',
           accessor: 'SubmissionDate',
           Cell: ({ cell }) => (
@@ -370,7 +376,14 @@ const IndeterminateCheckbox = React.forwardRef(
       else
       return (
         <>
-          <Table columns={columns} data={envelopsData} tableType={props.tableType} setSelected={props.setSelected} modalProps={props.modalProps} status={props.status}/>
+          <Table
+            columns={columns}
+            data={envelopsData}
+            tableType={props.tableType}
+            setSelected={props.setSelected}
+            modalProps={props.modalProps}
+            status={props.status}
+          />
         </>
       )
   }

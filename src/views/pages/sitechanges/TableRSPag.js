@@ -268,6 +268,7 @@ const IndeterminateCheckbox = React.forwardRef(
             <strong>
               {pageIndex+1} of {pageCount}
             </strong>{' '}
+            ({siteCodes.length === 1 ? siteCodes.length + " result" : siteCodes.length + " results"})
           </span>
           <CPaginationItem onClick={() => changePage(pageIndex+1,nextPage())} disabled={!canNextPage}>
             <i className="fa-solid fa-angle-right"></i>
@@ -548,13 +549,11 @@ const IndeterminateCheckbox = React.forwardRef(
       .then(data => {
         props.setSitecodes(props.status,data.Data);
         setSitecodes(data.Data);
-      });      
+      });
     }
   
     let loadData= ()=>{
-     
       if(props.getRefresh()||(!isLoading && changesData!=="nodata" && Object.keys(changesData).length===0)){
-
         let promises=[];
         setIsLoading(true);
         
@@ -584,8 +583,17 @@ const IndeterminateCheckbox = React.forwardRef(
       }
     }
     
-    if(!props.country) return(<></>);
-    loadData();
+    if(!props.country) {
+      if(changesData !== "nodata") {
+        setChangesData("nodata");
+        setSitecodes([]);
+        props.setSitecodes({});
+        setIsLoading(false);
+      }
+      //return(<></>);
+    } else {
+      loadData();
+    }
 
     if(isLoading)
       return (<div className="loading-container"><em>Loading...</em></div>)

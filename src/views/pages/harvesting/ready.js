@@ -25,7 +25,11 @@ let refreshEnvelopes=false,
 
 const Harvesting = () => {
   const [disabledBtn, setDisabledBtn] = useState(true);
-  const [updatingData, setUpdatingData] = useState(false);
+  const [updatingData, setUpdatingData] = useState({
+    updating: false,
+    harvesting: false,
+    discarding: false
+  });
   const [alertValues, setAlertValues] = useState({
     visible: false,
     text: ''
@@ -122,10 +126,18 @@ const Harvesting = () => {
         } else {
           showMessage("Something went wrong");
         }
-        setUpdatingData(false);
+        setUpdatingData(state => ({
+          ...state,
+          updating: false,
+          harvesting: false,
+        }));
       });
     }
-    setUpdatingData(true);
+    setUpdatingData(state => ({
+      ...state,
+      updating: true,
+      harvesting: true,
+    }));
   }
 
   async function discardHandler(values) {
@@ -151,10 +163,18 @@ const Harvesting = () => {
         } else {
           showMessage("Something went wrong");
         }
-        setUpdatingData(false);
+        setUpdatingData(state => ({
+          ...state,
+          updating: false,
+          discarding: false,
+        }));
       });
     }
-    setUpdatingData(true);
+    setUpdatingData(state => ({
+      ...state,
+      updating: true,
+      discarding: true,
+    }));
   }
 
   return (
@@ -204,8 +224,18 @@ const Harvesting = () => {
               </div>
               <div>
                 <ul className="btn--list">
-                  <li><CButton color="secondary" disabled={disabledBtn} onClick={() => modalProps.showDiscardModal(selectedCodes)}>Discard</CButton></li>
-                  <li><CButton color="primary" disabled={disabledBtn} onClick={() => modalProps.showHarvestModal(selectedCodes)}>Harvest</CButton></li>
+                  <li>
+                    <CButton color="secondary" disabled={disabledBtn || updatingData.updating} onClick={() => modalProps.showDiscardModal(selectedCodes)}>
+                      {updatingData.discarding && <CSpinner size="sm"/>}
+                      {updatingData.discarding ? " Discarding" : "Discard"}
+                    </CButton>
+                  </li>
+                  <li>
+                    <CButton color="primary" disabled={disabledBtn || updatingData.updating} onClick={() => modalProps.showHarvestModal(selectedCodes)}>
+                      {updatingData.harvesting && <CSpinner size="sm"/>}
+                      {updatingData.harvesting ? " Harvesting" : "Harvest"}
+                    </CButton>
+                  </li>
                 </ul>
               </div>
             </div>
@@ -214,11 +244,6 @@ const Harvesting = () => {
             </div>
             <CRow>
               <CCol md={12} lg={12}>
-                {updatingData &&
-                  <div className="text-center">
-                    <CSpinner size="sm"/>
-                  </div>
-                }
                 <CAlert color="primary" dismissible visible={alertValues.visible} onClose={() => setAlertValues({visible:false})}>{alertValues.text}</CAlert>
                 <TableEnvelops
                   getRefresh={()=>getRefreshEnvelopes()}
@@ -226,7 +251,8 @@ const Harvesting = () => {
                   setSelected={setSelectedCodes}
                   modalProps={modalProps}
                   tableType="ready"
-                  status="PreHarvested"/>
+                  status="PreHarvested"
+                />
                 <ConfirmationModal modalValues={modalValues}/>
               </CCol>
             </CRow>
