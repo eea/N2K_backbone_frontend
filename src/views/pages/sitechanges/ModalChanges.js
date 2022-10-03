@@ -188,6 +188,7 @@ export class ModalChanges extends Component {
         "Version": this.state.data.Version,
         "comments": comment,
         "Date": currentDate,
+        "Owner": "Joana",
         "Edited": 0
       }
       
@@ -615,8 +616,8 @@ handleJustProvided(){
     )
   }
 
-  createCommentElement(id,comment,date,user,edited,editeddate,editedby){
-    console.log(edited,editeddate,editedby);
+  createCommentElement(id,comment,date,owner,edited,editeddate,editedby){
+    console.log(owner,edited,editeddate,editedby);
     return (
       <div className="comment--item" key={"cmtItem_"+id} id={"cmtItem_"+id}>
         <div className="comment--text" key={"cmtText_"+id}>
@@ -630,8 +631,8 @@ handleJustProvided(){
             { date &&
               "Commented on " + date.slice(0,10).split('-').reverse().join('/')
             }
-            { user &&
-              " by " + user
+            { owner &&
+              " by " + owner
             }
             { edited >= 1 &&
               "\nLast edited on " + editeddate + " by " + editedby
