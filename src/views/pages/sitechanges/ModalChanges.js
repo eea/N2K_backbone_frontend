@@ -188,7 +188,6 @@ export class ModalChanges extends Component {
         "Version": this.state.data.Version,
         "comments": comment,
         "Date": currentDate,
-        "Owner": "Joana",
         "Edited": 0
       }
       
@@ -217,7 +216,7 @@ export class ModalChanges extends Component {
     let edited = this.state.data.Edited ? this.state.Edited : 0;
     console.log(this.state.Edited);
     console.log(edited);
-    let user = "";
+    let user = "Joana";
     let body = {
       "Id": input.getAttribute("id"),
       "SiteCode": code,
@@ -597,6 +596,7 @@ handleJustProvided(){
       </div>
     )
     for(let i in this.state.comments){
+      console.log(this.state.comments[i])
       cmts.push(
         this.createCommentElement(
           this.state.comments[i].Id
@@ -604,8 +604,8 @@ handleJustProvided(){
           ,this.state.comments[i].Date
           ,this.state.comments[i].Owner
           ,this.state.comments[i].Edited
-          ,this.state.comments[i].EditDate
-          ,this.state.comments[i].EditedBy)
+          ,this.state.comments[i].EditedDate
+          ,this.state.comments[i].Editedby)
       )
     }
     return(
@@ -625,20 +625,20 @@ handleJustProvided(){
             id={id}
             disabled
             defaultValue={comment}
-            className="comment--input"
-          ></TextareaAutosize>
+            className="comment--input" />
           <label className="comment--date" for={id}>
             { date &&
-              "Commented on " + date.slice(0,10).split('-').reverse().join('/')
-            }
+              "Commented on " + date.slice(0,10).split('-').reverse().join('/') }
             { owner &&
-              " by " + owner
-            }
-            { edited >= 1 &&
-              "\nLast edited on " + editeddate + " by " + editedby
-            }
+              " by " + owner }
           </label>
-          <label className="comment--date-edit" for={id}>
+          <label hidden={edited < 1} className="comment--date" for={id}>
+            { ((edited >= 1) || editeddate !== undefined || editedby !== undefined) &&
+              ". Last edited" }
+            { editeddate && 
+              " on " + editeddate.slice(0,10).split('-').reverse().join('/') }
+            { editedby &&
+              " by " + editedby }
           </label>
         </div>
         <div className="comment--icons">
