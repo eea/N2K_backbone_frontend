@@ -47,15 +47,6 @@ import MapViewer from './components/MapViewer'
 import { getOptions } from 'highcharts';
 import reactTextareaAutosize from 'react-textarea-autosize';
 
-const getCurDate = () => {
-  let date = new Date();
-  let d = date.getDate();
-  let m = date.getMonth() + 1;
-  let y = date.getFullYear();
-  date = (d <= 9 ? '0' + d : d) + '/' + (m <= 9 ? '0' + m : m) + '/' + y;
-  return date;
-};
-
 export class ModalChanges extends Component {
   
   
