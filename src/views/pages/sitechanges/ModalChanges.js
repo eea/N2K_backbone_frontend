@@ -29,6 +29,7 @@ import {
   CModalTitle,
   CTabContent,
   CTabPane,
+  CTooltip,
   CCollapse,
   CCard,
   CAlert
@@ -168,6 +169,7 @@ export class ModalChanges extends Component {
   addComment(target){
     let input = target.closest(".comment--item").querySelector("textarea");
     let comment = input.value;
+    let currentDate = new Date().toISOString();
     if (!comment) {
       this.showErrorMessage("comment", "Add a comment");
     }
@@ -175,9 +177,11 @@ export class ModalChanges extends Component {
       let body = {
         "SiteCode": this.state.data.SiteCode,
         "Version": this.state.data.Version,
-        "comments": comment
+        "comments": comment,
+        "Date": currentDate,
+        "Edited": 0
       }
-
+      
       this.sendRequest(ConfigData.ADD_COMMENT,"POST",body)
       .then(response => response.json())
       .then((data) => {
@@ -188,21 +192,28 @@ export class ModalChanges extends Component {
             Comments: comment,
             SiteCode: this.state.data.SiteCode,
             Version: this.state.data.Version,
-            Id: commentId
+            Id: commentId,
+            Date: this.state.data.Date
           })
           this.setState({comments: cmts, newComment: false})
         }
       });
+      this.loadComments();
     }
   }
 
   saveComment(code,version,comment,target){
     let input = target.closest(".comment--item").querySelector("textarea");
+    let id = input.getAttribute("id");
+    let currentDate = new Date().toISOString();
+    let edited = this.state.comments.find(c => c.Id == parseInt(id)).Edited;
     let body = {
-      "Id": input.getAttribute("id"),
+      "Id": id,
       "SiteCode": code,
       "Version": version,
-      "comments": comment
+      "comments": comment,
+      "Edited": edited+1,
+      "EditedDate": currentDate,
     }
 
     this.sendRequest(ConfigData.UPDATE_COMMENT,"PUT",body)
@@ -212,7 +223,8 @@ export class ModalChanges extends Component {
         input.readOnly = true;
         target.firstChild.classList.replace("fa-floppy-disk", "fa-pencil");
       }
-    });
+    })
+    this.loadComments();
   }
 
   deleteComment(target){
@@ -299,11 +311,14 @@ export class ModalChanges extends Component {
             let document = newDocs[i];
             let documentId = document.Id;
             let path = document.Path;
+            let currentDate = new Date().toISOString();
             docs.push({
               Id: documentId,
               SiteCode: this.state.data.SiteCode,
               Version: this.state.data.Version,
-              Path: path
+              Path: path,
+              Username: this.state.data.Username,
+              ImportDate: currentDate
             })
           }
           this.setState({documents: docs, newDocument: false})
@@ -572,7 +587,14 @@ handleJustProvided(){
     )
     for(let i in this.state.comments){
       cmts.push(
-        this.createCommentElement(this.state.comments[i].Id,this.state.comments[i].Comments)
+        this.createCommentElement(
+          this.state.comments[i].Id
+          ,this.state.comments[i].Comments
+          ,this.state.comments[i].Date
+          ,this.state.comments[i].Owner
+          ,this.state.comments[i].Edited
+          ,this.state.comments[i].EditedDate
+          ,this.state.comments[i].Editedby)
       )
     }
     return(
@@ -583,7 +605,7 @@ handleJustProvided(){
     )
   }
 
-  createCommentElement(id,comment){
+  createCommentElement(id,comment,date,owner,edited,editeddate,editedby){
     return (
       <div className="comment--item" key={"cmtItem_"+id} id={"cmtItem_"+id}>
         <div className="comment--text" key={"cmtText_"+id}>
@@ -591,8 +613,21 @@ handleJustProvided(){
             id={id}
             disabled
             defaultValue={comment}
-            className="comment--input"
-          ></TextareaAutosize>
+            className="comment--input" />
+          <label className="comment--date" for={id}>
+            { date &&
+              "Commented on " + date.slice(0,10).split('-').reverse().join('/') }
+            { owner &&
+              " by " + owner }
+          </label>
+          <label hidden={edited < 1} className="comment--date" for={id}>
+            { ((edited >= 1) || editeddate !== undefined || editedby !== undefined) &&
+              ". Last edited" }
+            { editeddate && 
+              " on " + editeddate.slice(0,10).split('-').reverse().join('/') }
+            { editedby &&
+              " by " + editedby }
+          </label>
         </div>
         <div className="comment--icons">
           <div className="btn-icon" onClick={(e) => this.updateComment(e.currentTarget)} key={"cmtUpdate_"+id}>
@@ -632,7 +667,11 @@ handleJustProvided(){
     )
     for(let i in this.state.documents){
       docs.push(
-        this.createDocumentElement(this.state.documents[i].Id,this.state.documents[i].Path)
+        this.createDocumentElement(
+          this.state.documents[i].Id
+          ,this.state.documents[i].Path
+          ,this.state.documents[i].ImportDate
+          ,this.state.documents[i].Username)
       )
     }
     return(
@@ -643,7 +682,7 @@ handleJustProvided(){
     )
   }
 
-  createDocumentElement(id,path){
+  createDocumentElement(id,path,date,user){
     return (
       <div className="document--item" key={"docItem_"+id} id={"docItem_"+id} doc_id={id}>
         <div className="my-auto document--text">
@@ -651,6 +690,14 @@ handleJustProvided(){
           <span>{path.replace(/^.*[\\\/]/, '')}</span>
         </div>
         <div className="document--icons">
+          { (date||user) &&
+            <CTooltip 
+              content={"Uploaded"
+                + (date && " on " + date.slice(0,10).split('-').reverse().join('/'))
+                + (user && " by " + user)}>
+              <i className="fa-solid fa-circle-info"></i>
+            </CTooltip>
+          }
           <CButton color="link" className="btn-link--dark"><a href={path} target="_blank">View</a></CButton>
           <div className="btn-icon" onClick={(e) => this.deleteDocument(e.currentTarget)}>
             <i className="fa-regular fa-trash-can"></i>

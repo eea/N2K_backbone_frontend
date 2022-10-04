@@ -59,6 +59,10 @@
     &--icons {
       white-space: nowrap;
     }
+    &--date {
+      font-style: italic;
+      font-size: 80%;
+    }
     &.new {
       margin-right: 0.5rem;
     }
@@ -105,5 +109,9 @@
       width: 100%;
       resize: none;
       outline: none;
+  }
+  &--date {
+    font-style: italic;
+    font-size: 80%;
   }
 }
