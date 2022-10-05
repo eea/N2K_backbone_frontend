@@ -208,7 +208,9 @@
     display: inline-block;
     position: relative;
     padding: 0px 0px 0px 2rem;
+    margin: 0;
     font-size: 0.875rem;
+    font-weight: normal;
     line-height: normal;
     cursor: pointer;
     -webkit-transition: $transition-base;

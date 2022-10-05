@@ -31,6 +31,18 @@ const Reports = () => {
           <CSidebarNav>
             <li className="nav-title">Reports</li>
             <li className="nav-item">
+              <a className="nav-link" href="/#/reports/management">
+                <i className="fa-solid fa-bookmark"></i>
+                Union Lists Management
+              </a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link" href="/#/reports/comparer">
+                <i className="fa-solid fa-bookmark"></i>
+                Union Lists Comparer
+              </a>
+            </li>
+            <li className="nav-item">
               <a className="nav-link active" href="/#/reports/added">
                 <i className="fa-solid fa-bookmark"></i>
                 Sites Added

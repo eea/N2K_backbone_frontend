@@ -136,3 +136,35 @@
     }
   }
 }
+
+.unionlist-compare {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  border: 2px dashed #e5e5e5;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  & i {
+    color: $primary-base;
+  }
+}
+.unionlist-changes {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+  > * {
+    white-space: nowrap;
+  }
+}
+.unionlist-table {
+  border-radius: 0.5rem;
+  border: solid 1px $gray-100;
+  padding: 1rem;
+  overflow-x: auto;
+  td {
+    white-space: nowrap;
+  }
+}
