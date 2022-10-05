@@ -26,6 +26,9 @@
   "SITEDETAIL_SAVE": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteDetails/SaveEdition",
   "SITETYPES_GET": "https://n2kbackboneback-dev.azurewebsites.net/api/MasterData/MasterData/GetSiteTypes",
   "BIOREGIONS_GET": "https://n2kbackboneback-dev.azurewebsites.net/api/MasterData/MasterData/GetBioRegionTypes",
+  "UNIONLISTS_GET": "https://n2kbackboneback-dev.azurewebsites.net/api/UnionList/UnionList/GetUnionLists",
+  "UNIONLISTS_BIOREGIONS": "https://n2kbackboneback-dev.azurewebsites.net/api/UnionList/UnionList/GetBioRegionTypes",
+  "UNIONLISTS_DETAIL": "https://n2kbackboneback-dev.azurewebsites.net/api/UnionList/UnionList/GetCurrentListDetailed",
   "THEME_COLORS": {
     "PRIMARY": "#007bff",
     "SECONDARY": "#fc3"

@@ -24,6 +24,8 @@ const SiteEdition = React.lazy(() => import('./views/pages/siteedition/siteediti
 const ReportsAdded = React.lazy(() => import('./views/pages/reports/added'))
 const ReportsDeleted = React.lazy(() => import('./views/pages/reports/deleted'))
 const ReportsChanges = React.lazy(() => import('./views/pages/reports/changes'))
+const ReportsUnionListManagement = React.lazy(() => import('./views/pages/reports/management'))
+const ReportsUnionListComparer = React.lazy(() => import('./views/pages/reports/comparer'))
 
 class App extends Component {
   render() {
@@ -42,6 +44,8 @@ class App extends Component {
             <Route exact path="/reports/added" name="Reports" render={(props) => <ReportsAdded {...props} />}/>
             <Route exact path="/reports/deleted" name="Reports" render={(props) => <ReportsDeleted {...props} />}/>
             <Route exact path="/reports/changes" name="Reports" render={(props) => <ReportsChanges {...props} />}/>
+            <Route exact path="/reports/management" name="Reports" render={(props) => <ReportsUnionListManagement {...props} />}/>
+            <Route exact path="/reports/comparer" name="Reports" render={(props) => <ReportsUnionListComparer {...props} />}/>
             <Route path="/" name="Home" render={(props) => <DefaultLayout {...props} />} />
           </Switch>
         </React.Suspense>
