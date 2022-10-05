@@ -47,7 +47,7 @@
       color: $white;
     }
   }
-  &--pending {
+  &--pending, &--dataloaded {
     border-color: $gray-700;
     color: $gray-700;
   }
