@@ -46,11 +46,15 @@ import MapViewer from './components/MapViewer'
 import { getOptions } from 'highcharts';
 import reactTextareaAutosize from 'react-textarea-autosize';
 
+import {DataLoader} from '../../../components/DataLoader';
+
 export class ModalChanges extends Component {
   
   
   constructor(props) {
     super(props);
+    this.dl = new(DataLoader);
+
     this.state = {
       activeKey: 1,
       loading: true,
@@ -270,18 +274,7 @@ export class ModalChanges extends Component {
   uploadFile(data){
     let siteCode = this.state.data.SiteCode;
     let version = this.state.data.Version;
-    return new Promise((resolve,reject) =>{
-      const request = new XMLHttpRequest();
-      request.open("POST", ConfigData.UPLOAD_ATTACHED_FILE+'?sitecode='+siteCode+'&version='+version, true);
-      request.onload = (oEvent) => {
-        if (request.status >= 200 && request.status < 300) {
-          resolve(JSON.parse(request.response));
-        } else {
-          reject(request.statusText);
-        }
-      };
-      request.send(data)
-    });
+    return this.dl.xmlHttpRequest(ConfigData.UPLOAD_ATTACHED_FILE+'?sitecode='+siteCode+'&version='+version,data);
   }
 
   handleSubmission () {
@@ -812,7 +805,7 @@ handleJustProvided(){
 
   loadData(){
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
-      fetch(ConfigData.SITECHANGES_DETAIL+`siteCode=${this.props.item}&version=${this.props.version}`)
+      this.dl.fetch(ConfigData.SITECHANGES_DETAIL+`siteCode=${this.props.item}&version=${this.props.version}`)
       .then(response => response.json())
       .then(data => this.setState({data: data.Data, loading: false, justificationRequired: data.Data?.JustificationRequired, justificationProvided: data.Data?.JustificationProvided}));
     }
@@ -820,7 +813,7 @@ handleJustProvided(){
 
   loadComments(){
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
-      fetch(ConfigData.GET_SITE_COMMENTS+`siteCode=${this.props.item}&version=${this.props.version}`)
+      this.dl.fetch(ConfigData.GET_SITE_COMMENTS+`siteCode=${this.props.item}&version=${this.props.version}`)
       .then(response => response.json())
       .then(data => this.setState({comments: data.Data}));
     }
@@ -828,7 +821,7 @@ handleJustProvided(){
 
   loadDocuments(){
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
-      fetch(ConfigData.GET_ATTACHED_FILES+`siteCode=${this.props.item}&version=${this.props.version}`)
+      this.dl.fetch(ConfigData.GET_ATTACHED_FILES+`siteCode=${this.props.item}&version=${this.props.version}`)
       .then(response => response.json())
       .then(data => this.setState({documents: data.Data}));
     }
@@ -883,6 +876,6 @@ handleJustProvided(){
       body: path ? body : JSON.stringify(body),
     };
     console.log(options);
-    return fetch(url, options)
+    return this.dl.fetch(url, options)
   }
 }
