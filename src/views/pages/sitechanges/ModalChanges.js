@@ -562,7 +562,11 @@ handleJustProvided(){
       </CTabPane>
     )
   }
-
+  
+  sortComments() {
+    this.state.comments.sort((a,b) => b.Date.localeCompare(a.Date));
+  }
+  
   renderComments(){
     let cmts = [];
     cmts.push(
@@ -585,6 +589,7 @@ handleJustProvided(){
         </div>
       </div>
     )
+    this.sortComments();
     for(let i in this.state.comments){
       cmts.push(
         this.createCommentElement(
@@ -641,6 +646,10 @@ handleJustProvided(){
     )
   }
 
+  sortDocuments() {
+    this.state.documents.sort((a,b) => b.ImportDate.localeCompare(a.ImportDate));
+  }
+
   renderDocuments(){
     let docs = [];
     docs.push(
@@ -665,6 +674,7 @@ handleJustProvided(){
         </div>
       </div>
     )
+    this.sortDocuments();
     for(let i in this.state.documents){
       docs.push(
         this.createDocumentElement(
