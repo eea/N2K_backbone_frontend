@@ -59,6 +59,10 @@
     &--icons {
       white-space: nowrap;
     }
+    &--date {
+      font-style: italic;
+      font-size: 80%;
+    }
     &.new {
       margin-right: 0.5rem;
     }
@@ -90,9 +94,24 @@
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
+      resize: none;
+      outline: none;
     }
   }
   &--icons {
     white-space: nowrap;
+  }
+  &--input {
+      height: 100%;
+      border: solid 1px $gray-100;
+      border-radius: 0.25rem;
+      padding: 0.25rem 0.5rem;
+      width: 100%;
+      resize: none;
+      outline: none;
+  }
+  &--date {
+    font-style: italic;
+    font-size: 80%;
   }
 }

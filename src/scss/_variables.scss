@@ -94,6 +94,9 @@ $warning-25: #feecc5 !default;
 $danger-base: #db303f !default;
 // $danger-50:    #f2a9a9 !default;
 $danger-25: #f9d4d4 !default;
+$pending: #e4e4e4;
+$accepted: #daf5d6;
+$rejected: #f6cbcf;
 // $light-dark:     $gray-100 !default;
 // $light-base:     $gray-100 !default;
 // $light-50:       shift-color($light-base, -70) !default;
@@ -119,7 +122,7 @@ $danger-25: #f9d4d4 !default;
 //   "secondary":  $secondary,
 //   "success":    $success,
 //   "info":       $info,
-//   "warning":    $warning,
+//   "warnin":    $warning,
 //   "danger":     $danger,
 //   "light":      $light,
 //   "dark":       $dark

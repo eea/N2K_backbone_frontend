@@ -56,67 +56,45 @@
   }
 }
 
-.country-title{
-  position: static;
-  width: 40px;
-  height: 32px;
-  left: 10px;
-  top: 0px;
-
-  font-family: 'Open Sans';
-  font-style: normal;
-  font-weight: 700;
-  font-size: 18px;
-  line-height: 32px;
-  color: #01579B;
-
-  flex: none;
-  order: 1;
-  flex-grow: 0;
-  margin: 0px 18px;
-}
-
 .country-card {
   box-shadow: $box-shadow;
   border-radius: 10px;
   margin: 0;
   padding: 1rem 0.75rem;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   height: 100%;
   transition: $transition-base;
   &:hover {
     background-color: $gray-25;
     cursor: pointer;
     transition: $transition-base;
-    text-decoration: underline;
-  }
-  &-left {
-    margin-right: 1rem;
-    .card-img {
-      &--flag {
-        width: 2.5rem;
-      }
-    }
-  }
-  &-right {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
   }
   &-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 0.5rem;
-    i {
+    &-arrow {
       color: $primary-base;
+      align-items: right;
+    }
+  }
+  &-left {
+    margin-right: 1rem;
+    display: flex;
+    .card-img {
+      &--flag {
+        width: 2.5rem;
+        margin-right: 1rem;
+      }
     }
   }
   &-title {
     font-size: 1.25rem;
     font-weight: bold;
     color: $primary-base;
+    vertical-align: middle;
   }
   &-body {
     .badge {
@@ -165,6 +143,7 @@
 }
 
 .search-card {
+  height: 100%;
   box-shadow: $box-shadow;
   border-radius: 10px;
   padding: 1rem 0.75rem;

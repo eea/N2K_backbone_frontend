@@ -21,10 +21,10 @@ const AppHeader = (props) => {
             <li className={!props.page ? 'header-active' : ''}>
               <CButton color="link" className='btn-link--bold' href='/#/dashboard'>Dashboard</CButton>
             </li>
-            <li className={props.page === 'harvesting' ? 'header-active' : ''}>
-              <CButton color="link" className='btn-link--bold' href='/#/harvesting'>Harvesting</CButton>
+            <li className={props.page && props.page.includes('harvesting') ? 'header-active' : ''}>
+              <CButton color="link" className='btn-link--bold' href='/#/harvesting/incoming'>Harvesting</CButton>
             </li>
-            <li className={props.page === 'sitechanges' ? 'header-active' : ''}>
+            <li className={props.page && props.page.includes('sitechanges') ? 'header-active' : ''}>
               <CButton color="link" className='btn-link--bold' href='/#/sitechanges'>Site Changes</CButton>
             </li>
             <li className={props.page === 'sitelineage' ? 'header-active' : ''}>
@@ -33,8 +33,8 @@ const AppHeader = (props) => {
             <li className={props.page === 'siteedition' ? 'header-active' : ''}>
               <CButton color="link" className='btn-link--bold' href='/#/siteedition'>Site Edition</CButton>
             </li>
-            <li className={props.page === 'reports' ? 'header-active' : ''}>
-              <CButton color="link" className='btn-link--bold'>Reports</CButton>
+            <li className={props.page && props.page.includes('reports') ? 'header-active' : ''}>
+              <CButton color="link" className='btn-link--bold' href='/#/reports/management'>Reports</CButton>
             </li>
             <li className={props.page === 'user' ? 'header-active' : ''}>
               <CAvatar>

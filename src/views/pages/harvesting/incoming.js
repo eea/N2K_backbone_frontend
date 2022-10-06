@@ -1,7 +1,8 @@
 import React, { lazy, useState } from 'react'
-import { AppFooter, AppHeader } from './../../../components/index'
+import { AppFooter, AppHeader } from '../../../components/index'
 import TableEnvelops from './TableEnvelops';
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import {ReactComponent as ReactLogo} from './../../../assets/images/harvesting.svg';
 
 import {
   CButton,
@@ -10,15 +11,25 @@ import {
   CCol,
   CContainer,
   CRow,
-  CFormLabel,
-  CFormSelect,
-  CAlert
+  CAlert,
+  CSpinner
 } from '@coreui/react'
+
+import ConfigData from '../../../config.json';
 
 import { ConfirmationModal } from './components/ConfirmationModal';
 
+let refreshEnvelopes=false, 
+  getRefreshEnvelopes=()=>refreshEnvelopes, 
+  setRefreshEnvelopes=(state)=>refreshEnvelopes=state;
+
 const Harvesting = () => {
   const [disabledBtn, setDisabledBtn] = useState(true);
+  const [updatingData, setUpdatingData] = useState({
+    updating: false,
+    harvesting: false,
+    discarding: false
+  });
   const [alertValues, setAlertValues] = useState({
     visible: false,
     text: ''
@@ -32,7 +43,6 @@ const Harvesting = () => {
       }));
     }
   });
-
   let selectedCodes = [],
   setSelectedCodes = (v) => {
     if(document.querySelectorAll('input[sitecode]:checked').length !== 0 && v.length === 0) return;
@@ -67,58 +77,64 @@ const Harvesting = () => {
   }
 
   let modalProps = {
-    showAlert(text) {
-      setAlertValues({
-        visibility: true,
-        text: text
-      });
-    },
-    showHarvestModal(values) {
-      updateModalValues("Harvest Envelopes", "This will harvest this envelope", "Continue", () => harvestHandler(values), "Cancel", () => modalProps.close);
-    },
     showDiscardModal(values) {
-      updateModalValues("Discard Envelopes", "This will discard this envelope", "Continue", () => discardHandler(values), "Cancel", () => modalProps.close);
+      updateModalValues("Discard Envelopes", "This will discard these envelopes", "Continue", () => discardHandler(values), "Cancel", () => modalProps.close);
     }
   }
 
-  async function harvestHandler(values) {
-    let versionId = values.versionId;
-    let countryCode = values.countryCode;
-    // var harvested =[{"VersionId": versionId, "CountryCode": countryCode}];
-    // const response = await fetch(ConfigData.HARVESTING_HARVEST, {
-    //   method: 'POST',
-    //   body: JSON.stringify(harvested),
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //     'accept': 'application/json'
-    //   }
-    // });
-    // const data = await response.json();
-    // if (data.Success)  {
-    //   modalProps.showAlert("Envelope successfully harvested");
-    // }
-    // else 
-    //   console.log("Error:" + data.Message);
+  const showMessage = (text) => {
+    setAlertValues({visible:true, text:text});
+    setTimeout(() => {
+      setAlertValues({visible:false, text:''});
+    }, 4000);
+  };
+
+  const sendRequest = (url,method,body,path) => {
+    const options = {
+      method: method,
+      headers: {
+      'Content-Type': path? 'multipart/form-data' :'application/json',
+      },
+      body: path ? body : JSON.stringify(body),
+    };
+    return fetch(url, options)
   }
 
   async function discardHandler(values) {
-    let versionId = values.versionId;
-    let countryCode = values.countryCode;
-    // var harvested =[{"VersionId": versionId, "CountryCode": countryCode}];
-    // const response = await fetch(ConfigData.HARVESTING_DISCARD, {
-    //   method: 'POST',
-    //   body: JSON.stringify(harvested),
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //     'accept': 'application/json'
-    //   }
-    // });
-    // const data = await response.json();
-    // if (data.Success)  {
-    //   modalProps.showAlert("Envelope successfully discarded");
-    // }
-    // else 
-    //   console.log("Error:" + data.Message);
+    let promises = [];
+    let errors = [];
+    values = !Array.isArray(values) ? [values] : values;
+    for (let i in values) {
+      let code = values[i];
+      promises.push(
+        sendRequest(ConfigData.HARVESTING_CHANGE_STATUS+"?country="+code.country+"&version="+code.version+"&toStatus=Discarded","POST","")
+        .then(response => response.json())
+        .then(data => {
+          if(!data.Success) {
+            errors.push(data.Message);
+            console.log("Error: " + data.Message);
+          }
+        })
+      )
+      Promise.all(promises).then(v=>{
+        if(errors.length === 0) {
+          showMessage("Envelope successfully discarded");
+          setRefreshEnvelopes(true);
+        } else {
+          showMessage("Something went wrong");
+        }
+        setUpdatingData(state => ({
+          ...state,
+          updating: false,
+          discarding: false,
+        }));
+      });
+    }
+    setUpdatingData(state => ({
+      ...state,
+      updating: true,
+      discarding: true,
+    }));
   }
 
   return (
@@ -129,7 +145,7 @@ const Harvesting = () => {
           <CSidebarNav>
             <li className="nav-title">Harvesting</li>
             <li className="nav-item">
-              <a className="nav-link active">
+              <a className="nav-link active" href="/#/harvesting/incoming">
                 <i className="fa-solid fa-bookmark"></i>
                 Incoming
               </a>
@@ -164,18 +180,32 @@ const Harvesting = () => {
           <CContainer fluid>
             <div className="d-flex justify-content-between py-3">
               <div className="page-title">
-                <h1 className="h1">New Envelopes</h1>
+                <h1 className="h1">Incoming</h1>
               </div>
               <div>
                 <ul className="btn--list">
-                  <li><CButton color="secondary" disabled={disabledBtn} onClick={() => modalProps.showDiscardModal(selectedCodes)}>Discard</CButton></li>
-                  <li><CButton color="primary" disabled={disabledBtn} onClick={() => modalProps.showHarvestModal(selectedCodes)}>Harvest</CButton></li>
+                  <li>
+                    <CButton color="secondary" disabled={disabledBtn || updatingData.updating} onClick={() => modalProps.showDiscardModal(selectedCodes)}>
+                      {updatingData.discarding && <CSpinner size="sm"/>}
+                      {updatingData.discarding ? " Discarding" : "Discard"}
+                    </CButton>
+                  </li>
                 </ul>
               </div>
             </div>
+            <div className="text-center mb-4">
+              <ReactLogo className="harvesting-chart" id="incoming_chart"/>
+            </div>
             <CRow>
               <CCol md={12} lg={12}>
-                <TableEnvelops setSelected={setSelectedCodes} modalProps={modalProps} />
+                <TableEnvelops
+                  getRefresh={()=>getRefreshEnvelopes()}
+                  setRefresh={setRefreshEnvelopes}
+                  setSelected={setSelectedCodes}
+                  modalProps={modalProps}
+                  tableType="incoming"
+                  status="Pending,DataLoaded"
+                />
                 <ConfirmationModal modalValues={modalValues}/>
                 <CAlert color="primary" dismissible visible={alertValues.visible} onClose={() => setAlertValues({visible:false})}>{alertValues.text}</CAlert>
               </CCol>

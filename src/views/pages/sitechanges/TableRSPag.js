@@ -35,6 +35,28 @@ const IndeterminateCheckbox = React.forwardRef(
       )
     }
   )
+
+  const ClearSelectionLink = React.forwardRef(
+    ({ indeterminate, ...rest }, ref) => {
+      const defaultRef = React.useRef()
+      const resolvedRef = ref || defaultRef
+  
+      React.useEffect(() => {
+        resolvedRef.current.indeterminate = indeterminate
+      }, [resolvedRef, indeterminate])
+  
+      return (
+        <>
+         <div className={"hiddenCheckbox" + (rest.hidden ? " d-none" :"")} >
+            <input  type="checkbox" className="input-checkbox" ref={resolvedRef} {...rest}/>
+            <label htmlFor={rest.id}>
+              <span className="message-board-link">Clear selection</span>
+            </label>
+          </div>
+        </>
+      )
+    }
+  )
   
   function GlobalFilter({
     preGlobalFilteredRows,
@@ -92,9 +114,10 @@ const IndeterminateCheckbox = React.forwardRef(
   
   fuzzyTextFilterFn.autoRemove = val => !val
 
-  function Table({ columns, data, setSelected, siteCodes, currentPage, currentSize, loadPage, status }) {
-
+  function Table({ columns, data, setSelected, siteCodes, currentPage, currentSize, loadPage, status, updateModalValues }) {
+    const [disabledBtn, setDisabledBtn] = useState(false);
     const [pgCount, setPgCount] = useState(Math.ceil(siteCodes.length / currentSize));
+    const [selectedRows, setSelectedRows] = useState(0);
 
     const filterTypes = React.useMemo(
         () => ({
@@ -133,6 +156,8 @@ const IndeterminateCheckbox = React.forwardRef(
       previousPage,
       setPageSize, 
       initialExpanded,
+      isAllPageRowsSelected,      
+      getToggleAllPageRowsSelectedProps,   
       state: { pageIndex, pageSize, selectedRowIds, expanded, expandSubRows },
     } = useTable(
       {
@@ -157,7 +182,10 @@ const IndeterminateCheckbox = React.forwardRef(
             id: 'selection',
             cellWidth: '48px',
             Header: ({ getToggleAllPageRowsSelectedProps }) => (
+              <>
               <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} id={"sitechanges_check_all_" + status} />
+              {isAllPageRowsSelected ? null : setSelectedRows(0)}
+              </>
             ),
             Cell: ({ row }) => (
               row.canExpand ?(
@@ -170,15 +198,29 @@ const IndeterminateCheckbox = React.forwardRef(
       }
     )
 
-    if(setSelected) setSelected(Object.keys(selectedRowIds).filter(v=>!v.includes(".")).map(v=>{return {SiteCode:data[v].SiteCode, VersionId: data[v].Version}}));
-
+    selectedRows === siteCodes.length && setSelected ?
+      setSelected(siteCodes.map(v =>{return {SiteCode: v.SiteCode, VersionId: v.Version}}))
+    :
+      setSelected(Object.keys(selectedRowIds).filter(v=>!v.includes(".")).map(v=>{return {SiteCode:data[v].SiteCode, VersionId: data[v].Version}}))
+        
     let changePage = (page,chunk)=>{
       loadPage(page,pageSize);
-    }
-
+    }    
     // Render the UI for your table
     return (
-      <>        
+      <>     
+      {isAllPageRowsSelected && status === 'pending' && selectedRows !== siteCodes.length ?
+        <div className="message-board">
+          <span className="message-board-text">The <b>{page.length}</b> sites of this page are selected</span>
+          <span className="message-board-link" onClick={() =>(setSelectedRows(siteCodes.length), setSelected(siteCodes))}>Select {siteCodes.length} sites</span>
+        </div> : null
+      }
+      {isAllPageRowsSelected && status === 'pending' && selectedRows === siteCodes.length ?
+        <div className="message-board">
+          <span className="message-board-text">All the <b>{siteCodes.length}</b> sites are selected</span>
+          <ClearSelectionLink {...getToggleAllPageRowsSelectedProps()} id={"sitechanges_check_all_" + status} />
+        </div> : null
+      }
         <table  className="table" {...getTableProps()}>
           <thead>
             {headerGroups.map(headerGroup => (
@@ -189,7 +231,7 @@ const IndeterminateCheckbox = React.forwardRef(
                         {/*<div>{column.canFilter ? column.render('Filter') : null}</div>*/}
                   </th>
                 ))}
-              </tr>              
+              </tr>
             ))}
              <tr>
           </tr>
@@ -226,6 +268,7 @@ const IndeterminateCheckbox = React.forwardRef(
             <strong>
               {pageIndex+1} of {pageCount}
             </strong>{' '}
+            ({siteCodes.length === 1 ? siteCodes.length + " result" : siteCodes.length + " results"})
           </span>
           <CPaginationItem onClick={() => changePage(pageIndex+1,nextPage())} disabled={!canNextPage}>
             <i className="fa-solid fa-angle-right"></i>
@@ -267,6 +310,7 @@ const IndeterminateCheckbox = React.forwardRef(
     const [currentPage, setCurrentPage] = useState(0);
     const [currentSize, setCurrentSize] = useState(30);
     const [levelCountry, setLevelCountry] = useState({});
+    const [pageCount, setPageCount] = useState(0);
 
     let forceRefreshData = ()=> setChangesData({});
 
@@ -505,13 +549,11 @@ const IndeterminateCheckbox = React.forwardRef(
       .then(data => {
         props.setSitecodes(props.status,data.Data);
         setSitecodes(data.Data);
-      });      
+      });
     }
   
     let loadData= ()=>{
-      
       if(props.getRefresh()||(!isLoading && changesData!=="nodata" && Object.keys(changesData).length===0)){
-
         let promises=[];
         setIsLoading(true);
         
@@ -541,7 +583,17 @@ const IndeterminateCheckbox = React.forwardRef(
       }
     }
     
-    loadData();
+    if(!props.country) {
+      if(changesData !== "nodata") {
+        setChangesData("nodata");
+        setSitecodes([]);
+        props.setSitecodes({});
+        setIsLoading(false);
+      }
+      //return(<></>);
+    } else {
+      loadData();
+    }
 
     if(isLoading)
       return (<div className="loading-container"><em>Loading...</em></div>)

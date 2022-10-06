@@ -9,19 +9,38 @@ import {
   CCol,
   CContainer,
   CRow,
-  CFormInput,
   CCard,
   CFormLabel,
   CFormSelect,
+  CPagination,
+  CPaginationItem,
 } from '@coreui/react'
 
 import { ModalEdition } from './ModalEdition';
+
+const defaultCountry = () => {
+  const searchParams = new URLSearchParams(window.location.href.split('?')[1]);
+  const parmCountry = searchParams.get('country');
+  return parmCountry ? parmCountry : ConfigData.DEFAULT_COUNTRY ? ConfigData.DEFAULT_COUNTRY : "";
+}
 
 const Siteedition = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalItem, setModalItem] = useState({});
   const [siteCodes, setSitecodes] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [searchList, setSearchList] = useState({});
+  const [selectOption, setSelectOption] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingCountries, setLoadingCountries] = useState(false);
+  const [disabledSearchBtn, setDisabledSearchBtn] = useState(true);
+  const [countries, setCountries] = useState([]);
+  const [country, setCountry] = useState(defaultCountry);
+  const [bioRegions, setBioRegions] = useState([]);
+  const [siteTypes, setSiteTypes] = useState([]);
+  const turnstoneRef = useRef();
+  const [pageSize, setPageSize] = useState(30);
+  const [pageIndex, setPageIndex] = useState(1);
+  const [pageCount, setPageCount] = useState(0);
   const [modalValues, setModalValues] = useState({
     visibility: false,
     close: () => {
@@ -31,28 +50,82 @@ const Siteedition = () => {
       }));
     }
   });
-  const [disabledSearchBtn, setDisabledSearchBtn] = useState(true);
-  const turnstoneRef = useRef();
 
-  let openModal = (data)=>{
+  if(countries.length === 0 && !loadingCountries){
+    setLoadingCountries(true);
+    fetch(ConfigData.COUNTRIES_WITH_DATA)
+    .then(response => response.json())
+    .then(data => {
+      setLoadingCountries(false);
+      let countriesList = [];
+      for(let i in data.Data){
+        countriesList.push({name:data.Data[i].Country,code:data.Data[i].Code});
+      }
+      countriesList = [{name:"",code:""}, ...countriesList];
+      setCountries(countriesList);
+      if(country === ""){
+          setCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code);
+          changeCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code)
+      }
+    });
+  }
+
+  let changeCountry = (country) => {
+    setCountry(country)
+    forceRefreshData();
+  }
+
+  if(bioRegions.length === 0){
+    fetch(ConfigData.BIOREGIONS_GET)
+    .then(response => response.json())
+    .then(data => {
+      let regionsList = data.Data;
+      setBioRegions(regionsList);
+    });
+  }
+
+  if(siteTypes.length === 0){
+    fetch(ConfigData.SITETYPES_GET)
+    .then(response => response.json())
+    .then(data => {
+      let typesList = data.Data;
+      setSiteTypes(typesList);
+    });
+  }
+
+  let getSitesList = (data) => {
+    return {
+      name: "sites",
+      data: data.map?data.map(x=>({"search":x.SiteCode+" - "+x.Name,...x})):[],
+      searchType: "contains",
+    }
+  }
+
+  let showModalSitechanges = (data) => {
+    if (data) {
+      openModal({SiteCode:data.SiteCode, Version:data.Version})
+    }
+  }
+
+  let openModal = (data) => {
     setModalVisible(true);
     setModalItem(data);
   }
 
-  let closeModal = (refresh)=>{
+  let closeModal = (refresh) => {
     setModalVisible(false);
     setModalItem({});
     if(refresh) {
-      setIsLoading(true);
       forceRefreshData();
     }
   }
 
-  let forceRefreshData = ()=> setSitecodes([]);
+  let forceRefreshData = () => setSitecodes([]);
 
   let clearSearch = () => {
     turnstoneRef.current?.clear();
     setDisabledSearchBtn(true);
+    setSelectOption({});
   }
 
   let selectSearchOption = (e) => {
@@ -75,17 +148,21 @@ const Siteedition = () => {
   }
 
   let loadData = () => {
-    if(siteCodes.length === 0){
-      fetch(ConfigData.SITECHANGES_GET+`country=DE&status=pending&level=Critical&page=1&limit=30`) //add correct URL
-      .then(response =>response.json() )
+    if(siteCodes.length !==0) return;
+    if(country !=="" && !isLoading && siteCodes!=="nodata" && siteCodes.length === 0){
+      setIsLoading(true);
+      fetch(ConfigData.SITEEDITION_GET+"country="+country+"?reference=true")
+      .then(response =>response.json())
       .then(data => {
         if(Object.keys(data.Data).length === 0){
           setSitecodes("nodata");
         }
         else {
           setSitecodes(data.Data);
-          setIsLoading(false);
+          setSearchList(getSitesList(data.Data));
+          setPageCount(Math.ceil(data.Data.length / Number(pageSize)));
         }
+        setIsLoading(false);
       });
     }
   }
@@ -129,28 +206,31 @@ const Siteedition = () => {
 
   let loadCards = () => {
     let cards = [];
-    for(let i in siteCodes){
-      let siteName = siteCodes[i].SiteName;
-      let siteCode = siteCodes[i].SiteCode;
-      let country = siteCodes[i].Country;
-      let version = siteCodes[i].Version;
-      cards.push(
-        <CCol xs={12} md={6} lg={4} xl={3} key={"card_"+i}>
-          <CCard className="search-card">
-            <div className="search-card-header">
-              <span className="search-card-title">{siteName}</span>
-            </div>
-            <div className="search-card-body">
-              <span className="search-card-description"><b>{siteCode}</b> | {country}</span>
-            </div>
-            <div className="search-card-button">
-              <CButton color="link" className="btn-link--dark" onClick={()=>openModal({SiteCode:siteCode, Version:version})}>
-                Edit
-              </CButton>
-            </div>
-          </CCard>
-        </CCol>
-      )
+    if(countries.length > 0){
+      let countryName = countries.find(a=>a.code===country).name;
+      let sites = siteCodes.slice(pageIndex*pageSize-pageSize,pageIndex*pageSize);
+      for(let i in sites){
+        let siteName = sites[i].Name;
+        let siteCode = sites[i].SiteCode;
+        let version = sites[i].Version;
+        cards.push(
+          <CCol xs={12} md={6} lg={4} xl={3} key={"card_"+i}>
+            <CCard className="search-card">
+              <div className="search-card-header">
+                <span className="search-card-title">{siteName}</span>
+              </div>
+              <div className="search-card-body">
+                <span className="search-card-description"><b>{siteCode}</b> | {countryName}</span>
+              </div>
+              <div className="search-card-button">
+                <CButton color="link" className="btn-link--dark" onClick={()=>openModal({SiteCode:siteCode, Version:version})}>
+                  Edit
+                </CButton>
+              </div>
+            </CCard>
+          </CCol>
+        )
+      }
     }
     return(
       <>
@@ -178,7 +258,7 @@ const Siteedition = () => {
                   <Turnstone
                     id="siteedition_search"
                     className="form-control"
-                    //listbox = {searchList}
+                    listbox = {searchList}
                     placeholder="Search sites by site name or site code"
                     noItemsMessage="Site not found"
                     styles={{input:"form-control", listbox:"search--results", groupHeading:"search--group", noItemsMessage:"search--option"}}
@@ -187,44 +267,87 @@ const Siteedition = () => {
                     Item={item}
                     typeahead={false}
                   />
-                  <span className="btn-icon" onClick={()=>clearSearch()}>
-                    <i className="fa-solid fa-xmark"></i>
-                  </span>
+                  {Object.keys(selectOption).length !== 0 &&
+                    <span className="btn-icon" onClick={()=>clearSearch()}>
+                      <i className="fa-solid fa-xmark"></i>
+                    </span>
+                  }
                 </div>
-                <CButton disabled={disabledSearchBtn}>
+                <CButton disabled={disabledSearchBtn} onClick={()=>showModalSitechanges(selectOption)}>
                   <i className="fa-solid fa-magnifying-glass"></i>
                 </CButton>
               </CCol>
               <CCol className="mb-4">
-                <div className="select--right">
-                    <CFormLabel htmlFor="siteedition_input" className="form-label form-label-reporting col-md-4 col-form-label">Order by </CFormLabel>
-                      <CFormSelect id="siteedition_input" aria-label="Order by" className="form-select-reporting" value="" onChange={(e)=>changeCountry(e.target.value)}>
-                        <option value="opt_siteCode">Site name</option>
-                        <option value="opt_siteName">Site code</option>
-                        <option value="opt_date">Reported date</option>
+                  <div className="select--right">
+                    <CFormLabel className="form-label form-label-reporting col-md-4 col-form-label">Country </CFormLabel>
+                    <CFormSelect aria-label="Default select example" className='form-select-reporting' disabled={isLoading} value={country} onChange={(e)=>changeCountry(e.target.value)}>
+                      {
+                        countries.map((e)=><option value={e.code} key={e.code}>{e.name}</option>)
+                      }
                     </CFormSelect>
-                </div>
-              </CCol>
+                  </div>
+                </CCol>
             </CRow>
             <CRow className="grid">
               {isLoading ?
                 <div className="loading-container"><em>Loading...</em></div>
               : (siteCodes === "nodata" ?
                 <div className="nodata-container"><em>No Data</em></div>
-                : loadCards()
+                : <>
+                    {loadCards()}
+                    <CPagination className="mt-3">
+                      <CPaginationItem onClick={() => setPageIndex(1)} disabled={pageIndex===1}>
+                        <i className="fa-solid fa-angles-left"></i>
+                      </CPaginationItem>
+                      <CPaginationItem onClick={() => setPageIndex(pageIndex-1)} disabled={pageIndex===1}>
+                        <i className="fa-solid fa-angle-left"></i>
+                      </CPaginationItem>
+                      <span>
+                        Page{' '}
+                        <strong>
+                          {pageIndex} of {pageCount}
+                        </strong>{' '}
+                      </span>
+                      <CPaginationItem onClick={() => {setPageIndex(pageIndex+1);loadCards()}} disabled={pageIndex===pageCount}>
+                        <i className="fa-solid fa-angle-right"></i>
+                      </CPaginationItem>
+                      <CPaginationItem onClick={() => setPageIndex(pageCount)} disabled={pageIndex===pageCount}>
+                        <i className="fa-solid fa-angles-right"></i>
+                      </CPaginationItem>
+
+                      <div className='pagination-rows'>
+                        <label className='form-label'>Rows per page</label>
+                        <select
+                          className='form-select'
+                          value={pageSize}
+                          onChange={e => {
+                            setPageCount(Math.ceil(siteCodes.length / Number(e.target.value)));
+                            setPageSize(Number(e.target.value));
+                            setPageIndex(1);
+                          }}
+                        >
+                          {[10, 20, 30, 40, 50].map(pageSize => (
+                            <option key={pageSize} value={pageSize}>
+                              {pageSize}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </CPagination>
+                  </>
                 )
               }
-              <ModalEdition
-                visible = {modalVisible}
-                close = {closeModal}
-                accept={()=>acceptChanges(modalItem)}
-                reject={()=>rejectChanges(modalItem)}
-                item={modalItem.SiteCode}
-                version={modalItem.Version}
-                updateModalValues = {() => updateModalValues()}
-              />
             </CRow>
           </CContainer>
+          <ModalEdition
+            visible = {modalVisible}
+            close = {closeModal}
+            item={modalItem.SiteCode}
+            version={modalItem.Version}
+            updateModalValues = {() => updateModalValues()}
+            regions={bioRegions}
+            types={siteTypes}
+          />
         </div>
       </div>
     </div>

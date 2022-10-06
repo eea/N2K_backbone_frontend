@@ -29,10 +29,14 @@ import {
   CModalTitle,
   CTabContent,
   CTabPane,
+  CTooltip,
   CCollapse,
   CCard,
-  CAlert,
+  CAlert
 } from '@coreui/react'
+
+import TextareaAutosize from 'react-textarea-autosize';
+
 import CIcon from '@coreui/icons-react'
 import { cilWarning } from '@coreui/icons'
 
@@ -41,15 +45,16 @@ import justificationprovided from './../../../assets/images/file-text.svg'
 
 import MapViewer from './components/MapViewer'
 import { getOptions } from 'highcharts';
+import reactTextareaAutosize from 'react-textarea-autosize';
 
 export class ModalChanges extends Component {
   
   
   constructor(props) {
-    super(props);        
+    super(props);
     this.state = {
-      activeKey: 1, 
-      loading: true, 
+      activeKey: 1,
+      loading: true,
       data: {}, 
       levels:["Critical"],
       bookmark: "",
@@ -58,7 +63,6 @@ export class ModalChanges extends Component {
       comments:[],
       documents:[],
       showDetail: "",
-      showAlert: false,
       newComment: false,
       newDocument: false,
       justificationRequired: false,
@@ -77,7 +81,7 @@ export class ModalChanges extends Component {
           });
         }
       }
-    };            
+    };
   }
 
   updateModalValues(title, text, primaryButtonText, primaryButtonFunction, secondaryButtonText, secondaryButtonFunction) {
@@ -146,9 +150,10 @@ export class ModalChanges extends Component {
   }
 
   updateComment(target){
-    let input = target.closest(".comment--item").querySelector("input");
+    let input = target.closest(".comment--item").querySelector("textarea");
     if (target.firstChild.classList.contains("fa-pencil")) {
       input.disabled = false;
+      input.readOnly = false;
       input.focus();
       target.firstChild.classList.replace("fa-pencil", "fa-floppy-disk");
     } else {
@@ -162,8 +167,9 @@ export class ModalChanges extends Component {
   }
 
   addComment(target){
-    let input = target.closest(".comment--item").querySelector("input");
+    let input = target.closest(".comment--item").querySelector("textarea");
     let comment = input.value;
+    let currentDate = new Date().toISOString();
     if (!comment) {
       this.showErrorMessage("comment", "Add a comment");
     }
@@ -171,9 +177,11 @@ export class ModalChanges extends Component {
       let body = {
         "SiteCode": this.state.data.SiteCode,
         "Version": this.state.data.Version,
-        "comments": comment
+        "comments": comment,
+        "Date": currentDate,
+        "Edited": 0
       }
-
+      
       this.sendRequest(ConfigData.ADD_COMMENT,"POST",body)
       .then(response => response.json())
       .then((data) => {
@@ -184,36 +192,45 @@ export class ModalChanges extends Component {
             Comments: comment,
             SiteCode: this.state.data.SiteCode,
             Version: this.state.data.Version,
-            Id: commentId
+            Id: commentId,
+            Date: this.state.data.Date
           })
           this.setState({comments: cmts, newComment: false})
         }
       });
+      this.loadComments();
     }
   }
 
   saveComment(code,version,comment,target){
-    let input = target.closest(".comment--item").querySelector("input");
+    let input = target.closest(".comment--item").querySelector("textarea");
+    let id = input.getAttribute("id");
+    let currentDate = new Date().toISOString();
+    let edited = this.state.comments.find(c => c.Id == parseInt(id)).Edited;
     let body = {
-      "Id": input.getAttribute("msg_id"),
+      "Id": id,
       "SiteCode": code,
       "Version": version,
-      "comments": comment
+      "comments": comment,
+      "Edited": edited+1,
+      "EditedDate": currentDate,
     }
 
     this.sendRequest(ConfigData.UPDATE_COMMENT,"PUT",body)
     .then((data) => {
       if(data?.ok){
         input.disabled = true;
+        input.readOnly = true;
         target.firstChild.classList.replace("fa-floppy-disk", "fa-pencil");
       }
-    });
+    })
+    this.loadComments();
   }
 
   deleteComment(target){
     if(target) {
-      let input = target.closest(".comment--item").querySelector("input");
-      let id = input.getAttribute("msg_id");
+      let input = target.closest(".comment--item").querySelector("textarea");
+      let id = input.getAttribute("id");
       let body = id;
       this.sendRequest(ConfigData.DELETE_COMMENT,"DELETE",body)
       .then((data) => {
@@ -294,11 +311,14 @@ export class ModalChanges extends Component {
             let document = newDocs[i];
             let documentId = document.Id;
             let path = document.Path;
+            let currentDate = new Date().toISOString();
             docs.push({
               Id: documentId,
               SiteCode: this.state.data.SiteCode,
               Version: this.state.data.Version,
-              Path: path
+              Path: path,
+              Username: this.state.data.Username,
+              ImportDate: currentDate
             })
           }
           this.setState({documents: docs, newDocument: false})
@@ -549,7 +569,11 @@ handleJustProvided(){
       this.state.newComment &&
       <div className="comment--item new" id="cmtItem_newItem">
         <div className="comment--text">
-          <input type="text" placeholder="Add comment"/>
+          <TextareaAutosize
+            minRows={3}
+            placeholder="Add a comment"
+            className="comment--input"
+          ></TextareaAutosize>
         </div>
         <div>
           <div className="btn-icon" onClick={(e) => this.addComment(e.currentTarget)}> 
@@ -563,7 +587,14 @@ handleJustProvided(){
     )
     for(let i in this.state.comments){
       cmts.push(
-        this.createCommentElement(this.state.comments[i].Id,this.state.comments[i].Comments)
+        this.createCommentElement(
+          this.state.comments[i].Id
+          ,this.state.comments[i].Comments
+          ,this.state.comments[i].Date
+          ,this.state.comments[i].Owner
+          ,this.state.comments[i].Edited
+          ,this.state.comments[i].EditedDate
+          ,this.state.comments[i].Editedby)
       )
     }
     return(
@@ -574,11 +605,29 @@ handleJustProvided(){
     )
   }
 
-  createCommentElement(id,comment){
+  createCommentElement(id,comment,date,owner,edited,editeddate,editedby){
     return (
       <div className="comment--item" key={"cmtItem_"+id} id={"cmtItem_"+id}>
         <div className="comment--text" key={"cmtText_"+id}>
-          <input type="text" placeholder="Add comment" defaultValue={comment} msg_id={id} disabled/>
+          <TextareaAutosize
+            id={id}
+            disabled
+            defaultValue={comment}
+            className="comment--input" />
+          <label className="comment--date" for={id}>
+            { date &&
+              "Commented on " + date.slice(0,10).split('-').reverse().join('/') }
+            { owner &&
+              " by " + owner }
+          </label>
+          <label hidden={edited < 1} className="comment--date" for={id}>
+            { ((edited >= 1) || editeddate !== undefined || editedby !== undefined) &&
+              ". Last edited" }
+            { editeddate && 
+              " on " + editeddate.slice(0,10).split('-').reverse().join('/') }
+            { editedby &&
+              " by " + editedby }
+          </label>
         </div>
         <div className="comment--icons">
           <div className="btn-icon" onClick={(e) => this.updateComment(e.currentTarget)} key={"cmtUpdate_"+id}>
@@ -618,7 +667,11 @@ handleJustProvided(){
     )
     for(let i in this.state.documents){
       docs.push(
-        this.createDocumentElement(this.state.documents[i].Id,this.state.documents[i].Path)
+        this.createDocumentElement(
+          this.state.documents[i].Id
+          ,this.state.documents[i].Path
+          ,this.state.documents[i].ImportDate
+          ,this.state.documents[i].Username)
       )
     }
     return(
@@ -629,7 +682,7 @@ handleJustProvided(){
     )
   }
 
-  createDocumentElement(id,path){
+  createDocumentElement(id,path,date,user){
     return (
       <div className="document--item" key={"docItem_"+id} id={"docItem_"+id} doc_id={id}>
         <div className="my-auto document--text">
@@ -637,6 +690,14 @@ handleJustProvided(){
           <span>{path.replace(/^.*[\\\/]/, '')}</span>
         </div>
         <div className="document--icons">
+          { (date||user) &&
+            <CTooltip 
+              content={"Uploaded"
+                + (date && " on " + date.slice(0,10).split('-').reverse().join('/'))
+                + (user && " by " + user)}>
+              <i className="fa-solid fa-circle-info"></i>
+            </CTooltip>
+          }
           <CButton color="link" className="btn-link--dark"><a href={path} target="_blank">View</a></CButton>
           <div className="btn-icon" onClick={(e) => this.deleteDocument(e.currentTarget)}>
             <i className="fa-regular fa-trash-can"></i>
@@ -646,7 +707,7 @@ handleJustProvided(){
     )
   }
 
-  renderAttachments(){    
+  renderAttachments(){
     return(
       <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 3}>
         <CRow className="py-3">
@@ -677,27 +738,23 @@ handleJustProvided(){
               </div>
               {this.renderComments()}
             </CCard>
-          </CCol>         
+          </CCol>
           <CCol className="d-flex">
-            <div className="checkbox">              
-              <input type="checkbox" className="input-checkbox" id="modal_justification_req"               
+            <div className="checkbox">
+              <input type="checkbox" className="input-checkbox" id="modal_justification_req"
               onClick={()=>this.props.updateModalValues("Changes", `This will ${this.state.justificationRequired ? "unmark" : "mark"} change as Justification Required`, "Continue", ()=>this.handleJustRequired(), "Cancel", ()=>{})}               
               checked={this.state.justificationRequired}
               readOnly
               />
-              
-              <label htmlFor="modal_justification_req" className="input-label">Justification required</label>              
-            </div>                            
-            <div className="checkbox" style={{cursor: this.state.justificationRequired ? "" : "not-allowed"}} disabled={(this.state.justificationRequired ? false : true)}>
-              <input type="checkbox" className="input-checkbox" id="modal_justification_prov"         
+              <label htmlFor="modal_justification_req" className="input-label">Justification required</label>
+            </div>
+            <div className="checkbox" disabled={(this.state.justificationRequired ? false : true)}>
+              <input type="checkbox" className="input-checkbox" id="modal_justification_prov"
                 onClick={()=>this.props.updateModalValues("Changes", `This will ${this.state.justificationProvided ? "unmark": "mark"} change as Justification Provided`, "Continue", ()=>this.handleJustProvided(), "Cancel", ()=>{})} 
                 checked={this.state.justificationProvided} 
-                disabled={(this.state.justificationRequired ? false : true)}
-                style={{cursor: this.state.justificationRequired ? "" : "not-allowed"}}
                 readOnly
               />
-              <label htmlFor="modal_justification_prov" style={{cursor: this.state.justificationRequired ? "" : "not-allowed"}} className="input-label" disabled={(this.state.justificationRequired ? false : true)}
-              >Justification provided</label>
+              <label htmlFor="modal_justification_prov" className="input-label" disabled={(this.state.justificationRequired ? false : true)}>Justification provided</label>
             </div>
           </CCol>
         </CRow>
@@ -723,7 +780,7 @@ handleJustProvided(){
           <CModalTitle>{data.SiteCode} - {data.Name}</CModalTitle>
         </CModalHeader>
         <CModalBody>
-          <CAlert color="primary" className="d-flex align-items-center" visible={this.state.showAlert}>
+          <CAlert color="primary" className="d-flex align-items-center" visible={this.state.justificationRequired}>
             <CIcon icon={cilWarning} className="me-2"/>
             Justification required
           </CAlert>

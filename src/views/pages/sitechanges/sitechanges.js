@@ -16,10 +16,11 @@ import {
   CSidebarNav,
   CFormLabel,
   CFormSelect,
-  CFormCheck,
   CTabContent,
   CTabPane,
-  CFormInput
+  CSpinner,
+  CPopover,
+  CTooltip
 } from '@coreui/react'
 
 import { ConfirmationModal } from './components/ConfirmationModal';
@@ -27,20 +28,20 @@ import ConfigData from '../../../config.json';
 
 const xmlns = 'https://www.w3.org/2000/svg'
 
-const defaultCountry = () => {
-  const searchParams = new URLSearchParams(window.location.href.split('?')[1]);
-  const c = searchParams.get('country');
-  if(c) return c;
-  return "DE";
-}
-
 let refreshSitechanges={"pending":false,"accepted":false,"rejected":false}, 
   getRefreshSitechanges=(state)=>refreshSitechanges[state], 
   setRefreshSitechanges=(state,v)=>refreshSitechanges[state] = v;
 
+  const defaultCountry = () => {
+    const searchParams = new URLSearchParams(window.location.href.split('?')[1]);
+    const parmCountry = searchParams.get('country');
+    return parmCountry ? parmCountry : ConfigData.DEFAULT_COUNTRY ? ConfigData.DEFAULT_COUNTRY : "";
+  }  
+
 const Sitechanges = () => {
+
   const [activeTab, setActiveTab] = useState(1)
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [forceRefresh, setForceRefresh] = useState(0);
   const [countries, setCountries] = useState([]);
@@ -48,17 +49,25 @@ const Sitechanges = () => {
   const [level, setLevel] = useState('Critical');
   const [disabledBtn, setDisabledBtn] = useState(true);
   const [disabledSearchBtn, setDisabledSearchBtn] = useState(true);
-  const [siteCodes, setSitecodes] = useState({"pending": {}, "accepted": {}, "rejected": {}})
+  const [siteCodes, setSitecodes] = useState({});
+  const [pendingChanges, setPendingChanges] = useState();
   const [searchList, setSearchList] = useState({});
   const [selectOption, setSelectOption] = useState({});
   const [showModal, setShowhowModal] = useState(false);
+  const [updatingData, setUpdatingData] = useState(false);
   const turnstoneRef = useRef();
 
-  let setCodes = (status,data)=> {
-    let codes = siteCodes;
-    codes[status] = data;
-    setSitecodes(codes);
-    setSearchList(getSitesList());
+  let setCodes = (status,data) => {
+    if(data) {
+      let codes = siteCodes;
+      codes[status] = data;
+      setSitecodes(codes);
+      setSearchList(getSitesList());
+      checkComplete();
+    }
+    else if (country){
+      setIsLoading(false);
+    }
   }
 
   let getSitesList = () =>{
@@ -72,6 +81,17 @@ const Sitechanges = () => {
     )
   }
 
+  let checkComplete = () => {
+    fetch(ConfigData.HARVESTING_GET_STATUS+"?status=Harvested")
+    .then(response => response.json())
+    .then(data => {
+      if(Object.keys(data.Data).length > 0) {
+        setPendingChanges(data.Data.find(x => x.Country === country).ChangesPending);
+      }
+      setIsLoading(false);
+    })
+  }
+
   let showModalSitechanges = (data) => {
     if (data) {
       setShowhowModal(data);
@@ -83,22 +103,33 @@ const Sitechanges = () => {
 
   let selectedCodes = [],
   setSelectedCodes = (v) => {
-    let checkAll = document.querySelector('.tab-pane.active [id^=sitechanges_check_all]');
-    if(document.querySelectorAll('input[sitecode]:checked').length !== 0 && v.length === 0) {
-      if(!checkAll.indeterminate && !checkAll.checked) {
-        setDisabledBtn(true);
+    if(!isLoading){
+      let checkAll = document.querySelector('.tab-pane.active [id^=sitechanges_check_all]');
+      if(document.querySelectorAll('input[sitecode]:checked').length !== 0 && v.length === 0) {
+        if(!checkAll.indeterminate && !checkAll.checked) {
+          setDisabledBtn(true);
+        }
+        return;
       }
-      return;
+      selectedCodes = v;
+      if (selectedCodes.length === 0) {
+        setDisabledBtn(true);
+      } else {
+        setDisabledBtn(false);
+      }
     }
-    selectedCodes = v;
-    if (selectedCodes.length === 0) {
+    else
       setDisabledBtn(true);
-    } else {
-      setDisabledBtn(false);
-    }
   };
 
-  let forceRefreshData = ()=>{for(let i in refreshSitechanges) setRefreshSitechanges(i,true)};
+  let forceRefreshData = ()=>{
+    setIsLoading(true);
+    setSitecodes({});
+    setSearchList({});
+    for(let i in refreshSitechanges)
+      setRefreshSitechanges(i,true)
+    //setIsLoading(false);
+    };
 
   let postRequest = (url,body)=>{
     const options = {
@@ -134,9 +165,9 @@ const Sitechanges = () => {
     return postRequest(ConfigData.ACCEPT_CHANGES, rBody)
     .then(data => {
         if(data.ok){
-          setRefreshSitechanges("pending",true);
-          setRefreshSitechanges("accepted",true);
-          //forceRefreshData();
+          // setRefreshSitechanges("pending",true);
+          // setRefreshSitechanges("accepted",true);
+          forceRefreshData();
           setForceRefresh(forceRefresh+1);
         }else
           alert("something went wrong!");
@@ -153,9 +184,9 @@ const Sitechanges = () => {
     return postRequest(ConfigData.REJECT_CHANGES, rBody)
     .then(data => {
         if(data.ok){
-          setRefreshSitechanges("pending",true);
-          setRefreshSitechanges("rejected",true);
-          //forceRefreshData();
+          // setRefreshSitechanges("pending",true);
+          // setRefreshSitechanges("rejected",true);
+          forceRefreshData();
           setForceRefresh(forceRefresh+1);
         }else
           alert("something went wrong!");
@@ -166,13 +197,45 @@ const Sitechanges = () => {
     });
   }
 
+  let completeEnvelope = () => {
+    let version = countries.find(x => x.code === country).version;
+    sendRequest(ConfigData.HARVESTING_CHANGE_STATUS+"?country="+country+"&version="+version+"&toStatus=Closed","POST","")
+      .then(response => response.json())
+      .then(data => {
+        if(data.Success) {
+          setUpdatingData(false);
+          setCountries([]);
+          setCountry();
+          setSitecodes({});
+          setPendingChanges();
+          loadCountries();
+          setIsLoading(true);
+        }
+        else {
+          console.log("Error: " + data.Message);
+        }
+      })
+    setUpdatingData(true);
+  }
+
+  let sendRequest = (url,method,body,path)=>  {
+    const options = {
+      method: method,
+      headers: {
+      'Content-Type': path? 'multipart/form-data' :'application/json',
+      },
+      body: path ? body : JSON.stringify(body),
+    };
+    return fetch(url, options)
+  }
+
   let switchMarkChanges = (changes)=>{
     let rBody =!Array.isArray(changes)?[changes]:changes 
 
     return postRequest(ConfigData.MARK_AS_JUSTIFICATION_REQUIRED, rBody)
     .then(data => {
       if(data.ok){
-        forceRefreshData();        
+        forceRefreshData();
       }
       else 
         alert("something went wrong!");
@@ -218,6 +281,7 @@ const Sitechanges = () => {
   let clearSearch = () => {
     turnstoneRef.current?.clear();
     setDisabledSearchBtn(true);
+    setSelectOption({});
   }
 
   let selectSearchOption = (e) => {
@@ -246,20 +310,37 @@ const Sitechanges = () => {
 
   let changeCountry = (country)=>{
     setCountry(country)
-    forceRefreshData();
+    setSitecodes({});
+    setSearchList({});
+    setPendingChanges();
+    if(country !== "") {
+      forceRefreshData();
+    }
   }
 
-  //Initial set for countries
-  if(countries.length === 0){
+  let loadCountries = () => {
     fetch(ConfigData.COUNTRIES_WITH_DATA)
     .then(response => response.json())
     .then(data => {
       let countriesList = [];
       for(let i in data.Data){
-        countriesList.push({name:data.Data[i].Country,code:data.Data[i].Code});
+        countriesList.push({name:data.Data[i].Country,code:data.Data[i].Code,version:data.Data[i].Version});
       }
+      countriesList = [{name:"",code:""}, ...countriesList];
       setCountries(countriesList);
+      if(country === ""){
+          setCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code);
+          changeCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code)
+      }
+      if(countriesList[0]?.code === "") {
+        setIsLoading(false);
+      }
     });
+  }
+
+  //Initial set for countries
+  if(countries.length === 0){
+    loadCountries();
   }
 
   return (
@@ -298,9 +379,36 @@ const Sitechanges = () => {
                 </div>
                 <div>
                   <ul className="btn--list">
-                    {activeTab===1 && <li><CButton color="secondary"  onClick={()=>updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(selectedCodes), "Cancel", ()=>{})} disabled={disabledBtn || activeTab!==1}>Reject changes</CButton></li>}
-                    {activeTab===1 && <li><CButton color="primary" onClick={()=>updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(selectedCodes), "Cancel", ()=>{})} disabled={disabledBtn || activeTab!==1}>Accept changes</CButton></li>}
-                    {activeTab!==1 && <li><CButton color="primary" onClick={()=>updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", ()=>setBackToPending(selectedCodes), "Cancel", ()=>{})} disabled={disabledBtn || activeTab===1}>Back to Pending</CButton></li>}
+                    {!isLoading && activeTab === 1 &&
+                      pendingChanges !== undefined && (pendingChanges > 0 ?
+                        <>
+                          <li>
+                            <CButton color="secondary" onClick={()=>updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(selectedCodes), "Cancel", ()=>{})} disabled={disabledBtn || activeTab!==1}>
+                              Reject changes
+                            </CButton>
+                          </li>
+                          <li>
+                            <CButton color="primary" onClick={()=>updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(selectedCodes), "Cancel", ()=>{})} disabled={disabledBtn || activeTab!==1}>
+                              Accept changes
+                            </CButton>
+                          </li>
+                        </>
+                      :
+                        <li>
+                          <CButton color="primary" onClick={()=>updateModalValues("Complete Envelopes", "This will complete the envelope", "Continue", ()=>completeEnvelope(), "Cancel", ()=>{})} disabled={updatingData}>
+                            {updatingData && <CSpinner size="sm"/>}
+                            {updatingData ? " Completing Envelope" : "Complete Envelope"}
+                          </CButton>
+                        </li>
+                      )
+                    }
+                    {!isLoading && activeTab !== 1 &&
+                      <li>
+                        <CButton color="primary" onClick={()=>updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", ()=>setBackToPending(selectedCodes), "Cancel", ()=>{})} disabled={disabledBtn || activeTab===1}>
+                          Back to Pending
+                        </CButton>
+                      </li>
+                    }
                   </ul>
                 </div>
               </div>
@@ -336,6 +444,7 @@ const Sitechanges = () => {
                       id="sitechanges_search"
                       className="form-control"
                       listbox = {searchList}
+                      listboxIsImmutable = {false}
                       placeholder="Search sites by site name or site code"
                       noItemsMessage="Site not found"
                       styles={{input:"form-control", listbox:"search--results", groupHeading:"search--group", noItemsMessage:"search--option"}}
@@ -344,9 +453,11 @@ const Sitechanges = () => {
                       Item={item}
                       typeahead={false}
                     />
-                    <span className="btn-icon" onClick={()=>clearSearch()}>
-                      <i className="fa-solid fa-xmark"></i>
-                    </span>
+                    {Object.keys(selectOption).length !== 0 &&
+                      <span className="btn-icon" onClick={()=>clearSearch()}>
+                        <i className="fa-solid fa-xmark"></i>
+                      </span>
+                    }
                   </div>
                   <CButton disabled={disabledSearchBtn} onClick={()=>showModalSitechanges(selectOption)}>
                     <i className="fa-solid fa-magnifying-glass"></i>
@@ -356,7 +467,7 @@ const Sitechanges = () => {
                 <CCol sm={12} md={6} lg={6} className="mb-4">
                   <div className="select--right">
                     <CFormLabel htmlFor="exampleFormControlInput1" className='form-label form-label-reporting col-md-4 col-form-label'>Country </CFormLabel>
-                      <CFormSelect aria-label="Default select example" className='form-select-reporting' value={country} onChange={(e)=>changeCountry(e.target.value)}>
+                      <CFormSelect aria-label="Default select example" className='form-select-reporting' disabled={isLoading} value={country} onChange={(e)=>changeCountry(e.target.value)}>
                       {
                         countries.map((e)=><option value={e.code} key={e.code}>{e.name}</option>)
                       }
@@ -374,16 +485,17 @@ const Sitechanges = () => {
                           href="javascript:void(0);"
                           active={activeTab === 1}
                           onClick={() => {setActiveTab(1);}}
-                        > Pending
+                        >
+                          Pending <span className="badge badge--pending">{Object.keys(siteCodes).length === 3 && siteCodes.pending.length}</span>
                         </CNavLink>
                       </CNavItem>
                       <CNavItem>
                         <CNavLink
                           href="javascript:void(0);"
                           active={activeTab === 2}
-                          onClick={(e) => {setActiveTab(2);}}
+                          onClick={() => {setActiveTab(2);}}
                         >
-                          Accepted
+                          Accepted <span className="badge badge--accepted">{Object.keys(siteCodes).length === 3 && siteCodes.accepted.length}</span>
                         </CNavLink>
                       </CNavItem>
                       <CNavItem>
@@ -392,7 +504,7 @@ const Sitechanges = () => {
                           active={activeTab === 3}
                           onClick={() => {setActiveTab(3);}}
                         >
-                          Rejected
+                          Rejected <span className="badge badge--rejected">{Object.keys(siteCodes).length === 3 && siteCodes.rejected.length}</span>
                         </CNavLink>
                       </CNavItem>
                     </CNav>
@@ -407,14 +519,14 @@ const Sitechanges = () => {
                         setRefresh={setRefreshSitechanges}
                         accept={acceptChanges}
                         reject={rejectChanges}
-                        mark={switchMarkChanges}                        
+                        mark={switchMarkChanges}
                         updateModalValues={updateModalValues}
                         setSitecodes = {setCodes}
                         setShowModal={()=>showModalSitechanges()}
                         showModal={showModal}
                       />
                     </CTabPane>
-                    <CTabPane role="tabpanel" aria-labelledby="accepted-tab" visible={activeTab === 2}>                    
+                    <CTabPane role="tabpanel" aria-labelledby="accepted-tab" visible={activeTab === 2}>
                       <TableRSPag 
                         status="accepted" 
                         country = {country}

@@ -33,8 +33,12 @@
     }
   }
 }
-.form-select{
+.form-select {
   cursor: pointer;
+  &:disabled {
+    background-color: #e5e5e580;
+    cursor: initial;
+  }
 }
 .select--right {
   display: flex;
@@ -152,6 +156,51 @@
   }
 }
 
+.multi-select {
+  .multi-select {
+    &__control {
+      cursor: pointer;
+      &--is-focused {
+        border-color: #80b3cc;
+        outline: 0;
+        box-shadow: 0 0 0 0.25rem #00669940;
+        &:hover {
+          border-color: #80b3cc;
+        }
+      }
+    }
+    &__option {
+      &--is-focused {
+        cursor: pointer;
+        background-color: $gray-25;
+      }
+      &--is-selected, &:active {
+        background-color: $primary-25;
+        color: initial;
+      }
+    }
+    &__clear-indicator {
+      transition: $transition-base;
+      &:hover {
+        color: $primary-base;
+        transform: scale(1.2);
+        transition: $transition-base;
+      }
+    }
+    &__multi-value {
+      background-color: $primary-25;
+      &__remove {
+        transition: $transition-base;
+        &:hover {
+          background: #c6e5fb;
+          color: $primary-base;
+          transition: $transition-base;
+        }
+      }
+    }
+  }
+}
+
 /* Checkbox */
 .checkbox {
   margin-right: 1rem;
@@ -159,7 +208,9 @@
     display: inline-block;
     position: relative;
     padding: 0px 0px 0px 2rem;
+    margin: 0;
     font-size: 0.875rem;
+    font-weight: normal;
     line-height: normal;
     cursor: pointer;
     -webkit-transition: $transition-base;
@@ -176,6 +227,10 @@
       border-radius: 2px;
       cursor: pointer;
     }
+  }
+  &[disabled] {
+    opacity: 0.5;
+    pointer-events: none;
   }
   input[type="checkbox"] {
     display: none;
