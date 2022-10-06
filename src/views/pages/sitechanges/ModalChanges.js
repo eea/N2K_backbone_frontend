@@ -315,7 +315,7 @@ export class ModalChanges extends Component {
               ImportDate: currentDate
             })
           }
-          this.setState({documents: docs, newDocument: false})
+          this.setState({documents: docs, newDocument: false, selectedFile: "No file selected"})
         }
         else {
           this.showErrorMessage("document", "File upload failed - "+data.Message);
