@@ -178,8 +178,6 @@ export class ModalChanges extends Component {
         "SiteCode": this.state.data.SiteCode,
         "Version": this.state.data.Version,
         "comments": comment,
-        "Date": currentDate,
-        "Edited": 0
       }
       
       this.sendRequest(ConfigData.ADD_COMMENT,"POST",body)
@@ -193,7 +191,7 @@ export class ModalChanges extends Component {
             SiteCode: this.state.data.SiteCode,
             Version: this.state.data.Version,
             Id: commentId,
-            Date: this.state.data.Date
+            Date: currentDate
           })
           this.setState({comments: cmts, newComment: false})
         }
@@ -205,15 +203,11 @@ export class ModalChanges extends Component {
   saveComment(code,version,comment,target){
     let input = target.closest(".comment--item").querySelector("textarea");
     let id = input.getAttribute("id");
-    let currentDate = new Date().toISOString();
-    let edited = this.state.comments.find(c => c.Id == parseInt(id)).Edited;
     let body = {
       "Id": id,
       "SiteCode": code,
       "Version": version,
-      "comments": comment,
-      "Edited": edited+1,
-      "EditedDate": currentDate,
+      "comments": comment
     }
 
     this.sendRequest(ConfigData.UPDATE_COMMENT,"PUT",body)
@@ -321,7 +315,7 @@ export class ModalChanges extends Component {
               ImportDate: currentDate
             })
           }
-          this.setState({documents: docs, newDocument: false})
+          this.setState({documents: docs, newDocument: false, selectedFile: "No file selected"})
         }
         else {
           this.showErrorMessage("document", "File upload failed - "+data.Message);
@@ -562,9 +556,14 @@ handleJustProvided(){
       </CTabPane>
     )
   }
-
+  
+  sortComments() {
+    this.state.comments.sort((a,b) => b.Date.localeCompare(a.Date));
+  }
+  
   renderComments(){
     let cmts = [];
+    this.sortComments();
     cmts.push(
       this.state.newComment &&
       <div className="comment--item new" id="cmtItem_newItem">
@@ -641,8 +640,13 @@ handleJustProvided(){
     )
   }
 
+  sortDocuments() {
+    this.state.documents.sort((a,b) => b.ImportDate.localeCompare(a.ImportDate));
+  }
+
   renderDocuments(){
     let docs = [];
+    this.sortDocuments();
     docs.push(
       this.state.newDocument &&
       <div className="document--item new">
