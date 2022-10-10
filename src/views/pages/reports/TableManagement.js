@@ -237,7 +237,10 @@ function TableManagement(props) {
   )
 
   let loadData = () => {
-    if((!isLoading && unionListsData !== "nodata" && Object.keys(unionListsData).length===0)){
+    if((!isLoading && props.refresh) || (!isLoading && unionListsData !== "nodata" && Object.keys(unionListsData).length===0)){
+      if(props.refresh){        
+        props.setRefresh(false);
+      } 
       setIsLoading(true);
       fetch(ConfigData.UNIONLISTS_GET)
       .then(response =>response.json())

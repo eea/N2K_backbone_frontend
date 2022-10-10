@@ -29,6 +29,9 @@
   "UNIONLISTS_GET": "https://n2kbackboneback-dev.azurewebsites.net/api/UnionList/UnionList/GetUnionLists",
   "UNIONLISTS_BIOREGIONS": "https://n2kbackboneback-dev.azurewebsites.net/api/UnionList/UnionList/GetBioRegionTypes",
   "UNIONLISTS_DETAIL": "https://n2kbackboneback-dev.azurewebsites.net/api/UnionList/UnionList/GetCurrentListDetailed",
+  "UNIONLIST_CREATE": "https://n2kbackboneback-dev.azurewebsites.net/api/UnionList/UnionList/Create",
+  "UNIONLIST_DELETE": "https://n2kbackboneback-dev.azurewebsites.net/api/UnionList/UnionList/Delete",
+  "UNIONLIST_UPDATE": "https://n2kbackboneback-dev.azurewebsites.net/api/UnionList/UnionList/Update",
   "THEME_COLORS": {
     "PRIMARY": "#007bff",
     "SECONDARY": "#fc3"
