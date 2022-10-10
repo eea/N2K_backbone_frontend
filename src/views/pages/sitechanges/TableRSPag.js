@@ -209,13 +209,17 @@ const IndeterminateCheckbox = React.forwardRef(
     // Render the UI for your table
     return (
       <>     
-      {isAllPageRowsSelected && status === 'pending' && selectedRows !== siteCodes.length ?
+      {isAllPageRowsSelected &&
+        (status === 'pending' || status === 'accepted' || status === 'rejected')
+        && selectedRows !== siteCodes.length ?
         <div className="message-board">
           <span className="message-board-text">The <b>{page.length}</b> sites of this page are selected</span>
           <span className="message-board-link" onClick={() =>(setSelectedRows(siteCodes.length), setSelected(siteCodes))}>Select {siteCodes.length} sites</span>
         </div> : null
       }
-      {isAllPageRowsSelected && status === 'pending' && selectedRows === siteCodes.length ?
+      {isAllPageRowsSelected &&
+        (status === 'pending' || status === 'accepted' || status === 'rejected')
+        && selectedRows === siteCodes.length ?
         <div className="message-board">
           <span className="message-board-text">All the <b>{siteCodes.length}</b> sites are selected</span>
           <ClearSelectionLink {...getToggleAllPageRowsSelectedProps()} id={"sitechanges_check_all_" + status} />
@@ -302,6 +306,7 @@ const IndeterminateCheckbox = React.forwardRef(
   function TableRSPag(props) {
 
     const [events, setEvents] = useState([]);
+    const [isVisible, setIsVisible] = useState(false);
     const [modalItem, setModalItem] = useState({});
     const [modalVisible, setModalVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -313,6 +318,10 @@ const IndeterminateCheckbox = React.forwardRef(
     const [pageCount, setPageCount] = useState(0);
 
     let forceRefreshData = ()=> setChangesData({});
+  
+    let toggleVisibility = () => {
+      setIsVisible = !isVisible;
+    }
 
     let resetPagination = () =>{
       setCurrentPage(0);
