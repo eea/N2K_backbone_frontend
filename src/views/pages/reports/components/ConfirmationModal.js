@@ -6,16 +6,24 @@ import {
   CModalFooter,
   CModalHeader,
   CModalTitle,
+  CSpinner,
   CAlert
 } from '@coreui/react'
 
 export class ConfirmationModal extends Component {
   constructor(props) {
     super(props);
-    this.close = this.props.modalValues.close;
+    //this.close = this.props.modalValues.close;
+    this.state = {"spinOn":false};
+  }
+
+  close() {
+    this.setState({"spinOn": false});
+    this.props.modalValues.close();
   }
   
   primaryFunction() {
+    this.setState({"spinOn":true});
     this.props.modalValues.primaryButton.function();
     //this.close();
   }
@@ -47,6 +55,7 @@ export class ConfirmationModal extends Component {
           {modal.primaryButton &&
             <CButton color="primary" onClick={() => this.primaryFunction()}>
               {modal.primaryButton.text}
+              {this.state.spinOn && <CSpinner size="sm"/>}
             </CButton>
           }
         </CModalFooter>
