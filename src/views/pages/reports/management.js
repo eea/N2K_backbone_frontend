@@ -136,7 +136,7 @@ const Reports = () => {
   const editUnionList = (id, name, final) => {
     let body = Object.fromEntries(new FormData(document.getElementById("unionlist_form")));
     body.id = id;
-    body.Final = final ? true : false;
+    body.Final = body.Final ? true : false;
 
     if(!body.Name) {
       showMessage();
