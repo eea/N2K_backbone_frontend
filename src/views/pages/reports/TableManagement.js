@@ -249,7 +249,7 @@ function TableManagement(props) {
           setUnionListsData("nodata");
         }
         else {
-          setUnionListsData(data.Data);
+          setUnionListsData(data.Data.sort((a,b)=>new Date(b.Date)-new Date(a.Date)));
         }
         setIsLoading(false);
       });
