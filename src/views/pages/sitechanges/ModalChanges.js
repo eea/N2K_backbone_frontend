@@ -210,15 +210,13 @@ export class ModalChanges extends Component {
     body.Comments = comment;
     this.sendRequest(ConfigData.UPDATE_COMMENT,"PUT",body)
     .then((data) => {
-      if(data?.Success){
+      if(data?.ok){
         input.disabled = true;
         input.readOnly = true;
         target.firstChild.classList.replace("fa-floppy-disk", "fa-pencil");
         let cmts = this.state.comments;
         let cmt = cmts.find(a=>a.Id === id);
         cmt.Comments = comment;
-        cmt.EditedDate = date;
-        cmt.Editedby = user;
         this.setState({comments: cmts})
       }
     })
