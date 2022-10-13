@@ -208,8 +208,25 @@ export class ModalChanges extends Component {
     let user = "User";
     let body = this.state.comments.find(a=>a.Id===id);
     body.Comments = comment;
+    
     this.sendRequest(ConfigData.UPDATE_COMMENT,"PUT",body)
     .then((data) => {
+      let reader=data.body.getReader();
+      let txt = ""
+      let readData= (data)=>{
+        console.log("**readData");
+        console.log(data.done);
+        console.log(new TextDecoder().decode(data.value));
+        if(data.done)
+          console.log(txt);
+        else{
+          txt += data.value;
+          return reader.read().then(readData);
+        }
+      }
+
+      reader.read().then(readData);
+
       if(data?.Success){
         input.disabled = true;
         input.readOnly = true;
