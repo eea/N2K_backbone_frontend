@@ -71,7 +71,8 @@ const Siteedition = () => {
   }
 
   let changeCountry = (country) => {
-    setCountry(country)
+    setCountry(country);
+    setSearchList({});
     forceRefreshData();
   }
 
