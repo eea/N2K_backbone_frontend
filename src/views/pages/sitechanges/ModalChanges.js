@@ -204,16 +204,14 @@ export class ModalChanges extends Component {
   }
 
   saveComment(id,input,comment,target){
-    let date = new Date().toISOString();
-    let user = "User";
     let body = this.state.comments.find(a=>a.Id===id);
     body.Comments = comment;
     
     this.sendRequest(ConfigData.UPDATE_COMMENT,"PUT",body)
     .then((data) => {
-      let reader=data.body.getReader();
-      let txt = ""
-      let readData= (data)=>{
+      let reader = data.body.getReader();
+      let txt = "";
+      let readData = (data) => {
         if(data.done)
           return JSON.parse(txt);
         else{
@@ -222,19 +220,14 @@ export class ModalChanges extends Component {
         }
       }
 
-      reader.read().then(readData).then((data)=>{
-        //PONER AQUÍ LO QUE HAYA QUE HACER CON LOS DATOS DEVUELTOS
-        console.log(data);
+      reader.read().then(readData).then((data) => {
+        this.setState({comments: data.Data})
       });
 
       if(data?.ok){
         input.disabled = true;
         input.readOnly = true;
         target.firstChild.classList.replace("fa-floppy-disk", "fa-pencil");
-        let cmts = this.state.comments;
-        let cmt = cmts.find(a=>a.Id === id);
-        cmt.Comments = comment;
-        this.setState({comments: cmts})
       }
     })
     this.loadComments();
