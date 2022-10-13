@@ -151,6 +151,7 @@ export class ModalChanges extends Component {
 
   updateComment(target){
     let input = target.closest(".comment--item").querySelector("textarea");
+    let id = parseInt(input.id);
     if (target.firstChild.classList.contains("fa-pencil")) {
       input.disabled = false;
       input.readOnly = false;
@@ -161,7 +162,7 @@ export class ModalChanges extends Component {
         this.showErrorMessage("comment", "Add comment");
       }
       else {
-        this.saveComment(this.state.data.SiteCode,this.state.data.Version,input.value,target);
+        this.saveComment(id,input,input.value,target);
       }
     }
   }
@@ -177,7 +178,8 @@ export class ModalChanges extends Component {
       let body = {
         "SiteCode": this.state.data.SiteCode,
         "Version": this.state.data.Version,
-        "comments": comment,
+        "Comments": comment,
+        "Date": currentDate,
       }
       
       this.sendRequest(ConfigData.ADD_COMMENT,"POST",body)
@@ -191,7 +193,8 @@ export class ModalChanges extends Component {
             SiteCode: this.state.data.SiteCode,
             Version: this.state.data.Version,
             Id: commentId,
-            Date: currentDate
+            Date: currentDate,
+            Owner: data.Data.find(a=>a.Id===commentId).Owner,
           })
           this.setState({comments: cmts, newComment: false})
         }
@@ -200,22 +203,23 @@ export class ModalChanges extends Component {
     }
   }
 
-  saveComment(code,version,comment,target){
-    let input = target.closest(".comment--item").querySelector("textarea");
-    let id = input.getAttribute("id");
-    let body = {
-      "Id": id,
-      "SiteCode": code,
-      "Version": version,
-      "comments": comment
-    }
-
+  saveComment(id,input,comment,target){
+    let date = new Date().toISOString();
+    let user = "User";
+    let body = this.state.comments.find(a=>a.Id===id);
+    body.Comments = comment;
     this.sendRequest(ConfigData.UPDATE_COMMENT,"PUT",body)
     .then((data) => {
-      if(data?.ok){
+      if(data?.Success){
         input.disabled = true;
         input.readOnly = true;
         target.firstChild.classList.replace("fa-floppy-disk", "fa-pencil");
+        let cmts = this.state.comments;
+        let cmt = cmts.find(a=>a.Id === id);
+        cmt.Comments = comment;
+        cmt.EditedDate = date;
+        cmt.Editedby = user;
+        this.setState({comments: cmts})
       }
     })
     this.loadComments();
@@ -558,7 +562,7 @@ handleJustProvided(){
   }
   
   sortComments() {
-    this.state.comments.sort((a,b) => b.Date.localeCompare(a.Date));
+    this.state.comments.sort((a,b) => b.Date?.localeCompare(a.Date));
   }
   
   renderComments(){
@@ -617,15 +621,13 @@ handleJustProvided(){
             { date &&
               "Commented on " + date.slice(0,10).split('-').reverse().join('/') }
             { owner &&
-              " by " + owner }
-          </label>
-          <label hidden={edited < 1} className="comment--date" for={id}>
+              " by " + owner + "."}
             { ((edited >= 1) || editeddate !== undefined || editedby !== undefined) &&
-              ". Last edited" }
+              " Last edited" }
             { editeddate && 
               " on " + editeddate.slice(0,10).split('-').reverse().join('/') }
             { editedby &&
-              " by " + editedby }
+              " by " + editedby + "."}
           </label>
         </div>
         <div className="comment--icons">
