@@ -214,28 +214,26 @@ export class ModalChanges extends Component {
       let reader=data.body.getReader();
       let txt = ""
       let readData= (data)=>{
-        console.log("**readData");
-        console.log(data.done);
-        console.log(new TextDecoder().decode(data.value));
         if(data.done)
-          console.log(txt);
+          return JSON.parse(txt);
         else{
-          txt += data.value;
+          txt += new TextDecoder().decode(data.value);
           return reader.read().then(readData);
         }
       }
 
-      reader.read().then(readData);
+      reader.read().then(readData).then((data)=>{
+        //PONER AQUÍ LO QUE HAYA QUE HACER CON LOS DATOS DEVUELTOS
+        console.log(data);
+      });
 
-      if(data?.Success){
+      if(data?.ok){
         input.disabled = true;
         input.readOnly = true;
         target.firstChild.classList.replace("fa-floppy-disk", "fa-pencil");
         let cmts = this.state.comments;
         let cmt = cmts.find(a=>a.Id === id);
         cmt.Comments = comment;
-        cmt.EditedDate = date;
-        cmt.Editedby = user;
         this.setState({comments: cmts})
       }
     })
@@ -326,14 +324,13 @@ export class ModalChanges extends Component {
             let document = newDocs[i];
             let documentId = document.Id;
             let path = document.Path;
-            let currentDate = new Date().toISOString();
             docs.push({
               Id: documentId,
               SiteCode: this.state.data.SiteCode,
               Version: this.state.data.Version,
               Path: path,
-              Username: this.state.data.Username,
-              ImportDate: currentDate
+              Username: document.Username,
+              ImportDate: document.ImportDate
             })
           }
           this.setState({documents: docs, newDocument: false, selectedFile: "No file selected"})
@@ -620,7 +617,7 @@ handleJustProvided(){
     return(
       <div id="changes_comments">
         {cmts}
-        {this.state.comments.length == 0 && <div className="comment--item"><em>No comments</em></div>}
+        {this.state.comments.length == 0 && !this.state.newComment && <div className="comment--item"><em>No comments</em></div>}
       </div>
     )
   }
@@ -660,7 +657,7 @@ handleJustProvided(){
   }
 
   sortDocuments() {
-    this.state.documents.sort((a,b) => b.ImportDate.localeCompare(a.ImportDate));
+    this.state.documents.sort((a,b) => b.ImportDate?.localeCompare(a.ImportDate));
   }
 
   renderDocuments(){
@@ -700,7 +697,7 @@ handleJustProvided(){
     return(
       <div id="changes_documents">
         {docs}
-        {this.state.documents.length == 0 && <div className="document--item"><em>No documents</em></div>}
+        {this.state.documents.length == 0 && !this.state.newDocument && <div className="document--item"><em>No documents</em></div>}
       </div>
     )
   }
@@ -718,7 +715,9 @@ handleJustProvided(){
               content={"Uploaded"
                 + (date && " on " + date.slice(0,10).split('-').reverse().join('/'))
                 + (user && " by " + user)}>
-              <i className="fa-solid fa-circle-info"></i>
+              <div className="btn-icon" onClick={(e) => this.deleteDocument(e.currentTarget)}>
+                <i className="fa-solid fa-circle-info"></i>
+              </div>
             </CTooltip>
           }
           <CButton color="link" className="btn-link--dark"><a href={path} target="_blank">View</a></CButton>
