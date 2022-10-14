@@ -114,7 +114,7 @@ export class ModalChanges extends Component {
 
   close(refresh){
     this.setActiveKey(1);
-    this.setState({level:"Warning", bookmark: "", showDetail: ""});
+    this.setState({level:"Warning", bookmark: "", showDetail: "", data: {}, loading: true, comments:[], documents:[]});
     this.props.close(refresh);
   }
 
@@ -873,26 +873,36 @@ handleJustProvided(){
   }
 
   loadData(){
-    if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
+    if (this.isVisible() && Object.keys(this.state.data).length === 0){
       fetch(ConfigData.SITECHANGES_DETAIL+`siteCode=${this.props.item}&version=${this.props.version}`)
       .then(response => response.json())
-      .then(data => this.setState({data: data.Data, loading: false, justificationRequired: data.Data?.JustificationRequired, justificationProvided: data.Data?.JustificationProvided}));
+      .then(data => {
+        if(data.Data.SiteCode === this.props.item && Object.keys(this.state.data).length === 0) {
+          this.setState({data: data.Data, loading: false, justificationRequired: data.Data?.JustificationRequired, justificationProvided: data.Data?.JustificationProvided})
+        }
+      });
     }
   }
 
   loadComments(){
-    if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
+    if (this.isVisible() && this.state.comments.length === 0){
       fetch(ConfigData.GET_SITE_COMMENTS+`siteCode=${this.props.item}&version=${this.props.version}`)
       .then(response => response.json())
-      .then(data => this.setState({comments: data.Data}));
+      .then(data => {
+        if (data.Data[0].SiteCode === this.props.item && this.state.comments.length === 0)
+          this.setState({comments: data.Data})
+      });
     }
   }
 
   loadDocuments(){
-    if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
+    if (this.isVisible() && this.state.documents.length === 0){
       fetch(ConfigData.GET_ATTACHED_FILES+`siteCode=${this.props.item}&version=${this.props.version}`)
       .then(response => response.json())
-      .then(data => this.setState({documents: data.Data}));
+      .then(data => {
+        if (data.Data[0].SiteCode === this.props.item && this.state.documents.length === 0)
+          this.setState({documents: data.Data})
+      });
     }
   }
 
