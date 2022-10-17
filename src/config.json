@@ -26,12 +26,12 @@
   "SITEDETAIL_SAVE": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteDetails/SaveEdition",
   "SITETYPES_GET": "https://n2kbackboneback-dev.azurewebsites.net/api/MasterData/MasterData/GetSiteTypes",
   "BIOREGIONS_GET": "https://n2kbackboneback-dev.azurewebsites.net/api/MasterData/MasterData/GetBioRegionTypes",
-  "UNIONLISTS_GET": "https://n2kbackboneback-dev.azurewebsites.net/api/UnionList/UnionList/GetUnionLists",
-  "UNIONLISTS_BIOREGIONS": "https://n2kbackboneback-dev.azurewebsites.net/api/UnionList/UnionList/GetBioRegionTypes",
-  "UNIONLISTS_DETAIL": "https://n2kbackboneback-dev.azurewebsites.net/api/UnionList/UnionList/GetCurrentListDetailed",
-  "UNIONLIST_CREATE": "https://n2kbackboneback-dev.azurewebsites.net/api/UnionList/UnionList/Create",
-  "UNIONLIST_DELETE": "https://n2kbackboneback-dev.azurewebsites.net/api/UnionList/UnionList/Delete",
-  "UNIONLIST_UPDATE": "https://n2kbackboneback-dev.azurewebsites.net/api/UnionList/UnionList/Update",
+  "UNIONLISTS_GET": "https://n2kbackboneback-dev.azurewebsites.net/api/UnionList/GetUnionLists",
+  "UNIONLISTS_BIOREGIONS": "https://n2kbackboneback-dev.azurewebsites.net/api/UnionList/GetBioRegionTypes",
+  "UNIONLISTS_DETAIL": "https://n2kbackboneback-dev.azurewebsites.net/api/UnionList/GetCurrentListDetailed",
+  "UNIONLIST_CREATE": "https://n2kbackboneback-dev.azurewebsites.net/api/UnionList/Create",
+  "UNIONLIST_DELETE": "https://n2kbackboneback-dev.azurewebsites.net/api/UnionList/Delete",
+  "UNIONLIST_UPDATE": "https://n2kbackboneback-dev.azurewebsites.net/api/UnionList/Update",
   "THEME_COLORS": {
     "PRIMARY": "#007bff",
     "SECONDARY": "#fc3"
