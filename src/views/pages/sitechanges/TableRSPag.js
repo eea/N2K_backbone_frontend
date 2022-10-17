@@ -209,21 +209,20 @@ const IndeterminateCheckbox = React.forwardRef(
     // Render the UI for your table
     return (
       <>     
-      {isAllPageRowsSelected &&
-        (status === 'pending' || status === 'accepted' || status === 'rejected')
-        && selectedRows !== siteCodes.length ?
-        <div className="message-board">
-          <span className="message-board-text">The <b>{page.length}</b> sites of this page are selected</span>
-          <span className="message-board-link" onClick={() =>(setSelectedRows(siteCodes.length), setSelected(siteCodes))}>Select {siteCodes.length} sites</span>
-        </div> : null
-      }
-      {isAllPageRowsSelected &&
-        (status === 'pending' || status === 'accepted' || status === 'rejected')
-        && selectedRows === siteCodes.length ?
-        <div className="message-board">
-          <span className="message-board-text">All the <b>{siteCodes.length}</b> sites are selected</span>
-          <ClearSelectionLink {...getToggleAllPageRowsSelectedProps()} id={"sitechanges_check_all_" + status} />
-        </div> : null
+      {isAllPageRowsSelected && 
+        (
+          (status === 'pending' || status === 'accepted' || status === 'rejected')
+          && (selectedRows === siteCodes.length || pageSize > siteCodes.length) ?
+          <div className="message-board">
+            <span className="message-board-text">All the <b>{siteCodes.length}</b> sites are selected</span>
+            <ClearSelectionLink {...getToggleAllPageRowsSelectedProps()} id={"sitechanges_check_all_" + status} />
+          </div>
+          :
+          <div className="message-board">
+            <span className="message-board-text">The <b>{page.length}</b> sites of this page are selected</span>
+            <span className="message-board-link" onClick={() =>(setSelectedRows(siteCodes.length), setSelected(siteCodes))}>Select {siteCodes.length} sites</span>
+          </div> 
+        )
       }
         <table  className="table" {...getTableProps()}>
           <thead>
