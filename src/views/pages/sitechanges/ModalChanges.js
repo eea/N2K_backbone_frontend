@@ -44,12 +44,8 @@ import { ConfirmationModal } from './components/ConfirmationModal';
 import justificationprovided from './../../../assets/images/file-text.svg'
 
 import MapViewer from './components/MapViewer'
-import { getOptions } from 'highcharts';
-import reactTextareaAutosize from 'react-textarea-autosize';
 
 export class ModalChanges extends Component {
-  
-  
   constructor(props) {
     super(props);
     this.state = {
@@ -84,28 +80,19 @@ export class ModalChanges extends Component {
     };
   }
 
-  updateModalValues(title, text, primaryButtonText, primaryButtonFunction, secondaryButtonText, secondaryButtonFunction) {
-    this.setState({
-      modalValues : {
-        visibility: true,
-        title: title,
-        text: text,
-        primaryButton: (
-          primaryButtonText && primaryButtonFunction ? {
-            text: primaryButtonText,
-            function: () => primaryButtonFunction(),
-          }
-          : ''
-        ),
-        secondaryButton: (
-          secondaryButtonText && secondaryButtonFunction ? {
-            text: secondaryButtonText,
-            function: () => secondaryButtonFunction(),
-          }
-          : ''
-        ),
-      }
-    });
+  componentDidMount(){
+    window.addEventListener('beforeunload', (e) => this.handleLeavePage(e));
+  }
+
+  componentWillUnmount(){
+    window.removeEventListener('beforeunload', (e) => this.handleLeavePage(e));
+  }
+
+  handleLeavePage(e){
+    if(this.isVisible() && this.checkUnsavedChanges()) {
+      e.preventDefault();
+      e.returnValue = '';
+    }
   }
 
   setActiveKey(val){
@@ -114,7 +101,7 @@ export class ModalChanges extends Component {
 
   close(refresh){
     this.setActiveKey(1);
-    this.setState({level:"Warning", bookmark: "", showDetail: "", data: {}, loading: true, comments:[], documents:[]});
+    this.setState({level:"Warning", bookmark: "", showDetail: "", data: {}, loading: true, comments:[], documents:[], newComment: false, newDocument: false});
     this.props.close(refresh);
   }
 
@@ -574,7 +561,7 @@ handleJustProvided(){
   
   renderComments(){
     let cmts = [];
-    this.sortComments();
+    this.state.comments !== "noData" && this.sortComments();
     cmts.push(
       this.state.newComment &&
       <div className="comment--item new" id="cmtItem_newItem">
@@ -595,22 +582,26 @@ handleJustProvided(){
         </div>
       </div>
     )
-    for(let i in this.state.comments){
-      cmts.push(
-        this.createCommentElement(
-          this.state.comments[i].Id
-          ,this.state.comments[i].Comments
-          ,this.state.comments[i].Date
-          ,this.state.comments[i].Owner
-          ,this.state.comments[i].Edited
-          ,this.state.comments[i].EditedDate
-          ,this.state.comments[i].Editedby)
-      )
+    if(this.state.comments !== "noData") {
+      for(let i in this.state.comments){
+        cmts.push(
+          this.createCommentElement(
+            this.state.comments[i].Id
+            ,this.state.comments[i].Comments
+            ,this.state.comments[i].Date
+            ,this.state.comments[i].Owner
+            ,this.state.comments[i].Edited
+            ,this.state.comments[i].EditedDate
+            ,this.state.comments[i].Editedby)
+        )
+      }
     }
     return(
       <div id="changes_comments">
         {cmts}
-        {this.state.comments.length == 0 && !this.state.newComment && <div className="comment--item"><em>No comments</em></div>}
+        {this.state.comments === "noData" && !this.state.newComment &&
+          <em>No comments</em>
+        }
       </div>
     )
   }
@@ -618,13 +609,13 @@ handleJustProvided(){
   createCommentElement(id,comment,date,owner,edited,editeddate,editedby){
     return (
       <div className="comment--item" key={"cmtItem_"+id} id={"cmtItem_"+id}>
-        <div className="comment--text" key={"cmtText_"+id}>
+        <div className="comment--text">
           <TextareaAutosize
             id={id}
             disabled
             defaultValue={comment}
             className="comment--input" />
-          <label className="comment--date" for={id}>
+          <label className="comment--date" htmlFor={id}>
             { date &&
               "Commented on " + date.slice(0,10).split('-').reverse().join('/') }
             { owner &&
@@ -655,7 +646,7 @@ handleJustProvided(){
 
   renderDocuments(){
     let docs = [];
-    this.sortDocuments();
+    this.state.documents !== "noData" && this.sortDocuments();
     docs.push(
       this.state.newDocument &&
       <div className="document--item new">
@@ -678,19 +669,23 @@ handleJustProvided(){
         </div>
       </div>
     )
-    for(let i in this.state.documents){
-      docs.push(
-        this.createDocumentElement(
-          this.state.documents[i].Id
-          ,this.state.documents[i].Path
-          ,this.state.documents[i].ImportDate
-          ,this.state.documents[i].Username)
-      )
+    if(this.state.documents !== "noData") {
+      for(let i in this.state.documents){
+        docs.push(
+          this.createDocumentElement(
+            this.state.documents[i].Id
+            ,this.state.documents[i].Path
+            ,this.state.documents[i].ImportDate
+            ,this.state.documents[i].Username)
+        )
+      }
     }
     return(
       <div id="changes_documents">
         {docs}
-        {this.state.documents.length == 0 && !this.state.newDocument && <div className="document--item"><em>No documents</em></div>}
+        {this.state.documents === "noData" && !this.state.newDocument &&
+          <em>No documents</em>
+        }
       </div>
     )
   }
@@ -787,6 +782,53 @@ handleJustProvided(){
     )
   }
 
+  checkUnsavedChanges() {
+    return this.state.loading === false && ((this.state.newComment && document.querySelector(".comment--item.new textarea")?.value.trim() !== "") || (this.state.newDocument && this.state.isSelected) || (this.state.comments !== "noData" && document.querySelectorAll(".comment--item:not(.new) textarea[disabled]").length !== this.state.comments.length));
+  }
+
+  warningUnsavedChanges(activeKey) {
+    if(this.checkUnsavedChanges() && this.state.activeKey === 3) {
+      this.props.updateModalValues("Documents & Comments", "There are unsaved changes. Do you want to continue?", "Continue", () => this.cleanUnsavedChanges(activeKey), "Cancel", () => { })
+    }
+    else {
+      this.cleanUnsavedChanges(activeKey);
+    }
+  }
+
+  messageBeforeClose(action, keepOpen) {
+    this.props.updateModalValues("Documents & Comments", "There are unsaved changes. Do you want to continue?", "Continue", action, "Cancel", () => { }, keepOpen);
+  }
+
+  cleanUnsavedChanges(activeKey) {
+    this.cleanDocumentsAndComments();
+    if(activeKey) {
+      this.setActiveKey(activeKey);
+      document.querySelectorAll(".comment--item").forEach((i) => {
+        let input = i.querySelector("textarea");
+        if(!input.disabled) {
+          input.value = input.defaultValue;
+          input.disabled = true;
+          i.querySelector("i.fa-floppy-disk").classList.replace("fa-floppy-disk", "fa-pencil");
+        }
+      });
+    }
+  }
+
+  rejectCleanAndCancel() {
+    this.cleanDocumentsAndComments();
+    this.rejectChanges();
+  }
+
+  acceptCleanAndCancel() {
+    this.cleanDocumentsAndComments();  
+    this.acceptChanges();
+  }
+  
+  cleanDocumentsAndComments() {
+    this.deleteDocument();
+    this.deleteComment();
+  }
+
   renderModal() {
     let data = this.state.data;
     return(
@@ -804,7 +846,7 @@ handleJustProvided(){
               <CNavLink
                 href="javascript:void(0);"
                 active={this.state.activeKey === 1}
-                onClick={() => this.setActiveKey(1)}
+                onClick={() => this.warningUnsavedChanges(1)}
               >
                 Change Information
               </CNavLink>
@@ -813,7 +855,7 @@ handleJustProvided(){
               <CNavLink
                 href="javascript:void(0);"
                 active={this.state.activeKey === 2}
-                onClick={() => this.setActiveKey(2)}
+                onClick={() => this.warningUnsavedChanges(2)}
               >
                 Geometry
               </CNavLink>
@@ -836,9 +878,9 @@ handleJustProvided(){
         </CModalBody>
         <CModalFooter>
           <div className="d-flex w-100 justify-content-between">
-            {(this.props.status === 'pending') && <CButton color="secondary" onClick={()=>this.props.updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>this.rejectChanges(), "Cancel", ()=>{})}>Reject changes</CButton>}
-            {(this.props.status === 'pending') && <CButton color="primary" onClick={()=>this.props.updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>this.acceptChanges(), "Cancel", ()=>{})}>Accept changes</CButton>}
-            {(this.props.status !== 'pending') && <CButton color="primary" onClick={()=>this.props.updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", ()=>this.setBackToPending(), "Cancel", ()=>{})}>Back to Pending</CButton>}
+            {(this.props.status === 'pending') && <CButton color="secondary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.rejectChangesModal(true), true) : this.rejectChangesModal()}>Reject changes</CButton>}
+            {(this.props.status === 'pending') && <CButton color="primary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.acceptChangesModal(true), true) : this.acceptChangesModal()}>Accept changes</CButton>}
+            {(this.props.status !== 'pending') && <CButton color="primary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.backToPendingModal(true), true) : this.backToPendingModal()}>Back to Pending</CButton>}
           </div>
         </CModalFooter>
       </>
@@ -864,7 +906,7 @@ handleJustProvided(){
   render() {
     return(
       <>
-        <CModal scrollable size="xl" visible={this.isVisible()} onClose={this.close.bind(this)}>
+        <CModal scrollable size="xl" visible={this.isVisible()} onClose={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.close()) : this.close()}>
           {this.renderData()}
         </CModal>
         <ConfirmationModal modalValues={this.state.modalValues}/>
@@ -889,8 +931,13 @@ handleJustProvided(){
       fetch(ConfigData.GET_SITE_COMMENTS+`siteCode=${this.props.item}&version=${this.props.version}`)
       .then(response => response.json())
       .then(data => {
-        if (data.Data[0].SiteCode === this.props.item && this.state.comments.length === 0)
-          this.setState({comments: data.Data})
+        if (data.Data.length > 0) {
+          if(data.Data[0]?.SiteCode === this.props.item && this.state.comments.length === 0)
+          this.setState({comments: data.Data});
+        }
+        else {
+          this.setState({comments: "noData"});
+        }
       });
     }
   }
@@ -900,10 +947,22 @@ handleJustProvided(){
       fetch(ConfigData.GET_ATTACHED_FILES+`siteCode=${this.props.item}&version=${this.props.version}`)
       .then(response => response.json())
       .then(data => {
-        if (data.Data[0].SiteCode === this.props.item && this.state.documents.length === 0)
-          this.setState({documents: data.Data})
+        if (data.Data.length > 0) {
+          if(data.Data[0]?.SiteCode === this.props.item && this.state.documents.length === 0)
+          this.setState({documents: data.Data});
+        }
+        else {
+          this.setState({documents: "noData"});
+        }
       });
     }
+  }
+
+  acceptChangesModal(clean) {
+    if(clean) {
+      this.cleanUnsavedChanges(3);
+    }
+    this.props.updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", () => this.acceptChanges(), "Cancel", () => {});
   }
 
   acceptChanges(){
@@ -914,12 +973,22 @@ handleJustProvided(){
     });
   }
 
+  rejectChangesModal() {
+    this.cleanUnsavedChanges(3);
+    this.props.updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", () => this.rejectChanges(), "Cancel", () => {});
+  }
+
   rejectChanges(){
     this.props.reject()
     .then(data => {
         if(data?.ok)
           this.close(true);
     });
+  }
+
+  backToPendingModal() {
+    this.cleanUnsavedChanges(3);
+    this.props.updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", () => this.setBackToPending(), "Cancel", () => {});
   }
 
   setBackToPending(){
