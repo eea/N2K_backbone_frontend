@@ -256,7 +256,7 @@ const Sitechanges = () => {
     }
   });
 
-  function updateModalValues(title, text, primaryButtonText, primaryButtonFunction, secondaryButtonText, secondaryButtonFunction) {
+  function updateModalValues(title, text, primaryButtonText, primaryButtonFunction, secondaryButtonText, secondaryButtonFunction, keepOpen) {
     setModalValues({
       visibility: true,
       title: title,
@@ -275,6 +275,7 @@ const Sitechanges = () => {
         }
         : ''
       ),
+      keepOpen: keepOpen ? true : false,
     });
   }
 
