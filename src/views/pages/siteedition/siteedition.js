@@ -74,6 +74,7 @@ const Siteedition = () => {
     setCountry(country);
     setSearchList({});
     turnstoneRef.current?.clear();
+    turnstoneRef.current?.blur();
     forceRefreshData();
   }
 
