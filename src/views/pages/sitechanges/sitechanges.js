@@ -314,6 +314,8 @@ const Sitechanges = () => {
     setSitecodes({});
     setSearchList({});
     setPendingChanges();
+    turnstoneRef.current?.clear();
+    turnstoneRef.current?.blur();
     if(country !== "") {
       forceRefreshData();
     }

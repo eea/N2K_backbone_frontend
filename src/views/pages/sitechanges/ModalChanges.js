@@ -174,7 +174,7 @@ export class ModalChanges extends Component {
       .then((data) => {
         if(data?.Success){
           let commentId = Math.max(...data.Data.map(e=>e.Id));
-          let cmts = this.state.comments;
+          let cmts = this.state.comments === "noData" ? [] : this.state.comments;
           cmts.push({
             Comments: comment,
             SiteCode: this.state.data.SiteCode,
@@ -220,6 +220,15 @@ export class ModalChanges extends Component {
     this.loadComments();
   }
 
+  deleteCommentMessage(target){
+    if(!target && this.state.newComment && document.querySelector(".comment--item.new textarea")?.value.trim() === "") {
+      this.deleteComment();
+    }
+    else {
+      this.props.updateModalValues("Delete Comment", "Are you sure you want to delete this comment?", "Continue", () => this.deleteComment(target), "Cancel", () => {})
+    }
+  }
+
   deleteComment(target){
     if(target) {
       let input = target.closest(".comment--item").querySelector("textarea");
@@ -238,8 +247,17 @@ export class ModalChanges extends Component {
     }
   }
 
-  addDocument() {
+  addNewDocument(){
     this.setState({newDocument: true})
+  }
+
+  deleteDocumentMessage(target){
+    if(!target && this.state.newDocument && !this.state.isSelected) {
+      this.deleteDocument();
+    }
+    else {
+      this.props.updateModalValues("Delete Document", "Are you sure you want to delete this document?", "Continue", () => this.deleteDocument(target), "Cancel", () => {})
+    }
   }
 
   deleteDocument(target){
@@ -298,7 +316,7 @@ export class ModalChanges extends Component {
       return this.uploadFile(formData)
       .then(data => {
         if(data?.Success){
-          let docs = this.state.documents;
+          let docs = this.state.documents === "noData" ? [] : this.state.documents;
           let newDocs = data.Data.filter(({ Id: id1 }) => !docs.some(({ Id: id2 }) => id2 === id1));
           for(let i in newDocs){
             let document = newDocs[i];
@@ -576,7 +594,7 @@ handleJustProvided(){
           <div className="btn-icon" onClick={(e) => this.addComment(e.currentTarget)}> 
             <i className="fa-solid fa-floppy-disk"></i>
           </div>
-          <div className="btn-icon" onClick={() => this.deleteComment()}>
+          <div className="btn-icon" onClick={() => this.deleteCommentMessage()}>
             <i className="fa-regular fa-trash-can"></i>
           </div>
         </div>
@@ -632,7 +650,7 @@ handleJustProvided(){
           <div className="btn-icon" onClick={(e) => this.updateComment(e.currentTarget)} key={"cmtUpdate_"+id}>
             <i className="fa-solid fa-pencil"></i>
           </div>
-          <div className="btn-icon" onClick={(e) => this.deleteComment(e.currentTarget)} key={"cmtDelete_"+id}>
+          <div className="btn-icon" onClick={(e) => this.deleteCommentMessage(e.currentTarget)} key={"cmtDelete_"+id}>
             <i className="fa-regular fa-trash-can"></i>
           </div>
         </div>
@@ -663,7 +681,7 @@ handleJustProvided(){
           <div className="btn-icon">
             <i className="fa-solid fa-floppy-disk" onClick={() => this.handleSubmission()}></i>
           </div>
-          <div className="btn-icon" onClick={() => this.deleteDocument()}>
+          <div className="btn-icon" onClick={() => this.deleteDocumentMessage()}>
             <i className="fa-regular fa-trash-can"></i>
           </div>
         </div>
@@ -703,13 +721,15 @@ handleJustProvided(){
               content={"Uploaded"
                 + (date && " on " + date.slice(0,10).split('-').reverse().join('/'))
                 + (user && " by " + user)}>
-              <div className="btn-icon" onClick={(e) => this.deleteDocument(e.currentTarget)}>
+              <div className="btn-icon">
                 <i className="fa-solid fa-circle-info"></i>
               </div>
             </CTooltip>
           }
-          <CButton color="link" className="btn-link--dark"><a href={path} target="_blank">View</a></CButton>
-          <div className="btn-icon" onClick={(e) => this.deleteDocument(e.currentTarget)}>
+          <CButton color="link" className="btn-link--dark">
+            <a href={path} target="_blank">View</a>
+          </CButton>
+          <div className="btn-icon" onClick={(e) => this.deleteDocumentMessage(e.currentTarget)}>
             <i className="fa-regular fa-trash-can"></i>
           </div>
         </div>
@@ -730,7 +750,7 @@ handleJustProvided(){
               }
               <div className="d-flex justify-content-between align-items-center pb-2">
                 <b>Attached documents</b>
-                <CButton color="link" className="btn-link--dark" onClick={() => this.addDocument()}>Add document</CButton>
+                <CButton color="link" className="btn-link--dark" onClick={() => this.addNewDocument()}>Add document</CButton>
               </div>
               {this.renderDocuments()}
             </CCard>
@@ -752,15 +772,15 @@ handleJustProvided(){
           <CCol className="d-flex">
             <div className="checkbox">
               <input type="checkbox" className="input-checkbox" id="modal_justification_req"
-              onClick={()=>this.props.updateModalValues("Changes", `This will ${this.state.justificationRequired ? "unmark" : "mark"} change as Justification Required`, "Continue", ()=>this.handleJustRequired(), "Cancel", ()=>{})}               
-              checked={this.state.justificationRequired}
-              readOnly
+                onClick={()=>this.props.updateModalValues("Changes", `This will ${this.state.justificationRequired ? "unmark" : "mark"} change as Justification Required`, "Continue", ()=>this.handleJustRequired(), "Cancel", () => {})}
+                checked={this.state.justificationRequired}
+                readOnly
               />
               <label htmlFor="modal_justification_req" className="input-label">Justification required</label>
             </div>
             <div className="checkbox" disabled={(this.state.justificationRequired ? false : true)}>
               <input type="checkbox" className="input-checkbox" id="modal_justification_prov"
-                onClick={()=>this.props.updateModalValues("Changes", `This will ${this.state.justificationProvided ? "unmark": "mark"} change as Justification Provided`, "Continue", ()=>this.handleJustProvided(), "Cancel", ()=>{})} 
+                onClick={()=>this.props.updateModalValues("Changes", `This will ${this.state.justificationProvided ? "unmark": "mark"} change as Justification Provided`, "Continue", ()=>this.handleJustProvided(), "Cancel", () => {})}
                 checked={this.state.justificationProvided} 
                 readOnly
               />
@@ -788,7 +808,7 @@ handleJustProvided(){
 
   warningUnsavedChanges(activeKey) {
     if(this.checkUnsavedChanges() && this.state.activeKey === 3) {
-      this.props.updateModalValues("Documents & Comments", "There are unsaved changes. Do you want to continue?", "Continue", () => this.cleanUnsavedChanges(activeKey), "Cancel", () => { })
+      this.props.updateModalValues("Documents & Comments", "There are unsaved changes. Do you want to continue?", "Continue", () => this.cleanUnsavedChanges(activeKey), "Cancel", () => {});
     }
     else {
       this.cleanUnsavedChanges(activeKey);
@@ -796,7 +816,7 @@ handleJustProvided(){
   }
 
   messageBeforeClose(action, keepOpen) {
-    this.props.updateModalValues("Documents & Comments", "There are unsaved changes. Do you want to continue?", "Continue", action, "Cancel", () => { }, keepOpen);
+    this.props.updateModalValues("Documents & Comments", "There are unsaved changes. Do you want to continue?", "Continue", action, "Cancel", () => {}, keepOpen);
   }
 
   cleanUnsavedChanges(activeKey) {
