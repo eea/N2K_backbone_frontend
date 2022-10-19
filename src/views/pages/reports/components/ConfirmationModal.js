@@ -6,19 +6,26 @@ import {
   CModalFooter,
   CModalHeader,
   CModalTitle,
+  CSpinner,
+  CAlert
 } from '@coreui/react'
 
 export class ConfirmationModal extends Component {
   constructor(props) {
     super(props);
-    this.close = this.props.modalValues.close;
+    //this.close = this.props.modalValues.close;
+    this.state = {"spinOn":false};
   }
 
+  close() {
+    this.setState({"spinOn": false});
+    this.props.modalValues.close();
+  }
+  
   primaryFunction() {
+    this.setState({"spinOn":true});
     this.props.modalValues.primaryButton.function();
-    if(!this.props.modalValues.keepOpen){
-      this.close();
-    }
+    //this.close();
   }
 
   secondaryFunction() {
@@ -37,6 +44,7 @@ export class ConfirmationModal extends Component {
         <CModalHeader onClose={()=>this.closeFunction()}>
           <CModalTitle>{modal.title}</CModalTitle>
         </CModalHeader>
+        <CAlert className="mx-3" color="primary" dismissible visible={modal.message} onClose={() => modal.closeMessage}>Add valid Union List Name</CAlert>
         <CModalBody>{modal.text}</CModalBody>
         <CModalFooter className={modal.secondaryButton ? "justify-content-between" : "justify-content-end"}>
           {modal.secondaryButton &&
@@ -47,6 +55,7 @@ export class ConfirmationModal extends Component {
           {modal.primaryButton &&
             <CButton color="primary" onClick={() => this.primaryFunction()}>
               {modal.primaryButton.text}
+              {this.state.spinOn && <CSpinner size="sm"/>}
             </CButton>
           }
         </CModalFooter>
