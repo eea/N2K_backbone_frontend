@@ -102,7 +102,19 @@ export class ModalChanges extends Component {
 
   close(refresh){
     this.setActiveKey(1);
-    this.setState({level:"Warning", bookmark: "", showDetail: "", data: {}, loading: true, comments:[], documents:[], newComment: false, newDocument: false});
+    this.setState({
+      level:"Warning",
+      bookmark: "",
+      showDetail: "",
+      data: {},
+      loading: true,
+      comments:[],
+      documents:[],
+      newComment: false,
+      newDocument: false,
+      isSelected: false,
+      selectedFile: "",
+    });
     this.props.close(refresh);
   }
 
@@ -332,10 +344,10 @@ export class ModalChanges extends Component {
               ImportDate: document.ImportDate
             })
           }
-          this.setState({documents: docs, newDocument: false, selectedFile: "No file selected"})
+          this.setState({documents: docs, newDocument: false, isSelected: false, selectedFile: ""})
         }
         else {
-          this.showErrorMessage("document", "File upload failed - "+data.Message);
+          this.showErrorMessage("document", "File upload failed - " + data.Message);
         }
       });
     }
