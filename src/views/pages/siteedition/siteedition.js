@@ -71,7 +71,10 @@ const Siteedition = () => {
   }
 
   let changeCountry = (country) => {
-    setCountry(country)
+    setCountry(country);
+    setSearchList({});
+    turnstoneRef.current?.clear();
+    turnstoneRef.current?.blur();
     forceRefreshData();
   }
 
@@ -259,6 +262,7 @@ const Siteedition = () => {
                     id="siteedition_search"
                     className="form-control"
                     listbox = {searchList}
+                    listboxIsImmutable = {false}
                     placeholder="Search sites by site name or site code"
                     noItemsMessage="Site not found"
                     styles={{input:"form-control", listbox:"search--results", groupHeading:"search--group", noItemsMessage:"search--option"}}
