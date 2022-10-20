@@ -23,10 +23,12 @@ import {
 } from '@coreui/react'
 
 import { ConfirmationModal } from './components/ConfirmationModal';
+import {DataLoader} from '../../../components/DataLoader';
 
 export class ModalEdition extends Component {
   constructor(props) {
     super(props);
+    this.dl = new(DataLoader);
     this.state = {
       activeKey: 1, 
       loading: true, 
@@ -333,7 +335,7 @@ export class ModalEdition extends Component {
 
   loadData(){
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
-      fetch(ConfigData.SITEDETAIL_GET+"?siteCode="+this.props.item)
+      this.dl.fetch(ConfigData.SITEDETAIL_GET+"?siteCode="+this.props.item)
       .then(response => response.json())
       .then(data =>
         this.setState({data: data.Data, loading: false})
@@ -380,6 +382,6 @@ export class ModalEdition extends Component {
       },
       body: JSON.stringify(body),
     };
-    return fetch(url, options)
+    return this.dl.fetch(url, options)
   }
 }

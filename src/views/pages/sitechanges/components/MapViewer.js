@@ -1,5 +1,6 @@
 import React from 'react';
 import { loadModules } from "esri-loader";
+import {DataLoader} from '../../../../components/DataLoader';
 
 var GeoJSONLayer;
 
@@ -7,6 +8,7 @@ class MapViewer extends React.Component {
 
     constructor(props) {
         super(props);
+        this.dl = new(DataLoader);
         this.mapDiv = this.props.container?this.props.container:"mapDiv";
         this.map=null;
     }
@@ -53,7 +55,7 @@ class MapViewer extends React.Component {
         let url2=
         `https://n2kbackboneback-dev.azurewebsites.net/api/SiteDetails/GetSiteGeometry/siteCode=${code}&version=${version}`;
 
-        fetch(url1)
+        this.dl.fetch(url1)
         .then(response => response.json())
         .then(data => {
             console.log(data);
@@ -81,7 +83,7 @@ class MapViewer extends React.Component {
             this.map.add(geojsonRef);
         });
 
-        fetch(url2)
+        this.dl.fetch(url2)
         .then(response => response.json())
         .then(data => {
             console.log(data);

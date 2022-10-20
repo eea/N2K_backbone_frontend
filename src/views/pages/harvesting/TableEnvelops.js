@@ -10,6 +10,7 @@ import {
   CDropdownMenu,
   CDropdownItem,
 } from '@coreui/react'
+import {DataLoader} from '../../../components/DataLoader';
 
 const confStatus = ConfigData.HARVESTING_STATUS;
 
@@ -270,6 +271,8 @@ const IndeterminateCheckbox = React.forwardRef(
     const [isLoading, setIsLoading] = useState(props.isLoading);
     const [envelopsData, setEnvelopsData] = useState([]);
 
+    let dl = new(DataLoader);
+
     // useEffect(() => {
     //   fetch(ConfigData.HARVESTING_PRE_HARVESTED)
     //   .then(response => response.json())
@@ -330,7 +333,7 @@ const IndeterminateCheckbox = React.forwardRef(
         let status = props.status.split(",");
         for (let i in status) {
           promises.push(
-            fetch(ConfigData.HARVESTING_GET_STATUS+"?status="+status[i])
+            dl.fetch(ConfigData.HARVESTING_GET_STATUS+"?status="+status[i])
             .then(response => response.json())
             .then(data => {
               if(Object.keys(data.Data).length === 0) {

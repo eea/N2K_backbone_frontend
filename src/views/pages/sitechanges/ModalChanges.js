@@ -1043,7 +1043,6 @@ handleJustProvided(){
       },
       body: path ? body : JSON.stringify(body),
     };
-    console.log(options);
     return this.dl.fetch(url, options)
   }
 }
