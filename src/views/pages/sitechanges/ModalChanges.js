@@ -27,6 +27,7 @@ import {
   CModalFooter,
   CModalHeader,
   CModalTitle,
+  CCloseButton,
   CTabContent,
   CTabPane,
   CTooltip,
@@ -575,7 +576,7 @@ handleJustProvided(){
     this.state.comments !== "noData" && this.sortComments();
     cmts.push(
       this.state.newComment &&
-      <div className="comment--item new" id="cmtItem_newItem">
+      <div className="comment--item new" key={"cmtItem_new"}>
         <div className="comment--text">
           <TextareaAutosize
             minRows={3}
@@ -627,16 +628,12 @@ handleJustProvided(){
             defaultValue={comment}
             className="comment--input" />
           <label className="comment--date" htmlFor={id}>
-            { date &&
-              "Commented on " + date.slice(0,10).split('-').reverse().join('/') }
-            { owner &&
-              " by " + owner + "."}
-            { ((edited >= 1) || editeddate !== undefined || editedby !== undefined) &&
-              " Last edited" }
-            { editeddate && 
-              " on " + editeddate.slice(0,10).split('-').reverse().join('/') }
-            { editedby &&
-              " by " + editedby + "."}
+            {date && owner &&
+              "Commented on " + date.slice(0,10).split('-').reverse().join('/') + " by " + owner + "."
+            }
+            {((edited >= 1) && (editeddate && editeddate !== undefined) && (editedby && editedby !== undefined)) &&
+              " Last edited on " + editeddate.slice(0,10).split('-').reverse().join('/') + " by " + editedby + "."
+            }
           </label>
         </div>
         <div className="comment--icons">
@@ -660,7 +657,7 @@ handleJustProvided(){
     this.state.documents !== "noData" && this.sortDocuments();
     docs.push(
       this.state.newDocument &&
-      <div className="document--item new">
+      <div className="document--item new" key={"docItem_new"}>
         <div className="input-file">
           <label htmlFor="uploadBtn">
             Select file
@@ -846,8 +843,9 @@ handleJustProvided(){
     let data = this.state.data;
     return(
       <>
-        <CModalHeader>
+        <CModalHeader closeButton={false}>
           <CModalTitle>{data.SiteCode} - {data.Name}</CModalTitle>
+          <CCloseButton onClick={()=>this.closeModal()}/>
         </CModalHeader>
         <CModalBody>
           <CAlert color="primary" className="d-flex align-items-center" visible={this.state.justificationRequired}>
@@ -916,10 +914,19 @@ handleJustProvided(){
     )
   }
 
+  closeModal(){
+    if (this.checkUnsavedChanges()){
+      this.messageBeforeClose(() => this.close())
+    }
+    else {
+      this.close();
+    }
+  }
+
   render() {
     return(
       <>
-        <CModal scrollable size="xl" visible={this.isVisible()} onClose={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.close()) : this.close()}>
+        <CModal scrollable size="xl" visible={this.isVisible()} onClose={() => this.closeModal()}>
           {this.renderData()}
         </CModal>
         <ConfirmationModal modalValues={this.state.modalValues}/>
