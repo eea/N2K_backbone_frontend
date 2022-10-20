@@ -2,13 +2,15 @@ import React, { useEffect, useState} from 'react';
 import { CTable, CTableBody, CTableHead, CTableRow, CTableHeaderCell, CImage, CTableDataCell, CFormCheck, CDropdown, CDropdownToggle, CDropdownMenu, CDropdownItem } from '@coreui/react';
 
 import ConfigData from '../../../config.json';
+import {DataLoader} from '../../../components/DataLoader';
 
 export default function FetchDataTable() {
 
     const [events, setEvents] = useState([]);
+    let dl = new(DataLoader);
 
     useEffect(() => {
-      fetch(ConfigData.SERVER_API_ENDPOINT+'/api/sitechanges/GetByStatus')
+      dl.fetch(ConfigData.SERVER_API_ENDPOINT+'/api/sitechanges/GetByStatus')
       .then(response => response.json())
       .then(data => {
         setEvents(data);
