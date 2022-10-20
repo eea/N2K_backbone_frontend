@@ -10,6 +10,7 @@ import {
   CDropdownMenu,
   CDropdownItem,
 } from '@coreui/react'
+import {DataLoader} from '../../../components/DataLoader';
 
 const confStatus = ConfigData.HARVESTING_STATUS;
 
@@ -190,6 +191,7 @@ function TableManagement(props) {
   const [events, setEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(props.isLoading);
   const [unionListsData, setUnionListsData] = useState([]);
+  let dl = new(DataLoader);
 
   // useEffect(() => {
   //   fetch(ConfigData.HARVESTING_PRE_HARVESTED)
@@ -242,7 +244,7 @@ function TableManagement(props) {
         props.setRefresh(false);
       } 
       setIsLoading(true);
-      fetch(ConfigData.UNIONLISTS_GET)
+      dl.fetch(ConfigData.UNIONLISTS_GET)
       .then(response =>response.json())
       .then(data => {
         if(Object.keys(data.Data).length === 0){

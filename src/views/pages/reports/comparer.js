@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { AppFooter, AppHeader } from '../../../components/index'
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import ConfigData from '../../../config.json';
+import {DataLoader} from '../../../components/DataLoader';
 
 import {
   CCol,
@@ -27,10 +28,11 @@ const Reports = () => {
   const [tableData, setTableData] = useState([]);
   const [tableData1, setTableData1] = useState([]);
   const [tableData2, setTableData2] = useState([]);
+  let dl = new(DataLoader);
 
   let loadUnionLists = () => {
     setIsLoading(true);
-    fetch(ConfigData.UNIONLISTS_GET)
+    dl.fetch(ConfigData.UNIONLISTS_GET)
     .then(response =>response.json())
     .then(data => {
       if(Object.keys(data.Data).length > 0){
@@ -41,7 +43,7 @@ const Reports = () => {
   }
 
   let loadBioRegions = () => {
-    fetch(ConfigData.UNIONLISTS_BIOREGIONS)
+    dl.fetch(ConfigData.UNIONLISTS_BIOREGIONS)
     .then(response =>response.json())
     .then(data => {
       if(Object.keys(data.Data).length > 0){
@@ -57,7 +59,7 @@ const Reports = () => {
   let loadData = (unionlist1, unionlist2) => {
     if(!isLoading && (Object.keys(tableData1).length===0 || Object.keys(tableData2).length===0)) {
       setIsLoading(true);
-      fetch(ConfigData.UNIONLISTS_DETAIL)
+      dl.fetch(ConfigData.UNIONLISTS_DETAIL)
       .then(response => response.json())
       .then(data => {
         if(Object.keys(data.Data).length > 0) {

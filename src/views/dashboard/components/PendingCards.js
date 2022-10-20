@@ -2,11 +2,14 @@ import { useState, useEffect } from 'react';
 import ConfigData from '../../../config.json';
 import { CRow, CCol, CCard } from '@coreui/react';
 import '@coreui/icons/css/flag.min.css';
+import {DataLoader} from '../../../components/DataLoader';
 
 const PendingCards = () => {
     const [pendingCountriesData, setPendingCountriesData] = useState([]);
     const [pendingSitesData, setPendindSitesData] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+
+    let dl = new(DataLoader);
 
     useEffect(() => {
         loadData();
@@ -15,12 +18,12 @@ const PendingCards = () => {
     const loadData = (() => {
         let promises = [];
         setIsLoading(true);
-        promises.push(fetch(ConfigData.GET_PENDING_LEVEL)
+        promises.push(dl.fetch(ConfigData.GET_PENDING_LEVEL)
             .then(response => response.json())
             .then(data => {
                 setPendingCountriesData(data.Data);
             }));
-        promises.push(fetch(ConfigData.GET_SITE_LEVEL + '?status=Pending')
+        promises.push(dl.fetch(ConfigData.GET_SITE_LEVEL + '?status=Pending')
             .then(response => response.json())
             .then(data => {
                 setPendindSitesData(data.Data);
