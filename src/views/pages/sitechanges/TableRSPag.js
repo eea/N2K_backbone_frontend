@@ -15,6 +15,7 @@ import {matchSorter} from 'match-sorter'
 import { ModalChanges } from './ModalChanges';
 import justificationrequired from './../../../assets/images/exclamation.svg'
 import justificationprovided from './../../../assets/images/file-text.svg'
+import {DataLoader} from '../../../components/DataLoader';
 
 const IndeterminateCheckbox = React.forwardRef(
     ({ indeterminate, ...rest }, ref) => {
@@ -312,6 +313,8 @@ const IndeterminateCheckbox = React.forwardRef(
     const [levelCountry, setLevelCountry] = useState({});
     const [pageCount, setPageCount] = useState(0);
 
+    let dl = new(DataLoader);
+
     let forceRefreshData = ()=> setChangesData({});
 
     let resetPagination = () =>{
@@ -544,7 +547,7 @@ const IndeterminateCheckbox = React.forwardRef(
       url += 'country='+props.country;
       url += '&status='+props.status;
       url += '&level='+props.level;
-      return fetch(url)
+      return dl.fetch(url)
       .then(response => response.json())
       .then(data => {
         props.setSitecodes(props.status,data.Data);
@@ -570,7 +573,7 @@ const IndeterminateCheckbox = React.forwardRef(
         url += '&page='+(currentPage+1);
         url += '&limit='+currentSize;
         promises.push(
-          fetch(url)
+          dl.fetch(url)
           .then(response => response.json())
           .then(data => {
             if(Object.keys(data.Data).length===0)

@@ -25,6 +25,7 @@ import {
 
 import { ConfirmationModal } from './components/ConfirmationModal';
 import ConfigData from '../../../config.json';
+import {DataLoader} from '../../../components/DataLoader';
 
 const xmlns = 'https://www.w3.org/2000/svg'
 
@@ -39,6 +40,8 @@ let refreshSitechanges={"pending":false,"accepted":false,"rejected":false},
   }  
 
 const Sitechanges = () => {
+
+  let dl = new(DataLoader);
 
   const [activeTab, setActiveTab] = useState(1)
   const [isLoading, setIsLoading] = useState(true);
@@ -82,7 +85,7 @@ const Sitechanges = () => {
   }
 
   let checkComplete = () => {
-    fetch(ConfigData.HARVESTING_GET_STATUS+"?status=Harvested")
+    dl.fetch(ConfigData.HARVESTING_GET_STATUS+"?status=Harvested")
     .then(response => response.json())
     .then(data => {
       if(Object.keys(data.Data).length > 0) {
@@ -139,7 +142,7 @@ const Sitechanges = () => {
       },
       body: JSON.stringify(body),
     };
-    return fetch(url, options)
+    return dl.fetch(url, options)
   }
 
   let setBackToPending = (changes)=>{
@@ -226,7 +229,7 @@ const Sitechanges = () => {
       },
       body: path ? body : JSON.stringify(body),
     };
-    return fetch(url, options)
+    return dl.fetch(url, options)
   }
 
   let switchMarkChanges = (changes)=>{
@@ -322,7 +325,7 @@ const Sitechanges = () => {
   }
 
   let loadCountries = () => {
-    fetch(ConfigData.COUNTRIES_WITH_DATA)
+    dl.fetch(ConfigData.COUNTRIES_WITH_DATA)
     .then(response => response.json())
     .then(data => {
       let countriesList = [];
