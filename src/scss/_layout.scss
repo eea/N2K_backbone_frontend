@@ -122,3 +122,36 @@ html {
     opacity: 0.2;
   }
 }
+
+.react-flow {
+  .react-flow__minimap {
+    margin: 0;
+  }
+  .react-flow__node {
+    padding: 0.5rem 1rem;
+    width: auto;
+    font-weight: bold;
+    cursor: pointer;
+    &.green-node {
+      border-color: #4fd1c5;
+      background-color: #CAF1EE;
+    }
+    &.yellow-node {
+      border-color: #f6e05e;
+      background-color: #FCF6CF;
+    }
+  }
+  .react-flow__edge {
+    cursor: auto;
+    .react-flow__edge-path {
+      stroke: $gray-300;
+      stroke-width: 1.5;
+    }
+  }
+  .react-flow__node-default:hover {
+    box-shadow: 0 1px 4px 1px #00000014;
+  }
+  .react-flow__handle {
+    visibility: hidden;
+  }
+}

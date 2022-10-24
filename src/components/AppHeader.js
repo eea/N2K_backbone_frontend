@@ -28,7 +28,7 @@ const AppHeader = (props) => {
               <CButton color="link" className='btn-link--bold' href='/#/sitechanges'>Site Changes</CButton>
             </li>
             <li className={props.page === 'sitelineage' ? 'header-active' : ''}>
-              <CButton color="link" className='btn-link--bold'>Site Lineage</CButton>
+              <CButton color="link" className='btn-link--bold' href='/#/sitelineage'>Site Lineage</CButton>
             </li>
             <li className={props.page === 'siteedition' ? 'header-active' : ''}>
               <CButton color="link" className='btn-link--bold' href='/#/siteedition'>Site Edition</CButton>

@@ -26,6 +26,7 @@ const ReportsDeleted = React.lazy(() => import('./views/pages/reports/deleted'))
 const ReportsChanges = React.lazy(() => import('./views/pages/reports/changes'))
 const ReportsUnionListManagement = React.lazy(() => import('./views/pages/reports/management'))
 const ReportsUnionListComparer = React.lazy(() => import('./views/pages/reports/comparer'))
+const SiteLineage = React.lazy(() => import('./views/pages/sitelineage/sitelineage'))
 
 class App extends Component {
   render() {
@@ -46,6 +47,7 @@ class App extends Component {
             <Route exact path="/reports/changes" name="Reports" render={(props) => <ReportsChanges {...props} />}/>
             <Route exact path="/reports/management" name="Reports" render={(props) => <ReportsUnionListManagement {...props} />}/>
             <Route exact path="/reports/comparer" name="Reports" render={(props) => <ReportsUnionListComparer {...props} />}/>
+            <Route exact path="/sitelineage" name="SiteLineage" render={(props) => <SiteLineage {...props} />}/>
             <Route path="/" name="Home" render={(props) => <DefaultLayout {...props} />} />
           </Switch>
         </React.Suspense>
