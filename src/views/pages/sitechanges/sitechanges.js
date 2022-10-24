@@ -40,7 +40,8 @@ let refreshSitechanges={"pending":false,"accepted":false,"rejected":false},
 
 const Sitechanges = () => {
 
-  const [activeTab, setActiveTab] = useState(1)
+  const [activeTab, setActiveTab] = useState(1);
+  const [isTabChanged, setIsTabChanged] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [forceRefresh, setForceRefresh] = useState(0);
@@ -106,7 +107,7 @@ const Sitechanges = () => {
     if(!isLoading){
       let checkAll = document.querySelector('.tab-pane.active [id^=sitechanges_check_all]');
       if(document.querySelectorAll('input[sitecode]:checked').length !== 0 && v.length === 0) {
-        if(!checkAll.indeterminate && !checkAll.checked) {
+        if(!checkAll) {
           setDisabledBtn(true);
         }
         return;
@@ -302,6 +303,11 @@ const Sitechanges = () => {
       </div>
     )
   }
+  
+  let changeStatus = (tabNum) => {
+    setActiveTab(tabNum);
+    setIsTabChanged(true);
+  }
 
   let changeLevel = (level)=>{
     setLevel(level);
@@ -484,7 +490,7 @@ const Sitechanges = () => {
                         <CNavLink
                           href="javascript:void(0);"
                           active={activeTab === 1}
-                          onClick={() => {setActiveTab(1);}}
+                          onClick={() => {changeStatus(1);}}
                         >
                           Pending <span className="badge badge--pending">{Object.keys(siteCodes).length === 3 && siteCodes.pending.length}</span>
                         </CNavLink>
@@ -493,7 +499,7 @@ const Sitechanges = () => {
                         <CNavLink
                           href="javascript:void(0);"
                           active={activeTab === 2}
-                          onClick={() => {setActiveTab(2);}}
+                          onClick={() => {changeStatus(2);}}
                         >
                           Accepted <span className="badge badge--accepted">{Object.keys(siteCodes).length === 3 && siteCodes.accepted.length}</span>
                         </CNavLink>
@@ -502,7 +508,7 @@ const Sitechanges = () => {
                         <CNavLink
                           href="javascript:void(0);"
                           active={activeTab === 3}
-                          onClick={() => {setActiveTab(3);}}
+                          onClick={() => {changeStatus(3);}}
                         >
                           Rejected <span className="badge badge--rejected">{Object.keys(siteCodes).length === 3 && siteCodes.rejected.length}</span>
                         </CNavLink>
@@ -524,6 +530,8 @@ const Sitechanges = () => {
                         setSitecodes = {setCodes}
                         setShowModal={()=>showModalSitechanges()}
                         showModal={showModal}
+                        isTabChanged={isTabChanged}
+                        setIsTabChanged={setIsTabChanged}
                       />
                     </CTabPane>
                     <CTabPane role="tabpanel" aria-labelledby="accepted-tab" visible={activeTab === 2}>
@@ -539,6 +547,8 @@ const Sitechanges = () => {
                         setSitecodes = {setCodes}
                         setShowModal={()=>showModalSitechanges()}
                         showModal={showModal}
+                        isTabChanged={isTabChanged}
+                        setIsTabChanged={setIsTabChanged}
                       />
                     </CTabPane>
                     <CTabPane role="tabpanel" aria-labelledby="rejected-tab" visible={activeTab === 3}>
@@ -554,6 +564,8 @@ const Sitechanges = () => {
                         setSitecodes = {setCodes}
                         setShowModal={()=>showModalSitechanges()}
                         showModal={showModal}
+                        isTabChanged={isTabChanged}
+                        setIsTabChanged={setIsTabChanged}
                       />
                     </CTabPane>
                     </CTabContent>

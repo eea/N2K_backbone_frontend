@@ -114,7 +114,7 @@ const IndeterminateCheckbox = React.forwardRef(
   
   fuzzyTextFilterFn.autoRemove = val => !val
 
-  function Table({ columns, data, setSelected, siteCodes, currentPage, currentSize, loadPage, status, updateModalValues }) {
+  function Table({ columns, data, setSelected, siteCodes, currentPage, currentSize, loadPage, status, updateModalValues, isTabChanged, setIsTabChanged }) {
     const [disabledBtn, setDisabledBtn] = useState(false);
     const [pgCount, setPgCount] = useState(Math.ceil(siteCodes.length / currentSize));
     const [selectedRows, setSelectedRows] = useState(0);
@@ -157,6 +157,7 @@ const IndeterminateCheckbox = React.forwardRef(
       setPageSize, 
       initialExpanded,
       isAllPageRowsSelected,      
+      toggleAllRowsSelected,
       getToggleAllPageRowsSelectedProps,   
       state: { pageIndex, pageSize, selectedRowIds, expanded, expandSubRows },
     } = useTable(
@@ -206,9 +207,20 @@ const IndeterminateCheckbox = React.forwardRef(
     let changePage = (page,chunk)=>{
       loadPage(page,pageSize);
     }    
+    console.log(isTabChanged);
+    if(isTabChanged) {
+      console.log("ª");
+      setIsTabChanged(false);
+      toggleAllRowsSelected(false);
+    }
     // Render the UI for your table
     return (
-      <>     
+      <>
+      {isTabChanged &&
+        <div className="message-board">
+          <button onClick={() => toggleAllRowsSelected(false)}>Clear All!</button>
+        </div>
+      }
       {isAllPageRowsSelected && 
         (
           (status === 'pending' || status === 'accepted' || status === 'rejected')
@@ -321,7 +333,7 @@ const IndeterminateCheckbox = React.forwardRef(
     let toggleVisibility = () => {
       setIsVisible = !isVisible;
     }
-
+  
     let resetPagination = () =>{
       setCurrentPage(0);
       setCurrentSize(30);
@@ -620,6 +632,8 @@ const IndeterminateCheckbox = React.forwardRef(
             currentSize={currentSize} 
             loadPage = {loadPage}
             status={props.status}
+            isTabChanged={props.isTabChanged}
+            setIsTabChanged={props.setIsTabChanged}
           />
           {props.showModal && showModal(props.showModal)}
           <ModalChanges visible = {modalVisible} 
@@ -640,5 +654,4 @@ const IndeterminateCheckbox = React.forwardRef(
   
   }
   
-  export default TableRSPag
-  
+export default TableRSPag
