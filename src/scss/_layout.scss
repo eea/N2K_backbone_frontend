@@ -124,7 +124,7 @@ html {
 }
 
 .react-flow {
-  .react-flow__minimap {
+  .react-flow__minimap, .react-flow__controls {
     margin: 0;
   }
   .react-flow__node {
@@ -132,13 +132,20 @@ html {
     width: auto;
     font-weight: bold;
     cursor: pointer;
+    &.basic-node {
+      border-color: $gray-300;
+      color: $gray-300;
+    }
     &.green-node {
-      border-color: #4fd1c5;
+      border-color: #4FC1C5;
       background-color: #CAF1EE;
     }
     &.yellow-node {
-      border-color: #f6e05e;
-      background-color: #FCF6CF;
+      border-color: #FED100;
+      background-color: #FFF1B3;
+    }
+    &:hover {
+      box-shadow: 0 1px 4px 1px #00000014;
     }
   }
   .react-flow__edge {
@@ -147,9 +154,6 @@ html {
       stroke: $gray-300;
       stroke-width: 1.5;
     }
-  }
-  .react-flow__node-default:hover {
-    box-shadow: 0 1px 4px 1px #00000014;
   }
   .react-flow__handle {
     visibility: hidden;

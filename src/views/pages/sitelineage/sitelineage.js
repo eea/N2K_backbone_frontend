@@ -2,6 +2,7 @@ import React, { lazy, useState, useRef } from 'react'
 import { AppFooter, AppHeader } from '../../../components/index'
 import ConfigData from '../../../config.json';
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import Turnstone from 'turnstone';
 import {DataLoader} from '../../../components/DataLoader';
 import ReactFlow, { Controls, Background, MiniMap, MarkerType } from 'reactflow';
 import 'reactflow/dist/style.css';
@@ -23,16 +24,21 @@ const defaultCountry = () => {
 }
 
 const Sitelineage = () => {
+  const [countries, setCountries] = useState([]);
+  const [country, setCountry] = useState(defaultCountry);
   const [siteCode, setSiteCode] = useState();
   const [siteCodes, setSiteCodes] = useState([]);
+  const [siteLineage, setSiteLineage] = useState({antecessor: [], successors: ["AT2208000","AT2209000"]});
+  const [siteData, setSiteData] = useState({});
+  const [searchList, setSearchList] = useState({});
+  const [selectOption, setSelectOption] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [loadingCountries, setLoadingCountries] = useState(false);
-  const [countries, setCountries] = useState([]);
-  const [country, setCountry] = useState();
-  const [siteData, setSiteData] = useState({});
+  const [disabledSearchBtn, setDisabledSearchBtn] = useState(true);
+  const turnstoneRef = useRef();
   let dl = new(DataLoader);
 
-  if(countries.length === 0 && !loadingCountries){-
+  if(countries.length === 0 && !loadingCountries){
     setLoadingCountries(true);
     dl.fetch(ConfigData.COUNTRIES_WITH_DATA)
     .then(response => response.json())
@@ -42,13 +48,29 @@ const Sitelineage = () => {
       for(let i in data.Data){
         countriesList.push({name:data.Data[i].Country,code:data.Data[i].Code});
       }
+      countriesList = [{name:"",code:""}, ...countriesList];
       setCountries(countriesList);
+      if(country === ""){
+        setCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code);
+        changeCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code);
+      }
     });
   }
 
   let changeCountry = (country) => {
     setCountry(country);
+    setSearchList({});
+    turnstoneRef.current?.clear();
+    turnstoneRef.current?.blur();
     forceRefreshData();
+  }
+
+  let getSitesList = (data) => {
+    return {
+      name: "sites",
+      data: data.map?data.map(x=>({"search":x.SiteCode+" - "+x.Name,...x})):[],
+      searchType: "contains",
+    }
   }
 
   let forceRefreshData = () => {
@@ -60,7 +82,7 @@ const Sitelineage = () => {
   let loadSites = () => {
     if(!isLoading && siteCodes.length === 0) {
       setIsLoading(true);
-      dl.fetch(ConfigData.SITECHANGES_GET+"country="+country)
+      dl.fetch(ConfigData.SITEEDITION_GET+"country="+country)
       .then(response =>response.json())
       .then(data => {
         if(Object.keys(data.Data).length === 0){
@@ -68,15 +90,11 @@ const Sitelineage = () => {
         }
         else {
           setSiteCodes(data.Data);
+          setSearchList(getSitesList(data.Data));
         }
         setIsLoading(false);
       });
     }
-  }
-
-  let changeSite = (site) => {
-    setSiteCode(site);
-    setSiteData({});
   }
 
   let loadData = () => {
@@ -95,189 +113,387 @@ const Sitelineage = () => {
 
   let loadCard = () => {
     let site = siteCodes.find(a=>a.SiteCode === siteCode);
+    let countryName = countries.find(a=>a.code===country).name;
     return (
       <CCol xs={12} md={6} lg={4} xl={3}>
-        <CCard className="search-card">
+        <CCard className="search-card h-auto">
           <div className="search-card-header">
-            <span className="search-card-title">{site.SiteName}</span>
+            <span className="search-card-title">{site.Name}</span>
           </div>
           <div className="search-card-body">
-            <span className="search-card-description"><b>{siteCode}</b> | {site.Country}</span>
+            <div className="search-card-description"><b>{siteCode}</b> | {countryName}</div>
+            <div className="search-card-description">
+              {siteCode === 'AT2208000' || siteCode === 'AT2209000' ?
+                <b style={{color: "#4FC1C5"}}>Active</b>
+                : <b style={{color: "#FED100"}}>Inactive (split)</b>
+              }
+            </div>
+            <div className="search-card-description mt-4">
+              <div>
+                State date: 20/11/2021
+              </div>
+              <div>
+                Antecessors: {siteLineage.antecessor}
+              </div>
+              <div>
+                Sucessors: {siteLineage.successors.length > 0 && siteLineage.successors[0] +", " + siteLineage.successors[1]}
+              </div>
+            </div>
           </div>
         </CCard>
       </CCol>
     )
   }
 
+  let reloadCard = (e) => {
+    let site = e.currentTarget.innerText;
+    if(e.currentTarget.classList.contains("basic-node")){
+      if(site === 'AT2208000') {
+        setSiteLineage({antecessor: siteCode, successors:[]});
+        setSiteCode(e.currentTarget.innerText);
+      }
+      else if(site === 'AT2209000') {
+        setSiteLineage({antecessor: siteCode, successors:[]});
+        setSiteCode(e.currentTarget.innerText);
+      }
+      else {
+        setSiteLineage({antecessor: "", successors:["AT2208000", "AT2209000"]});
+        setSiteCode(e.currentTarget.innerText);
+      }
+    }
+  }
+
   let loadChart = () => {
-    const nodes = [
-      {
-        id: '0a',
-        sourcePosition: 'right',
-        position: { x: 0, y: -50 },
-        data: { label: siteCode },
-        type: 'input',
-        className: "basic-node",
-        selectable: false,
-      },
-      {
-        id: '0b',
-        sourcePosition: 'right',
-        position: { x: 0, y: 0 },
-        data: { label: siteCode },
-        type: 'input',
-        className: "basic-node",
-        selectable: false,
-      },
-      {
-        id: '0c',
-        sourcePosition: 'right',
-        position: { x: 0, y: 50 },
-        data: { label: siteCode },
-        type: 'input',
-        className: "basic-node",
-        selectable: false,
-      },
-      {
-        id: '1',
-        position: { x: 150, y: 0 },
-        sourcePosition: 'right',
-        targetPosition: 'left',
-        data: { label: 'V1' },
-        className: 'color-node green-node',
-        selectable: false,
-      },
-      {
-        id: '2',
-        sourcePosition: 'right',
-        targetPosition: 'left',
-        position: { x: 250, y: 0 },
-        data: { label: <span >V2</span> },
-        className: 'color-node green-node',
-        selectable: false,
-      },
-      {
-        id: '3a',
-        sourcePosition: 'right',
-        targetPosition: 'left',
-        position: { x: 350, y: -50 },
-        data: { label: <span>V3</span> },
-        className: 'color-node yellow-node',
-        selectable: false,
-      },
-      {
-        id: '3b',
-        sourcePosition: 'right',
-        targetPosition: 'left',
-        position: { x: 350, y: 50 },
-        data: { label: "V3" },
-        className: 'color-node yellow-node',
-        selectable: false,
-      },
-      {
-        id: '4a',
-        sourcePosition: 'right',
-        targetPosition: 'left',
-        position: { x: 450, y: -50 },
-        data: { label: "V4" },
-        className: 'color-node yellow-node',
-        selectable: false,
-      },
-      {
-        id: '4b',
-        sourcePosition: 'right',
-        targetPosition: 'left',
-        position: { x: 450, y: 50 },
-        data: { label: "V4" },
-        className: 'color-node yellow-node',
-        selectable: false,
-      },
-    ];
+    let nodes = [];
+    let edges = [];
     let edgeStyles = {
       green:{
-        style: {stroke: "#4fd1c5"},
+        style: {stroke: "#4FC1C5"},
         markerEnd: {
           type: MarkerType.Arrow,
-          color: "#4fd1c5"
+          color: "#4FC1C5"
         },
         className: "green-edge",
         selectable: false,
       },
       yellow: {
-        style: {stroke: "#f6e05e"},
+        style: {stroke: "#FED100"},
         markerEnd: {
           type: MarkerType.Arrow,
-          color: "#f6e05e"
+          color: "#FED100"
         },
         className: "yellow-edge",
         selectable: false,
       }
     }
-    const edges = [
-      {
-        id: '0a-1',
-        source: '0a',
-        target: '3a',
-        style: {strokeDasharray: 4},
-        selectable: false,
-      },
-      {
-        id: '0b-1',
-        source: '0b',
-        target: '1',
-        style: {strokeDasharray: 4},
-        selectable: false,
-      },
-      {
-        id: '0c-1',
-        source: '0c',
-        target: '3b',
-        style: {strokeDasharray: 4},
-        selectable: false,
-      },
-      {
-        id: '1-2',
-        source: '1',
-        target: '2',
-        ...edgeStyles.green,
-      },
-      {
-        id: '2-3a',
-        source: '2',
-        target: '3a',
-        type: 'straight',
-        ...edgeStyles.yellow,
-      },
-      { 
-        id: '2-3b',
-        source: '2',
-        target: '3b',
-        type: 'straight',
-        ...edgeStyles.yellow,
-      },
-      {
-        id: '3a-4a',
-        source: '3a',
-        target: '4a',
-        type: 'straight',
-        ...edgeStyles.yellow,
-      },
-      {
-        id: '3b-4b',
-        source: '3b',
-        target: '4b',
-        type: 'straight',
-        ...edgeStyles.yellow,
-      }
-    ];
+    if(siteCode === 'AT2208000') {
+      nodes = [
+        {
+          id: '0a',
+          sourcePosition: 'right',
+          position: { x: 0, y: -50 },
+          data: { label: siteCode },
+          type: 'input',
+          className: "active-node",
+          selectable: false,
+        },
+        {
+          id: '0b',
+          sourcePosition: 'right',
+          position: { x: 0, y: 0 },
+          data: { label: siteLineage.antecessor },
+          type: 'input',
+          className: "basic-node",
+          selectable: false,
+        },
+        {
+          id: '1',
+          position: { x: 150, y: 0 },
+          sourcePosition: 'right',
+          targetPosition: 'left',
+          data: { label: 'V1' },
+          className: 'color-node yellow-node',
+          selectable: false,
+        },
+        {
+          id: '2',
+          sourcePosition: 'right',
+          targetPosition: 'left',
+          position: { x: 250, y: 0 },
+          data: { label: 'V2' },
+          className: 'color-node yellow-node',
+          selectable: false,
+        },
+        {
+          id: '3a',
+          sourcePosition: 'right',
+          targetPosition: 'left',
+          position: { x: 350, y: -50 },
+          data: { label: 'V3' },
+          className: 'color-node green-node',
+          selectable: false,
+        },
+        {
+          id: '4a',
+          sourcePosition: 'right',
+          targetPosition: 'left',
+          position: { x: 450, y: -50 },
+          data: { label: "V4" },
+          className: 'color-node green-node',
+          selectable: false,
+        },
+      ];
+      edges = [
+        {
+          id: '0a-1',
+          source: '0a',
+          target: '3a',
+          style: {strokeDasharray: 4},
+          selectable: false,
+        },
+        {
+          id: '0b-1',
+          source: '0b',
+          target: '1',
+          style: {strokeDasharray: 4},
+          selectable: false,
+        },
+        {
+          id: '1-2',
+          source: '1',
+          target: '2',
+          ...edgeStyles.yellow,
+        },
+        {
+          id: '2-3a',
+          source: '2',
+          target: '3a',
+          type: 'straight',
+          ...edgeStyles.green,
+        },
+        {
+          id: '3a-4a',
+          source: '3a',
+          target: '4a',
+          type: 'straight',
+          ...edgeStyles.green,
+        },
+      ];
+    }
+    else if(siteCode === 'AT2209000') {
+      nodes = [
+        {
+          id: '0b',
+          sourcePosition: 'right',
+          position: { x: 0, y: 0 },
+          data: { label: siteLineage.antecessor },
+          type: 'input',
+          className: "basic-node",
+          selectable: false,
+        },
+        {
+          id: '0c',
+          sourcePosition: 'right',
+          position: { x: 0, y: 50 },
+          data: { label: siteCode },
+          type: 'input',
+          className: "active-node",
+          selectable: false,
+        },
+        {
+          id: '1',
+          position: { x: 150, y: 0 },
+          sourcePosition: 'right',
+          targetPosition: 'left',
+          data: { label: 'V1' },
+          className: 'color-node yellow-node',
+          selectable: false,
+        },
+        {
+          id: '2',
+          sourcePosition: 'right',
+          targetPosition: 'left',
+          position: { x: 250, y: 0 },
+          data: { label: 'V2' },
+          className: 'color-node yellow-node',
+          selectable: false,
+        },
+
+        {
+          id: '3b',
+          sourcePosition: 'right',
+          targetPosition: 'left',
+          position: { x: 350, y: 50 },
+          data: { label: 'V3' },
+          className: 'color-node green-node',
+          selectable: false,
+        }
+      ];
+      edges = [
+        {
+          id: '0b-1',
+          source: '0b',
+          target: '1',
+          style: {strokeDasharray: 4},
+          selectable: false,
+        },
+        {
+          id: '0c-1',
+          source: '0c',
+          target: '3b',
+          style: {strokeDasharray: 4},
+          selectable: false,
+        },
+        {
+          id: '1-2',
+          source: '1',
+          target: '2',
+          ...edgeStyles.yellow,
+        },
+        {
+          id: '2-3b',
+          source: '2',
+          target: '3b',
+          type: 'straight',
+          ...edgeStyles.green,
+        },
+      ];
+    }
+    else {
+      nodes = [
+        {
+          id: '0a',
+          sourcePosition: 'right',
+          position: { x: 0, y: -50 },
+          data: { label: siteLineage.successors[0] },
+          type: 'input',
+          className: "basic-node",
+          selectable: false,
+          onClick: ()=>alert()
+        },
+        {
+          id: '0b',
+          sourcePosition: 'right',
+          position: { x: 0, y: 0 },
+          data: { label: siteCode },
+          type: 'input',
+          className: "active-node",
+          selectable: false,
+        },
+        {
+          id: '0c',
+          sourcePosition: 'right',
+          position: { x: 0, y: 50 },
+          data: { label: siteLineage.successors[1] },
+          type: 'input',
+          className: "basic-node",
+          selectable: false,
+        },
+        {
+          id: '1',
+          position: { x: 150, y: 0 },
+          sourcePosition: 'right',
+          targetPosition: 'left',
+          data: { label: 'V1' },
+          className: 'color-node green-node',
+          selectable: false,
+        },
+        {
+          id: '2',
+          sourcePosition: 'right',
+          targetPosition: 'left',
+          position: { x: 250, y: 0 },
+          data: { label: 'V2' },
+          className: 'color-node green-node',
+          selectable: false,
+        },
+        {
+          id: '3a',
+          sourcePosition: 'right',
+          targetPosition: 'left',
+          position: { x: 350, y: -50 },
+          data: { label: 'V3' },
+          className: 'color-node yellow-node',
+          selectable: false,
+        },
+        {
+          id: '3b',
+          sourcePosition: 'right',
+          targetPosition: 'left',
+          position: { x: 350, y: 50 },
+          data: { label: "V3" },
+          className: 'color-node yellow-node',
+          selectable: false,
+        },
+        {
+          id: '4a',
+          sourcePosition: 'right',
+          targetPosition: 'left',
+          position: { x: 450, y: -50 },
+          data: { label: "V4" },
+          className: 'color-node yellow-node',
+          selectable: false,
+        },
+      ];
+      edges = [
+        {
+          id: '0a-1',
+          source: '0a',
+          target: '3a',
+          style: {strokeDasharray: 4},
+          selectable: false,
+        },
+        {
+          id: '0b-1',
+          source: '0b',
+          target: '1',
+          style: {strokeDasharray: 4},
+          selectable: false,
+        },
+        {
+          id: '0c-1',
+          source: '0c',
+          target: '3b',
+          style: {strokeDasharray: 4},
+          selectable: false,
+        },
+        {
+          id: '1-2',
+          source: '1',
+          target: '2',
+          ...edgeStyles.green,
+        },
+        {
+          id: '2-3a',
+          source: '2',
+          target: '3a',
+          type: 'straight',
+          ...edgeStyles.yellow,
+        },
+        { 
+          id: '2-3b',
+          source: '2',
+          target: '3b',
+          type: 'straight',
+          ...edgeStyles.yellow,
+        },
+        {
+          id: '3a-4a',
+          source: '3a',
+          target: '4a',
+          type: 'straight',
+          ...edgeStyles.yellow,
+        },
+      ];
+    }
     return (
       <CCol xs={12} md={6} lg={8} xl={9}>
-        <div className="chart-container" style={{height:"450px"}}>
+        <div className="chart-container" style={{height:"300px"}}>
           <ReactFlow
             nodes={nodes}
             edges={edges}
             fitView
-            // onNodesChange={onNodesChange}
+            onNodeClick={(e)=>reloadCard(e)}
           >
             <Background />
             <Controls />
@@ -288,38 +504,84 @@ const Sitelineage = () => {
     )
   }
 
+  let clearSearch = () => {
+    turnstoneRef.current?.clear();
+    setDisabledSearchBtn(true);
+    setSelectOption({});
+  }
+
+  let selectSearchOption = (e) => {
+    if (e) {
+      setDisabledSearchBtn(false);
+      setSelectOption(e);
+    }
+    else {
+      setDisabledSearchBtn(true);
+    }
+  }
+
+  let selectSite = () => {
+    setSiteCode(selectOption.SiteCode);
+    setSiteLineage({antecessor: "", successors:["AT2208000", "AT2209000"]});
+    setSiteData({});
+  } 
+
+  const item = (props) => {
+    return (
+      <div className="search--option">
+        <div>{props.item.Name}</div>
+        <div className="search--suboption">{props.item.SiteCode}</div>
+      </div>
+    )
+  }
+
   {country && loadSites()}
   {siteCode && Object.keys(siteData).length === 0 && loadData()}
 
   return (
     <div className="container--main min-vh-100">
-      <AppHeader page="sitelineage"/>
+      <AppHeader page="siteedition"/>
       <div className="content--wrapper">
         <div className="main-content">
           <CContainer fluid>
             <div className="d-flex justify-content-between py-3">
               <div className="page-title">
-                <h1 className="h1">Site Lineage</h1>
+                <h1 className="h1">Site Edition</h1>
               </div>
             </div>
             <CRow>
-              <CCol className="d-flex justify-content-end mb-4">
-                  <div className="select--right w-auto">
+              <CCol md={12} lg={6} xl={9} className="d-flex mb-4">
+                <div className="search--input">
+                  <Turnstone
+                    id="siteedition_search"
+                    className="form-control"
+                    listbox = {searchList}
+                    listboxIsImmutable = {false}
+                    placeholder="Search sites by site name or site code"
+                    noItemsMessage="Site not found"
+                    styles={{input:"form-control", listbox:"search--results", groupHeading:"search--group", noItemsMessage:"search--option"}}
+                    onSelect={(e)=>selectSearchOption(e)}
+                    ref={turnstoneRef}
+                    Item={item}
+                    typeahead={false}
+                  />
+                  {Object.keys(selectOption).length !== 0 &&
+                    <span className="btn-icon" onClick={()=>clearSearch()}>
+                      <i className="fa-solid fa-xmark"></i>
+                    </span>
+                  }
+                </div>
+                <CButton disabled={disabledSearchBtn} onClick={()=>selectSite()}>
+                  <i className="fa-solid fa-magnifying-glass"></i>
+                </CButton>
+              </CCol>
+              <CCol className="mb-4">
+                  <div className="select--right">
                     <CFormLabel className="form-label form-label-reporting col-md-4 col-form-label">Country </CFormLabel>
-                    <CFormSelect aria-label="Default select example" className='form-select-reporting' disabled={loadingCountries || isLoading} value={country} onChange={(e)=>changeCountry(e.target.value)}>
-                      <option disabled selected value hidden>Select a country</option>
+                    <CFormSelect aria-label="Default select example" className='form-select-reporting' disabled={isLoading} value={country} onChange={(e)=>changeCountry(e.target.value)}>
                       {
                         countries.map((e)=><option value={e.code} key={e.code}>{e.name}</option>)
                       }
-                    </CFormSelect>
-                  </div>
-                  <div className="select--right w-auto ms-4">
-                    <CFormLabel className="form-label form-label-reporting col-md-4 col-form-label">Site Code </CFormLabel>
-                    <CFormSelect aria-label="Default select example" className='form-select-reporting' disabled={isLoading || (!country && siteCodes.length <= 0)} value={siteCode} onChange={(e)=>changeSite(e.target.value)}>
-                      <>
-                        <option disabled selected value hidden>Select a Site Code</option>
-                        {siteCodes.map((e)=><option value={e.SiteCode} key={e.SiteCode}>{e.SiteCode}</option>)}
-                      </>
                     </CFormSelect>
                   </div>
                 </CCol>
