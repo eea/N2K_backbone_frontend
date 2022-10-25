@@ -25,6 +25,7 @@ import {
 
 import { ConfirmationModal } from './components/ConfirmationModal';
 import ConfigData from '../../../config.json';
+import {DataLoader} from '../../../components/DataLoader';
 
 const xmlns = 'https://www.w3.org/2000/svg'
 
@@ -40,7 +41,9 @@ let refreshSitechanges={"pending":false,"accepted":false,"rejected":false},
 
 const Sitechanges = () => {
 
-  const [activeTab, setActiveTab] = useState(1);
+  let dl = new(DataLoader);
+
+  const [activeTab, setActiveTab] = useState(1)
   const [isTabChanged, setIsTabChanged] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -83,7 +86,7 @@ const Sitechanges = () => {
   }
 
   let checkComplete = () => {
-    fetch(ConfigData.HARVESTING_GET_STATUS+"?status=Harvested")
+    dl.fetch(ConfigData.HARVESTING_GET_STATUS+"?status=Harvested")
     .then(response => response.json())
     .then(data => {
       if(Object.keys(data.Data).length > 0) {
@@ -140,7 +143,7 @@ const Sitechanges = () => {
       },
       body: JSON.stringify(body),
     };
-    return fetch(url, options)
+    return dl.fetch(url, options)
   }
 
   let setBackToPending = (changes)=>{
@@ -227,7 +230,7 @@ const Sitechanges = () => {
       },
       body: path ? body : JSON.stringify(body),
     };
-    return fetch(url, options)
+    return dl.fetch(url, options)
   }
 
   let switchMarkChanges = (changes)=>{
@@ -257,7 +260,7 @@ const Sitechanges = () => {
     }
   });
 
-  function updateModalValues(title, text, primaryButtonText, primaryButtonFunction, secondaryButtonText, secondaryButtonFunction) {
+  function updateModalValues(title, text, primaryButtonText, primaryButtonFunction, secondaryButtonText, secondaryButtonFunction, keepOpen) {
     setModalValues({
       visibility: true,
       title: title,
@@ -276,6 +279,7 @@ const Sitechanges = () => {
         }
         : ''
       ),
+      keepOpen: keepOpen ? true : false,
     });
   }
 
@@ -319,13 +323,15 @@ const Sitechanges = () => {
     setSitecodes({});
     setSearchList({});
     setPendingChanges();
+    turnstoneRef.current?.clear();
+    turnstoneRef.current?.blur();
     if(country !== "") {
       forceRefreshData();
     }
   }
 
   let loadCountries = () => {
-    fetch(ConfigData.COUNTRIES_WITH_DATA)
+    dl.fetch(ConfigData.COUNTRIES_WITH_DATA)
     .then(response => response.json())
     .then(data => {
       let countriesList = [];

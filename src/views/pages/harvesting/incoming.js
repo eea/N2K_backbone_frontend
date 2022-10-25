@@ -3,6 +3,7 @@ import { AppFooter, AppHeader } from '../../../components/index'
 import TableEnvelops from './TableEnvelops';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import {ReactComponent as ReactLogo} from './../../../assets/images/harvesting.svg';
+import {DataLoader} from '../../../components/DataLoader';
 
 import {
   CButton,
@@ -43,6 +44,7 @@ const Harvesting = () => {
       }));
     }
   });
+  let dl = new(DataLoader);
   let selectedCodes = [],
   setSelectedCodes = (v) => {
     if(document.querySelectorAll('input[sitecode]:checked').length !== 0 && v.length === 0) return;
@@ -97,7 +99,7 @@ const Harvesting = () => {
       },
       body: path ? body : JSON.stringify(body),
     };
-    return fetch(url, options)
+    return dl.fetch(url, options)
   }
 
   async function discardHandler(values) {

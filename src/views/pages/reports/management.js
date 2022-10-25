@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { AppFooter, AppHeader } from '../../../components/index'
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import TableManagement from './TableManagement';
+import ConfigData from '../../../config.json';
 
 import {
   CCol,
@@ -18,6 +19,23 @@ import {
 import { ConfirmationModal } from './components/ConfirmationModal';
 
 const Reports = () => {
+  const initMessage = {
+    visibility: false,
+    message: false,
+    close: () => {
+      setModalValues((prevState) => ({
+        ...prevState,
+        visibility: false,
+      }));
+    },
+    closeMessage: () => {
+      setModalValues((prevState) => ({
+        ...prevState,
+        message: false,
+      }));
+    }
+  };
+  const [refresh,setRefresh] = useState(false);
   const [modalValues, setModalValues] = useState({
     visibility: false,
     message: false,
@@ -68,65 +86,74 @@ const Reports = () => {
         : ''
       ),
       message: false,
+      close: () => {
+        setModalValues((prevState) => ({
+          ...prevState,
+          visibility: false,
+        }));
+      },
     });
   }
 
   const createUnionList = () => {
     let body = Object.fromEntries(new FormData(document.getElementById("unionlist_form")));
-    body.unionListFinal = body.unionListFinal ? true : false;
-    if(!body.unionListName) {
+    body.Final = body.Final ? true : false;
+    if(!body.Name) {
       showMessage();
     }
     else {
-      // sendRequest(ConfigData.UNIONLIST_CREATE,"POST","")
-      // .then(response => response.json())
-      // .then(data => {
-      //   if(data.Success) {
-      //     modalValues.close();
-      //     refresh
-      //   }
-      //   else {
-      //     errors.push(data.Message);
-      //     console.log("Error: " + data.Message);
-      //   }
-      // })
+      sendRequest(ConfigData.UNIONLIST_CREATE,"POST",body)
+      .then(response => response.json())
+      .then(data => {
+        if(data.Success) {
+          modalValues.close();
+          setRefresh(true);
+        }
+        else {
+          //errors.push(data.Message);
+          console.log("Error: " + data.Message);
+        }
+      })
     }
   }
 
   const deleteUnionList = (id) => {
-    // sendRequest(ConfigData.UNIONLIST_DELETE,"POST","")
-    // .then(response => response.json())
-    // .then(data => {
-    //   if(data.Success) {
-    //     modalValues.close();
-    //     //refresh
-    //   }
-    //   else {
-    //     errors.push(data.Message);
-    //     console.log("Error: " + data.Message);
-    //   }
-    // })
+    let body = id;
+    sendRequest(ConfigData.UNIONLIST_DELETE,"DELETE",body)
+    .then(response => response.json())
+    .then(data => {
+      if(data.Success) {
+        modalValues.close();
+        setRefresh(true);
+      }
+      else {
+        //errors.push(data.Message);
+        console.log("Error: " + data.Message);
+      }
+    })
   }
 
   const editUnionList = (id, name, final) => {
     let body = Object.fromEntries(new FormData(document.getElementById("unionlist_form")));
-    body.unionListFinal = body.unionListFinal ? true : false;
-    if(!body.unionListName) {
+    body.id = id;
+    body.Final = body.Final ? true : false;
+
+    if(!body.Name) {
       showMessage();
     }
     else {
-      // sendRequest(ConfigData.UNIONLIST_EDIT,"POST","")
-      // .then(response => response.json())
-      // .then(data => {
-      //   if(data.Success) {
-      //     modalValues.close();
-      //     //refresh
-      //   }
-      //   else {
-      //     errors.push(data.Message);
-      //     console.log("Error: " + data.Message);
-      //   }
-      // })
+      sendRequest(ConfigData.UNIONLIST_UPDATE,"PUT",body)
+      .then(response => response.json())
+      .then(data => {
+        if(data.Success) {
+          modalValues.close();
+          setRefresh(true);
+        }
+        else {
+          //errors.push(data.Message);
+          console.log("Error: " + data.Message);
+        }
+      })
     }
   }
 
@@ -162,14 +189,15 @@ const Reports = () => {
               <label className="mb-3">Union List Name</label>
               <CFormInput
                 className="mb-2"
-                name="unionListName"
+                name="Name"
                 type="text"
+                maxLength={254}
                 defaultValue={name}
                 placeholder="Union List Name"
                 autoComplete="off"
               />
               <div className="checkbox">
-                <input type="checkbox" className="input-checkbox" id="modal_check_final" name="unionListFinal" defaultChecked={final}/>
+                <input type="checkbox" className="input-checkbox" id="modal_check_final" name="Final" defaultChecked={final}/>
                 <label htmlFor="modal_check_final" className="input-label">Mark as final</label>
               </div>
             </CCol>
@@ -239,6 +267,8 @@ const Reports = () => {
                 <TableManagement
                   updateModalValues={updateModalValues}
                   modalProps={modalProps}
+                  refresh = {refresh}
+                  setRefresh = {(v)=>{setRefresh(v)}}
                 />
                 <ConfirmationModal modalValues={modalValues}/>
               </CCol>

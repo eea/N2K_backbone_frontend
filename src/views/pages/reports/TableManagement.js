@@ -10,6 +10,7 @@ import {
   CDropdownMenu,
   CDropdownItem,
 } from '@coreui/react'
+import {DataLoader} from '../../../components/DataLoader';
 
 const confStatus = ConfigData.HARVESTING_STATUS;
 
@@ -190,6 +191,7 @@ function TableManagement(props) {
   const [events, setEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(props.isLoading);
   const [unionListsData, setUnionListsData] = useState([]);
+  let dl = new(DataLoader);
 
   // useEffect(() => {
   //   fetch(ConfigData.HARVESTING_PRE_HARVESTED)
@@ -237,16 +239,19 @@ function TableManagement(props) {
   )
 
   let loadData = () => {
-    if((!isLoading && unionListsData !== "nodata" && Object.keys(unionListsData).length===0)){
+    if((!isLoading && props.refresh) || (!isLoading && unionListsData !== "nodata" && Object.keys(unionListsData).length===0)){
+      if(props.refresh){        
+        props.setRefresh(false);
+      } 
       setIsLoading(true);
-      fetch(ConfigData.UNIONLISTS_GET)
+      dl.fetch(ConfigData.UNIONLISTS_GET)
       .then(response =>response.json())
       .then(data => {
         if(Object.keys(data.Data).length === 0){
           setUnionListsData("nodata");
         }
         else {
-          setUnionListsData(data.Data);
+          setUnionListsData(data.Data.sort((a,b)=>new Date(b.Date)-new Date(a.Date)));
         }
         setIsLoading(false);
       });

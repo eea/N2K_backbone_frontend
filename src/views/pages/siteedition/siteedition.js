@@ -3,6 +3,7 @@ import { AppFooter, AppHeader } from '../../../components/index'
 import ConfigData from '../../../config.json';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import Turnstone from 'turnstone';
+import {DataLoader} from '../../../components/DataLoader';
 
 import {
   CButton,
@@ -50,10 +51,11 @@ const Siteedition = () => {
       }));
     }
   });
+  let dl = new(DataLoader);
 
   if(countries.length === 0 && !loadingCountries){
     setLoadingCountries(true);
-    fetch(ConfigData.COUNTRIES_WITH_DATA)
+    dl.fetch(ConfigData.COUNTRIES_WITH_DATA)
     .then(response => response.json())
     .then(data => {
       setLoadingCountries(false);
@@ -71,12 +73,15 @@ const Siteedition = () => {
   }
 
   let changeCountry = (country) => {
-    setCountry(country)
+    setCountry(country);
+    setSearchList({});
+    turnstoneRef.current?.clear();
+    turnstoneRef.current?.blur();
     forceRefreshData();
   }
 
   if(bioRegions.length === 0){
-    fetch(ConfigData.BIOREGIONS_GET)
+    dl.fetch(ConfigData.BIOREGIONS_GET)
     .then(response => response.json())
     .then(data => {
       let regionsList = data.Data;
@@ -85,7 +90,7 @@ const Siteedition = () => {
   }
 
   if(siteTypes.length === 0){
-    fetch(ConfigData.SITETYPES_GET)
+    dl.fetch(ConfigData.SITETYPES_GET)
     .then(response => response.json())
     .then(data => {
       let typesList = data.Data;
@@ -151,7 +156,7 @@ const Siteedition = () => {
     if(siteCodes.length !==0) return;
     if(country !=="" && !isLoading && siteCodes!=="nodata" && siteCodes.length === 0){
       setIsLoading(true);
-      fetch(ConfigData.SITEEDITION_GET+"country="+country+"?reference=true")
+      dl.fetch(ConfigData.SITEEDITION_GET+"country="+country+"?reference=true")
       .then(response =>response.json())
       .then(data => {
         if(Object.keys(data.Data).length === 0){
@@ -259,6 +264,7 @@ const Siteedition = () => {
                     id="siteedition_search"
                     className="form-control"
                     listbox = {searchList}
+                    listboxIsImmutable = {false}
                     placeholder="Search sites by site name or site code"
                     noItemsMessage="Site not found"
                     styles={{input:"form-control", listbox:"search--results", groupHeading:"search--group", noItemsMessage:"search--option"}}

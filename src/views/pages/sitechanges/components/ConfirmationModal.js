@@ -16,7 +16,9 @@ export class ConfirmationModal extends Component {
 
   primaryFunction() {
     this.props.modalValues.primaryButton.function();
-    this.close();
+    if(!this.props.modalValues.keepOpen){
+      this.close();
+    }
   }
 
   secondaryFunction() {

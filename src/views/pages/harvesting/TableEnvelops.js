@@ -10,6 +10,7 @@ import {
   CDropdownMenu,
   CDropdownItem,
 } from '@coreui/react'
+import {DataLoader} from '../../../components/DataLoader';
 
 const confStatus = ConfigData.HARVESTING_STATUS;
 
@@ -270,6 +271,8 @@ const IndeterminateCheckbox = React.forwardRef(
     const [isLoading, setIsLoading] = useState(props.isLoading);
     const [envelopsData, setEnvelopsData] = useState([]);
 
+    let dl = new(DataLoader);
+
     // useEffect(() => {
     //   fetch(ConfigData.HARVESTING_PRE_HARVESTED)
     //   .then(response => response.json())
@@ -287,6 +290,15 @@ const IndeterminateCheckbox = React.forwardRef(
       return date;
     };
 
+    const customFilter = (rows, columnIds, filterValue) => {
+      if(columnIds[0] === "Status") {
+        return filterValue.length === 0 ? rows : rows.filter((row) => confStatus[row.values[columnIds]].toLowerCase().includes(filterValue.toLowerCase()));
+      }
+      else if(columnIds[0] === "SubmissionDate") {
+        return rows.filter((row) => formatDate(row.values[columnIds]).includes(filterValue));
+      }
+    }
+
     const columns = React.useMemo(
       () => [
         {
@@ -298,7 +310,8 @@ const IndeterminateCheckbox = React.forwardRef(
           accessor: 'Status',
           Cell: ({ row }) => (
             <span className={"badge badge--"+row.values.Status.toLowerCase()}>{confStatus[row.values.Status]}</span>
-          )
+          ),
+          filter: customFilter,
         },
         {
           Header: 'Country',
@@ -317,7 +330,8 @@ const IndeterminateCheckbox = React.forwardRef(
           accessor: 'SubmissionDate',
           Cell: ({ cell }) => (
             formatDate(cell.value)
-          )
+          ),
+          filter: customFilter,
         },
       ],
       []
@@ -330,7 +344,7 @@ const IndeterminateCheckbox = React.forwardRef(
         let status = props.status.split(",");
         for (let i in status) {
           promises.push(
-            fetch(ConfigData.HARVESTING_GET_STATUS+"?status="+status[i])
+            dl.fetch(ConfigData.HARVESTING_GET_STATUS+"?status="+status[i])
             .then(response => response.json())
             .then(data => {
               if(Object.keys(data.Data).length === 0) {

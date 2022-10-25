@@ -5,12 +5,14 @@ import moreicon from './../../../assets/images/three-dots.svg'
 import ConfigData from '../../../config.json';
 
 import justificationrequired from './../../../assets/images/exclamation.svg';
+import {DataLoader} from '../../../components/DataLoader';
 
 export class FetchData extends Component {
   static displayName = FetchData.name;
 
   constructor(props) {
     super(props);
+    this.dl = new(DataLoader);
     this.state = { changes: [], loading: true };
   }
 
@@ -81,7 +83,7 @@ export class FetchData extends Component {
   }
   
   async populateChangesData() {
-    const response = await fetch(ConfigData.SERVER_API_ENDPOINT+'/api/sitechanges/get');
+    const response = await this.dl.fetch(ConfigData.SERVER_API_ENDPOINT+'/api/sitechanges/get');
     const data = await response.json();
     this.setState({ changes: data, loading: false });
   }

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import ConfigData from '../../../config.json';
 import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
+import {DataLoader} from '../../../components/DataLoader';
 
 const SiteGraph = () => {
     const [changesCountriesData, setChangesCountriesData] = useState([]);
@@ -9,6 +10,7 @@ const SiteGraph = () => {
     const [sitesPendingData, setSitesPendingData] = useState([]);
     const [sitesAcceptedData, setSitesAcceptedData] = useState([]);
     const [sitesRejectedData, setSitesRejectedData] = useState([]);
+    let dl = new(DataLoader);
     
     useEffect(() => {
         loadData();
@@ -17,22 +19,22 @@ const SiteGraph = () => {
     const loadData = (() => {
         let promises = [];
         setIsLoading(true);
-        promises.push(fetch(ConfigData.GET_SITE_COUNT)
+        promises.push(dl.fetch(ConfigData.GET_SITE_COUNT)
             .then(response => response.json())
             .then(data => {
                 setChangesCountriesData(data.Data);
             }));
-        promises.push(fetch(ConfigData.GET_SITE_LEVEL + '?status=Pending')
+        promises.push(dl.fetch(ConfigData.GET_SITE_LEVEL + '?status=Pending')
             .then(response => response.json())
             .then(data => {
                 setSitesPendingData(data.Data);
             }));
-        promises.push(fetch(ConfigData.GET_SITE_LEVEL + '?status=Accepted')
+        promises.push(dl.fetch(ConfigData.GET_SITE_LEVEL + '?status=Accepted')
             .then(response => response.json())
             .then(data => {
                 setSitesAcceptedData(data.Data);
             }));
-        promises.push(fetch(ConfigData.GET_SITE_LEVEL + '?status=Rejected')
+        promises.push(dl.fetch(ConfigData.GET_SITE_LEVEL + '?status=Rejected')
             .then(response => response.json())
             .then(data => {
                 setSitesRejectedData(data.Data);

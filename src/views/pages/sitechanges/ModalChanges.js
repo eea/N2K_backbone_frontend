@@ -27,6 +27,7 @@ import {
   CModalFooter,
   CModalHeader,
   CModalTitle,
+  CCloseButton,
   CTabContent,
   CTabPane,
   CTooltip,
@@ -44,14 +45,14 @@ import { ConfirmationModal } from './components/ConfirmationModal';
 import justificationprovided from './../../../assets/images/file-text.svg'
 
 import MapViewer from './components/MapViewer'
-import { getOptions } from 'highcharts';
-import reactTextareaAutosize from 'react-textarea-autosize';
+
+import {DataLoader} from '../../../components/DataLoader';
 
 export class ModalChanges extends Component {
-  
-  
   constructor(props) {
     super(props);
+    this.dl = new(DataLoader);
+
     this.state = {
       activeKey: 1,
       loading: true,
@@ -84,28 +85,19 @@ export class ModalChanges extends Component {
     };
   }
 
-  updateModalValues(title, text, primaryButtonText, primaryButtonFunction, secondaryButtonText, secondaryButtonFunction) {
-    this.setState({
-      modalValues : {
-        visibility: true,
-        title: title,
-        text: text,
-        primaryButton: (
-          primaryButtonText && primaryButtonFunction ? {
-            text: primaryButtonText,
-            function: () => primaryButtonFunction(),
-          }
-          : ''
-        ),
-        secondaryButton: (
-          secondaryButtonText && secondaryButtonFunction ? {
-            text: secondaryButtonText,
-            function: () => secondaryButtonFunction(),
-          }
-          : ''
-        ),
-      }
-    });
+  componentDidMount(){
+    window.addEventListener('beforeunload', (e) => this.handleLeavePage(e));
+  }
+
+  componentWillUnmount(){
+    window.removeEventListener('beforeunload', (e) => this.handleLeavePage(e));
+  }
+
+  handleLeavePage(e){
+    if(this.isVisible() && this.checkUnsavedChanges()) {
+      e.preventDefault();
+      e.returnValue = '';
+    }
   }
 
   setActiveKey(val){
@@ -114,7 +106,19 @@ export class ModalChanges extends Component {
 
   close(refresh){
     this.setActiveKey(1);
-    this.setState({level:"Warning", bookmark: "", showDetail: ""});
+    this.setState({
+      level:"Warning",
+      bookmark: "",
+      showDetail: "",
+      data: {},
+      loading: true,
+      comments:[],
+      documents:[],
+      newComment: false,
+      newDocument: false,
+      isSelected: false,
+      selectedFile: "",
+    });
     this.props.close(refresh);
   }
 
@@ -151,6 +155,7 @@ export class ModalChanges extends Component {
 
   updateComment(target){
     let input = target.closest(".comment--item").querySelector("textarea");
+    let id = parseInt(input.id);
     if (target.firstChild.classList.contains("fa-pencil")) {
       input.disabled = false;
       input.readOnly = false;
@@ -161,7 +166,7 @@ export class ModalChanges extends Component {
         this.showErrorMessage("comment", "Add comment");
       }
       else {
-        this.saveComment(this.state.data.SiteCode,this.state.data.Version,input.value,target);
+        this.saveComment(id,input,input.value,target);
       }
     }
   }
@@ -177,7 +182,8 @@ export class ModalChanges extends Component {
       let body = {
         "SiteCode": this.state.data.SiteCode,
         "Version": this.state.data.Version,
-        "comments": comment,
+        "Comments": comment,
+        "Date": currentDate,
       }
       
       this.sendRequest(ConfigData.ADD_COMMENT,"POST",body)
@@ -185,13 +191,14 @@ export class ModalChanges extends Component {
       .then((data) => {
         if(data?.Success){
           let commentId = Math.max(...data.Data.map(e=>e.Id));
-          let cmts = this.state.comments;
+          let cmts = this.state.comments === "noData" ? [] : this.state.comments;
           cmts.push({
             Comments: comment,
             SiteCode: this.state.data.SiteCode,
             Version: this.state.data.Version,
             Id: commentId,
-            Date: currentDate
+            Date: currentDate,
+            Owner: data.Data.find(a=>a.Id===commentId).Owner,
           })
           this.setState({comments: cmts, newComment: false})
         }
@@ -200,18 +207,27 @@ export class ModalChanges extends Component {
     }
   }
 
-  saveComment(code,version,comment,target){
-    let input = target.closest(".comment--item").querySelector("textarea");
-    let id = input.getAttribute("id");
-    let body = {
-      "Id": id,
-      "SiteCode": code,
-      "Version": version,
-      "comments": comment
-    }
-
+  saveComment(id,input,comment,target){
+    let body = this.state.comments.find(a=>a.Id===id);
+    body.Comments = comment;
+    
     this.sendRequest(ConfigData.UPDATE_COMMENT,"PUT",body)
     .then((data) => {
+      let reader = data.body.getReader();
+      let txt = "";
+      let readData = (data) => {
+        if(data.done)
+          return JSON.parse(txt);
+        else{
+          txt += new TextDecoder().decode(data.value);
+          return reader.read().then(readData);
+        }
+      }
+
+      reader.read().then(readData).then((data) => {
+        this.setState({comments: data.Data})
+      });
+
       if(data?.ok){
         input.disabled = true;
         input.readOnly = true;
@@ -219,6 +235,15 @@ export class ModalChanges extends Component {
       }
     })
     this.loadComments();
+  }
+
+  deleteCommentMessage(target){
+    if(!target && this.state.newComment && document.querySelector(".comment--item.new textarea")?.value.trim() === "") {
+      this.deleteComment();
+    }
+    else {
+      this.props.updateModalValues("Delete Comment", "Are you sure you want to delete this comment?", "Continue", () => this.deleteComment(target), "Cancel", () => {})
+    }
   }
 
   deleteComment(target){
@@ -239,8 +264,17 @@ export class ModalChanges extends Component {
     }
   }
 
-  addDocument() {
+  addNewDocument(){
     this.setState({newDocument: true})
+  }
+
+  deleteDocumentMessage(target){
+    if(!target && this.state.newDocument && !this.state.isSelected) {
+      this.deleteDocument();
+    }
+    else {
+      this.props.updateModalValues("Delete Document", "Are you sure you want to delete this document?", "Continue", () => this.deleteDocument(target), "Cancel", () => {})
+    }
   }
 
   deleteDocument(target){
@@ -276,18 +310,7 @@ export class ModalChanges extends Component {
   uploadFile(data){
     let siteCode = this.state.data.SiteCode;
     let version = this.state.data.Version;
-    return new Promise((resolve,reject) =>{
-      const request = new XMLHttpRequest();
-      request.open("POST", ConfigData.UPLOAD_ATTACHED_FILE+'?sitecode='+siteCode+'&version='+version, true);
-      request.onload = (oEvent) => {
-        if (request.status >= 200 && request.status < 300) {
-          resolve(JSON.parse(request.response));
-        } else {
-          reject(request.statusText);
-        }
-      };
-      request.send(data)
-    });
+    return this.dl.xmlHttpRequest(ConfigData.UPLOAD_ATTACHED_FILE+'?sitecode='+siteCode+'&version='+version,data);
   }
 
   handleSubmission () {
@@ -299,26 +322,25 @@ export class ModalChanges extends Component {
       return this.uploadFile(formData)
       .then(data => {
         if(data?.Success){
-          let docs = this.state.documents;
+          let docs = this.state.documents === "noData" ? [] : this.state.documents;
           let newDocs = data.Data.filter(({ Id: id1 }) => !docs.some(({ Id: id2 }) => id2 === id1));
           for(let i in newDocs){
             let document = newDocs[i];
             let documentId = document.Id;
             let path = document.Path;
-            let currentDate = new Date().toISOString();
             docs.push({
               Id: documentId,
               SiteCode: this.state.data.SiteCode,
               Version: this.state.data.Version,
               Path: path,
-              Username: this.state.data.Username,
-              ImportDate: currentDate
+              Username: document.Username,
+              ImportDate: document.ImportDate
             })
           }
-          this.setState({documents: docs, newDocument: false, selectedFile: "No file selected"})
+          this.setState({documents: docs, newDocument: false, isSelected: false, selectedFile: ""})
         }
         else {
-          this.showErrorMessage("document", "File upload failed - "+data.Message);
+          this.showErrorMessage("document", "File upload failed - " + data.Message);
         }
       });
     }
@@ -567,10 +589,10 @@ handleJustProvided(){
   
   renderComments(){
     let cmts = [];
-    this.sortComments();
+    this.state.comments !== "noData" && this.sortComments();
     cmts.push(
       this.state.newComment &&
-      <div className="comment--item new" id="cmtItem_newItem">
+      <div className="comment--item new" key={"cmtItem_new"}>
         <div className="comment--text">
           <TextareaAutosize
             minRows={3}
@@ -582,28 +604,32 @@ handleJustProvided(){
           <div className="btn-icon" onClick={(e) => this.addComment(e.currentTarget)}> 
             <i className="fa-solid fa-floppy-disk"></i>
           </div>
-          <div className="btn-icon" onClick={() => this.deleteComment()}>
+          <div className="btn-icon" onClick={() => this.deleteCommentMessage()}>
             <i className="fa-regular fa-trash-can"></i>
           </div>
         </div>
       </div>
     )
-    for(let i in this.state.comments){
-      cmts.push(
-        this.createCommentElement(
-          this.state.comments[i].Id
-          ,this.state.comments[i].Comments
-          ,this.state.comments[i].Date
-          ,this.state.comments[i].Owner
-          ,this.state.comments[i].Edited
-          ,this.state.comments[i].EditedDate
-          ,this.state.comments[i].Editedby)
-      )
+    if(this.state.comments !== "noData") {
+      for(let i in this.state.comments){
+        cmts.push(
+          this.createCommentElement(
+            this.state.comments[i].Id
+            ,this.state.comments[i].Comments
+            ,this.state.comments[i].Date
+            ,this.state.comments[i].Owner
+            ,this.state.comments[i].Edited
+            ,this.state.comments[i].EditedDate
+            ,this.state.comments[i].Editedby)
+        )
+      }
     }
     return(
       <div id="changes_comments">
         {cmts}
-        {this.state.comments.length == 0 && <div className="comment--item"><em>No comments</em></div>}
+        {this.state.comments === "noData" && !this.state.newComment &&
+          <em>No comments</em>
+        }
       </div>
     )
   }
@@ -611,32 +637,26 @@ handleJustProvided(){
   createCommentElement(id,comment,date,owner,edited,editeddate,editedby){
     return (
       <div className="comment--item" key={"cmtItem_"+id} id={"cmtItem_"+id}>
-        <div className="comment--text" key={"cmtText_"+id}>
+        <div className="comment--text">
           <TextareaAutosize
             id={id}
             disabled
             defaultValue={comment}
             className="comment--input" />
-          <label className="comment--date" for={id}>
-            { date &&
-              "Commented on " + date.slice(0,10).split('-').reverse().join('/') }
-            { owner &&
-              " by " + owner }
-          </label>
-          <label hidden={edited < 1} className="comment--date" for={id}>
-            { ((edited >= 1) || editeddate !== undefined || editedby !== undefined) &&
-              ". Last edited" }
-            { editeddate && 
-              " on " + editeddate.slice(0,10).split('-').reverse().join('/') }
-            { editedby &&
-              " by " + editedby }
+          <label className="comment--date" htmlFor={id}>
+            {date && owner &&
+              "Commented on " + date.slice(0,10).split('-').reverse().join('/') + " by " + owner + "."
+            }
+            {((edited >= 1) && (editeddate && editeddate !== undefined) && (editedby && editedby !== undefined)) &&
+              " Last edited on " + editeddate.slice(0,10).split('-').reverse().join('/') + " by " + editedby + "."
+            }
           </label>
         </div>
         <div className="comment--icons">
           <div className="btn-icon" onClick={(e) => this.updateComment(e.currentTarget)} key={"cmtUpdate_"+id}>
             <i className="fa-solid fa-pencil"></i>
           </div>
-          <div className="btn-icon" onClick={(e) => this.deleteComment(e.currentTarget)} key={"cmtDelete_"+id}>
+          <div className="btn-icon" onClick={(e) => this.deleteCommentMessage(e.currentTarget)} key={"cmtDelete_"+id}>
             <i className="fa-regular fa-trash-can"></i>
           </div>
         </div>
@@ -654,10 +674,10 @@ handleJustProvided(){
 
   renderDocuments(){
     let docs = [];
-    this.sortDocuments();
+    this.state.documents !== "noData" && this.sortDocuments();
     docs.push(
       this.state.newDocument &&
-      <div className="document--item new">
+      <div className="document--item new" key={"docItem_new"}>
         <div className="input-file">
           <label htmlFor="uploadBtn">
             Select file
@@ -671,25 +691,29 @@ handleJustProvided(){
           <div className="btn-icon">
             <i className="fa-solid fa-floppy-disk" onClick={() => this.handleSubmission()}></i>
           </div>
-          <div className="btn-icon" onClick={() => this.deleteDocument()}>
+          <div className="btn-icon" onClick={() => this.deleteDocumentMessage()}>
             <i className="fa-regular fa-trash-can"></i>
           </div>
         </div>
       </div>
     )
-    for(let i in this.state.documents){
-      docs.push(
-        this.createDocumentElement(
-          this.state.documents[i].Id
-          ,this.state.documents[i].Path
-          ,this.state.documents[i].ImportDate
-          ,this.state.documents[i].Username)
-      )
+    if(this.state.documents !== "noData") {
+      for(let i in this.state.documents){
+        docs.push(
+          this.createDocumentElement(
+            this.state.documents[i].Id
+            ,this.state.documents[i].Path
+            ,this.state.documents[i].ImportDate
+            ,this.state.documents[i].Username)
+        )
+      }
     }
     return(
       <div id="changes_documents">
         {docs}
-        {this.state.documents.length == 0 && <div className="document--item"><em>No documents</em></div>}
+        {this.state.documents === "noData" && !this.state.newDocument &&
+          <em>No documents</em>
+        }
       </div>
     )
   }
@@ -707,11 +731,15 @@ handleJustProvided(){
               content={"Uploaded"
                 + (date && " on " + date.slice(0,10).split('-').reverse().join('/'))
                 + (user && " by " + user)}>
-              <i className="fa-solid fa-circle-info"></i>
+              <div className="btn-icon">
+                <i className="fa-solid fa-circle-info"></i>
+              </div>
             </CTooltip>
           }
-          <CButton color="link" className="btn-link--dark"><a href={path} target="_blank">View</a></CButton>
-          <div className="btn-icon" onClick={(e) => this.deleteDocument(e.currentTarget)}>
+          <CButton color="link" className="btn-link--dark">
+            <a href={path} target="_blank">View</a>
+          </CButton>
+          <div className="btn-icon" onClick={(e) => this.deleteDocumentMessage(e.currentTarget)}>
             <i className="fa-regular fa-trash-can"></i>
           </div>
         </div>
@@ -732,7 +760,7 @@ handleJustProvided(){
               }
               <div className="d-flex justify-content-between align-items-center pb-2">
                 <b>Attached documents</b>
-                <CButton color="link" className="btn-link--dark" onClick={() => this.addDocument()}>Add document</CButton>
+                <CButton color="link" className="btn-link--dark" onClick={() => this.addNewDocument()}>Add document</CButton>
               </div>
               {this.renderDocuments()}
             </CCard>
@@ -754,15 +782,15 @@ handleJustProvided(){
           <CCol className="d-flex">
             <div className="checkbox">
               <input type="checkbox" className="input-checkbox" id="modal_justification_req"
-              onClick={()=>this.props.updateModalValues("Changes", `This will ${this.state.justificationRequired ? "unmark" : "mark"} change as Justification Required`, "Continue", ()=>this.handleJustRequired(), "Cancel", ()=>{})}               
-              checked={this.state.justificationRequired}
-              readOnly
+                onClick={()=>this.props.updateModalValues("Changes", `This will ${this.state.justificationRequired ? "unmark" : "mark"} change as Justification Required`, "Continue", ()=>this.handleJustRequired(), "Cancel", () => {})}
+                checked={this.state.justificationRequired}
+                readOnly
               />
               <label htmlFor="modal_justification_req" className="input-label">Justification required</label>
             </div>
             <div className="checkbox" disabled={(this.state.justificationRequired ? false : true)}>
               <input type="checkbox" className="input-checkbox" id="modal_justification_prov"
-                onClick={()=>this.props.updateModalValues("Changes", `This will ${this.state.justificationProvided ? "unmark": "mark"} change as Justification Provided`, "Continue", ()=>this.handleJustProvided(), "Cancel", ()=>{})} 
+                onClick={()=>this.props.updateModalValues("Changes", `This will ${this.state.justificationProvided ? "unmark": "mark"} change as Justification Provided`, "Continue", ()=>this.handleJustProvided(), "Cancel", () => {})}
                 checked={this.state.justificationProvided} 
                 readOnly
               />
@@ -784,12 +812,60 @@ handleJustProvided(){
     )
   }
 
+  checkUnsavedChanges() {
+    return this.state.loading === false && ((this.state.newComment && document.querySelector(".comment--item.new textarea")?.value.trim() !== "") || (this.state.newDocument && this.state.isSelected) || (this.state.comments !== "noData" && document.querySelectorAll(".comment--item:not(.new) textarea[disabled]").length !== this.state.comments.length));
+  }
+
+  warningUnsavedChanges(activeKey) {
+    if(this.checkUnsavedChanges() && this.state.activeKey === 3) {
+      this.props.updateModalValues("Documents & Comments", "There are unsaved changes. Do you want to continue?", "Continue", () => this.cleanUnsavedChanges(activeKey), "Cancel", () => {});
+    }
+    else {
+      this.cleanUnsavedChanges(activeKey);
+    }
+  }
+
+  messageBeforeClose(action, keepOpen) {
+    this.props.updateModalValues("Documents & Comments", "There are unsaved changes. Do you want to continue?", "Continue", action, "Cancel", () => {}, keepOpen);
+  }
+
+  cleanUnsavedChanges(activeKey) {
+    this.cleanDocumentsAndComments();
+    if(activeKey) {
+      this.setActiveKey(activeKey);
+      document.querySelectorAll(".comment--item").forEach((i) => {
+        let input = i.querySelector("textarea");
+        if(!input.disabled) {
+          input.value = input.defaultValue;
+          input.disabled = true;
+          i.querySelector("i.fa-floppy-disk").classList.replace("fa-floppy-disk", "fa-pencil");
+        }
+      });
+    }
+  }
+
+  rejectCleanAndCancel() {
+    this.cleanDocumentsAndComments();
+    this.rejectChanges();
+  }
+
+  acceptCleanAndCancel() {
+    this.cleanDocumentsAndComments();  
+    this.acceptChanges();
+  }
+  
+  cleanDocumentsAndComments() {
+    this.deleteDocument();
+    this.deleteComment();
+  }
+
   renderModal() {
     let data = this.state.data;
     return(
       <>
-        <CModalHeader>
+        <CModalHeader closeButton={false}>
           <CModalTitle>{data.SiteCode} - {data.Name}</CModalTitle>
+          <CCloseButton onClick={()=>this.closeModal()}/>
         </CModalHeader>
         <CModalBody>
           <CAlert color="primary" className="d-flex align-items-center" visible={this.state.justificationRequired}>
@@ -801,7 +877,7 @@ handleJustProvided(){
               <CNavLink
                 href="javascript:void(0);"
                 active={this.state.activeKey === 1}
-                onClick={() => this.setActiveKey(1)}
+                onClick={() => this.warningUnsavedChanges(1)}
               >
                 Change Information
               </CNavLink>
@@ -810,7 +886,7 @@ handleJustProvided(){
               <CNavLink
                 href="javascript:void(0);"
                 active={this.state.activeKey === 2}
-                onClick={() => this.setActiveKey(2)}
+                onClick={() => this.warningUnsavedChanges(2)}
               >
                 Geometry
               </CNavLink>
@@ -833,9 +909,9 @@ handleJustProvided(){
         </CModalBody>
         <CModalFooter>
           <div className="d-flex w-100 justify-content-between">
-            {(this.props.status === 'pending') && <CButton color="secondary" onClick={()=>this.props.updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>this.rejectChanges(), "Cancel", ()=>{})}>Reject changes</CButton>}
-            {(this.props.status === 'pending') && <CButton color="primary" onClick={()=>this.props.updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>this.acceptChanges(), "Cancel", ()=>{})}>Accept changes</CButton>}
-            {(this.props.status !== 'pending') && <CButton color="primary" onClick={()=>this.props.updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", ()=>this.setBackToPending(), "Cancel", ()=>{})}>Back to Pending</CButton>}
+            {(this.props.status === 'pending') && <CButton color="secondary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.rejectChangesModal(true), true) : this.rejectChangesModal()}>Reject changes</CButton>}
+            {(this.props.status === 'pending') && <CButton color="primary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.acceptChangesModal(true), true) : this.acceptChangesModal()}>Accept changes</CButton>}
+            {(this.props.status !== 'pending') && <CButton color="primary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.backToPendingModal(true), true) : this.backToPendingModal()}>Back to Pending</CButton>}
           </div>
         </CModalFooter>
       </>
@@ -858,10 +934,19 @@ handleJustProvided(){
     )
   }
 
+  closeModal(){
+    if (this.checkUnsavedChanges()){
+      this.messageBeforeClose(() => this.close())
+    }
+    else {
+      this.close();
+    }
+  }
+
   render() {
     return(
       <>
-        <CModal scrollable size="xl" visible={this.isVisible()} onClose={this.close.bind(this)}>
+        <CModal scrollable size="xl" visible={this.isVisible()} onClose={() => this.closeModal()}>
           {this.renderData()}
         </CModal>
         <ConfirmationModal modalValues={this.state.modalValues}/>
@@ -871,26 +956,53 @@ handleJustProvided(){
 
   loadData(){
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
-      fetch(ConfigData.SITECHANGES_DETAIL+`siteCode=${this.props.item}&version=${this.props.version}`)
+      this.dl.fetch(ConfigData.SITECHANGES_DETAIL+`siteCode=${this.props.item}&version=${this.props.version}`)
       .then(response => response.json())
-      .then(data => this.setState({data: data.Data, loading: false, justificationRequired: data.Data?.JustificationRequired, justificationProvided: data.Data?.JustificationProvided}));
+      .then(data => {
+        if(data.Data.SiteCode === this.props.item && Object.keys(this.state.data).length === 0) {
+          this.setState({data: data.Data, loading: false, justificationRequired: data.Data?.JustificationRequired, justificationProvided: data.Data?.JustificationProvided})
+        }
+      });
     }
   }
 
   loadComments(){
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
-      fetch(ConfigData.GET_SITE_COMMENTS+`siteCode=${this.props.item}&version=${this.props.version}`)
+      this.dl.fetch(ConfigData.GET_SITE_COMMENTS+`siteCode=${this.props.item}&version=${this.props.version}`)
       .then(response => response.json())
-      .then(data => this.setState({comments: data.Data}));
+      .then(data => {
+        if (data.Data.length > 0) {
+          if(data.Data[0]?.SiteCode === this.props.item && this.state.comments.length === 0)
+          this.setState({comments: data.Data});
+        }
+        else {
+          this.setState({comments: "noData"});
+        }
+      });
     }
   }
 
   loadDocuments(){
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
-      fetch(ConfigData.GET_ATTACHED_FILES+`siteCode=${this.props.item}&version=${this.props.version}`)
+      this.dl.fetch(ConfigData.GET_ATTACHED_FILES+`siteCode=${this.props.item}&version=${this.props.version}`)
       .then(response => response.json())
-      .then(data => this.setState({documents: data.Data}));
+      .then(data => {
+        if (data.Data.length > 0) {
+          if(data.Data[0]?.SiteCode === this.props.item && this.state.documents.length === 0)
+          this.setState({documents: data.Data});
+        }
+        else {
+          this.setState({documents: "noData"});
+        }
+      });
     }
+  }
+
+  acceptChangesModal(clean) {
+    if(clean) {
+      this.cleanUnsavedChanges(3);
+    }
+    this.props.updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", () => this.acceptChanges(), "Cancel", () => {});
   }
 
   acceptChanges(){
@@ -901,12 +1013,22 @@ handleJustProvided(){
     });
   }
 
+  rejectChangesModal() {
+    this.cleanUnsavedChanges(3);
+    this.props.updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", () => this.rejectChanges(), "Cancel", () => {});
+  }
+
   rejectChanges(){
     this.props.reject()
     .then(data => {
         if(data?.ok)
           this.close(true);
     });
+  }
+
+  backToPendingModal() {
+    this.cleanUnsavedChanges(3);
+    this.props.updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", () => this.setBackToPending(), "Cancel", () => {});
   }
 
   setBackToPending(){
@@ -941,7 +1063,6 @@ handleJustProvided(){
       },
       body: path ? body : JSON.stringify(body),
     };
-    console.log(options);
-    return fetch(url, options)
+    return this.dl.fetch(url, options)
   }
 }
