@@ -290,6 +290,15 @@ const IndeterminateCheckbox = React.forwardRef(
       return date;
     };
 
+    const customFilter = (rows, columnIds, filterValue) => {
+      if(columnIds[0] === "Status") {
+        return filterValue.length === 0 ? rows : rows.filter((row) => confStatus[row.values[columnIds]].toLowerCase().includes(filterValue.toLowerCase()));
+      }
+      else if(columnIds[0] === "SubmissionDate") {
+        return rows.filter((row) => formatDate(row.values[columnIds]).includes(filterValue));
+      }
+    }
+
     const columns = React.useMemo(
       () => [
         {
@@ -301,7 +310,8 @@ const IndeterminateCheckbox = React.forwardRef(
           accessor: 'Status',
           Cell: ({ row }) => (
             <span className={"badge badge--"+row.values.Status.toLowerCase()}>{confStatus[row.values.Status]}</span>
-          )
+          ),
+          filter: customFilter,
         },
         {
           Header: 'Country',
@@ -320,7 +330,8 @@ const IndeterminateCheckbox = React.forwardRef(
           accessor: 'SubmissionDate',
           Cell: ({ cell }) => (
             formatDate(cell.value)
-          )
+          ),
+          filter: customFilter,
         },
       ],
       []
