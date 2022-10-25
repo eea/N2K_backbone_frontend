@@ -207,20 +207,18 @@ const IndeterminateCheckbox = React.forwardRef(
     let changePage = (page,chunk)=>{
       loadPage(page,pageSize);
     }    
-    console.log(isTabChanged);
-    if(isTabChanged) {
-      console.log("ª");
-      setIsTabChanged(false);
-      toggleAllRowsSelected(false);
-    }
+  
+    // clear selection when tab is changed
+    useEffect(() => {
+      if(isTabChanged) {
+        setIsTabChanged(false);
+        toggleAllRowsSelected(false);
+      }
+    }, [isTabChanged]);
+
     // Render the UI for your table
     return (
       <>
-      {isTabChanged &&
-        <div className="message-board">
-          <button onClick={() => toggleAllRowsSelected(false)}>Clear All!</button>
-        </div>
-      }
       {isAllPageRowsSelected && 
         (
           (status === 'pending' || status === 'accepted' || status === 'rejected')

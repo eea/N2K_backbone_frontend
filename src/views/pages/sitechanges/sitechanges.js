@@ -41,7 +41,7 @@ let refreshSitechanges={"pending":false,"accepted":false,"rejected":false},
 const Sitechanges = () => {
 
   const [activeTab, setActiveTab] = useState(1);
-  const [isTabChanged, setIsTabChanged] = useState(false);
+  const [isTabChanged, setIsTabChanged] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [forceRefresh, setForceRefresh] = useState(0);
