@@ -222,7 +222,7 @@ const IndeterminateCheckbox = React.forwardRef(
       {isAllPageRowsSelected && 
         (
           (status === 'pending' || status === 'accepted' || status === 'rejected')
-          && (selectedRows === siteCodes.length || pageSize > siteCodes.length) ?
+          && (selectedRows === siteCodes.length || pageSize >= siteCodes.length) ?
           <div className="message-board">
             <span className="message-board-text">All the <b>{siteCodes.length}</b> sites are selected</span>
             <ClearSelectionLink {...getToggleAllPageRowsSelectedProps()} id={"sitechanges_check_all_" + status} />
