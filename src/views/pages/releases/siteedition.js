@@ -10,6 +10,8 @@ import {
   CCol,
   CContainer,
   CRow,
+  CSidebar,
+  CSidebarNav,
   CCard,
   CFormLabel,
   CFormSelect,
@@ -18,6 +20,7 @@ import {
 } from '@coreui/react'
 
 import { ModalEdition } from './ModalEdition';
+import { ConfirmationModal } from './components/ConfirmationModal';
 
 const defaultCountry = () => {
   const searchParams = new URLSearchParams(window.location.href.split('?')[1]);
@@ -172,7 +175,7 @@ const Siteedition = () => {
     }
   }
 
-  function updateModalValues(title, text, primaryButtonText, primaryButtonFunction, secondaryButtonText, secondaryButtonFunction) {
+  function updateModalValues(title, text, primaryButtonText, primaryButtonFunction, secondaryButtonText, secondaryButtonFunction, keepOpen) {
     setModalValues({
       visibility: true,
       title: title,
@@ -191,22 +194,9 @@ const Siteedition = () => {
         }
         : ''
       ),
+      message: false,
+      keepOpen: keepOpen ? true : false,
     });
-  }
-
-  let modalProps = {
-    showAlert(text) {
-      setAlertValues({
-        visibility: true,
-        text: text
-      });
-    },
-    showHarvestModal(values) {
-      updateModalValues("Harvest Envelopes", "This will harvest this envelope", "Continue", () => harvestHandler(values), "Cancel", () => modalProps.close);
-    },
-    showDiscardModal(values) {
-      updateModalValues("Discard Envelopes", "This will discard this envelope", "Continue", () => discardHandler(values), "Cancel", () => modalProps.close);
-    }
   }
 
   let loadCards = () => {
@@ -248,8 +238,37 @@ const Siteedition = () => {
 
   return (
     <div className="container--main min-vh-100">
-      <AppHeader page="siteedition"/>
+      <AppHeader page="releases"/>
       <div className="content--wrapper">
+      <CSidebar className="sidebar--light">
+          <CSidebarNav>
+            <li className="nav-title">Releases</li>
+            <li className="nav-item">
+              <a className="nav-link" href="/#/releases/management">
+                <i className="fa-solid fa-bookmark"></i>
+                Release Management
+              </a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link" href="/#/releases/comparer">
+                <i className="fa-solid fa-bookmark"></i>
+                Release Comparer
+              </a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link" href="/#/releases/unionlists">
+                <i className="fa-solid fa-bookmark"></i>
+                Union Lists
+              </a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link active" href="/#/releases/siteedition">
+                <i className="fa-solid fa-bookmark"></i>
+                Site Edition
+              </a>
+            </li>
+          </CSidebarNav>
+        </CSidebar>
         <div className="main-content">
           <CContainer fluid>
             <div className="d-flex justify-content-between py-3">
@@ -350,10 +369,11 @@ const Siteedition = () => {
             close = {closeModal}
             item={modalItem.SiteCode}
             version={modalItem.Version}
-            updateModalValues = {() => updateModalValues()}
+            updateModalValues={updateModalValues}
             regions={bioRegions}
             types={siteTypes}
           />
+          <ConfirmationModal modalValues={modalValues}/>
         </div>
       </div>
     </div>

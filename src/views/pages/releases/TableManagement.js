@@ -96,7 +96,7 @@ function Table({ columns, data, setSelected, modalProps, updateModalValues }) {
           id: 'unionListActions',
           cellWidth: "120px",
           Cell: ({ row }) => (
-            <div className="display-flex">
+            <div className="d-flex">
               <div className="btn-icon" onClick={() => modalProps.downloadUnionList(row.original.idULHeader)}>
                 <i className="fa-solid fa-download"></i>
               </div>

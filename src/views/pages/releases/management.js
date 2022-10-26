@@ -3,6 +3,7 @@ import { AppFooter, AppHeader } from '../../../components/index'
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import TableManagement from './TableManagement';
 import ConfigData from '../../../config.json';
+import {DataLoader} from '../../../components/DataLoader';
 
 import {
   CCol,
@@ -13,28 +14,13 @@ import {
   CForm,
   CFormInput,
   CButton,
-  CAlert
+  CAlert,
+  CSpinner
 } from '@coreui/react'
 
 import { ConfirmationModal } from './components/ConfirmationModal';
 
 const Reports = () => {
-  const initMessage = {
-    visibility: false,
-    message: false,
-    close: () => {
-      setModalValues((prevState) => ({
-        ...prevState,
-        visibility: false,
-      }));
-    },
-    closeMessage: () => {
-      setModalValues((prevState) => ({
-        ...prevState,
-        message: false,
-      }));
-    }
-  };
   const [refresh,setRefresh] = useState(false);
   const [modalValues, setModalValues] = useState({
     visibility: false,
@@ -52,11 +38,14 @@ const Reports = () => {
       }));
     }
   });
+  let dl = new(DataLoader);
 
   const showMessage = () => {
     setModalValues((prevState) => ({
       ...prevState,
       message: true,
+      keepOpen: true,
+      visibility: true,
     }));
     setTimeout(() => {
       setModalValues((prevState) => ({
@@ -66,7 +55,7 @@ const Reports = () => {
     }, 4000);
   };
 
-  function updateModalValues(title, text, primaryButtonText, primaryButtonFunction, secondaryButtonText, secondaryButtonFunction) {
+  function updateModalValues(title, text, primaryButtonText, primaryButtonFunction, secondaryButtonText, secondaryButtonFunction, keepOpen) {
     setModalValues({
       visibility: true,
       title: title,
@@ -86,6 +75,7 @@ const Reports = () => {
         : ''
       ),
       message: false,
+      keepOpen: keepOpen ? true : false,
       close: () => {
         setModalValues((prevState) => ({
           ...prevState,
@@ -95,13 +85,24 @@ const Reports = () => {
     });
   }
 
+  
+  const checkNewReleaseFields = () => {
+    return Object.fromEntries(new FormData(document.getElementById("unionlist_form")));
+  }
+
   const createUnionList = () => {
-    let body = Object.fromEntries(new FormData(document.getElementById("unionlist_form")));
+    let body = checkNewReleaseFields();
     body.Final = body.Final ? true : false;
     if(!body.Name) {
       showMessage();
     }
     else {
+      setModalValues((prevState) => ({
+        ...prevState,
+        primaryButton:{
+          text: <><CSpinner size="sm"/> Creating</>
+        },
+      }));
       sendRequest(ConfigData.UNIONLIST_CREATE,"POST",body)
       .then(response => response.json())
       .then(data => {
@@ -119,6 +120,12 @@ const Reports = () => {
 
   const deleteUnionList = (id) => {
     let body = id;
+    setModalValues((prevState) => ({
+      ...prevState,
+      primaryButton:{
+        text: <><CSpinner size="sm"/> Creating</>
+      },
+    }));
     sendRequest(ConfigData.UNIONLIST_DELETE,"DELETE",body)
     .then(response => response.json())
     .then(data => {
@@ -134,10 +141,9 @@ const Reports = () => {
   }
 
   const editUnionList = (id, name, final) => {
-    let body = Object.fromEntries(new FormData(document.getElementById("unionlist_form")));
+    let body = checkNewReleaseFields();
     body.id = id;
     body.Final = body.Final ? true : false;
-
     if(!body.Name) {
       showMessage();
     }
@@ -177,7 +183,7 @@ const Reports = () => {
       },
       body: path ? body : JSON.stringify(body),
     };
-    return fetch(url, options)
+    return dl.fetch(url, options)
   }
 
   const unionListForm = (name, final) => {
@@ -206,42 +212,35 @@ const Reports = () => {
       </div>
     );
   }
-
   return (
     <div className="container--main min-vh-100">
-      <AppHeader page="reports"/>
+      <AppHeader page="releases"/>
       <div className="content--wrapper">
         <CSidebar className="sidebar--light">
-          <CSidebarNav>
-            <li className="nav-title">Reports</li>
+        <CSidebarNav>
+            <li className="nav-title">Releases</li>
             <li className="nav-item">
-              <a className="nav-link active" href="/#/reports/management">
+              <a className="nav-link active" href="/#/releases/management">
                 <i className="fa-solid fa-bookmark"></i>
-                Union Lists Management
+                Release Management
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="/#/reports/comparer">
+              <a className="nav-link" href="/#/releases/comparer">
                 <i className="fa-solid fa-bookmark"></i>
-                Union Lists Comparer
+                Release Comparer
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="/#/reports/added">
+              <a className="nav-link" href="/#/releases/unionlists">
                 <i className="fa-solid fa-bookmark"></i>
-                Sites Added
+                Union Lists
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="/#/reports/deleted">
+              <a className="nav-link" href="/#/releases/siteedition">
                 <i className="fa-solid fa-bookmark"></i>
-                Sites Deleted
-              </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link" href="/#/reports/changes">
-                <i className="fa-solid fa-bookmark"></i>
-                Changes
+                Site Edition
               </a>
             </li>
           </CSidebarNav>
@@ -250,12 +249,12 @@ const Reports = () => {
           <CContainer fluid>
             <div className="d-flex justify-content-between py-3">
               <div className="page-title">
-                <h1 className="h1">Union Lists Management</h1>
+                <h1 className="h1">Release Management</h1>
               </div>
               <div>
                   <ul className="btn--list">
                     <li>
-                      <CButton color="primary" onClick={()=>updateModalValues("Create Union List", unionListForm(), "Create", ()=>createUnionList(), "Cancel", ()=>{})}>
+                      <CButton color="primary" onClick={()=>updateModalValues("Create Union List", unionListForm(), "Create", ()=>createUnionList(), "Cancel", ()=>{}, true)}>
                         Create Union List
                       </CButton>
                     </li>
