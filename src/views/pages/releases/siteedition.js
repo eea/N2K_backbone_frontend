@@ -159,7 +159,7 @@ const Siteedition = () => {
     if(siteCodes.length !==0) return;
     if(country !=="" && !isLoading && siteCodes!=="nodata" && siteCodes.length === 0){
       setIsLoading(true);
-      dl.fetch(ConfigData.SITEEDITION_GET+"country="+country+"?reference=true")
+      dl.fetch(ConfigData.SITEEDITION_NON_PENDING_GET+"country="+country+"?reference=true")
       .then(response =>response.json())
       .then(data => {
         if(Object.keys(data.Data).length === 0){
