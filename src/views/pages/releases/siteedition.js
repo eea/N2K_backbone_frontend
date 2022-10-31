@@ -28,7 +28,7 @@ const defaultCountry = () => {
   return parmCountry ? parmCountry : ConfigData.DEFAULT_COUNTRY ? ConfigData.DEFAULT_COUNTRY : "";
 }
 
-const Siteedition = () => {
+const Releases = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalItem, setModalItem] = useState({});
   const [siteCodes, setSitecodes] = useState([]);
@@ -380,4 +380,4 @@ const Siteedition = () => {
   )
 }
 
-export default Siteedition
+export default Releases

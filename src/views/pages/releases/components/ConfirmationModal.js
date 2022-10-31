@@ -13,7 +13,7 @@ import {
 export class ConfirmationModal extends Component {
   constructor(props) {
     super(props);
-    this.close = this.props.modalValues.close;{/*Check */}
+    this.close = this.props.modalValues.close;
   }
 
   primaryFunction() {
@@ -39,7 +39,6 @@ export class ConfirmationModal extends Component {
         <CModalHeader onClose={()=>this.closeFunction()}>
           <CModalTitle>{modal.title}</CModalTitle>
         </CModalHeader>
-        <CAlert className="mx-3" color="primary" dismissible visible={modal.message} onClose={() => modal.closeMessage}>Add valid Union List Name</CAlert>{/*Check */}
         <CModalBody>{modal.text}</CModalBody>
         <CModalFooter className={modal.secondaryButton ? "justify-content-between" : "justify-content-end"}>
           {modal.secondaryButton &&

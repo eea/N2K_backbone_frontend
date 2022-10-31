@@ -18,7 +18,7 @@ import {
 
 let hasTableScroll = false;
 
-const Reports = () => {
+const Releases = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [unionLists, setUnionLists] = useState([]);
   const [bioRegions, setBioRegions] = useState([]);
@@ -282,4 +282,4 @@ const Reports = () => {
   )
 }
 
-export default Reports
+export default Releases

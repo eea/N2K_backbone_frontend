@@ -29,7 +29,6 @@ export class ModalEdition extends Component {
     super(props);
     this.dl = new(DataLoader);
     this.state = {
-      activeKey: 1, 
       loading: true, 
       data: {}, 
       notValidField: "",
@@ -65,7 +64,7 @@ export class ModalEdition extends Component {
 
   renderFields(){
     return(
-      <CTabPane role="tabpanel" aria-labelledby="home-tab" visible={this.state.activeKey === 1}>
+      <CTabPane role="tabpanel" aria-labelledby="home-tab" visible={true}>
         <CForm id="siteedition_form">
           <CRow className="p-3">
             {this.state.notValidField &&
@@ -259,8 +258,7 @@ export class ModalEdition extends Component {
           <CNavItem>
               <CNavLink
                 href="javascript:void(0);"
-                active={this.state.activeKey === 1}
-                onClick={() => this.setActiveKey(1)}
+                active={true}
               >
                 Edit fields
               </CNavLink>

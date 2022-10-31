@@ -18,10 +18,12 @@ import {
   CSpinner
 } from '@coreui/react'
 
+import { ModalRelease } from './ModalRelease';
 import { ConfirmationModal } from './components/ConfirmationModal';
 
-const Reports = () => {
+const Releases = () => {
   const [refresh,setRefresh] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
   const [modalValues, setModalValues] = useState({
     visibility: false,
     message: false,
@@ -85,40 +87,23 @@ const Reports = () => {
     });
   }
 
-  
-  const checkNewReleaseFields = () => {
-    return Object.fromEntries(new FormData(document.getElementById("unionlist_form")));
+  let openModal = () => {
+    setModalVisible(true);
   }
 
-  const createUnionList = () => {
-    let body = checkNewReleaseFields();
-    body.Final = body.Final ? true : false;
-    if(!body.Name) {
-      showMessage();
-    }
-    else {
-      setModalValues((prevState) => ({
-        ...prevState,
-        primaryButton:{
-          text: <><CSpinner size="sm"/> Creating</>
-        },
-      }));
-      sendRequest(ConfigData.UNIONLIST_CREATE,"POST",body)
-      .then(response => response.json())
-      .then(data => {
-        if(data.Success) {
-          modalValues.close();
-          setRefresh(true);
-        }
-        else {
-          //errors.push(data.Message);
-          console.log("Error: " + data.Message);
-        }
-      })
+  let closeModal = (refresh) => {
+    setModalVisible(false);
+    if(refresh) {
+      forceRefreshData();
     }
   }
 
-  const deleteUnionList = (id) => {
+  let forceRefreshData = () => {
+    //setSitecodes([])
+    setRefresh(true);
+  };
+
+  const deleteReport = (id) => {
     let body = id;
     setModalValues((prevState) => ({
       ...prevState,
@@ -140,8 +125,8 @@ const Reports = () => {
     })
   }
 
-  const editUnionList = (id, name, final) => {
-    let body = checkNewReleaseFields();
+  const editReport = (id, name, final) => {
+    let body = Object.fromEntries(new FormData(document.getElementById("release_form")));
     body.id = id;
     body.Final = body.Final ? true : false;
     if(!body.Name) {
@@ -165,14 +150,11 @@ const Reports = () => {
 
   let modalProps = {
     showDeleteModal(id) {
-      updateModalValues("Delete Union List", "This will delete this Union List", "Continue", ()=>deleteUnionList(id), "Cancel", ()=>{});
+      updateModalValues("Delete Union List", "This will delete this Union List", "Continue", ()=>deleteReport(id), "Cancel", ()=>{});
     },
     showEditModal(id, name, final) {
-      updateModalValues("Edit Union List", unionListForm(name, final), "Continue", ()=>editUnionList(id, name, final), "Cancel", ()=>{});
+      updateModalValues("Edit Union List", renderReleaseForm(name, final), "Continue", ()=>editReport(id, name, final), "Cancel", ()=>{});
     },
-    downloadUnionList(id) {
-      console.log("Download "+id);
-    }
   }
 
   const sendRequest = (url,method,body,path) => {
@@ -186,10 +168,10 @@ const Reports = () => {
     return dl.fetch(url, options)
   }
 
-  const unionListForm = (name, final) => {
+  const renderReleaseForm = (name, final) => {
     return (
       <div>
-        <CForm id="unionlist_form">
+        <CForm id="release_form">
           <CRow>
             <CCol xs={12}>
               <label className="mb-3">Union List Name</label>
@@ -212,6 +194,7 @@ const Reports = () => {
       </div>
     );
   }
+
   return (
     <div className="container--main min-vh-100">
       <AppHeader page="releases"/>
@@ -254,8 +237,8 @@ const Reports = () => {
               <div>
                   <ul className="btn--list">
                     <li>
-                      <CButton color="primary" onClick={()=>updateModalValues("Create Union List", unionListForm(), "Create", ()=>createUnionList(), "Cancel", ()=>{}, true)}>
-                        Create Union List
+                      <CButton color="primary" onClick={()=>openModal()}>
+                        Create Release
                       </CButton>
                     </li>
                   </ul>
@@ -269,14 +252,20 @@ const Reports = () => {
                   refresh = {refresh}
                   setRefresh = {(v)=>{setRefresh(v)}}
                 />
-                <ConfirmationModal modalValues={modalValues}/>
               </CCol>
             </CRow>
           </CContainer>
+          <ModalRelease
+            visible={modalVisible}
+            close={closeModal}
+            updateModalValues={updateModalValues}
+            renderReleaseForm={renderReleaseForm}
+          />
+          <ConfirmationModal modalValues={modalValues}/>
         </div>
       </div>
     </div>
   )
 }
 
-export default Reports
+export default Releases
