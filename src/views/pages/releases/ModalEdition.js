@@ -22,7 +22,6 @@ import {
   CFormSelect
 } from '@coreui/react'
 
-import { ConfirmationModal } from './components/ConfirmationModal';
 import {DataLoader} from '../../../components/DataLoader';
 
 export class ModalEdition extends Component {
@@ -30,7 +29,6 @@ export class ModalEdition extends Component {
     super(props);
     this.dl = new(DataLoader);
     this.state = {
-      activeKey: 1, 
       loading: true, 
       data: {}, 
       notValidField: "",
@@ -46,30 +44,6 @@ export class ModalEdition extends Component {
       },
       updatingData: false
     };
-  }
-
-  updateModalValues(title, text, primaryButtonText, primaryButtonFunction, secondaryButtonText, secondaryButtonFunction) {
-    this.setState({
-      modalValues : {
-        visibility: true,
-        title: title,
-        text: text,
-        primaryButton: (
-          primaryButtonText && primaryButtonFunction ? {
-            text: primaryButtonText,
-            function: () => primaryButtonFunction(),
-          }
-          : ''
-        ),
-        secondaryButton: (
-          secondaryButtonText && secondaryButtonFunction ? {
-            text: secondaryButtonText,
-            function: () => secondaryButtonFunction(),
-          }
-          : ''
-        ),
-      }
-    });
   }
 
   close(refresh){
@@ -90,7 +64,7 @@ export class ModalEdition extends Component {
 
   renderFields(){
     return(
-      <CTabPane role="tabpanel" aria-labelledby="home-tab" visible={this.state.activeKey === 1}>
+      <CTabPane role="tabpanel" aria-labelledby="home-tab" visible={true}>
         <CForm id="siteedition_form">
           <CRow className="p-3">
             {this.state.notValidField &&
@@ -284,8 +258,7 @@ export class ModalEdition extends Component {
           <CNavItem>
               <CNavLink
                 href="javascript:void(0);"
-                active={this.state.activeKey === 1}
-                onClick={() => this.setActiveKey(1)}
+                active={true}
               >
                 Edit fields
               </CNavLink>
@@ -297,8 +270,8 @@ export class ModalEdition extends Component {
         </CModalBody>
         <CModalFooter>
           <div className="d-flex w-100 justify-content-between">
-            <CButton color="secondary" disabled= {this.state.updatingData} onClick={()=>this.cancelChanges()}>Cancel</CButton>
-            <CButton color="primary" disabled= {this.state.updatingData} onClick={()=>this.updateModalValues("Save changes", "This will save the site changes", "Continue", ()=>this.saveChanges(), "Cancel", ()=>{})}>
+            <CButton color="secondary" disabled= {this.state.updatingData} onClick={()=>this.close()}>Cancel</CButton>
+            <CButton color="primary" disabled= {this.state.updatingData} onClick={()=>this.props.updateModalValues("Save changes", "This will save the site changes", "Continue", ()=>this.saveChanges(), "Cancel", ()=>{})}>
               {this.state.updatingData && <CSpinner size="sm"/>}
               {this.state.updatingData? " Saving":"Save"}
             </CButton>
@@ -325,10 +298,9 @@ export class ModalEdition extends Component {
   render() {
     return(
       <>
-        <CModal scrollable size="xl" visible={this.isVisible()} onClose={this.close.bind(this)}>
+        <CModal scrollable size="xl" visible={this.isVisible()} onClose={()=>this.close()}>
           {this.renderData()}
         </CModal>
-        <ConfirmationModal modalValues={this.state.modalValues}/>
       </>
     )
   }
@@ -337,9 +309,11 @@ export class ModalEdition extends Component {
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
       this.dl.fetch(ConfigData.SITEDETAIL_GET+"?siteCode="+this.props.item)
       .then(response => response.json())
-      .then(data =>
-        this.setState({data: data.Data, loading: false})
-      );
+      .then(data =>{
+        if(data.Data.SiteCode === this.props.item && Object.keys(this.state.data).length === 0) {
+          this.setState({data: data.Data, loading: false})
+        }
+      });
     }
   }
 
@@ -360,7 +334,7 @@ export class ModalEdition extends Component {
       .then((data)=> {
         if(data?.ok){
           this.setState({updatingData:false});
-          this.close();
+          this.close(true);
         }
         else {
           this.showErrorMessage("Something went wrong");
@@ -370,9 +344,9 @@ export class ModalEdition extends Component {
     }
   }
 
-  cancelChanges(){
-    this.close(true);
-  }
+  // cancelChanges(){
+  //   this.close(true);
+  // }
 
   sendRequest(url,method,body,path){
     const options = {

@@ -18,7 +18,7 @@ import {
 
 let hasTableScroll = false;
 
-const Reports = () => {
+const Releases = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [unionLists, setUnionLists] = useState([]);
   const [bioRegions, setBioRegions] = useState([]);
@@ -52,10 +52,6 @@ const Reports = () => {
     });
   }
 
-  const compareUnionLists = () => {
-    loadData(selectedUnionList1, selectedUnionList2);
-  }
-
   let loadData = (unionlist1, unionlist2) => {
     if(!isLoading && (Object.keys(tableData1).length===0 || Object.keys(tableData2).length===0)) {
       setIsLoading(true);
@@ -85,7 +81,7 @@ const Reports = () => {
       let region = bioRegions[i];
       let count = tableData.filter(a => a.BioRegion === region.BioRegionShortCode).length;
       buttons.push(
-        <CButton color="primary" disabled={count===0} size="sm" onClick={(e)=>filterBioRegion(e)} value={region.BioRegionShortCode}>
+        <CButton color="primary" key={region.BioRegionShortCode} disabled={count===0} size="sm" onClick={(e)=>filterBioRegion(e)} value={region.BioRegionShortCode}>
           {count + " " + region.RefBioGeoName}
         </CButton>
       );
@@ -93,7 +89,7 @@ const Reports = () => {
     return buttons;
   }
 
-  const loadTable = () => {
+  const loadTable = (table) => {
     let header = [
       {field:"BioRegion",name:"Biogeographical Region"},
       {field:"SCI_code",name:"Sitecode"},
@@ -115,7 +111,7 @@ const Reports = () => {
         if(head === "Priority"){
           field = field ? "Yes" : "No";
         }
-        row.push(<td style={{whiteSpace:"nowrap"}}>{field}</td>);
+        row.push(<td key={table+"_td_"+head+"_"+i} style={{whiteSpace:"nowrap"}}>{field}</td>);
       }
       rows.push(row);
     }
@@ -124,11 +120,11 @@ const Reports = () => {
       <CTable>
         <thead>
           <tr>
-            {header.map((e)=><th>{e.name}</th>)}
+            {header.map((e)=><th key={table+"_th_"+e.field}>{e.name}</th>)}
           </tr>
         </thead>
         <tbody>
-          {rows.map((e)=><tr>{e}</tr>)}
+          {rows.map((e, f)=><tr key={table+"_tr_"+f}>{e}</tr>)}
         </tbody>
       </CTable>
     )
@@ -177,41 +173,37 @@ const Reports = () => {
     loadBioRegions();
   }
 
+  setTableData.length !== 0 && loadData(selectedUnionList1, selectedUnionList2);
+
   return (
     <div className="container--main min-vh-100">
-      <AppHeader page="reports"/>
+      <AppHeader page="releases"/>
       <div className="content--wrapper">
         <CSidebar className="sidebar--light">
           <CSidebarNav>
-            <li className="nav-title">Reports</li>
+            <li className="nav-title">Releases</li>
             <li className="nav-item">
-              <a className="nav-link" href="/#/reports/management">
+              <a className="nav-link" href="/#/releases/management">
                 <i className="fa-solid fa-bookmark"></i>
-                Union Lists Management
+                Release Management
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link active" href="/#/reports/comparer">
+              <a className="nav-link" href="/#/releases/comparer">
                 <i className="fa-solid fa-bookmark"></i>
-                Union Lists Comparer
+                Release Comparer
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="/#/reports/added">
+              <a className="nav-link active" href="/#/releases/unionlists">
                 <i className="fa-solid fa-bookmark"></i>
-                Sites Added
+                Union Lists
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="/#/reports/deleted">
+              <a className="nav-link" href="/#/releases/siteedition">
                 <i className="fa-solid fa-bookmark"></i>
-                Sites Deleted
-              </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link" href="/#/reports/changes">
-                <i className="fa-solid fa-bookmark"></i>
-                Changes
+                Site Edition
               </a>
             </li>
           </CSidebarNav>
@@ -220,34 +212,16 @@ const Reports = () => {
           <CContainer fluid>
             <div className="d-flex justify-content-between py-3">
               <div className="page-title">
-                <h1 className="h1">Union Lists Comparer</h1>
+                <h1 className="h1">Union Lists</h1>
+              </div>
+              <div>
+                <ul className="btn--list">
+                  <CButton color="primary">
+                    Download Union Lists
+                  </CButton>
+                </ul>
               </div>
             </div>
-            <CRow>
-              <CCol>
-                <div className="unionlist-compare">
-                  <b>Compare</b>
-                  <CFormSelect aria-label="Default select example" className='form-select-reporting' disabled={isLoading} onChange={(e)=>setSelectedUnionList1(e.target.value)}>
-                    <option disabled selected value hidden>Select a Union List</option>
-                    {
-                      unionLists.map((e)=><option value={e.idULHeader} key={"c1-"+e.idULHeader}>{e.Name}</option>)
-                    }
-                  </CFormSelect>
-                  <div>
-                    <i className="fa-solid fa-code-compare"></i>
-                  </div>
-                  <CFormSelect aria-label="Default select example" className='form-select-reporting' disabled={isLoading} onChange={(e)=>setSelectedUnionList2(e.target.value)}>
-                    <option disabled selected value hidden>Select a Union List</option>
-                    {
-                      unionLists.map((e)=><option value={e.idULHeader} key={"c2-"+e.idULHeader}>{e.Name}</option>)
-                    }
-                  </CFormSelect>
-                  <CButton color="primary" onClick={()=>compareUnionLists()} disabled={!selectedUnionList1 || !selectedUnionList2}>
-                    Compare
-                  </CButton>
-                </div>
-              </CCol>
-            </CRow>
             {isLoading &&
               <div className="loading-container"><em>Loading...</em></div>
             }
@@ -266,7 +240,7 @@ const Reports = () => {
                     <b>{selectedUnionList1 && unionLists.find(e=>e.idULHeader === parseInt(selectedUnionList1)).Name}</b>
                     <div className="unionlist-table">
                       {tableData1 &&
-                        loadTable(tableData1)
+                        loadTable("tableData1")
                       }
                     </div>
                   </CCol>
@@ -274,7 +248,7 @@ const Reports = () => {
                     <b>{selectedUnionList2 && unionLists.find(e=>e.idULHeader === parseInt(selectedUnionList2)).Name}</b>
                     <div className="unionlist-table">
                       {tableData2 &&
-                        loadTable(tableData2)
+                        loadTable("tableData2")
                       }
                     </div>
                   </CCol>
@@ -288,4 +262,4 @@ const Reports = () => {
   )
 }
 
-export default Reports
+export default Releases

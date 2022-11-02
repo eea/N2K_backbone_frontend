@@ -74,11 +74,6 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 0.5rem;
-    &-arrow {
-      color: $primary-base;
-      align-items: right;
-    }
   }
   &-left {
     margin-right: 1rem;
@@ -97,10 +92,21 @@
     vertical-align: middle;
   }
   &-body {
+    margin-top: 0.5rem;
     .badge {
       border: none;
       padding: 0;
       margin-right: 0.5rem;
+      &--accepted {
+        background-color: #daf5d6;
+        color: $black;
+        padding: 0.25rem 0.5rem;
+      }
+      &--rejected {
+        background-color: #f6cbcf;
+        color: $black;
+        padding: 0.25rem 0.5rem;
+      }
     }
   }
   &-link {
