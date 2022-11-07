@@ -580,7 +580,11 @@ handleJustProvided(){
   }
   
   sortComments() {
-    this.state.comments.sort((a,b) => b.Date?.localeCompare(a.Date));
+    this.state.comments.sort(
+      (a,b) => b.Date && a.Date ?
+        b.Date.localeCompare(a.Date)
+        : {}
+    );
   }
   
   renderComments(){
@@ -661,7 +665,11 @@ handleJustProvided(){
   }
 
   sortDocuments() {
-    this.state.documents.sort((a,b) => b.ImportDate?.localeCompare(a.ImportDate));
+    this.state.documents.sort(
+      (a,b) => b.ImportDate && a.ImportDate ?
+        b.ImportDate.localeCompare(a.ImportDate)
+        : {}
+    );
   }
 
   renderDocuments(){

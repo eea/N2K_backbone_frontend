@@ -18,7 +18,7 @@ import {
 
 let hasTableScroll = false;
 
-const Reports = () => {
+const Releases = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [unionLists, setUnionLists] = useState([]);
   const [bioRegions, setBioRegions] = useState([]);
@@ -59,7 +59,7 @@ const Reports = () => {
   let loadData = (unionlist1, unionlist2) => {
     if(!isLoading && (Object.keys(tableData1).length===0 || Object.keys(tableData2).length===0)) {
       setIsLoading(true);
-      dl.fetch(ConfigData.UNIONLISTS_DETAIL)
+      dl.fetch(ConfigData.UNIONLISTS_COMPARER)
       .then(response => response.json())
       .then(data => {
         if(Object.keys(data.Data).length > 0) {
@@ -179,39 +179,33 @@ const Reports = () => {
 
   return (
     <div className="container--main min-vh-100">
-      <AppHeader page="reports"/>
+      <AppHeader page="releases"/>
       <div className="content--wrapper">
         <CSidebar className="sidebar--light">
           <CSidebarNav>
-            <li className="nav-title">Reports</li>
+            <li className="nav-title">Releases</li>
             <li className="nav-item">
-              <a className="nav-link" href="/#/reports/management">
+              <a className="nav-link" href="/#/releases/management">
                 <i className="fa-solid fa-bookmark"></i>
-                Union Lists Management
+                Release Management
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link active" href="/#/reports/comparer">
+              <a className="nav-link active" href="/#/releases/comparer">
                 <i className="fa-solid fa-bookmark"></i>
-                Union Lists Comparer
+                Release Comparer
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="/#/reports/added">
+              <a className="nav-link" href="/#/releases/unionlists">
                 <i className="fa-solid fa-bookmark"></i>
-                Sites Added
+                Union Lists
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="/#/reports/deleted">
+              <a className="nav-link" href="/#/releases/siteedition">
                 <i className="fa-solid fa-bookmark"></i>
-                Sites Deleted
-              </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link" href="/#/reports/changes">
-                <i className="fa-solid fa-bookmark"></i>
-                Changes
+                Site Edition
               </a>
             </li>
           </CSidebarNav>
@@ -220,7 +214,7 @@ const Reports = () => {
           <CContainer fluid>
             <div className="d-flex justify-content-between py-3">
               <div className="page-title">
-                <h1 className="h1">Union Lists Comparer</h1>
+                <h1 className="h1">Release Comparer</h1>
               </div>
             </div>
             <CRow>
@@ -288,4 +282,4 @@ const Reports = () => {
   )
 }
 
-export default Reports
+export default Releases
