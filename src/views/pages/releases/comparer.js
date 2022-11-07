@@ -59,7 +59,7 @@ const Releases = () => {
   let loadData = (unionlist1, unionlist2) => {
     if(!isLoading && (Object.keys(tableData1).length===0 || Object.keys(tableData2).length===0)) {
       setIsLoading(true);
-      dl.fetch(ConfigData.UNIONLISTS_DETAIL)
+      dl.fetch(ConfigData.UNIONLISTS_COMPARER)
       .then(response => response.json())
       .then(data => {
         if(Object.keys(data.Data).length > 0) {
