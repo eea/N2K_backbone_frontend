@@ -426,7 +426,7 @@ const IndeterminateCheckbox = React.forwardRef(
             ) : null,
         },
         {
-          Header: 'Sitecode',
+          Header: 'Site Code',
           accessor: 'SiteCode',
           className:"cell-sitecode",
           Cell: ({ row }) => {
