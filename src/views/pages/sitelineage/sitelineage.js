@@ -1,10 +1,11 @@
 import React, { lazy, useState, useRef } from 'react'
 import { AppFooter, AppHeader } from '../../../components/index'
+import TableLineage from './TableLineage';
 import ConfigData from '../../../config.json';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import Turnstone from 'turnstone';
 import {DataLoader} from '../../../components/DataLoader';
-import ReactFlow, { Controls, Background, MiniMap, MarkerType } from 'reactflow';
+import ReactFlow, { Controls, Background, MarkerType } from 'reactflow';
 import 'reactflow/dist/style.css';
 
 import {
@@ -30,6 +31,7 @@ const Sitelineage = () => {
   const [siteCodes, setSiteCodes] = useState([]);
   const [siteLineage, setSiteLineage] = useState({antecessor: [], successors: ["AT2208000","AT2209000"]});
   const [siteData, setSiteData] = useState({});
+  const [testTableData, setTestTableData] = useState({});
   const [searchList, setSearchList] = useState({});
   const [selectOption, setSelectOption] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -100,47 +102,91 @@ const Sitelineage = () => {
   let loadData = () => {
     if (!isLoading){
       setIsLoading(true);
-      dl.fetch(ConfigData.SITECHANGES_DETAIL+"siteCode="+siteCode+"&version="+siteCodes.find(a=>a.SiteCode === siteCode).Version)
+      dl.fetch(ConfigData.SITEDETAIL_GET+"?siteCode="+siteCode)
       .then(response => response.json())
       .then(data => {
         if(data.Data.SiteCode === siteCode) {
           setIsLoading(false);
           setSiteData(data.Data);
+          let testData = [
+            {
+              "SiteCode": siteCode,
+              "Version": "V1",
+              "Antecessors": {
+                "SiteCode": null,
+                "Version": null,
+              },
+              "Successors": {
+                "SiteCode": siteCode,
+                "Version": "V2",
+              },
+            },
+            {
+              "SiteCode": siteCode,
+              "Version": "V2",
+              "Antecessors": {
+                "SiteCode": siteCode,
+                "Version": "V1",
+              },
+              "Successors": {
+                "SiteCode": "AT2208000, AT2209000",
+                "Version": "V2",
+              },
+            },
+            {
+              "SiteCode": "AT2208000",
+              "Version": "V3",
+              "Antecessors": {
+                "SiteCode": siteCode,
+                "Version": "V2",
+              },
+              "Successors": {
+                "SiteCode": "AT2208000",
+                "Version": "V4",
+              },
+            },
+            {
+              "SiteCode": "AT2208000",
+              "Version": "V4",
+              "Antecessors": {
+                "SiteCode": "AT2208000",
+                "Version": "V3"
+              },
+              "Successors": {
+                "SiteCode": null,
+                "Version": null
+              },
+            },
+            {
+              "SiteCode": "AT2209000",
+              "Version": "V3",
+              "Antecessors": {
+                "SiteCode": siteCode,
+                "Version": "V2"
+              },
+              "Successors": {
+                "SiteCode": null,
+                "Version": null
+              },
+            },
+          ]
+          setTestTableData(testData);
         }
       });
     }
   }
 
   let loadCard = () => {
-    let site = siteCodes.find(a=>a.SiteCode === siteCode);
     let countryName = countries.find(a=>a.code===country).name;
     return (
       <CCol xs={12} md={6} lg={4} xl={3}>
-        <CCard className="search-card h-auto">
-          <div className="search-card-header">
-            <span className="search-card-title">{site.Name}</span>
-          </div>
-          <div className="search-card-body">
-            <div className="search-card-description"><b>{siteCode}</b> | {countryName}</div>
-            <div className="search-card-description">
-              {siteCode === 'AT2208000' || siteCode === 'AT2209000' ?
-                <b style={{color: "#4FC1C5"}}>Active</b>
-                : <b style={{color: "#FED100"}}>Inactive (split)</b>
-              }
-            </div>
-            <div className="search-card-description mt-4">
-              <div>
-                State date: 20/11/2021
-              </div>
-              <div>
-                Antecessors: {siteLineage.antecessor}
-              </div>
-              <div>
-                Sucessors: {siteLineage.successors.length > 0 && siteLineage.successors[0] +", " + siteLineage.successors[1]}
-              </div>
-            </div>
-          </div>
-        </CCard>
+        <div className="search-card-header">
+          <span className="search-card-title">{siteData.SiteName}</span>
+        </div>
+        <div className="mb-2"><b>{siteCode}</b> | {countryName}</div>
+        <div>
+          Area: {siteData.Area} ha
+        </div>
       </CCol>
     )
   }
@@ -497,7 +543,6 @@ const Sitelineage = () => {
           >
             <Background />
             <Controls />
-            <MiniMap />
           </ReactFlow>
         </div>
       </CCol>
@@ -540,20 +585,20 @@ const Sitelineage = () => {
 
   return (
     <div className="container--main min-vh-100">
-      <AppHeader page="siteedition"/>
+      <AppHeader page="sitelineage"/>
       <div className="content--wrapper">
         <div className="main-content">
           <CContainer fluid>
             <div className="d-flex justify-content-between py-3">
               <div className="page-title">
-                <h1 className="h1">Site Edition</h1>
+                <h1 className="h1">Site Lineage</h1>
               </div>
             </div>
             <CRow>
               <CCol md={12} lg={6} xl={9} className="d-flex mb-4">
                 <div className="search--input">
                   <Turnstone
-                    id="siteedition_search"
+                    id="sitelineage_search"
                     className="form-control"
                     listbox = {searchList}
                     listboxIsImmutable = {false}
@@ -594,6 +639,7 @@ const Sitelineage = () => {
                 <>
                   {loadCard()}
                   {loadChart()}
+                  <TableLineage data={testTableData} siteCode={siteCode}/>
                 </>
               }
             </CRow>
