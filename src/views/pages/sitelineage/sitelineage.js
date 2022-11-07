@@ -591,14 +591,14 @@ const Sitelineage = () => {
           <CContainer fluid>
             <div className="d-flex justify-content-between py-3">
               <div className="page-title">
-                <h1 className="h1">Site Edition</h1>
+                <h1 className="h1">Site Lineage</h1>
               </div>
             </div>
             <CRow>
               <CCol md={12} lg={6} xl={9} className="d-flex mb-4">
                 <div className="search--input">
                   <Turnstone
-                    id="siteedition_search"
+                    id="sitelineage_search"
                     className="form-control"
                     listbox = {searchList}
                     listboxIsImmutable = {false}
