@@ -168,6 +168,7 @@ const Releases = () => {
       filter = activeBioregions.split(",").concat(value).toString();
       results = pageResults + bioRegionsSummary.find(a=>a.BioRegion === value).Count;
     }
+    setPageNumber(1);
     setPageResults(results);
     setActiveBioregions(filter);
     setTableData1([]);
