@@ -82,6 +82,9 @@ const Releases = () => {
                   if(key === "BioRegion") {
                     value = bioReg.find(a=>a.BioRegionShortCode === value).RefBioGeoName;
                   }
+                  if(row.Changes === "ADDED" && (key === "BioRegion" || key === "Sitecode")) {
+                    value = "";
+                  }
                   else if(key === "Priority") {
                     value = value !== null && (value ? "Yes" : "No");
                   }
@@ -94,6 +97,9 @@ const Releases = () => {
                     value = row[key]?.Source === undefined ? row[key] : row[key]?.Source;
                     if(key === "BioRegion") {
                       value = bioReg.find(a=>a.BioRegionShortCode === value).RefBioGeoName;
+                    }
+                    if(row.Changes === "DELETED" && (key === "BioRegion" || key === "Sitecode")) {
+                      value = "";
                     }
                   }
                   else {
