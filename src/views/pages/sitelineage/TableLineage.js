@@ -181,33 +181,16 @@ const confStatus = ConfigData.HARVESTING_STATUS;
   
   function TableLineage(props) {
 
-    const [events, setEvents] = useState([]);
-    // const [isLoading, setIsLoading] = useState(props.isLoading);
-    const [envelopsData, setEnvelopsData] = useState([]);
-
-    let dl = new(DataLoader);
-
-    // useEffect(() => {
-    //   fetch(ConfigData.HARVESTING_PRE_HARVESTED)
-    //   .then(response => response.json())
-    //   .then(data => {
-    //     setEvents(data);
-    //   });
-    // }, [])
-
     const customFilter = (rows, columnIds, filterValue) => {
-      if(columnIds[0] === "Version") {
-        return filterValue.length === 0 ? rows : rows.filter((row) => confStatus[row.values[columnIds]].toLowerCase().includes(filterValue.toLowerCase()));
-      }
-      else if(columnIds[0] === "SubmissionDate") {
-        return rows.filter((row) => formatDate(row.values[columnIds]).includes(filterValue));
-      }
+      let result = filterValue.length === 0 ? rows : rows.filter((row) => row.values[columnIds].Version !== null);
+      result = result.filter((row)=>row.values[columnIds].SiteCode === row.values.SiteCode && row.values[columnIds].Version.includes(filterValue.toUpperCase()) || row.values[columnIds].SiteCode !== row.values.SiteCode && row.values[columnIds].SiteCode.includes(filterValue.toUpperCase()));
+      return result;
     }
 
     const columns = React.useMemo(
       () => [
         {
-          Header: 'SiteCode',
+          Header: 'Site Code',
           accessor: 'SiteCode',
         },
         {
@@ -220,96 +203,74 @@ const confStatus = ConfigData.HARVESTING_STATUS;
         {
           Header: 'Antecessors',
           accessor: 'Antecessors',
-          Cell: ({ row }) => (
-            props.siteCode === row.values.SiteCode ?
-            <span className={"badge badge--lineage " + (props.siteCode === row.values.Antecessors.SiteCode ? "green":"basic")}>{props.siteCode === row.values.Antecessors.SiteCode ? row.values.Antecessors.Version : row.values.Antecessors.SiteCode}</span>
-            : <span className={"badge badge--lineage " + (row.values.SiteCode !== row.values.Antecessors.SiteCode ? "basic":"yellow")}>{row.values.SiteCode !== row.values.Antecessors.SiteCode ? row.values.Antecessors.SiteCode : row.values.Antecessors.Version}</span>
-          )
+          Cell: ({ row }) => {
+            let values;
+            let tags = [];
+            if(props.siteCode === row.values.SiteCode) {
+              values = props.siteCode === row.values.Antecessors.SiteCode ? row.values.Antecessors.Version : row.values.Antecessors.SiteCode;
+              values = values?.split(",");
+              for(let i in values) {
+                tags.push(<span className={"badge badge--lineage " + (props.siteCode === row.values.Antecessors.SiteCode ? "green":"basic")} key={"ant_"+row+values[i]}>{values[i]}</span>);
+              }
+            }
+            else {
+              values = row.values.SiteCode !== row.values.Antecessors.SiteCode ? row.values.Antecessors.SiteCode : row.values.Antecessors.Version;
+              values = values?.split(",");
+              for(let i in values) {
+                tags.push(<span className={"badge badge--lineage " + (row.values.SiteCode !== row.values.Antecessors.SiteCode ? "basic":"yellow")} key={"ant_"+row+values[i]}>{values[i]}</span>);
+              }
+            }
+            return tags;
+          },
+          filter: customFilter,
         },
         {
           Header: 'Successors',
           accessor: 'Successors',
-          Cell: ({ row }) => (
-            props.siteCode === row.values.SiteCode ?
-            <span className={"badge badge--lineage " + (props.siteCode === row.values.Successors.SiteCode ? "green":"basic")}>{props.siteCode === row.values.Successors.SiteCode ? row.values.Successors.Version : row.values.Successors.SiteCode}</span>
-            : <span className={"badge badge--lineage " + (row.values.SiteCode !== row.values.Successors.SiteCode ? "basic":"yellow")}>{row.values.SiteCode !== row.values.Successors.SiteCode ? row.values.Successors.SiteCode : row.values.Successors.Version}</span>
-          )
+          Cell: ({ row }) => {
+            let values;
+            let tags = [];
+            if(props.siteCode === row.values.SiteCode) {
+              values = props.siteCode === row.values.Successors.SiteCode ? row.values.Successors.Version : row.values.Successors.SiteCode;
+              values = values?.split(",");
+              for(let i in values) {
+                tags.push(<span className={"badge badge--lineage " + (props.siteCode === row.values.Successors.SiteCode ? "green":"basic")} key={"suc_"+row+values[i]}>{values[i]}</span>);
+              }
+            }
+            else {
+              values = row.values.SiteCode !== row.values.Successors.SiteCode ? row.values.Successors.SiteCode : row.values.Successors.Version;
+              values = values?.split(",");
+              for(let i in values) {
+                tags.push(<span className={"badge badge--lineage " + (row.values.SiteCode !== row.values.Successors.SiteCode ? "basic":"yellow")} key={"suc_"+row+values[i]}>{values[i]}</span>);
+              }
+            }
+            return tags;
+          },
+          filter: customFilter,
         },
       ],
       []
     )
 
-    let loadData = () => {
-      if((!isLoading && envelopsData !== "nodata" && Object.keys(envelopsData).length===0)){
-        let promises = [];
-        setIsLoading(true);
-        dl.fetch(ConfigData.SITEDETAIL_GET+"?siteCode="+siteCode)
-        .then(response => response.json())
-        .then(data => {
-          if(data.Data.SiteCode === siteCode) {
-            setIsLoading(false);
-            setSiteData(data.Data);
-          }
-        });
-        // let status = props.status.split(",");
-        for (let i in status) {
-          promises.push(
-            dl.fetch(ConfigData.HARVESTING_GET_STATUS+"?status="+status[i])
-            .then(response => response.json())
-            .then(data => {
-              if(Object.keys(data.Data).length === 0) {
-                if(status.length === 1) {
-                  setEnvelopsData("nodata");
-                }
-              }
-              else {
-                setEnvelopsData(envelopsData[status[i]]=data.Data);
-              }
-            })
-          )
-        }
-        Promise.all(promises).then(v=>{
-          let data = Object.keys(envelopsData).reduce(function(res, v) {
-            return res.concat(envelopsData[v]);
-          }, []);
-          if(data.length === 0){
-            setEnvelopsData("nodata");
-          }
-          else {
-            setEnvelopsData(data);
-          }
-          setIsLoading(false);
-        });
-      }
-    }
-
     if(props.hasOwnProperty('getRefresh') && props.getRefresh()){
       props.setRefresh(false);
       setEnvelopsData([]);
-      //loadData();
     }
-    else {
-      //loadData();
-    }
-
-    // if(isLoading)
-    //   return (<div className="loading-container"><em>Loading...</em></div>)
-    // else
-      if(props.data==="nodata")
-        return (<div className="nodata-container"><em>No Data</em></div>)
-      else
-      return (
-        <>
-          <Table
-            columns={columns}
-            data={props.data}
-            // tableType={props.tableType}
-            // setSelected={props.setSelected}
-            // modalProps={props.modalProps}
-            // status={props.status}
-          />
-        </>
-      )
+    if(props.data==="nodata")
+      return (<div className="nodata-container"><em>No Data</em></div>)
+    else
+    return (
+      <>
+        <Table
+          columns={columns}
+          data={props.data}
+          // tableType={props.tableType}
+          // setSelected={props.setSelected}
+          // modalProps={props.modalProps}
+          // status={props.status}
+        />
+      </>
+    )
   }
 
 export default TableLineage

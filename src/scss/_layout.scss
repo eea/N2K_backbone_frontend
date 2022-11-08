@@ -127,6 +127,9 @@ html {
   .react-flow__minimap, .react-flow__controls {
     margin: 0;
   }
+  .react-flow__controls-interactive {
+    display: none;
+  }
   .react-flow__node {
     padding: 0.5rem 1rem;
     width: auto;
