@@ -15,6 +15,7 @@ import {matchSorter} from 'match-sorter'
 import { ModalChanges } from './ModalChanges';
 import justificationrequired from './../../../assets/images/exclamation.svg'
 import justificationprovided from './../../../assets/images/file-text.svg'
+import {DataLoader} from '../../../components/DataLoader';
 
 const IndeterminateCheckbox = React.forwardRef(
     ({ indeterminate, ...rest }, ref) => {
@@ -114,7 +115,7 @@ const IndeterminateCheckbox = React.forwardRef(
   
   fuzzyTextFilterFn.autoRemove = val => !val
 
-  function Table({ columns, data, setSelected, siteCodes, currentPage, currentSize, loadPage, status, updateModalValues }) {
+  function Table({ columns, data, setSelected, siteCodes, currentPage, currentSize, loadPage, status, updateModalValues, isTabChanged, setIsTabChanged }) {
     const [disabledBtn, setDisabledBtn] = useState(false);
     const [pgCount, setPgCount] = useState(Math.ceil(siteCodes.length / currentSize));
     const [selectedRows, setSelectedRows] = useState(0);
@@ -157,6 +158,7 @@ const IndeterminateCheckbox = React.forwardRef(
       setPageSize, 
       initialExpanded,
       isAllPageRowsSelected,      
+      toggleAllRowsSelected,
       getToggleAllPageRowsSelectedProps,   
       state: { pageIndex, pageSize, selectedRowIds, expanded, expandSubRows },
     } = useTable(
@@ -206,20 +208,32 @@ const IndeterminateCheckbox = React.forwardRef(
     let changePage = (page,chunk)=>{
       loadPage(page,pageSize);
     }    
+  
+    // clear selection when tab is changed
+    useEffect(() => {
+      if(isTabChanged) {
+        setIsTabChanged(false);
+        toggleAllRowsSelected(false);
+      }
+    }, [isTabChanged]);
+
     // Render the UI for your table
     return (
-      <>     
-      {isAllPageRowsSelected && status === 'pending' && selectedRows !== siteCodes.length ?
-        <div className="message-board">
-          <span className="message-board-text">The <b>{page.length}</b> sites of this page are selected</span>
-          <span className="message-board-link" onClick={() =>(setSelectedRows(siteCodes.length), setSelected(siteCodes))}>Select {siteCodes.length} sites</span>
-        </div> : null
-      }
-      {isAllPageRowsSelected && status === 'pending' && selectedRows === siteCodes.length ?
-        <div className="message-board">
-          <span className="message-board-text">All the <b>{siteCodes.length}</b> sites are selected</span>
-          <ClearSelectionLink {...getToggleAllPageRowsSelectedProps()} id={"sitechanges_check_all_" + status} />
-        </div> : null
+      <>
+      {isAllPageRowsSelected && 
+        (
+          (status === 'pending' || status === 'accepted' || status === 'rejected')
+          && (selectedRows === siteCodes.length || pageSize >= siteCodes.length) ?
+          <div className="message-board">
+            <span className="message-board-text">All the <b>{siteCodes.length}</b> sites are selected</span>
+            <ClearSelectionLink {...getToggleAllPageRowsSelectedProps()} id={"sitechanges_check_all_" + status} />
+          </div>
+          :
+          <div className="message-board">
+            <span className="message-board-text">The <b>{page.length}</b> sites of this page are selected</span>
+            <span className="message-board-link" onClick={() =>(setSelectedRows(siteCodes.length), setSelected(siteCodes))}>Select {siteCodes.length} sites</span>
+          </div> 
+        )
       }
         <table  className="table" {...getTableProps()}>
           <thead>
@@ -302,6 +316,7 @@ const IndeterminateCheckbox = React.forwardRef(
   function TableRSPag(props) {
 
     const [events, setEvents] = useState([]);
+    const [isVisible, setIsVisible] = useState(false);
     const [modalItem, setModalItem] = useState({});
     const [modalVisible, setModalVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -312,8 +327,14 @@ const IndeterminateCheckbox = React.forwardRef(
     const [levelCountry, setLevelCountry] = useState({});
     const [pageCount, setPageCount] = useState(0);
 
-    let forceRefreshData = ()=> setChangesData({});
+    let dl = new(DataLoader);
 
+    let forceRefreshData = ()=> setChangesData({});
+  
+    let toggleVisibility = () => {
+      setIsVisible = !isVisible;
+    }
+  
     let resetPagination = () =>{
       setCurrentPage(0);
       setCurrentSize(30);
@@ -423,7 +444,7 @@ const IndeterminateCheckbox = React.forwardRef(
             ) : null,
         },
         {
-          Header: 'Sitecode',
+          Header: 'Site Code',
           accessor: 'SiteCode',
           className:"cell-sitecode",
           Cell: ({ row }) => {
@@ -544,7 +565,7 @@ const IndeterminateCheckbox = React.forwardRef(
       url += 'country='+props.country;
       url += '&status='+props.status;
       url += '&level='+props.level;
-      return fetch(url)
+      return dl.fetch(url)
       .then(response => response.json())
       .then(data => {
         props.setSitecodes(props.status,data.Data);
@@ -570,7 +591,7 @@ const IndeterminateCheckbox = React.forwardRef(
         url += '&page='+(currentPage+1);
         url += '&limit='+currentSize;
         promises.push(
-          fetch(url)
+          dl.fetch(url)
           .then(response => response.json())
           .then(data => {
             if(Object.keys(data.Data).length===0)
@@ -612,6 +633,8 @@ const IndeterminateCheckbox = React.forwardRef(
             currentSize={currentSize} 
             loadPage = {loadPage}
             status={props.status}
+            isTabChanged={props.isTabChanged}
+            setIsTabChanged={props.setIsTabChanged}
           />
           {props.showModal && showModal(props.showModal)}
           <ModalChanges visible = {modalVisible} 
@@ -632,5 +655,4 @@ const IndeterminateCheckbox = React.forwardRef(
   
   }
   
-  export default TableRSPag
-  
+export default TableRSPag

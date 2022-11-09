@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react'
 import { AppFooter, AppHeader } from '../../../components/index'
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import TableManagement from './TableManagement';
+import ConfigData from '../../../config.json';
+import {DataLoader} from '../../../components/DataLoader';
 
 import {
   CCol,
@@ -12,12 +14,16 @@ import {
   CForm,
   CFormInput,
   CButton,
-  CAlert
+  CAlert,
+  CSpinner
 } from '@coreui/react'
 
+import { ModalRelease } from './ModalRelease';
 import { ConfirmationModal } from './components/ConfirmationModal';
 
-const Reports = () => {
+const Releases = () => {
+  const [refresh,setRefresh] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
   const [modalValues, setModalValues] = useState({
     visibility: false,
     message: false,
@@ -34,11 +40,14 @@ const Reports = () => {
       }));
     }
   });
+  let dl = new(DataLoader);
 
   const showMessage = () => {
     setModalValues((prevState) => ({
       ...prevState,
       message: true,
+      keepOpen: true,
+      visibility: true,
     }));
     setTimeout(() => {
       setModalValues((prevState) => ({
@@ -48,7 +57,7 @@ const Reports = () => {
     }, 4000);
   };
 
-  function updateModalValues(title, text, primaryButtonText, primaryButtonFunction, secondaryButtonText, secondaryButtonFunction) {
+  function updateModalValues(title, text, primaryButtonText, primaryButtonFunction, secondaryButtonText, secondaryButtonFunction, keepOpen) {
     setModalValues({
       visibility: true,
       title: title,
@@ -68,78 +77,84 @@ const Reports = () => {
         : ''
       ),
       message: false,
+      keepOpen: keepOpen ? true : false,
+      close: () => {
+        setModalValues((prevState) => ({
+          ...prevState,
+          visibility: false,
+        }));
+      },
     });
   }
 
-  const createUnionList = () => {
-    let body = Object.fromEntries(new FormData(document.getElementById("unionlist_form")));
-    body.unionListFinal = body.unionListFinal ? true : false;
-    if(!body.unionListName) {
-      showMessage();
-    }
-    else {
-      // sendRequest(ConfigData.UNIONLIST_CREATE,"POST","")
-      // .then(response => response.json())
-      // .then(data => {
-      //   if(data.Success) {
-      //     modalValues.close();
-      //     refresh
-      //   }
-      //   else {
-      //     errors.push(data.Message);
-      //     console.log("Error: " + data.Message);
-      //   }
-      // })
+  let openModal = () => {
+    setModalVisible(true);
+  }
+
+  let closeModal = (refresh) => {
+    setModalVisible(false);
+    if(refresh) {
+      forceRefreshData();
     }
   }
 
-  const deleteUnionList = (id) => {
-    // sendRequest(ConfigData.UNIONLIST_DELETE,"POST","")
-    // .then(response => response.json())
-    // .then(data => {
-    //   if(data.Success) {
-    //     modalValues.close();
-    //     //refresh
-    //   }
-    //   else {
-    //     errors.push(data.Message);
-    //     console.log("Error: " + data.Message);
-    //   }
-    // })
+  let forceRefreshData = () => {
+    //setSitecodes([])
+    setRefresh(true);
+  };
+
+  const deleteReport = (id) => {
+    let body = id;
+    setModalValues((prevState) => ({
+      ...prevState,
+      primaryButton:{
+        text: <><CSpinner size="sm"/> Creating</>
+      },
+    }));
+    sendRequest(ConfigData.UNIONLIST_DELETE,"DELETE",body)
+    .then(response => response.json())
+    .then(data => {
+      if(data.Success) {
+        modalValues.close();
+        setRefresh(true);
+      }
+      else {
+        //errors.push(data.Message);
+        console.log("Error: " + data.Message);
+      }
+    })
   }
 
-  const editUnionList = (id, name, final) => {
-    let body = Object.fromEntries(new FormData(document.getElementById("unionlist_form")));
-    body.unionListFinal = body.unionListFinal ? true : false;
-    if(!body.unionListName) {
+  const editReport = (id, name, final) => {
+    let body = Object.fromEntries(new FormData(document.getElementById("release_form")));
+    body.id = id;
+    body.Final = body.Final ? true : false;
+    if(!body.Name) {
       showMessage();
     }
     else {
-      // sendRequest(ConfigData.UNIONLIST_EDIT,"POST","")
-      // .then(response => response.json())
-      // .then(data => {
-      //   if(data.Success) {
-      //     modalValues.close();
-      //     //refresh
-      //   }
-      //   else {
-      //     errors.push(data.Message);
-      //     console.log("Error: " + data.Message);
-      //   }
-      // })
+      sendRequest(ConfigData.UNIONLIST_UPDATE,"PUT",body)
+      .then(response => response.json())
+      .then(data => {
+        if(data.Success) {
+          modalValues.close();
+          setRefresh(true);
+        }
+        else {
+          //errors.push(data.Message);
+          console.log("Error: " + data.Message);
+        }
+      })
     }
   }
 
   let modalProps = {
     showDeleteModal(id) {
-      updateModalValues("Delete Union List", "This will delete this Union List", "Continue", ()=>deleteUnionList(id), "Cancel", ()=>{});
+      updateModalValues("Delete Union List", "This will delete this Union List", "Continue", ()=>deleteReport(id), "Cancel", ()=>{});
     },
     showEditModal(id, name, final) {
-      updateModalValues("Edit Union List", unionListForm(name, final), "Continue", ()=>editUnionList(id, name, final), "Cancel", ()=>{});
+      updateModalValues("Edit Union List", renderReleaseForm(name, final), "Continue", ()=>editReport(id, name, final), "Cancel", ()=>{});
     },
-    downloadUnionList(id) {
-      console.log("Download "+id);
-    }
   }
 
   const sendRequest = (url,method,body,path) => {
@@ -150,26 +165,27 @@ const Reports = () => {
       },
       body: path ? body : JSON.stringify(body),
     };
-    return fetch(url, options)
+    return dl.fetch(url, options)
   }
 
-  const unionListForm = (name, final) => {
+  const renderReleaseForm = (name, final) => {
     return (
       <div>
-        <CForm id="unionlist_form">
+        <CForm id="release_form">
           <CRow>
             <CCol xs={12}>
               <label className="mb-3">Union List Name</label>
               <CFormInput
                 className="mb-2"
-                name="unionListName"
+                name="Name"
                 type="text"
+                maxLength={254}
                 defaultValue={name}
                 placeholder="Union List Name"
                 autoComplete="off"
               />
               <div className="checkbox">
-                <input type="checkbox" className="input-checkbox" id="modal_check_final" name="unionListFinal" defaultChecked={final}/>
+                <input type="checkbox" className="input-checkbox" id="modal_check_final" name="Final" defaultChecked={final}/>
                 <label htmlFor="modal_check_final" className="input-label">Mark as final</label>
               </div>
             </CCol>
@@ -181,39 +197,33 @@ const Reports = () => {
 
   return (
     <div className="container--main min-vh-100">
-      <AppHeader page="reports"/>
+      <AppHeader page="releases"/>
       <div className="content--wrapper">
         <CSidebar className="sidebar--light">
-          <CSidebarNav>
-            <li className="nav-title">Reports</li>
+        <CSidebarNav>
+            <li className="nav-title">Releases</li>
             <li className="nav-item">
-              <a className="nav-link active" href="/#/reports/management">
+              <a className="nav-link active" href="/#/releases/management">
                 <i className="fa-solid fa-bookmark"></i>
-                Union Lists Management
+                Release Management
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="/#/reports/comparer">
+              <a className="nav-link" href="/#/releases/comparer">
                 <i className="fa-solid fa-bookmark"></i>
-                Union Lists Comparer
+                Release Comparer
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="/#/reports/added">
+              <a className="nav-link" href="/#/releases/unionlists">
                 <i className="fa-solid fa-bookmark"></i>
-                Sites Added
+                Union Lists
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="/#/reports/deleted">
+              <a className="nav-link" href="/#/releases/siteedition">
                 <i className="fa-solid fa-bookmark"></i>
-                Sites Deleted
-              </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link" href="/#/reports/changes">
-                <i className="fa-solid fa-bookmark"></i>
-                Changes
+                Site Edition
               </a>
             </li>
           </CSidebarNav>
@@ -222,13 +232,13 @@ const Reports = () => {
           <CContainer fluid>
             <div className="d-flex justify-content-between py-3">
               <div className="page-title">
-                <h1 className="h1">Union Lists Management</h1>
+                <h1 className="h1">Release Management</h1>
               </div>
               <div>
                   <ul className="btn--list">
                     <li>
-                      <CButton color="primary" onClick={()=>updateModalValues("Create Union List", unionListForm(), "Create", ()=>createUnionList(), "Cancel", ()=>{})}>
-                        Create Union List
+                      <CButton color="primary" onClick={()=>openModal()}>
+                        Create Release
                       </CButton>
                     </li>
                   </ul>
@@ -239,15 +249,23 @@ const Reports = () => {
                 <TableManagement
                   updateModalValues={updateModalValues}
                   modalProps={modalProps}
+                  refresh = {refresh}
+                  setRefresh = {(v)=>{setRefresh(v)}}
                 />
-                <ConfirmationModal modalValues={modalValues}/>
               </CCol>
             </CRow>
           </CContainer>
+          <ModalRelease
+            visible={modalVisible}
+            close={closeModal}
+            updateModalValues={updateModalValues}
+            renderReleaseForm={renderReleaseForm}
+          />
+          <ConfirmationModal modalValues={modalValues}/>
         </div>
       </div>
     </div>
   )
 }
 
-export default Reports
+export default Releases

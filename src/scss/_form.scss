@@ -46,11 +46,15 @@
   line-height: 1.5;
   justify-content: end;
   width: 100%;
+  select {
+    line-height: 1.5rem;
+  }
 }
 .search--input {
   position: relative;
   width: 100%;
   margin-right: 0.5rem;
+  z-index: 5;
   .btn-icon {
     position: absolute;
     top: 0;

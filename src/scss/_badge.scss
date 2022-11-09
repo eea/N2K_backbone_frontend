@@ -67,6 +67,25 @@
     border-color: $success-base;
     color: $success-base;
   }
+  &--lineage {
+    &.basic {
+      color: $black;
+      border-color: $black;
+    }
+    &.green {
+      color: $black;
+      border-color: #4FC1C5;
+      background-color: #CAF1EE;
+    }
+    &.yellow {
+      color: $black;
+      border-color: #FED100;
+      background-color: #FFF1B3;
+    }
+    &:not(:last-of-type) {
+      margin-right: 0.5rem;
+    }
+  }
   &--light {
     background: $gray-100;
     color: $gray-900;

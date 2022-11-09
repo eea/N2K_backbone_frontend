@@ -3,12 +3,15 @@ import { AppFooter, AppHeader } from '../../../components/index'
 import ConfigData from '../../../config.json';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import Turnstone from 'turnstone';
+import {DataLoader} from '../../../components/DataLoader';
 
 import {
   CButton,
   CCol,
   CContainer,
   CRow,
+  CSidebar,
+  CSidebarNav,
   CCard,
   CFormLabel,
   CFormSelect,
@@ -17,6 +20,7 @@ import {
 } from '@coreui/react'
 
 import { ModalEdition } from './ModalEdition';
+import { ConfirmationModal } from './components/ConfirmationModal';
 
 const defaultCountry = () => {
   const searchParams = new URLSearchParams(window.location.href.split('?')[1]);
@@ -24,7 +28,7 @@ const defaultCountry = () => {
   return parmCountry ? parmCountry : ConfigData.DEFAULT_COUNTRY ? ConfigData.DEFAULT_COUNTRY : "";
 }
 
-const Siteedition = () => {
+const Releases = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalItem, setModalItem] = useState({});
   const [siteCodes, setSitecodes] = useState([]);
@@ -50,10 +54,11 @@ const Siteedition = () => {
       }));
     }
   });
+  let dl = new(DataLoader);
 
   if(countries.length === 0 && !loadingCountries){
     setLoadingCountries(true);
-    fetch(ConfigData.COUNTRIES_WITH_DATA)
+    dl.fetch(ConfigData.COUNTRIES_WITH_DATA)
     .then(response => response.json())
     .then(data => {
       setLoadingCountries(false);
@@ -71,12 +76,15 @@ const Siteedition = () => {
   }
 
   let changeCountry = (country) => {
-    setCountry(country)
+    setCountry(country);
+    setSearchList({});
+    turnstoneRef.current?.clear();
+    turnstoneRef.current?.blur();
     forceRefreshData();
   }
 
   if(bioRegions.length === 0){
-    fetch(ConfigData.BIOREGIONS_GET)
+    dl.fetch(ConfigData.BIOREGIONS_GET)
     .then(response => response.json())
     .then(data => {
       let regionsList = data.Data;
@@ -85,7 +93,7 @@ const Siteedition = () => {
   }
 
   if(siteTypes.length === 0){
-    fetch(ConfigData.SITETYPES_GET)
+    dl.fetch(ConfigData.SITETYPES_GET)
     .then(response => response.json())
     .then(data => {
       let typesList = data.Data;
@@ -151,7 +159,7 @@ const Siteedition = () => {
     if(siteCodes.length !==0) return;
     if(country !=="" && !isLoading && siteCodes!=="nodata" && siteCodes.length === 0){
       setIsLoading(true);
-      fetch(ConfigData.SITEEDITION_GET+"country="+country+"?reference=true")
+      dl.fetch(ConfigData.SITEEDITION_NON_PENDING_GET+"country="+country)
       .then(response =>response.json())
       .then(data => {
         if(Object.keys(data.Data).length === 0){
@@ -167,7 +175,7 @@ const Siteedition = () => {
     }
   }
 
-  function updateModalValues(title, text, primaryButtonText, primaryButtonFunction, secondaryButtonText, secondaryButtonFunction) {
+  function updateModalValues(title, text, primaryButtonText, primaryButtonFunction, secondaryButtonText, secondaryButtonFunction, keepOpen) {
     setModalValues({
       visibility: true,
       title: title,
@@ -186,22 +194,9 @@ const Siteedition = () => {
         }
         : ''
       ),
+      message: false,
+      keepOpen: keepOpen ? true : false,
     });
-  }
-
-  let modalProps = {
-    showAlert(text) {
-      setAlertValues({
-        visibility: true,
-        text: text
-      });
-    },
-    showHarvestModal(values) {
-      updateModalValues("Harvest Envelopes", "This will harvest this envelope", "Continue", () => harvestHandler(values), "Cancel", () => modalProps.close);
-    },
-    showDiscardModal(values) {
-      updateModalValues("Discard Envelopes", "This will discard this envelope", "Continue", () => discardHandler(values), "Cancel", () => modalProps.close);
-    }
   }
 
   let loadCards = () => {
@@ -243,8 +238,37 @@ const Siteedition = () => {
 
   return (
     <div className="container--main min-vh-100">
-      <AppHeader page="siteedition"/>
+      <AppHeader page="releases"/>
       <div className="content--wrapper">
+      <CSidebar className="sidebar--light">
+          <CSidebarNav>
+            <li className="nav-title">Releases</li>
+            <li className="nav-item">
+              <a className="nav-link" href="/#/releases/management">
+                <i className="fa-solid fa-bookmark"></i>
+                Release Management
+              </a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link" href="/#/releases/comparer">
+                <i className="fa-solid fa-bookmark"></i>
+                Release Comparer
+              </a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link" href="/#/releases/unionlists">
+                <i className="fa-solid fa-bookmark"></i>
+                Union Lists
+              </a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link active" href="/#/releases/siteedition">
+                <i className="fa-solid fa-bookmark"></i>
+                Site Edition
+              </a>
+            </li>
+          </CSidebarNav>
+        </CSidebar>
         <div className="main-content">
           <CContainer fluid>
             <div className="d-flex justify-content-between py-3">
@@ -259,6 +283,7 @@ const Siteedition = () => {
                     id="siteedition_search"
                     className="form-control"
                     listbox = {searchList}
+                    listboxIsImmutable = {false}
                     placeholder="Search sites by site name or site code"
                     noItemsMessage="Site not found"
                     styles={{input:"form-control", listbox:"search--results", groupHeading:"search--group", noItemsMessage:"search--option"}}
@@ -344,14 +369,15 @@ const Siteedition = () => {
             close = {closeModal}
             item={modalItem.SiteCode}
             version={modalItem.Version}
-            updateModalValues = {() => updateModalValues()}
+            updateModalValues={updateModalValues}
             regions={bioRegions}
             types={siteTypes}
           />
+          <ConfirmationModal modalValues={modalValues}/>
         </div>
       </div>
     </div>
   )
 }
 
-export default Siteedition
+export default Releases

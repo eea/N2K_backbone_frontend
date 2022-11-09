@@ -25,6 +25,7 @@ import {
 
 import { ConfirmationModal } from './components/ConfirmationModal';
 import ConfigData from '../../../config.json';
+import {DataLoader} from '../../../components/DataLoader';
 
 const xmlns = 'https://www.w3.org/2000/svg'
 
@@ -40,7 +41,10 @@ let refreshSitechanges={"pending":false,"accepted":false,"rejected":false},
 
 const Sitechanges = () => {
 
+  let dl = new(DataLoader);
+
   const [activeTab, setActiveTab] = useState(1)
+  const [isTabChanged, setIsTabChanged] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [forceRefresh, setForceRefresh] = useState(0);
@@ -82,7 +86,7 @@ const Sitechanges = () => {
   }
 
   let checkComplete = () => {
-    fetch(ConfigData.HARVESTING_GET_STATUS+"?status=Harvested")
+    dl.fetch(ConfigData.HARVESTING_GET_STATUS+"?status=Harvested")
     .then(response => response.json())
     .then(data => {
       if(Object.keys(data.Data).length > 0) {
@@ -106,7 +110,7 @@ const Sitechanges = () => {
     if(!isLoading){
       let checkAll = document.querySelector('.tab-pane.active [id^=sitechanges_check_all]');
       if(document.querySelectorAll('input[sitecode]:checked').length !== 0 && v.length === 0) {
-        if(!checkAll.indeterminate && !checkAll.checked) {
+        if(!checkAll) {
           setDisabledBtn(true);
         }
         return;
@@ -139,7 +143,7 @@ const Sitechanges = () => {
       },
       body: JSON.stringify(body),
     };
-    return fetch(url, options)
+    return dl.fetch(url, options)
   }
 
   let setBackToPending = (changes)=>{
@@ -226,7 +230,7 @@ const Sitechanges = () => {
       },
       body: path ? body : JSON.stringify(body),
     };
-    return fetch(url, options)
+    return dl.fetch(url, options)
   }
 
   let switchMarkChanges = (changes)=>{
@@ -256,7 +260,7 @@ const Sitechanges = () => {
     }
   });
 
-  function updateModalValues(title, text, primaryButtonText, primaryButtonFunction, secondaryButtonText, secondaryButtonFunction) {
+  function updateModalValues(title, text, primaryButtonText, primaryButtonFunction, secondaryButtonText, secondaryButtonFunction, keepOpen) {
     setModalValues({
       visibility: true,
       title: title,
@@ -275,6 +279,7 @@ const Sitechanges = () => {
         }
         : ''
       ),
+      keepOpen: keepOpen ? true : false,
     });
   }
 
@@ -302,6 +307,11 @@ const Sitechanges = () => {
       </div>
     )
   }
+  
+  let changeStatus = (tabNum) => {
+    setActiveTab(tabNum);
+    setIsTabChanged(true);
+  }
 
   let changeLevel = (level)=>{
     setLevel(level);
@@ -313,13 +323,15 @@ const Sitechanges = () => {
     setSitecodes({});
     setSearchList({});
     setPendingChanges();
+    turnstoneRef.current?.clear();
+    turnstoneRef.current?.blur();
     if(country !== "") {
       forceRefreshData();
     }
   }
 
   let loadCountries = () => {
-    fetch(ConfigData.COUNTRIES_WITH_DATA)
+    dl.fetch(ConfigData.COUNTRIES_WITH_DATA)
     .then(response => response.json())
     .then(data => {
       let countriesList = [];
@@ -484,7 +496,7 @@ const Sitechanges = () => {
                         <CNavLink
                           href="javascript:void(0);"
                           active={activeTab === 1}
-                          onClick={() => {setActiveTab(1);}}
+                          onClick={() => {changeStatus(1);}}
                         >
                           Pending <span className="badge badge--pending">{Object.keys(siteCodes).length === 3 && siteCodes.pending.length}</span>
                         </CNavLink>
@@ -493,7 +505,7 @@ const Sitechanges = () => {
                         <CNavLink
                           href="javascript:void(0);"
                           active={activeTab === 2}
-                          onClick={() => {setActiveTab(2);}}
+                          onClick={() => {changeStatus(2);}}
                         >
                           Accepted <span className="badge badge--accepted">{Object.keys(siteCodes).length === 3 && siteCodes.accepted.length}</span>
                         </CNavLink>
@@ -502,7 +514,7 @@ const Sitechanges = () => {
                         <CNavLink
                           href="javascript:void(0);"
                           active={activeTab === 3}
-                          onClick={() => {setActiveTab(3);}}
+                          onClick={() => {changeStatus(3);}}
                         >
                           Rejected <span className="badge badge--rejected">{Object.keys(siteCodes).length === 3 && siteCodes.rejected.length}</span>
                         </CNavLink>
@@ -524,6 +536,8 @@ const Sitechanges = () => {
                         setSitecodes = {setCodes}
                         setShowModal={()=>showModalSitechanges()}
                         showModal={showModal}
+                        isTabChanged={isTabChanged}
+                        setIsTabChanged={setIsTabChanged}
                       />
                     </CTabPane>
                     <CTabPane role="tabpanel" aria-labelledby="accepted-tab" visible={activeTab === 2}>
@@ -539,6 +553,8 @@ const Sitechanges = () => {
                         setSitecodes = {setCodes}
                         setShowModal={()=>showModalSitechanges()}
                         showModal={showModal}
+                        isTabChanged={isTabChanged}
+                        setIsTabChanged={setIsTabChanged}
                       />
                     </CTabPane>
                     <CTabPane role="tabpanel" aria-labelledby="rejected-tab" visible={activeTab === 3}>
@@ -554,6 +570,8 @@ const Sitechanges = () => {
                         setSitecodes = {setCodes}
                         setShowModal={()=>showModalSitechanges()}
                         showModal={showModal}
+                        isTabChanged={isTabChanged}
+                        setIsTabChanged={setIsTabChanged}
                       />
                     </CTabPane>
                     </CTabContent>

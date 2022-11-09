@@ -6,6 +6,7 @@ import {
   CModalFooter,
   CModalHeader,
   CModalTitle,
+  CSpinner,
   CAlert
 } from '@coreui/react'
 
@@ -14,10 +15,12 @@ export class ConfirmationModal extends Component {
     super(props);
     this.close = this.props.modalValues.close;
   }
-  
+
   primaryFunction() {
     this.props.modalValues.primaryButton.function();
-    //this.close();
+    if(!this.props.modalValues.keepOpen){
+      this.close();
+    }
   }
 
   secondaryFunction() {
@@ -36,7 +39,6 @@ export class ConfirmationModal extends Component {
         <CModalHeader onClose={()=>this.closeFunction()}>
           <CModalTitle>{modal.title}</CModalTitle>
         </CModalHeader>
-        <CAlert className="mx-3" color="primary" dismissible visible={modal.message} onClose={() => modal.closeMessage}>Add valid Union List Name</CAlert>
         <CModalBody>{modal.text}</CModalBody>
         <CModalFooter className={modal.secondaryButton ? "justify-content-between" : "justify-content-end"}>
           {modal.secondaryButton &&
