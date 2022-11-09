@@ -4,6 +4,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import ConfigData from '../../../config.json';
 import {DataLoader} from '../../../components/DataLoader';
 import TableUnionLists from './TableUnionLists';
+import ScrollContainer from 'react-indiana-drag-scroll';
 
 import {
   CCol,
@@ -213,7 +214,7 @@ const Releases = () => {
   }
 
   useEffect(() => {
-    if(document.querySelectorAll(".unionlist-table")[0] && document.querySelectorAll(".unionlist-table")[1]){
+    if(tableData1.length > 0 && tableData2.length > 0 && document.querySelectorAll(".unionlist-table")[0] && document.querySelectorAll(".unionlist-table")[1]){
       let heading1 = document.querySelectorAll(".unionlist-table")[0].querySelectorAll("th");
       let heading2 = document.querySelectorAll(".unionlist-table")[1].querySelectorAll("th");
       heading1.forEach((th,i) => {
@@ -224,7 +225,7 @@ const Releases = () => {
       });
       tableScroll();
       resizeIframe();
-      window.addEventListener('resize', resizeIframe)
+      window.addEventListener('resize', resizeIframe);
     }
   });
 
@@ -330,19 +331,19 @@ const Releases = () => {
                       <CRow>
                         <CCol xs={6}>
                           <b>Previous Release</b>
-                          <div className="unionlist-table" style={{width: tableWidth}}>
+                          <ScrollContainer hideScrollbars={false} className="scroll-container unionlist-table" style={{width: tableWidth}}>
                             {tableData1.length > 0 &&
                               <TableUnionLists data={tableData1} colors={false}/>
                             }
-                          </div>
+                          </ScrollContainer>
                         </CCol>
                         <CCol xs={6}>
                           <b>Current</b>
-                          <div className="unionlist-table" style={{width: tableWidth}}>
+                          <ScrollContainer hideScrollbars={false} className="scroll-container unionlist-table" style={{width: tableWidth}}>
                             {tableData2.length > 0 &&
                               <TableUnionLists data={tableData2} colors={true}/>
                             }
-                          </div>
+                          </ScrollContainer>
                         </CCol>
                       </CRow>
                       <div className="table-footer mt-3">
