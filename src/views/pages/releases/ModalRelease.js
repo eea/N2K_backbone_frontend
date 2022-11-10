@@ -295,7 +295,7 @@ export class ModalRelease extends Component {
     let body = Object.fromEntries(new FormData(document.getElementById("release_form")));
     body.Final = body.Final ? true : false;
     if(!body.Name) {
-      this.showMessage("Add valid Union List Name");
+      this.showMessage("Add valid Release");
     }
     else {
       this.setState({updatingData: true});
