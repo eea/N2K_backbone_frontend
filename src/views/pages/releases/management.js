@@ -150,10 +150,10 @@ const Releases = () => {
 
   let modalProps = {
     showDeleteModal(id) {
-      updateModalValues("Delete Union List", "This will delete this Union List", "Continue", ()=>deleteReport(id), "Cancel", ()=>{});
+      updateModalValues("Delete Release", "This will delete this Release", "Continue", ()=>deleteReport(id), "Cancel", ()=>{});
     },
     showEditModal(id, name, final) {
-      updateModalValues("Edit Union List", renderReleaseForm(name, final), "Continue", ()=>editReport(id, name, final), "Cancel", ()=>{});
+      updateModalValues("Edit Release", renderReleaseForm(name, final), "Continue", ()=>editReport(id, name, final), "Cancel", ()=>{});
     },
   }
 
