@@ -21,6 +21,7 @@
   "GET_PENDING_LEVEL": "https://n2kbackboneback-dev.azurewebsites.net/api/Countries/GetPendingLevel",
   "GET_SITE_COUNT": "https://n2kbackboneback-dev.azurewebsites.net/api/Countries/GetSiteCount",
   "GET_SITE_LEVEL": "https://n2kbackboneback-dev.azurewebsites.net/api/Countries/GetSiteLevel",
+  "GET_CLOSED_COUNTRIES": "https://localhost:7073/api/Countries/GetClosedAndDiscardedCountries",
   "SITEEDITION_GET": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteChanges/GetSiteCodes/",
   "SITEEDITION_NON_PENDING_GET": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteChanges/GetNonPendingSiteCodes/",
   "SITEDETAIL_GET": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteDetails/GetReferenceEditInfo",

@@ -326,10 +326,12 @@ export class ModalEdition extends Component {
     body.CentreY = +body.CentreY;
     body.Version = this.props.version;
     body.SiteCode = this.props.item;
+
     if(Object.values(body).some(val => val === null || val === "")){
       this.showErrorMessage("Empty fields are not allowed");
     }
     else {
+      console.log(body);
       this.sendRequest(ConfigData.SITEDETAIL_SAVE, "POST", body)
       .then((data)=> {
         if(data?.ok){
@@ -349,6 +351,7 @@ export class ModalEdition extends Component {
   // }
 
   sendRequest(url,method,body,path){
+    console.log(body)
     const options = {
       method: method,
       headers: {
