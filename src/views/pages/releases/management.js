@@ -150,10 +150,10 @@ const Releases = () => {
 
   let modalProps = {
     showDeleteModal(id) {
-      updateModalValues("Delete Union List", "This will delete this Union List", "Continue", ()=>deleteReport(id), "Cancel", ()=>{});
+      updateModalValues("Delete Release", "This will delete this Release", "Continue", ()=>deleteReport(id), "Cancel", ()=>{});
     },
     showEditModal(id, name, final) {
-      updateModalValues("Edit Union List", renderReleaseForm(name, final), "Continue", ()=>editReport(id, name, final), "Cancel", ()=>{});
+      updateModalValues("Edit Release", renderReleaseForm(name, final), "Continue", ()=>editReport(id, name, final), "Cancel", ()=>{});
     },
   }
 
@@ -174,14 +174,14 @@ const Releases = () => {
         <CForm id="release_form">
           <CRow>
             <CCol xs={12}>
-              <label className="mb-3">Union List Name</label>
+              <label className="mb-3">Release Name</label>
               <CFormInput
                 className="mb-2"
                 name="Name"
                 type="text"
                 maxLength={254}
                 defaultValue={name}
-                placeholder="Union List Name"
+                placeholder="Release Name"
                 autoComplete="off"
               />
               <div className="checkbox">
