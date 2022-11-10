@@ -188,13 +188,13 @@ export class ModalRelease extends Component {
               <CRow>
                 <CAlert className="mx-3" color="primary" dismissible visible={this.state.message} onClose={() => this.setState({message: null})}>{this.state.message}</CAlert>
                 <CCol xs={12}>
-                  <label className="mb-3">Union List Name</label>
+                  <label className="mb-3">Release Name</label>
                   <CFormInput
                     className="mb-2"
                     name="Name"
                     type="text"
                     maxLength={254}
-                    placeholder="Union List Name"
+                    placeholder="Release Name"
                     autoComplete="off"
                     disabled={this.state.canCreateRelease}
                   />
