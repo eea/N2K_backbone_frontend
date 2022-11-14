@@ -79,7 +79,7 @@ const Releases = () => {
                 let rowTable1 = {};
                 let rowTable2 = {};
                 Object.keys(row).forEach((key) => {
-                  let value = row[key]?.Target === undefined ? row[key] : row[key]?.Target;
+                  let value = row[key]?.Source === undefined ? row[key] : row[key]?.Source;
                   if(key === "BioRegion") {
                     value = bioReg.find(a=>a.BioRegionShortCode === value).RefBioGeoName;
                   }
@@ -95,7 +95,7 @@ const Releases = () => {
                 Object.keys(row).forEach((key) => {
                   let value;
                   if((row.Changes === "ADDED" || row.Changes === "DELETED")) {
-                    value = row[key]?.Source === undefined ? row[key] : row[key]?.Source;
+                    value = row[key]?.Target === undefined ? row[key] : row[key]?.Target;
                     if(key === "BioRegion") {
                       value = bioReg.find(a=>a.BioRegionShortCode === value).RefBioGeoName;
                     }
@@ -105,7 +105,7 @@ const Releases = () => {
                   }
                   else {
                     if(row[key]?.Change === null) {
-                      value = row[key]?.Source === undefined ? row[key] : row[key]?.Source;
+                      value = row[key]?.Target === undefined ? row[key] : row[key]?.Target;
                       if(key === "Priority") {
                         value = value !== null && (value ? "Yes" : "No");
                       }
@@ -296,7 +296,7 @@ const Releases = () => {
                   <>
                     <CRow>
                       <CCol xs={6}>
-                        <b>Previous Release</b>
+                        <b>Lates release</b>
                         <ScrollContainer hideScrollbars={false} className="scroll-container unionlist-table" style={{width: tableWidth}}>
                           {tableData1.length > 0 &&
                             <TableUnionLists data={tableData1} colors={false}/>
