@@ -245,7 +245,7 @@ export class ModalEdition extends Component {
     }
     return fields;
   }
-
+  
   renderModal() {
     let data = this.state.data;
     return(
@@ -271,7 +271,7 @@ export class ModalEdition extends Component {
         <CModalFooter>
           <div className="d-flex w-100 justify-content-between">
             <CButton color="secondary" disabled= {this.state.updatingData} onClick={()=>this.close()}>Cancel</CButton>
-            <CButton color="primary" disabled= {this.state.updatingData} onClick={()=>this.props.updateModalValues("Save changes", "This will save the site changes", "Continue", ()=>this.saveChanges(), "Cancel", ()=>{})}>
+            <CButton color="primary" disabled= {this.state.updatingData} onClick={()=>this.saveChanges()}>
               {this.state.updatingData && <CSpinner size="sm"/>}
               {this.state.updatingData? " Saving":"Save"}
             </CButton>
@@ -327,28 +327,40 @@ export class ModalEdition extends Component {
     body.Version = this.props.version;
     body.SiteCode = this.props.item;
 
-    if(Object.values(body).some(val => val === null || val === "")){
-      this.showErrorMessage("Empty fields are not allowed");
-    }
-    else {
-      console.log(body);
-      this.sendRequest(ConfigData.SITEDETAIL_SAVE, "POST", body)
-      .then((data)=> {
-        if(data?.ok){
-          this.setState({updatingData:false});
-          this.close(true);
+    let errorMargin = 0.00000001;
+
+    if(this.state.data.Area != body.Area
+        || this.state.data.BioRegion != body.BioRegion
+        || this.state.data.Length != body.Length
+        || (Math.abs(this.state.data.CentreX - body.CentreX) > errorMargin)
+        || (Math.abs(this.state.data.CentreY - body.CentreY) > errorMargin)
+    ) {
+      
+      this.props.updateModalValues("Save changes", "This will save the site changes", "Continue", () => {
+
+        if(Object.values(body).some(val => val === null || val === "")){
+          this.showErrorMessage("Empty fields are not allowed");
+        } else {
+          this.sendRequest(ConfigData.SITEDETAIL_SAVE, "POST", body)
+          .then((data)=> {
+            if(data?.ok){
+              this.setState({updatingData:false});
+              this.close(true);
+            }
+            else {
+              this.showErrorMessage("Something went wrong");
+            }
+          });
+          this.setState({updatingData:true});
         }
-        else {
-          this.showErrorMessage("Something went wrong");
-        }
-      });
-      this.setState({updatingData:true});
+      }, "Cancel", () => {this.cancelChanges()});
     }
+    else this.cancelChanges();
   }
 
-  // cancelChanges(){
-  //   this.close(true);
-  // }
+  cancelChanges(){
+    this.close(true);
+  }
 
   sendRequest(url,method,body,path){
     console.log(body)
