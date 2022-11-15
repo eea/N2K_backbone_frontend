@@ -82,7 +82,7 @@ export class ModalEdition extends Component {
   createFieldElement(){
     let fields = [];
     let data = this.state.data;
-    data = JSON.parse(JSON.stringify( data, ["SiteCode","SiteName","SiteType","BioRegion","Area","Length","CentreX","CentreY"]));
+    data = JSON.parse(JSON.stringify( data, ["SiteCode","SiteName","SiteType","BioRegion","Area","Length","CentreY","CentreX"]));
     for(let i in Object.keys(data)){
       let field = Object.keys(data)[i]
       let id = "field_" + field;
@@ -107,7 +107,7 @@ export class ModalEdition extends Component {
           value = options.find(y => y.value === value);
           break;
         case "BioRegion":
-          label = "Biogeographycal region";
+          label = "Biogeographycal Region";
           placeholder = "Select a region";
           options = this.props.regions.map(x => x = {label:x.RefBioGeoName, value:x.Code});
           value = value.map(x => options.find(y => y.value === x));
@@ -120,13 +120,13 @@ export class ModalEdition extends Component {
           label = "Length";
           placeholder = "Site length";
           break;
-        case "CentreX":
-          label = "Centre X";
-          placeholder = "Site centre location longitude";
-          break;
         case "CentreY":
-          label = "Centre Y";
+          label = "Latitude";
           placeholder = "Site centre location latitude";
+          break;
+        case "CentreX":
+          label = "Longitude";
+          placeholder = "Site centre location longitude";
           break;
       }
       fields.push(

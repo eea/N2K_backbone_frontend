@@ -318,7 +318,8 @@ const Releases = () => {
                 <div className="loading-container"><em>Loading...</em></div>
               : (siteCodes === "nodata" ?
                 <div className="nodata-container"><em>No Data</em></div>
-                : <>
+                : siteCodes.length > 0 &&
+                  <>
                     {loadCards()}
                     <CPagination className="mt-3">
                       <CPaginationItem onClick={() => setPageIndex(1)} disabled={pageIndex===1}>
