@@ -1,20 +1,13 @@
 import React, { Suspense } from 'react'
 import { Redirect, Route, Switch } from 'react-router-dom'
-import { CContainer, CSpinner } from '@coreui/react'
 
 // routes config
 import routes from '../routes'
 
-const loading = (
-  <div className="h-100 text-center">
-    <CSpinner color="primary" className="m-5"/>
-  </div>
-)
-
 const AppContent = () => {
   return (
     <>
-      <Suspense fallback={loading}>
+      <Suspense>
         <Switch>
           {routes.map((route, idx) => {
             return (
