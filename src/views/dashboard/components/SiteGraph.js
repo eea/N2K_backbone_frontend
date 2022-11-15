@@ -134,10 +134,15 @@ const SiteGraph = () => {
         )
     else
         return (
-            <HighchartsReact
-                highcharts={Highcharts}
-                options={options}
-            />
+            <>
+                {changesCountriesData.length === 0 ?
+                    <div className="nodata-container"><em>No Data</em></div> :
+                    <HighchartsReact
+                        highcharts={Highcharts}
+                        options={options}
+                    />
+                }
+            </>
         );
 }
 
