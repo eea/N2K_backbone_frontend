@@ -50,7 +50,7 @@ const Dashboard = () => {
                           <IconEnvelopes/>
                         </div>
                         <CCardText className="card-text-new">
-                        PENDING SUBMISSIONS
+                        INCOMING SUBMISSIONS
                         </CCardText>
                       </CCardBody>
                   </CCard>
@@ -78,21 +78,21 @@ const Dashboard = () => {
                       <IconReleases/>
                     </div>
                       <CCardText className="card-text-new">
-                        RELEASES & UNION LIST
+                        RELEASES & UNION LISTS
                       </CCardText>
                     </CCardBody>
                   </CCard>
                 </a>
               </div>
               <div className="col-md-6 col-xl-3">
-                <a href="/#/reports/added">
+                <a href="/#/reports/changes">
                   <CCard className="card-dashboard-new">
                     <CCardBody>
                       <div className="card-icon-new">
                         <IconReports/>
                       </div>
                       <CCardText className="card-text-new">
-                        NEW REPORTS
+                        REPORTS
                       </CCardText>
                     </CCardBody>
                   </CCard>
