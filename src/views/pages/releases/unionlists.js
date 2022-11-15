@@ -113,8 +113,8 @@ const Releases = () => {
                     else {
                       value = row[key];
                       if(key === "Priority") {
-                        value.Source ? "Yes" : "No";
-                        value.Target ? "Yes" : "No";
+                        value.Source = value.Source ? "Yes" : "No";
+                        value.Target = value.Target ? "Yes" : "No";
                       }
                     }
                     if(key === "BioRegion") {
