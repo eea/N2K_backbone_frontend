@@ -116,7 +116,7 @@ const PendingCards = () => {
         <>
             <div className="dashboard-title">
                 <h1 className="h1-main me-5">Countries</h1>
-                {!isLoading &&
+                {!isLoading && pendingCountriesData.length > 0 &&
                     <div>
                         <span className="badge badge--critical radio me-2"><b>{totalPendingCountriesCritical}</b> Critical</span>
                         <span className="badge badge--warning me-2"><b>{totalPendingCountriesWarning}</b> Warning</span>
@@ -126,7 +126,11 @@ const PendingCards = () => {
             </div>
             <div className="bg-white rounded-2 mb-5">
                 <CRow className="grid">
-                    {isLoading ? <em className="loading-container">Loading...</em> : cards()}
+                    {isLoading ?
+                        <em className="loading-container">Loading...</em>
+                        : pendingCountriesData.length === 0 ? <div className="nodata-container"><em>No Data</em></div>
+                        : cards()
+                    }
                 </CRow>
             </div>
         </>
