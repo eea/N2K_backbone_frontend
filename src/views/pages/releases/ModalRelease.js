@@ -270,7 +270,7 @@ export class ModalRelease extends Component {
           this.setState({uncompletedData: data.Data.filter(a=>a.ChangesPending === 0)});
         }
       }));
-      promises.push(this.dl.fetch(ConfigData.HARVESTING_GET_STATUS+"?status=Closed")
+      promises.push(this.dl.fetch(ConfigData.HARVESTING_CLOSED)
       .then(response => response.json())
       .then(data => {
         if(data.Data.length === 0) {
