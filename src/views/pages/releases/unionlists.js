@@ -35,7 +35,7 @@ const Releases = () => {
   let dl = new(DataLoader);
 
   let loadData = () => {
-    if(!isLoading && (tableData1.length === 0 && tableData2.length === 0)) {
+    if(!isLoading && (tableData1.length === 0 && tableData2.length === 0) && (tableData1 !== "nodata" && tableData2 !== "nodata")) {
       let promises = [];
       setIsLoading(true);
       let bioRegionsData = [];
@@ -128,6 +128,10 @@ const Releases = () => {
               setTableData1(dataTable1);
               setTableData2(dataTable2);
             }
+            else {
+              setTableData1("nodata");
+              setTableData2("nodata");
+            }
           })
         );
       }
@@ -145,7 +149,7 @@ const Releases = () => {
       let region = bioRegionsSummary[i];
       let regionName = bioRegions.find(a=>a.BioRegionShortCode === region.BioRegion).RefBioGeoName;
       buttons.push(
-        <CButton color="primary" key={region.BioRegion} disabled={region.Count===0} size="sm" onClick={(e)=>filterBioRegion(e)} value={region.BioRegion}>
+        <CButton color={activeBioregions.includes(region.BioRegion) ? "primary" : "secondary"} key={region.BioRegion} disabled={isLoading || region.Count===0} size="sm" onClick={(e)=>filterBioRegion(e)} value={region.BioRegion}>
           {region.Count + " " + regionName}
         </CButton>
       );
@@ -180,7 +184,6 @@ const Releases = () => {
     setActiveBioregions(filter);
     setTableData1([]);
     setTableData2([]);
-    e.currentTarget.classList.toggle("btn-secondary");
   }
 
   let resizeIframe = () => {

@@ -65,19 +65,19 @@ export class ModalRelease extends Component {
     return (
       <>
         <div className="release-group">
-          <div className="release-group-title">Pending changes {this.state.pendingData !== "nodata" && "(" + this.state.pendingData.length + ")"}</div>
+          <div className="release-group-title">Pending changes ({this.state.pendingData === "nodata" ? 0 : this.state.pendingData.length})</div>
           {this.state.pendingData === "nodata" ? 
             "There are no pending changes." : this.renderPendingCards()
           }
         </div>
         <div className="release-group">
-          <div className="release-group-title">Uncompleted countries {this.state.uncompletedData !== "nodata" && "(" + this.state.uncompletedData.length + ")"}</div>
+          <div className="release-group-title">Uncompleted countries ({this.state.uncompletedData === "nodata" ? 0 : this.state.uncompletedData.length})</div>
           {this.state.uncompletedData === "nodata" ? 
             "There are no uncompleted countries." : this.renderUncompletedCards()
           }
         </div>
         <div className="release-group">
-          <div className="release-group-title">Completed countries {this.state.completedData !== "nodata" && "("+this.state.completedData.length+")"}</div>
+          <div className="release-group-title">Completed countries ({this.state.completedData === "nodata" ? 0 : this.state.completedData.length})</div>
           {this.state.completedData === "nodata" ? 
             "There are no completed countries." : this.renderCompletedCards()
           }
