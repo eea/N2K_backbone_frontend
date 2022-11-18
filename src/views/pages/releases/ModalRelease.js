@@ -161,8 +161,8 @@ export class ModalRelease extends Component {
                   </div>
               </div>
               <div className="country-card-body">
-                {card.ChangesAccepted > 0 && <span className="badge badge--accepted"><b>{card.ChangesAccepted}</b> Accepted</span>}
-                {card.ChangesAccepted > 0 && <span className="badge badge--rejected"><b>{card.ChangesRejected}</b> Rejected</span>}
+                {card.ChangesAccepted > 0 && <span className="badge status--accepted"><b>{card.ChangesAccepted}</b> Accepted</span>}
+                {card.ChangesAccepted > 0 && <span className="badge status--rejected"><b>{card.ChangesRejected}</b> Rejected</span>}
               </div>
           </CCard>
         </CCol>
