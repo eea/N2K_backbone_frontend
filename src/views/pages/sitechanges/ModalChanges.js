@@ -911,7 +911,7 @@ handleJustProvided(){
           <div className="d-flex w-100 justify-content-between">
             {(this.props.status === 'pending') && <CButton color="secondary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.rejectChangesModal(true), true) : this.rejectChangesModal()}>Reject changes</CButton>}
             {(this.props.status === 'pending') && <CButton color="primary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.acceptChangesModal(true), true) : this.acceptChangesModal()}>Accept changes</CButton>}
-            {(this.props.status !== 'pending') && <CButton color="primary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.backToPendingModal(true), true) : this.backToPendingModal()}>Back to Pending</CButton>}
+            {(this.props.status !== 'pending') && <CButton color="primary" className="ms-auto" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.backToPendingModal(true), true) : this.backToPendingModal()}>Back to Pending</CButton>}
           </div>
         </CModalFooter>
       </>

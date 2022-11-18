@@ -46,7 +46,6 @@ const Sitechanges = () => {
   const [activeTab, setActiveTab] = useState(1)
   const [isTabChanged, setIsTabChanged] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [forceRefresh, setForceRefresh] = useState(0);
   const [countries, setCountries] = useState([]);
   const [country, setCountry] = useState(defaultCountry);
@@ -54,7 +53,6 @@ const Sitechanges = () => {
   const [disabledBtn, setDisabledBtn] = useState(true);
   const [disabledSearchBtn, setDisabledSearchBtn] = useState(true);
   const [siteCodes, setSitecodes] = useState({});
-  const [pendingChanges, setPendingChanges] = useState();
   const [searchList, setSearchList] = useState({});
   const [selectOption, setSelectOption] = useState({});
   const [showModal, setShowhowModal] = useState(false);
@@ -67,7 +65,7 @@ const Sitechanges = () => {
       codes[status] = data;
       setSitecodes(codes);
       setSearchList(getSitesList());
-      checkComplete();
+      setIsLoading(false);
     }
     else if (country){
       setIsLoading(false);
@@ -83,17 +81,6 @@ const Sitechanges = () => {
         }
       }
     )
-  }
-
-  let checkComplete = () => {
-    dl.fetch(ConfigData.HARVESTING_GET_STATUS+"?status=Harvested")
-    .then(response => response.json())
-    .then(data => {
-      if(Object.keys(data.Data).length > 0) {
-        setPendingChanges(data.Data.find(x => x.Country === country).ChangesPending);
-      }
-      setIsLoading(false);
-    })
   }
 
   let showModalSitechanges = (data) => {
@@ -211,7 +198,6 @@ const Sitechanges = () => {
           setCountries([]);
           setCountry();
           setSitecodes({});
-          setPendingChanges();
           loadCountries();
           setIsLoading(true);
         }
@@ -322,7 +308,6 @@ const Sitechanges = () => {
     setCountry(country)
     setSitecodes({});
     setSearchList({});
-    setPendingChanges();
     turnstoneRef.current?.clear();
     turnstoneRef.current?.blur();
     if(country !== "") {
@@ -392,32 +377,31 @@ const Sitechanges = () => {
                 <div>
                   <ul className="btn--list">
                     {!isLoading && activeTab === 1 &&
-                      pendingChanges !== undefined && (pendingChanges > 0 ?
-                        <>
-                          <li>
-                            <CButton color="secondary" onClick={()=>updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(selectedCodes), "Cancel", ()=>{})} disabled={disabledBtn || activeTab!==1}>
-                              Reject changes
-                            </CButton>
-                          </li>
-                          <li>
-                            <CButton color="primary" onClick={()=>updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(selectedCodes), "Cancel", ()=>{})} disabled={disabledBtn || activeTab!==1}>
-                              Accept changes
-                            </CButton>
-                          </li>
-                        </>
-                      :
+                      <>
                         <li>
-                          <CButton color="primary" onClick={()=>updateModalValues("Complete Envelopes", "This will complete the envelope", "Continue", ()=>completeEnvelope(), "Cancel", ()=>{})} disabled={updatingData}>
-                            {updatingData && <CSpinner size="sm"/>}
-                            {updatingData ? " Completing Envelope" : "Complete Envelope"}
+                          <CButton color="secondary" onClick={()=>updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(selectedCodes), "Cancel", ()=>{})} disabled={disabledBtn || activeTab!==1}>
+                            Reject changes
                           </CButton>
                         </li>
-                      )
+                        <li>
+                          <CButton color="primary" onClick={()=>updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(selectedCodes), "Cancel", ()=>{})} disabled={disabledBtn || activeTab!==1}>
+                            Accept changes
+                          </CButton>
+                        </li>
+                      </>
                     }
                     {!isLoading && activeTab !== 1 &&
                       <li>
                         <CButton color="primary" onClick={()=>updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", ()=>setBackToPending(selectedCodes), "Cancel", ()=>{})} disabled={disabledBtn || activeTab===1}>
                           Back to Pending
+                        </CButton>
+                      </li>
+                    }
+                    {!isLoading &&
+                      <li>
+                        <CButton color="primary" onClick={()=>updateModalValues("Complete Envelopes", "This will complete the envelope", "Continue", ()=>completeEnvelope(), "Cancel", ()=>{})} disabled={updatingData}>
+                          {updatingData && <CSpinner size="sm"/>}
+                          {updatingData ? " Completing Envelope" : "Complete Envelope"}
                         </CButton>
                       </li>
                     }
