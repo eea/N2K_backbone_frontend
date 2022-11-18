@@ -564,11 +564,6 @@ handleJustProvided(){
             </CSidebarNav>
           </CCol>
           <CCol>
-            {/* <div className="mb-2">
-              {this.state.levels.includes("Critical") && <span className="badge badge--critical me-2">Critical</span>}
-              {this.state.levels.includes("Warning") &&<span className="badge badge--warning me-2">Warning</span>}
-              {this.state.levels.includes("Info") && <span className="badge badge--info me-2">Info</span>}
-            </div> */}
             <CRow>
               <CCol xs="auto">
                 {this.renderBookmarks()}
