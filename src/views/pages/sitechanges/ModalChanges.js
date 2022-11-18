@@ -432,9 +432,7 @@ handleJustProvided(){
             <div key={"change_"+levels[l]+"_"+j+"_"+title} className="collapse-container">
               <div className="d-flex gap-2 align-items-center justify-content-between" key={i+"_"+j}>
                 <div>
-                  {level === "Critical" && <span className="badge badge--critical me-2">Critical</span>}
-                  {level === "Warning" &&<span className="badge badge--warning me-2">Warning</span>}
-                  {level === "Info" && <span className="badge badge--info me-2">Info</span>}
+                  <span className={"badge badge--"+level.toLocaleLowerCase()+" me-2"}>{level}</span>
                   <span className="me-3"> {title}</span>
                 </div>
                 <CButton color="link" className="btn-link--dark text-nowrap" onClick={()=>this.toggleDetail(changes[i][j].ChangeCategory + title)}>
