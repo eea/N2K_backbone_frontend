@@ -421,19 +421,23 @@ handleJustProvided(){
     let list = [];
     for(let l in levels){
       let changes = this.state.data[levels[l]][this.state.bookmark];
+      let level = levels[l];
       for(let i in changes){
         if (!Array.isArray(changes[i])) break;
         for(let j in changes[i]){
           let title = "";
           title += (title?' - ':"") + (changes[i][j].ChangeType?changes[i][j].ChangeType :"");
-          title += changes[i].FieldName?' - '+ changes[i][j].FieldName:""
+          title += changes[i].FieldName?' - '+ changes[i][j].FieldName:"";
           list.push(
             <div key={"change_"+levels[l]+"_"+j+"_"+title} className="collapse-container">
               <div className="d-flex gap-2 align-items-center justify-content-between" key={i+"_"+j}>
                 <div>
+                  {level === "Critical" && <span className="badge badge--critical me-2">Critical</span>}
+                  {level === "Warning" &&<span className="badge badge--warning me-2">Warning</span>}
+                  {level === "Info" && <span className="badge badge--info me-2">Info</span>}
                   <span className="me-3"> {title}</span>
                 </div>
-                <CButton color="link" className="btn-link--dark" onClick={()=>this.toggleDetail(changes[i][j].ChangeCategory + title)}>
+                <CButton color="link" className="btn-link--dark text-nowrap" onClick={()=>this.toggleDetail(changes[i][j].ChangeCategory + title)}>
                   {(this.state.showDetail===changes[i][j].ChangeCategory + title) ? "Hide detail" : "View detail"}
                 </CButton>
               </div>
@@ -560,11 +564,11 @@ handleJustProvided(){
             </CSidebarNav>
           </CCol>
           <CCol>
-            <div className="mb-2">
+            {/* <div className="mb-2">
               {this.state.levels.includes("Critical") && <span className="badge badge--critical me-2">Critical</span>}
               {this.state.levels.includes("Warning") &&<span className="badge badge--warning me-2">Warning</span>}
               {this.state.levels.includes("Info") && <span className="badge badge--info me-2">Info</span>}
-            </div>
+            </div> */}
             <CRow>
               <CCol xs="auto">
                 {this.renderBookmarks()}
