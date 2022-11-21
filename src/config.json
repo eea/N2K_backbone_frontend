@@ -15,6 +15,7 @@
   "DELETE_COMMENT": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteDetails/SiteComments/Delete",
   "HARVESTING_CHANGE_STATUS": "https://n2kbackboneback-dev.azurewebsites.net/api/Harvesting/ChangeStatus",
   "HARVESTING_GET_STATUS": "https://n2kbackboneback-dev.azurewebsites.net/api/Harvesting/GetEnvelopesByStatus",
+  "HARVESTING_CLOSED":"https://n2kbackboneback-dev.azurewebsites.net/api/Harvesting/GetOnlyClosedEnvelopes",
   "GET_ATTACHED_FILES": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteDetails/GetAttachedFiles/",
   "UPLOAD_ATTACHED_FILE": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteDetails/UploadAttachedFile",
   "DELETE_ATTACHED_FILE": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteDetails/DeleteAttachedFile",
