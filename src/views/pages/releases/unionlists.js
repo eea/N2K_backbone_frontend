@@ -59,12 +59,16 @@ const Releases = () => {
             if(Object.keys(data.Data).length > 0){
               setBioRegionsSummary(data.Data.BioRegionSummary);
               setPageResults(data.Count);
-              setActiveBioregions(data.Data.BioRegionSummary.map(a=>a.BioRegion).toString());
+              setActiveBioregions(data.Data.BioRegionSummary.filter(a=>a.Count>0).map(a=>a.BioRegion).toString());
             }
           })
         );
       }
-      if(!tableDataLoading || (tableData1.length === 0 && tableData2.length === 0)) {
+      if (activeBioregions === "nodata") {
+        setTableData1("nodata");
+        setTableData2("nodata");
+      }
+      else if(!tableDataLoading || (tableData1.length === 0 && tableData2.length === 0)) {
         setTableDataLoading(true);
         promises.push(
           dl.fetch(ConfigData.UNIONLISTS_COMPARER+"?page="+pageNumber+"&limit="+pageSize + (activeBioregions && "&bioregions="+activeBioregions))
@@ -145,7 +149,7 @@ const Releases = () => {
       let region = bioRegionsSummary[i];
       let regionName = bioRegions.find(a=>a.BioRegionShortCode === region.BioRegion).RefBioGeoName;
       buttons.push(
-        <CButton color="primary" key={region.BioRegion} disabled={region.Count===0} size="sm" onClick={(e)=>filterBioRegion(e)} value={region.BioRegion}>
+        <CButton color={activeBioregions.includes(region.BioRegion) || region.Count === 0 ? "primary" : "secondary"} key={region.BioRegion} disabled={tableDataLoading || region.Count===0} size="sm" onClick={(e)=>filterBioRegion(e)} value={region.BioRegion}>
           {region.Count + " " + regionName}
         </CButton>
       );
@@ -169,18 +173,21 @@ const Releases = () => {
     let results;
     if(activeBioregions.includes(value)) {
       filter = activeBioregions.split(",").filter(a=>a!==value).toString();
-      results = pageResults - bioRegionsSummary.find(a=>a.BioRegion === value).Count
+      results = pageResults - bioRegionsSummary.find(a=>a.BioRegion === value).Count;
+      if(filter === "")
+        filter = "nodata";
     }
     else {
       filter = activeBioregions.split(",").concat(value).toString();
       results = pageResults + bioRegionsSummary.find(a=>a.BioRegion === value).Count;
+      if(activeBioregions.includes("nodata"))
+        filter = filter.split(",").filter(a=>a!=="nodata").toString();
     }
     setPageNumber(1);
     setPageResults(results);
     setActiveBioregions(filter);
     setTableData1([]);
     setTableData2([]);
-    e.currentTarget.classList.toggle("btn-secondary");
   }
 
   let resizeIframe = () => {
