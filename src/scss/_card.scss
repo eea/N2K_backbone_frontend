@@ -94,11 +94,10 @@
   &-body {
     margin-top: 0.5rem;
     .badge {
-      &:not(.status--pending), &:not(.status--accepted), &:not(.status--rejected) {
-        border: none;
+      margin-right: 0.5rem;
+      &.color--critical, &.color--warning, &.color--info {
         padding: 0;
       }
-      margin-right: 0.5rem;
     }
   }
   &-link {
