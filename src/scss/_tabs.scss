@@ -15,17 +15,6 @@
     }
   }
   .badge {
-    color: inherit;
     margin-left: 0.5rem;
-    border: none;
-    &--pending {
-      background-color: $pending;
-    }
-    &--accepted {
-      background-color: $accepted;
-    }
-    &--rejected {
-      background-color: $rejected;
-    }
   }
 }

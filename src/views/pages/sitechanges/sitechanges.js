@@ -302,12 +302,21 @@ const Sitechanges = () => {
   const item = (props) => {
     return (
       <div className="search--option">
+        {/* <div><span className={"badge status--" + props.item.status}>{props.item.status}</span></div> */}
         <div>{props.item.Name}</div>
         <div className="search--suboption">{props.item.SiteCode}</div>
       </div>
     )
   }
-  
+
+  const group = (props) => {
+    return (
+      <div>
+        <span className={"badge status--" + props.children}>{props.children}</span>
+      </div>
+    )
+  }
+
   let changeStatus = (tabNum) => {
     setActiveTab(tabNum);
     setIsTabChanged(true);
@@ -463,6 +472,7 @@ const Sitechanges = () => {
                       onSelect={(e)=>selectSearchOption(e)}
                       ref={turnstoneRef}
                       Item={item}
+                      GroupName={group}
                       typeahead={false}
                     />
                     {Object.keys(selectOption).length !== 0 &&
@@ -498,7 +508,7 @@ const Sitechanges = () => {
                           active={activeTab === 1}
                           onClick={() => {changeStatus(1);}}
                         >
-                          Pending <span className="badge badge--pending">{Object.keys(siteCodes).length === 3 && siteCodes.pending.length}</span>
+                          Pending <span className="badge status--pending">{Object.keys(siteCodes).length === 3 && siteCodes.pending.length}</span>
                         </CNavLink>
                       </CNavItem>
                       <CNavItem>
@@ -507,7 +517,7 @@ const Sitechanges = () => {
                           active={activeTab === 2}
                           onClick={() => {changeStatus(2);}}
                         >
-                          Accepted <span className="badge badge--accepted">{Object.keys(siteCodes).length === 3 && siteCodes.accepted.length}</span>
+                          Accepted <span className="badge status--accepted">{Object.keys(siteCodes).length === 3 && siteCodes.accepted.length}</span>
                         </CNavLink>
                       </CNavItem>
                       <CNavItem>
@@ -516,7 +526,7 @@ const Sitechanges = () => {
                           active={activeTab === 3}
                           onClick={() => {changeStatus(3);}}
                         >
-                          Rejected <span className="badge badge--rejected">{Object.keys(siteCodes).length === 3 && siteCodes.rejected.length}</span>
+                          Rejected <span className="badge status--rejected">{Object.keys(siteCodes).length === 3 && siteCodes.rejected.length}</span>
                         </CNavLink>
                       </CNavItem>
                     </CNav>

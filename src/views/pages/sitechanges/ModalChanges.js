@@ -861,7 +861,15 @@ handleJustProvided(){
     return(
       <>
         <CModalHeader closeButton={false}>
-          <CModalTitle>{data.SiteCode} - {data.Name}</CModalTitle>
+          <CModalTitle>
+            {data.SiteCode} - {data.Name}
+            {data.Status !== "Pending" &&
+              <>
+                <span className="mx-2"></span>
+                <span className={"badge status--" +data.Status.toLowerCase()}>{data.Status}</span>
+              </>
+            }
+          </CModalTitle>
           <CCloseButton onClick={()=>this.closeModal()}/>
         </CModalHeader>
         <CModalBody>
