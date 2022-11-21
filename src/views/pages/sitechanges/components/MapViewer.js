@@ -15,13 +15,19 @@ class MapViewer extends React.Component {
 
     componentDidMount(){
         loadModules(
-            ["esri/Map", "esri/views/MapView", "esri/widgets/Zoom", "esri/layers/GeoJSONLayer", "esri/widgets/LayerList"],
+            ["esri/Map", "esri/views/MapView", "esri/widgets/Zoom", "esri/layers/GeoJSONLayer", "esri/widgets/LayerList", "esri/layers/FeatureLayer",
+            "esri/layers/MapImageLayer"],
             { css: true }
-          ).then(([Map, MapView, Zoom, _GeoJSONLayer, LayerList]) => {
+          ).then(([Map, MapView, Zoom, _GeoJSONLayer, LayerList, FeatureLayer, MapImageLayer]) => {
             GeoJSONLayer = _GeoJSONLayer;
+            let lastRelease = new MapImageLayer({ url: "https://trial.discomap.eea.europa.eu/arcgis/rest/services/N2kBackbone/Map/MapServer" });
+
             this.map = new Map({
-              basemap: "topo"
+              basemap: "topo",
+              layers: [lastRelease]
             });
+
+            
 
             this.view = new MapView({
                 container: this.mapDiv,
@@ -55,7 +61,7 @@ class MapViewer extends React.Component {
         let url2=
         `https://n2kbackboneback-dev.azurewebsites.net/api/SiteDetails/GetSiteGeometry/siteCode=${code}&version=${version}`;
 
-        this.dl.fetch(url1)
+        fetch(url1)
         .then(response => response.json())
         .then(data => {
             console.log(data);
@@ -80,7 +86,7 @@ class MapViewer extends React.Component {
                 renderer: renderer
             });
             geojsonRef.title = "Reference geometry";
-            this.map.add(geojsonRef);
+            //this.map.add(geojsonRef);
         });
 
         this.dl.fetch(url2)
