@@ -113,39 +113,12 @@ export class ModalRelease extends Component {
                   <span className="badge color--info"><b>{card.NumInfo}</b> Info</span>
                 </div>
                 <div className="country-card-body">
-                  <CButton color="primary" disabled={this.state.completingEnvelope.state} onClick={()=>this.props.updateModalValues("Complete envelope", "This will complete the envelope", "Continue", ()=>this.completeEnvelope(card.Country, card.Version), "Cancel", ()=>{})}>
+                  <CButton color="primary" disabled={this.state.completingEnvelope.state} onClick={(e)=>this.completeEnvelopeModal(e, card)}>
                     {this.state.completingEnvelope.id === card.Country ? <><CSpinner size="sm"/> Completing Envelope</> : "Complete Envelope"}
                   </CButton>
                 </div>
             </CCard>
           </a>
-        </CCol>
-      );
-    }
-    return (
-      <CRow className="grid">
-        {cards}
-      </CRow>
-    )
-  }
-
-  renderUncompletedCards(){
-    let cards = [];
-    for(let i in this.state.harvestedData){
-      let card = this.state.harvestedData[i];
-      cards.push(
-        <CCol key={card.Country + "Card"} xs={12} md={12} lg={6} xl={4}>
-          <CCard className="country-card">
-              <div className="country-card-header">
-                  <div className="country-card-left">
-                      <span className={"card-img--flag cif-" + card.Country.toLowerCase()}></span>
-                      <span className="country-card-title">{card.Name}</span>
-                  </div>
-                  <CButton color="primary" disabled={this.state.completingEnvelope.state} onClick={()=>this.props.updateModalValues("Complete envelope", "This will complete the envelope", "Continue", ()=>this.completeEnvelope(card.Country, card.Version), "Cancel", ()=>{})}>
-                    {this.state.completingEnvelope.id === card.Country ? <><CSpinner size="sm"/> Completing Envelope</> : "Complete Envelope"}
-                  </CButton>
-              </div>
-          </CCard>
         </CCol>
       );
     }
@@ -219,8 +192,8 @@ export class ModalRelease extends Component {
         </CModalBody>
         <CModalFooter>
           <div className="d-flex w-100 justify-content-between">
-            <CButton color="secondary" disabled= {this.state.updatingData} onClick={()=>this.close()}>Cancel</CButton>
-            <CButton color="primary" disabled= {this.state.updatingData} onClick={()=>this.checkReleaseName()}>
+            <CButton color="secondary" disabled= {this.state.updatingData || this.state.completingEnvelope.state} onClick={()=>this.close()}>Cancel</CButton>
+            <CButton color="primary" disabled= {this.state.updatingData || this.state.completingEnvelope.state} onClick={()=>this.checkReleaseName()}>
               {this.state.updatingData && <CSpinner size="sm"/>}
               {this.state.updatingData ? " Creating":"Create"}
             </CButton>
@@ -324,6 +297,11 @@ export class ModalRelease extends Component {
         console.log("Error: " + data.Message);
       }
     })
+  }
+
+  completeEnvelopeModal(e, card) {
+    e.preventDefault();
+    this.props.updateModalValues("Complete envelope", "This will complete the envelope", "Continue", ()=>this.completeEnvelope(card.Country, card.Version), "Cancel", ()=>{})
   }
 
   completeEnvelope(country, version) {
