@@ -385,7 +385,7 @@ const Sitechanges = () => {
                 </div>
                 <div>
                   <ul className="btn--list">
-                    {!isLoading && country !== "" && activeTab === 1 &&
+                    {!isLoading && country && activeTab === 1 &&
                       <>
                         <li>
                           <CButton color="secondary" onClick={()=>updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(selectedCodes), "Cancel", ()=>{})} disabled={disabledBtn || activeTab!==1}>
@@ -399,14 +399,14 @@ const Sitechanges = () => {
                         </li>
                       </>
                     }
-                    {!isLoading && country !== "" && activeTab !== 1 &&
+                    {!isLoading && country && activeTab !== 1 &&
                       <li>
                         <CButton color="primary" onClick={()=>updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", ()=>setBackToPending(selectedCodes), "Cancel", ()=>{})} disabled={disabledBtn || activeTab===1}>
                           Back to Pending
                         </CButton>
                       </li>
                     }
-                    {!isLoading && country !== "" &&
+                    {!isLoading && country &&
                       <li>
                         <CButton color="primary" onClick={()=>updateModalValues("Complete Envelopes", "This will complete the envelope", "Continue", ()=>completeEnvelope(), "Cancel", ()=>{})} disabled={updatingData}>
                           {updatingData && <CSpinner size="sm"/>}
