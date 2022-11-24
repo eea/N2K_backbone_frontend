@@ -20,15 +20,36 @@ class MapViewer extends React.Component {
             { css: true }
           ).then(([Map, MapView, Zoom, _GeoJSONLayer, LayerList, FeatureLayer, MapImageLayer]) => {
             GeoJSONLayer = _GeoJSONLayer;
-            let lastRelease = new MapImageLayer({ url: "https://trial.discomap.eea.europa.eu/arcgis/rest/services/N2kBackbone/Map/MapServer" });
 
+            let mapRel = new MapImageLayer({ url: "https://trial.discomap.eea.europa.eu/arcgis/rest/services/N2kBackbone/Map/MapServer", visible: false });
+
+            let lastRelease = new FeatureLayer({
+                url: "https://trial.discomap.eea.europa.eu/arcgis/rest/services/N2kBackbone/Map/MapServer/1",
+                id: 1,
+                title: "Last Release",
+              });
+
+            let reportedSpatial = new FeatureLayer({
+                url: "https://trial.discomap.eea.europa.eu/arcgis/rest/services/N2kBackbone/Map/MapServer/0",
+                id: 0,
+                title: "Reported Geometries",
+            });
+
+            /*
+            let reportedSpatialTest = new FeatureLayer({
+                url: "https://trial.discomap.eea.europa.eu/arcgis/rest/services/N2kBackbone/Map/MapServer/0",
+                id: 0,
+                title: "Reported Geometries Test",
+                visible: false
+            });
+            */
+            
             this.map = new Map({
               basemap: "topo",
-              layers: [lastRelease]
+              layers: [lastRelease,reportedSpatial,mapRel]
             });
 
             
-
             this.view = new MapView({
                 container: this.mapDiv,
                 map: this.map,
@@ -50,8 +71,38 @@ class MapViewer extends React.Component {
             let layerList = new LayerList({view: this.view});
             this.view.ui.add(layerList,{position: "top-right"});
 
-            this.getGeometry(this.props.siteCode,'0');
-        });
+            this.getReportedGeometry(reportedSpatial,this.props.siteCode);
+
+            //this.getGeometry(this.props.siteCode,'0');
+        });        
+
+    }
+
+    getReportedGeometry(layer,code){
+        let query = layer.createQuery();
+        query.where = "SiteCode = '" + code + "'";
+        console.log(query);
+        layer.queryFeatures(query)
+        .then(
+            res =>{
+                console.log("******");
+                console.log(res);
+                for(let i in res.features){
+                    let feat = res.features[i];
+                    console.log(feat);
+                    console.log(feat.geometry.extent);
+                    console.log(this.view);
+                    this.view.extent = feat.geometry.extent;
+                    let polylineSymbol = {
+                                             type: "simple-line",  // autocasts as SimpleLineSymbol()
+                                             color: [226, 119, 40],
+                                             width: 2
+                                         };
+                    feat.symbol = polylineSymbol;                                         
+                    this.view.graphics.add(feat);
+                }
+            }
+        );
 
     }
 
@@ -124,6 +175,14 @@ class MapViewer extends React.Component {
             */
         });
 
+    }
+
+    query(layer,code){
+        //Query for data
+        let query = layer.createQuery();
+        query.where = "n2kbackbone.DEVELOPERS.%ReportedSitesSpatialAA.SiteCode = '" + code + "'";
+        console.log(query);
+        return layer.queryFeatures(query);
     }
 
     render(){
