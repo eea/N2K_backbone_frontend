@@ -125,6 +125,9 @@ const Releases = () => {
                   let value;
                   if((row.Changes === "ADDED" || row.Changes === "DELETED")) {
                     value = row[key]?.Target === undefined ? row[key] : row[key]?.Target;
+                    if(key === "Priority") {
+                      value = value !== null && (value ? "Yes" : "No");
+                    }
                     if(key === "BioRegion") {
                       value = bioReg.find(a=>a.BioRegionShortCode === value).RefBioGeoName;
                     }
@@ -142,8 +145,8 @@ const Releases = () => {
                     else {
                       value = row[key];
                       if(key === "Priority") {
-                        value.Source ? "Yes" : "No";
-                        value.Target ? "Yes" : "No";
+                        value.Source = value.Source ? "Yes" : "No";
+                        value.Target = value.Target ? "Yes" : "No";
                       }
                     }
                     if(key === "BioRegion") {
