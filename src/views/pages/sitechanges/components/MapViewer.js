@@ -21,7 +21,7 @@ class MapViewer extends React.Component {
           ).then(([Map, MapView, Zoom, _GeoJSONLayer, LayerList, FeatureLayer, MapImageLayer]) => {
             GeoJSONLayer = _GeoJSONLayer;
 
-            let mapRel = new MapImageLayer({ url: "https://trial.discomap.eea.europa.eu/arcgis/rest/services/N2kBackbone/Map/MapServer", visible: false });
+            //let mapRel = new MapImageLayer({ url: "https://trial.discomap.eea.europa.eu/arcgis/rest/services/N2kBackbone/Map/MapServer", visible: false });
 
             let lastRelease = new FeatureLayer({
                 url: "https://trial.discomap.eea.europa.eu/arcgis/rest/services/N2kBackbone/Map/MapServer/1",
@@ -48,7 +48,7 @@ class MapViewer extends React.Component {
 
             this.map = new Map({
               basemap: "topo",
-              layers: [lastRelease,reportedSpatial,mapRel]
+              layers: [lastRelease,reportedSpatial]
             });
 
             
