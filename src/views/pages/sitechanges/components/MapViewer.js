@@ -73,6 +73,11 @@ class MapViewer extends React.Component {
             let layerList = new LayerList({view: this.view});
             this.view.ui.add(layerList,{position: "top-right"});
 
+            this.view.popup.visibleElements={closeButton:false};
+            this.view.popup.dockOptions={buttonEnabled: false};
+            this.view.popup.defaultPopupTemplateEnabled = true;
+            this.view.popup.autoOpenEnabled = true;
+
             this.getReportedGeometry(reportedSpatial,this.props.siteCode);
 
         });        
