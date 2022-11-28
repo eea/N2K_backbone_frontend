@@ -458,6 +458,7 @@ const Sitechanges = () => {
                       Item={item}
                       GroupName={group}
                       typeahead={false}
+                      disabled={isLoading}
                     />
                     {Object.keys(selectOption).length !== 0 &&
                       <span className="btn-icon" onClick={()=>clearSearch()}>

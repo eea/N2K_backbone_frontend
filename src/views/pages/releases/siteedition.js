@@ -291,6 +291,7 @@ const Releases = () => {
                     ref={turnstoneRef}
                     Item={item}
                     typeahead={false}
+                    disabled={isLoading}
                   />
                   {Object.keys(selectOption).length !== 0 &&
                     <span className="btn-icon" onClick={()=>clearSearch()}>
