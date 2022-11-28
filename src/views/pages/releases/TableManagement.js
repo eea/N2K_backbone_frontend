@@ -96,10 +96,7 @@ function Table({ columns, data, setSelected, modalProps, updateModalValues }) {
           id: 'unionListActions',
           cellWidth: "120px",
           Cell: ({ row }) => (
-            <div className="display-flex">
-              <div className="btn-icon" onClick={() => modalProps.downloadUnionList(row.original.idULHeader)}>
-                <i className="fa-solid fa-download"></i>
-              </div>
+            <div className="d-flex">
               <div className="btn-icon" onClick={() => modalProps.showEditModal(row.original.idULHeader, row.original.Name, row.original.Final)}>
                 <i className="fa-solid fa-pencil"></i>
               </div>
@@ -190,16 +187,8 @@ function Table({ columns, data, setSelected, modalProps, updateModalValues }) {
 function TableManagement(props) {
   const [events, setEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(props.isLoading);
-  const [unionListsData, setUnionListsData] = useState([]);
+  const [releasesData, setReleasesDate] = useState([]);
   let dl = new(DataLoader);
-
-  // useEffect(() => {
-  //   fetch(ConfigData.HARVESTING_PRE_HARVESTED)
-  //   .then(response => response.json())
-  //   .then(data => {
-  //     setEvents(data);
-  //   });
-  // }, [])
 
   const formatDate = (date) => {
     date = new Date(date);
@@ -239,8 +228,8 @@ function TableManagement(props) {
   )
 
   let loadData = () => {
-    if((!isLoading && props.refresh) || (!isLoading && unionListsData !== "nodata" && Object.keys(unionListsData).length===0)){
-      if(props.refresh){        
+    if((!isLoading && props.refresh) || (!isLoading && releasesData !== "nodata" && Object.keys(releasesData).length===0)){
+      if(props.refresh){
         props.setRefresh(false);
       } 
       setIsLoading(true);
@@ -248,10 +237,10 @@ function TableManagement(props) {
       .then(response =>response.json())
       .then(data => {
         if(Object.keys(data.Data).length === 0){
-          setUnionListsData("nodata");
+          setReleasesDate("nodata");
         }
         else {
-          setUnionListsData(data.Data.sort((a,b)=>new Date(b.Date)-new Date(a.Date)));
+          setReleasesDate(data.Data.sort((a,b)=>new Date(b.Date)-new Date(a.Date)));
         }
         setIsLoading(false);
       });
@@ -270,14 +259,14 @@ function TableManagement(props) {
   if(isLoading)
     return (<div className="loading-container"><em>Loading...</em></div>)
   else
-    if(unionListsData==="nodata")
+    if(releasesData==="nodata")
       return (<div className="nodata-container"><em>No Data</em></div>)
     else
     return (
       <>
         <Table
           columns={columns}
-          data={unionListsData}
+          data={releasesData}
           modalProps={props.modalProps}
           updateModalValues={props.updateModalValues}
         />

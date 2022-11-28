@@ -74,11 +74,6 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 0.5rem;
-    &-arrow {
-      color: $primary-base;
-      align-items: right;
-    }
   }
   &-left {
     margin-right: 1rem;
@@ -97,10 +92,12 @@
     vertical-align: middle;
   }
   &-body {
+    margin-top: 0.5rem;
     .badge {
-      border: none;
-      padding: 0;
       margin-right: 0.5rem;
+      &.color--critical, &.color--warning, &.color--info {
+        padding: 0;
+      }
     }
   }
   &-link {
@@ -271,8 +268,8 @@
   }
 }
 
-.card-icon-new{
-  width: 65px;
+.card-icon-new {
+  width: 4rem;
   float: left;  
 }
 
