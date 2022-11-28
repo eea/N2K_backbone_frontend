@@ -32,6 +32,8 @@
   "UNIONLIST_CREATE": "https://n2kbackboneback-dev.azurewebsites.net/api/UnionList/Create",
   "UNIONLIST_DELETE": "https://n2kbackboneback-dev.azurewebsites.net/api/UnionList/Delete",
   "UNIONLIST_UPDATE": "https://n2kbackboneback-dev.azurewebsites.net/api/UnionList/Update",
+  "LINEAGE_COUNTRIES": "https://n2kbackboneback-dev.azurewebsites.net/api/Countries/GetClosedAndDiscardedCountries",
+  "LINEAGE_GET_SITES": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteChanges/GetNonPendingSiteCodes/",
   "THEME_COLORS": {
     "PRIMARY": "#007bff",
     "SECONDARY": "#fc3"
