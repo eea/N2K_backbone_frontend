@@ -67,6 +67,23 @@
     border-color: $success-base;
     color: $success-base;
   }
+  &.status {
+    &--pending {
+      background-color: $pending;
+      color: $black;
+      border: none;
+    }
+    &--accepted {
+      background-color: $accepted;
+      color: $black;
+      border: none;
+    }
+    &--rejected {
+      background-color: $rejected;
+      color: $black;
+      border: none;
+    }
+  }
   &--lineage {
     &.basic {
       color: $black;
@@ -81,6 +98,9 @@
       color: $black;
       border-color: #FED100;
       background-color: #FFF1B3;
+    }
+    &:not(:last-of-type) {
+      margin-right: 0.5rem;
     }
   }
   &--light {

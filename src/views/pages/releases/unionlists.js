@@ -4,6 +4,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import ConfigData from '../../../config.json';
 import {DataLoader} from '../../../components/DataLoader';
 import TableUnionLists from './TableUnionLists';
+import ScrollContainer from 'react-indiana-drag-scroll';
 
 import {
   CCol,
@@ -58,12 +59,16 @@ const Releases = () => {
             if(Object.keys(data.Data).length > 0){
               setBioRegionsSummary(data.Data.BioRegionSummary);
               setPageResults(data.Count);
-              setActiveBioregions(data.Data.BioRegionSummary.map(a=>a.BioRegion).toString());
+              setActiveBioregions(data.Data.BioRegionSummary.filter(a=>a.Count>0).map(a=>a.BioRegion).toString());
             }
           })
         );
       }
-      if(!tableDataLoading || (tableData1.length === 0 && tableData2.length === 0)) {
+      if (activeBioregions === "nodata") {
+        setTableData1("nodata");
+        setTableData2("nodata");
+      }
+      else if(!tableDataLoading || (tableData1.length === 0 && tableData2.length === 0)) {
         setTableDataLoading(true);
         promises.push(
           dl.fetch(ConfigData.UNIONLISTS_COMPARER+"?page="+pageNumber+"&limit="+pageSize + (activeBioregions && "&bioregions="+activeBioregions))
@@ -78,9 +83,12 @@ const Releases = () => {
                 let rowTable1 = {};
                 let rowTable2 = {};
                 Object.keys(row).forEach((key) => {
-                  let value = row[key]?.Target === undefined ? row[key] : row[key]?.Target;
+                  let value = row[key]?.Source === undefined ? row[key] : row[key]?.Source;
                   if(key === "BioRegion") {
                     value = bioReg.find(a=>a.BioRegionShortCode === value).RefBioGeoName;
+                  }
+                  if(row.Changes === "ADDED" && (key === "BioRegion" || key === "Sitecode")) {
+                    value = "";
                   }
                   else if(key === "Priority") {
                     value = value !== null && (value ? "Yes" : "No");
@@ -91,14 +99,20 @@ const Releases = () => {
                 Object.keys(row).forEach((key) => {
                   let value;
                   if((row.Changes === "ADDED" || row.Changes === "DELETED")) {
-                    value = row[key]?.Source === undefined ? row[key] : row[key]?.Source;
+                    value = row[key]?.Target === undefined ? row[key] : row[key]?.Target;
+                    if(key === "Priority") {
+                      value = value !== null && (value ? "Yes" : "No");
+                    }
                     if(key === "BioRegion") {
                       value = bioReg.find(a=>a.BioRegionShortCode === value).RefBioGeoName;
+                    }
+                    if(row.Changes === "DELETED" && (key === "BioRegion" || key === "Sitecode")) {
+                      value = "";
                     }
                   }
                   else {
                     if(row[key]?.Change === null) {
-                      value = row[key]?.Source === undefined ? row[key] : row[key]?.Source;
+                      value = row[key]?.Target === undefined ? row[key] : row[key]?.Target;
                       if(key === "Priority") {
                         value = value !== null && (value ? "Yes" : "No");
                       }
@@ -106,8 +120,8 @@ const Releases = () => {
                     else {
                       value = row[key];
                       if(key === "Priority") {
-                        value.Source ? "Yes" : "No";
-                        value.Target ? "Yes" : "No";
+                        value.Source = value.Source ? "Yes" : "No";
+                        value.Target = value.Target ? "Yes" : "No";
                       }
                     }
                     if(key === "BioRegion") {
@@ -138,7 +152,7 @@ const Releases = () => {
       let region = bioRegionsSummary[i];
       let regionName = bioRegions.find(a=>a.BioRegionShortCode === region.BioRegion).RefBioGeoName;
       buttons.push(
-        <CButton color="primary" key={region.BioRegion} disabled={region.Count===0} size="sm" onClick={(e)=>filterBioRegion(e)} value={region.BioRegion}>
+        <CButton color={activeBioregions.includes(region.BioRegion) || region.Count === 0 ? "primary" : "secondary"} key={region.BioRegion} disabled={tableDataLoading || region.Count===0} size="sm" onClick={(e)=>filterBioRegion(e)} value={region.BioRegion}>
           {region.Count + " " + regionName}
         </CButton>
       );
@@ -162,17 +176,21 @@ const Releases = () => {
     let results;
     if(activeBioregions.includes(value)) {
       filter = activeBioregions.split(",").filter(a=>a!==value).toString();
-      results = pageResults - bioRegionsSummary.find(a=>a.BioRegion === value).Count
+      results = pageResults - bioRegionsSummary.find(a=>a.BioRegion === value).Count;
+      if(filter === "")
+        filter = "nodata";
     }
     else {
       filter = activeBioregions.split(",").concat(value).toString();
       results = pageResults + bioRegionsSummary.find(a=>a.BioRegion === value).Count;
+      if(activeBioregions.includes("nodata"))
+        filter = filter.split(",").filter(a=>a!=="nodata").toString();
     }
+    setPageNumber(1);
     setPageResults(results);
     setActiveBioregions(filter);
     setTableData1([]);
     setTableData2([]);
-    e.currentTarget.classList.toggle("btn-secondary");
   }
 
   let resizeIframe = () => {
@@ -181,7 +199,7 @@ const Releases = () => {
   }
 
   useEffect(() => {
-    if(document.querySelectorAll(".unionlist-table")[0] && document.querySelectorAll(".unionlist-table")[1]){
+    if(tableData1.length > 0 && tableData2.length > 0 && document.querySelectorAll(".unionlist-table")[0] && document.querySelectorAll(".unionlist-table")[1]){
       let heading1 = document.querySelectorAll(".unionlist-table")[0].querySelectorAll("th");
       let heading2 = document.querySelectorAll(".unionlist-table")[1].querySelectorAll("th");
       heading1.forEach((th,i) => {
@@ -192,7 +210,7 @@ const Releases = () => {
       });
       tableScroll();
       resizeIframe();
-      window.addEventListener('resize', resizeIframe)
+      window.addEventListener('resize', resizeIframe);
     }
   });
 
@@ -288,20 +306,20 @@ const Releases = () => {
                   <>
                     <CRow>
                       <CCol xs={6}>
-                        <b>Previous Release</b>
-                        <div className="unionlist-table" style={{width: tableWidth}}>
+                        <b>Lates release</b>
+                        <ScrollContainer hideScrollbars={false} className="scroll-container unionlist-table" style={{width: tableWidth}}>
                           {tableData1.length > 0 &&
                             <TableUnionLists data={tableData1} colors={false}/>
                           }
-                        </div>
+                        </ScrollContainer>
                       </CCol>
                       <CCol xs={6}>
                         <b>Current</b>
-                        <div className="unionlist-table" style={{width: tableWidth}}>
-                          {tableData2.length > 0 &&
+                        <ScrollContainer hideScrollbars={false} className="scroll-container unionlist-table" style={{width: tableWidth}}>
+                        {tableData2.length > 0 &&
                             <TableUnionLists data={tableData2} colors={true}/>
                           }
-                        </div>
+                        </ScrollContainer>
                       </CCol>
                     </CRow>
                     <div className="table-footer mt-3">

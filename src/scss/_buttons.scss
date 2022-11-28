@@ -69,7 +69,10 @@
       vertical-align: middle;
     }
   }
-
+  &:focus, &:focus:active {
+    color: inherit;
+    box-shadow: none;
+  }
 }
 
 .dropdown-menu {

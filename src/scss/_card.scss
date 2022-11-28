@@ -94,18 +94,9 @@
   &-body {
     margin-top: 0.5rem;
     .badge {
-      border: none;
-      padding: 0;
       margin-right: 0.5rem;
-      &--accepted {
-        background-color: #daf5d6;
-        color: $black;
-        padding: 0.25rem 0.5rem;
-      }
-      &--rejected {
-        background-color: #f6cbcf;
-        color: $black;
-        padding: 0.25rem 0.5rem;
+      &.color--critical, &.color--warning, &.color--info {
+        padding: 0;
       }
     }
   }

@@ -421,19 +421,21 @@ handleJustProvided(){
     let list = [];
     for(let l in levels){
       let changes = this.state.data[levels[l]][this.state.bookmark];
+      let level = levels[l];
       for(let i in changes){
         if (!Array.isArray(changes[i])) break;
         for(let j in changes[i]){
           let title = "";
           title += (title?' - ':"") + (changes[i][j].ChangeType?changes[i][j].ChangeType :"");
-          title += changes[i].FieldName?' - '+ changes[i][j].FieldName:""
+          title += changes[i].FieldName?' - '+ changes[i][j].FieldName:"";
           list.push(
             <div key={"change_"+levels[l]+"_"+j+"_"+title} className="collapse-container">
               <div className="d-flex gap-2 align-items-center justify-content-between" key={i+"_"+j}>
                 <div>
+                  <span className={"badge badge--"+level.toLocaleLowerCase()+" me-2"}>{level}</span>
                   <span className="me-3"> {title}</span>
                 </div>
-                <CButton color="link" className="btn-link--dark" onClick={()=>this.toggleDetail(changes[i][j].ChangeCategory + title)}>
+                <CButton color="link" className="btn-link--dark text-nowrap" onClick={()=>this.toggleDetail(changes[i][j].ChangeCategory + title)}>
                   {(this.state.showDetail===changes[i][j].ChangeCategory + title) ? "Hide detail" : "View detail"}
                 </CButton>
               </div>
@@ -560,11 +562,6 @@ handleJustProvided(){
             </CSidebarNav>
           </CCol>
           <CCol>
-            <div className="mb-2">
-              {this.state.levels.includes("Critical") && <span className="badge badge--critical me-2">Critical</span>}
-              {this.state.levels.includes("Warning") &&<span className="badge badge--warning me-2">Warning</span>}
-              {this.state.levels.includes("Info") && <span className="badge badge--info me-2">Info</span>}
-            </div>
             <CRow>
               <CCol xs="auto">
                 {this.renderBookmarks()}
@@ -864,7 +861,15 @@ handleJustProvided(){
     return(
       <>
         <CModalHeader closeButton={false}>
-          <CModalTitle>{data.SiteCode} - {data.Name}</CModalTitle>
+          <CModalTitle>
+            {data.SiteCode} - {data.Name}
+            {data.Status !== "Pending" &&
+              <>
+                <span className="mx-2"></span>
+                <span className={"badge status--" +data.Status.toLowerCase()}>{data.Status}</span>
+              </>
+            }
+          </CModalTitle>
           <CCloseButton onClick={()=>this.closeModal()}/>
         </CModalHeader>
         <CModalBody>
@@ -911,7 +916,7 @@ handleJustProvided(){
           <div className="d-flex w-100 justify-content-between">
             {(this.props.status === 'pending') && <CButton color="secondary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.rejectChangesModal(true), true) : this.rejectChangesModal()}>Reject changes</CButton>}
             {(this.props.status === 'pending') && <CButton color="primary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.acceptChangesModal(true), true) : this.acceptChangesModal()}>Accept changes</CButton>}
-            {(this.props.status !== 'pending') && <CButton color="primary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.backToPendingModal(true), true) : this.backToPendingModal()}>Back to Pending</CButton>}
+            {(this.props.status !== 'pending') && <CButton color="primary" className="ms-auto" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.backToPendingModal(true), true) : this.backToPendingModal()}>Back to Pending</CButton>}
           </div>
         </CModalFooter>
       </>

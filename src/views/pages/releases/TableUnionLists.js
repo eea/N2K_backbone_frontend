@@ -144,42 +144,42 @@ import ConfigData from '../../../config.json';
           Header: 'Site Name',
           accessor: 'SiteName',
           Cell: ({ row, cell }) => {
-            return cell.value?.Source === undefined ? cell.value : cell.value?.Source;
+            return cell.value?.Target === undefined ? cell.value : cell.value?.Target;
           }
         },
         {
           Header: 'Priority',
           accessor: 'Priority',
           Cell: ({ row, cell }) => {
-            return cell.value?.Source === undefined ? cell.value : cell.value?.Source;
+            return cell.value?.Target === undefined ? cell.value : cell.value?.Target;
           }
         },
         {
           Header: 'Area',
           accessor: 'Area',
           Cell: ({ row, cell }) => {
-            return cell.value?.Source === undefined ? cell.value : cell.value?.Source;
+            return cell.value?.Target === undefined ? cell.value : cell.value?.Target;
           }
         },
         {
           Header: 'Length',
           accessor: 'Length',
           Cell: ({ row, cell }) => {
-            return cell.value?.Source === undefined ? cell.value : cell.value?.Source;
+            return cell.value?.Target === undefined ? cell.value : cell.value?.Target;
           }
         },
         {
           Header: 'Latitude',
           accessor: 'Latitude',
           Cell: ({ row, cell }) => {
-            return cell.value?.Source === undefined ? cell.value : cell.value?.Source;
+            return cell.value?.Target === undefined ? cell.value : cell.value?.Target;
           }
         },
         {
           Header: 'Longitude',
           accessor: 'Longitude',
           Cell: ({ row, cell }) => {
-            return cell.value?.Source === undefined ? cell.value : cell.value?.Source;
+            return cell.value?.Target === undefined ? cell.value : cell.value?.Target;
           }
         },
       ],

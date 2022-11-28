@@ -58,7 +58,7 @@ const Releases = () => {
 
   if(countries.length === 0 && !loadingCountries){
     setLoadingCountries(true);
-    dl.fetch(ConfigData.COUNTRIES_WITH_DATA)
+    dl.fetch(ConfigData.GET_CLOSED_COUNTRIES)
     .then(response => response.json())
     .then(data => {
       setLoadingCountries(false);
@@ -318,7 +318,8 @@ const Releases = () => {
                 <div className="loading-container"><em>Loading...</em></div>
               : (siteCodes === "nodata" ?
                 <div className="nodata-container"><em>No Data</em></div>
-                : <>
+                : siteCodes.length > 0 &&
+                  <>
                     {loadCards()}
                     <CPagination className="mt-3">
                       <CPaginationItem onClick={() => setPageIndex(1)} disabled={pageIndex===1}>

@@ -3,6 +3,8 @@ import { AppFooter, AppHeader } from '../../../components/index'
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import ConfigData from '../../../config.json';
 import {DataLoader} from '../../../components/DataLoader';
+import TableUnionLists from './TableUnionLists';
+import ScrollContainer from 'react-indiana-drag-scroll';
 
 import {
   CCol,
@@ -11,23 +13,28 @@ import {
   CSidebar,
   CSidebarNav,
   CButton,
-  CFormLabel,
+  CPagination,
+  CPaginationItem,
   CFormSelect,
-  CTable
 } from '@coreui/react'
 
-let hasTableScroll = false;
-
 const Releases = () => {
+  const [releaseList, setReleaseList] = useState([]);
+  const [selectedRelease1, setSelectedRelease1] = useState();
+  const [selectedRelease2, setSelectedRelease2] = useState();
+  const [compare, setCompare] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [unionLists, setUnionLists] = useState([]);
   const [bioRegions, setBioRegions] = useState([]);
-  const [filteredBioRegions, setFilteredBioRegions] = useState([]);
-  const [selectedUnionList1, setSelectedUnionList1] = useState();
-  const [selectedUnionList2, setSelectedUnionList2] = useState();
-  const [tableData, setTableData] = useState([]);
+  const [bioRegionsSummary, setBioRegionsSummary] = useState([]);
+  const [activeBioregions, setActiveBioregions] = useState("");
+  const [tableDataLoading, setTableDataLoading] = useState(false);
+  const [tableData, setTableData] = useState(false);
   const [tableData1, setTableData1] = useState([]);
   const [tableData2, setTableData2] = useState([]);
+  const [tableWidth, setTableWidth] = useState();
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [pageResults, setPageResults] = useState();
   let dl = new(DataLoader);
 
   let loadUnionLists = () => {
@@ -36,123 +43,199 @@ const Releases = () => {
     .then(response =>response.json())
     .then(data => {
       if(Object.keys(data.Data).length > 0){
-        setUnionLists(data.Data);
+        setReleaseList(data.Data);
       }
       setIsLoading(false);
     });
   }
 
-  let loadBioRegions = () => {
-    dl.fetch(ConfigData.UNIONLISTS_BIOREGIONS)
-    .then(response =>response.json())
-    .then(data => {
-      if(Object.keys(data.Data).length > 0){
-        setBioRegions(data.Data);
-      }
-    });
+  const compareReleases = () => {
+    setTableData(false);
+    setActiveBioregions([]);
+    setTableData1([]);
+    setTableData2([]);
+    setBioRegionsSummary([]);
+    setCompare(true);
+    setPageNumber(1);
   }
 
-  const compareUnionLists = () => {
-    loadData(selectedUnionList1, selectedUnionList2);
-  }
-
-  let loadData = (unionlist1, unionlist2) => {
-    if(!isLoading && (Object.keys(tableData1).length===0 || Object.keys(tableData2).length===0)) {
+  let loadData = () => {
+    if(!isLoading && (tableData1.length === 0 && tableData2.length === 0)) {
+      let promises = [];
       setIsLoading(true);
-      dl.fetch(ConfigData.UNIONLISTS_COMPARER)
-      .then(response => response.json())
-      .then(data => {
-        if(Object.keys(data.Data).length > 0) {
-          let dataFilter = data.Data;
-          setTableData(data.Data);
-          if(filteredBioRegions.length > 0){
-            for(let i in filteredBioRegions){
-              dataFilter.push(dataFilter.filter(a=>a.BioRegion === filteredBioRegions[i]));
+      let bioRegionsData = [];
+      if(bioRegions.length === 0) {
+        promises.push(
+          dl.fetch(ConfigData.UNIONLISTS_BIOREGIONS)
+          .then(response =>response.json())
+          .then(data => {
+            if(Object.keys(data.Data).length > 0){
+              setBioRegions(data.Data);
+              bioRegionsData = data.Data;
             }
-          }
-          setTableData(dataFilter.slice(0,100));
-          setTableData1(dataFilter.slice(0,100));
-          setTableData2(dataFilter.slice(0,100));
-        }
+          })
+        );
+      }
+      if(bioRegionsSummary.length === 0) {
+        promises.push(
+          dl.fetch(ConfigData.UNIONLISTS_SUMMARY)
+          .then(response =>response.json())
+          .then(data => {
+            if(Object.keys(data.Data).length > 0){
+              setBioRegionsSummary(data.Data.BioRegionSummary);
+              setPageResults(data.Count);
+              setActiveBioregions(data.Data.BioRegionSummary.filter(a=>a.Count>0).map(a=>a.BioRegion).toString());
+            }
+          })
+        );
+      }
+      if (activeBioregions === "nodata") {
+        setTableData1("nodata");
+        setTableData2("nodata");
+      }
+      else if(!tableDataLoading || (tableData1.length === 0 && tableData2.length === 0)) {
+        setTableDataLoading(true);
+        promises.push(
+          dl.fetch(ConfigData.UNIONLISTS_COMPARER+"?page="+pageNumber+"&limit="+pageSize + (activeBioregions && "&bioregions="+activeBioregions))
+          .then(response => response.json())
+          .then(data => {
+            if(Object.keys(data.Data).length > 0 && tableData1.length === 0 && tableData2.length === 0) {
+              let bioReg = bioRegions.length === 0 ? bioRegionsData : bioRegions;
+              let dataTable1 = [];
+              let dataTable2 = [];
+              for(let i in data.Data) {
+                let row = data.Data[i];
+                let rowTable1 = {};
+                let rowTable2 = {};
+                Object.keys(row).forEach((key) => {
+                  let value = row[key]?.Source === undefined ? row[key] : row[key]?.Source;
+                  if(key === "BioRegion") {
+                    value = bioReg.find(a=>a.BioRegionShortCode === value).RefBioGeoName;
+                  }
+                  if(row.Changes === "ADDED" && (key === "BioRegion" || key === "Sitecode")) {
+                    value = "";
+                  }
+                  else if(key === "Priority") {
+                    value = value !== null && (value ? "Yes" : "No");
+                  }
+                  rowTable1[key] = value;
+                });
+                dataTable1.push(rowTable1);
+                Object.keys(row).forEach((key) => {
+                  let value;
+                  if((row.Changes === "ADDED" || row.Changes === "DELETED")) {
+                    value = row[key]?.Target === undefined ? row[key] : row[key]?.Target;
+                    if(key === "Priority") {
+                      value = value !== null && (value ? "Yes" : "No");
+                    }
+                    if(key === "BioRegion") {
+                      value = bioReg.find(a=>a.BioRegionShortCode === value).RefBioGeoName;
+                    }
+                    if(row.Changes === "DELETED" && (key === "BioRegion" || key === "Sitecode")) {
+                      value = "";
+                    }
+                  }
+                  else {
+                    if(row[key]?.Change === null) {
+                      value = row[key]?.Target === undefined ? row[key] : row[key]?.Target;
+                      if(key === "Priority") {
+                        value = value !== null && (value ? "Yes" : "No");
+                      }
+                    }
+                    else {
+                      value = row[key];
+                      if(key === "Priority") {
+                        value.Source = value.Source ? "Yes" : "No";
+                        value.Target = value.Target ? "Yes" : "No";
+                      }
+                    }
+                    if(key === "BioRegion") {
+                      value = bioReg.find(a=>a.BioRegionShortCode === value).RefBioGeoName;
+                    }
+                  }
+                  rowTable2[key] = value;
+                });
+                dataTable2.push(rowTable2);
+              }
+              setTableData1(dataTable1);
+              setTableData2(dataTable2);
+            }
+          })
+        );
+      }
+      Promise.all(promises).then(v=>{
         setIsLoading(false);
-      })
+        setTableData(true);
+        setTableDataLoading(false);
+      });
     }
   }
 
   const loadBioRegionButtons = () => {
     let buttons = [];
-    for(let i in bioRegions){
-      let region = bioRegions[i];
-      let count = tableData.filter(a => a.BioRegion === region.BioRegionShortCode).length;
+    for(let i in bioRegionsSummary){
+      let region = bioRegionsSummary[i];
+      let regionName = bioRegions.find(a=>a.BioRegionShortCode === region.BioRegion).RefBioGeoName;
       buttons.push(
-        <CButton color="primary" disabled={count===0} size="sm" onClick={(e)=>filterBioRegion(e)} value={region.BioRegionShortCode}>
-          {count + " " + region.RefBioGeoName}
+        <CButton color={activeBioregions.includes(region.BioRegion) || region.Count === 0 ? "primary" : "secondary"} key={region.BioRegion} disabled={tableDataLoading || region.Count===0} size="sm" onClick={(e)=>filterBioRegion(e)} value={region.BioRegion}>
+          {region.Count + " " + regionName}
         </CButton>
       );
     }
     return buttons;
   }
 
-  const loadTable = () => {
-    let header = [
-      {field:"BioRegion",name:"Biogeographical Region"},
-      {field:"SCI_code",name:"Sitecode"},
-      {field:"SCI_Name",name:"Site Name"},
-      {field:"Priority",name:"Priority"},
-      {field:"Area",name:"Area"},
-      {field:"Length",name:"Length"},
-      {field:"Lat",name:"Latitude"},
-      {field:"Long",name:"Longitude"}
-    ];
-    let data = tableData.slice(0,10);
-    let rows = [];
-    for(let i in data) {
-      let row = [];
-      let rowData = data[i];
-      for(let j in header) {
-        let head = header[j].field;
-        let field = rowData[head];
-        if(head === "Priority"){
-          field = field ? "Yes" : "No";
-        }
-        row.push(<td style={{whiteSpace:"nowrap"}}>{field}</td>);
-      }
-      rows.push(row);
+  const gotoPage = (page, size) => {
+    setTableData1([]);
+    setTableData2([]);
+    page && setPageNumber(page);
+    if(size) {
+      setPageNumber(1);
+      setPageSize(size);
     }
-
-    return (
-      <CTable>
-        <thead>
-          <tr>
-            {header.map((e)=><th>{e.name}</th>)}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((e)=><tr>{e}</tr>)}
-        </tbody>
-      </CTable>
-    )
   }
 
   const filterBioRegion = (e) => {
     let value = e.currentTarget.value;
-    if(filteredBioRegions.includes(value)) {
-      let filter = filteredBioRegions.filter(e => e !== value);
-      setFilteredBioRegions(filter);
+    let filter;
+    let results;
+    if(activeBioregions.includes(value)) {
+      filter = activeBioregions.split(",").filter(a=>a!==value).toString();
+      results = pageResults - bioRegionsSummary.find(a=>a.BioRegion === value).Count;
+      if(filter === "")
+        filter = "nodata";
     }
     else {
-      let filter = filteredBioRegions.concat(value);
-      setFilteredBioRegions(filter);
+      filter = activeBioregions.split(",").concat(value).toString();
+      results = pageResults + bioRegionsSummary.find(a=>a.BioRegion === value).Count;
+      if(activeBioregions.includes("nodata"))
+        filter = filter.split(",").filter(a=>a!=="nodata").toString();
     }
-    // setTableData([]);
-    // compareUnionLists();
-    e.currentTarget.classList.toggle("btn-secondary");
+    setPageNumber(1);
+    setPageResults(results);
+    setActiveBioregions(filter);
+    setTableData1([]);
+    setTableData2([]);
+  }
+
+  let resizeIframe = () => {
+    let width = document.querySelector(".main-content").offsetWidth/2 - 32;
+    setTableWidth(width);
   }
 
   useEffect(() => {
-    if(document.querySelectorAll(".unionlist-table")[0] && document.querySelectorAll(".unionlist-table")[1] && !hasTableScroll){
-      hasTableScroll = true;
+    if(tableData1.length > 0 && tableData2.length > 0 && document.querySelectorAll(".unionlist-table")[0] && document.querySelectorAll(".unionlist-table")[1]){
+      let heading1 = document.querySelectorAll(".unionlist-table")[0].querySelectorAll("th");
+      let heading2 = document.querySelectorAll(".unionlist-table")[1].querySelectorAll("th");
+      heading1.forEach((th,i) => {
+        let th2 = heading2[i];
+        let width = Math.max(th.offsetWidth, th2.offsetWidth)
+        th.style.width = width + "px";
+        th2.style.width = width + "px";
+      });
       tableScroll();
+      resizeIframe();
+      window.addEventListener('resize', resizeIframe);
     }
   });
 
@@ -169,13 +252,9 @@ const Releases = () => {
     s2.addEventListener('scroll', select_scroll2, false);
   }
 
-  if(unionLists.length === 0 && !isLoading){
-    loadUnionLists();
-  }
+  releaseList.length === 0 && !isLoading && loadUnionLists();
 
-  if(bioRegions.length === 0){
-    loadBioRegions();
-  }
+  compare && (tableData1.length === 0 && tableData2.length === 0) && loadData();
 
   return (
     <div className="container--main min-vh-100">
@@ -221,59 +300,115 @@ const Releases = () => {
               <CCol>
                 <div className="unionlist-compare">
                   <b>Compare</b>
-                  <CFormSelect aria-label="Default select example" className='form-select-reporting' disabled={isLoading} onChange={(e)=>setSelectedUnionList1(e.target.value)}>
-                    <option disabled selected value hidden>Select a Union List</option>
+                  <CFormSelect aria-label="Default select example" className='form-select-reporting' defaultValue="default" disabled={isLoading} onChange={(e)=>setSelectedRelease1(e.target.value)}>
+                    <option disabled value="default" hidden>Select a Release</option>
                     {
-                      unionLists.map((e)=><option value={e.idULHeader} key={"c1-"+e.idULHeader}>{e.Name}</option>)
+                      releaseList.map((e)=><option value={e.idULHeader} key={"c1-"+e.idULHeader}>{e.Name}</option>)
                     }
                   </CFormSelect>
                   <div>
                     <i className="fa-solid fa-code-compare"></i>
                   </div>
-                  <CFormSelect aria-label="Default select example" className='form-select-reporting' disabled={isLoading} onChange={(e)=>setSelectedUnionList2(e.target.value)}>
-                    <option disabled selected value hidden>Select a Union List</option>
+                  <CFormSelect aria-label="Default select example" className='form-select-reporting' defaultValue="default" disabled={isLoading} onChange={(e)=>setSelectedRelease2(e.target.value)}>
+                    <option disabled value="default" hidden>Select a Release</option>
                     {
-                      unionLists.map((e)=><option value={e.idULHeader} key={"c2-"+e.idULHeader}>{e.Name}</option>)
+                      releaseList.map((e)=><option value={e.idULHeader} key={"c2-"+e.idULHeader}>{e.Name}</option>)
                     }
                   </CFormSelect>
-                  <CButton color="primary" onClick={()=>compareUnionLists()} disabled={!selectedUnionList1 || !selectedUnionList2}>
+                  <CButton color="primary" onClick={()=>compareReleases()} disabled={!selectedRelease1 || !selectedRelease2 || isLoading}>
                     Compare
                   </CButton>
                 </div>
               </CCol>
             </CRow>
-            {isLoading &&
-              <div className="loading-container"><em>Loading...</em></div>
-            }
-            {tableData1.length > 0 && tableData2.length > 0 &&
-              <>
-                <CRow>
-                  <CCol>
-                    <div className="unionlist-changes">
-                      <b>Detected changes:</b>
-                      {loadBioRegionButtons()}
-                    </div>
-                  </CCol>
-                </CRow>
-                <CRow>
-                  <CCol xs={6}>
-                    <b>{selectedUnionList1 && unionLists.find(e=>e.idULHeader === parseInt(selectedUnionList1)).Name}</b>
-                    <div className="unionlist-table">
-                      {tableData1 &&
-                        loadTable(tableData1)
-                      }
-                    </div>
-                  </CCol>
-                  <CCol xs={6}>
-                    <b>{selectedUnionList2 && unionLists.find(e=>e.idULHeader === parseInt(selectedUnionList2)).Name}</b>
-                    <div className="unionlist-table">
-                      {tableData2 &&
-                        loadTable(tableData2)
-                      }
-                    </div>
-                  </CCol>
-                </CRow>
-              </>
+            {compare &&
+              (isLoading && !tableData ?
+                <div className="loading-container"><em>Loading...</em></div>
+              :
+                <>
+                  <CRow>
+                    <CCol>
+                      <div className="unionlist-changes">
+                        <b>Detected changes:</b>
+                        {loadBioRegionButtons()}
+                      </div>
+                    </CCol>
+                  </CRow>
+                  {tableDataLoading ? 
+                    <div className="loading-container"><em>Loading...</em></div>
+                  :
+                    <>
+                      <CRow>
+                        <CCol xs={6}>
+                          <b>Previous Release</b>
+                          <ScrollContainer hideScrollbars={false} className="scroll-container unionlist-table" style={{width: tableWidth}}>
+                            {tableData1.length > 0 &&
+                              <TableUnionLists data={tableData1} colors={false}/>
+                            }
+                          </ScrollContainer>
+                        </CCol>
+                        <CCol xs={6}>
+                          <b>Current</b>
+                          <ScrollContainer hideScrollbars={false} className="scroll-container unionlist-table" style={{width: tableWidth}}>
+                            {tableData2.length > 0 &&
+                              <TableUnionLists data={tableData2} colors={true}/>
+                            }
+                          </ScrollContainer>
+                        </CCol>
+                      </CRow>
+                      <div className="table-footer mt-3">
+                        <div className="table-legend">
+                          <div className="table-legend--item">
+                            <span className="table-legend--color" style={{backgroundColor: ConfigData.Colors.Red}}></span>
+                            <span className="table-legend--label">Deleted/Decreased/Priority changed</span>
+                          </div>
+                          <div className="table-legend--item">
+                            <span className="table-legend--color" style={{backgroundColor: ConfigData.Colors.Green}}></span>
+                            <span className="table-legend--label">Added/Increased</span>
+                          </div>
+                        </div>
+                        <CPagination>
+                          <CPaginationItem onClick={() => gotoPage(1, null)} disabled={pageNumber === 1}>
+                            <i className="fa-solid fa-angles-left"></i>
+                          </CPaginationItem>
+                          <CPaginationItem onClick={() => gotoPage(pageNumber-1, null)} disabled={pageNumber === 1}>
+                            <i className="fa-solid fa-angle-left"></i>
+                          </CPaginationItem>
+                          <span>
+                            Page{' '}
+                            <strong>
+                              {pageNumber} of {Math.ceil(pageResults / Number(pageSize))}
+                            </strong>{' '}
+                            ({pageResults === 1 ? pageResults + " result" : pageResults + " results"})
+                          </span>
+                          <CPaginationItem onClick={() => gotoPage(pageNumber+1, null)} disabled={pageNumber === Math.ceil(pageResults / Number(pageSize))}>
+                            <i className="fa-solid fa-angle-right"></i>
+                          </CPaginationItem>
+                          <CPaginationItem onClick={() => gotoPage(Math.ceil(pageResults / Number(pageSize)), null)} disabled={pageNumber === Math.ceil(pageResults / Number(pageSize))}>
+                            <i className="fa-solid fa-angles-right"></i>
+                          </CPaginationItem>
+                          <div className='pagination-rows'>
+                            <label className='form-label'>Rows per page</label>
+                            <select
+                              className='form-select'
+                              value={pageSize}
+                              onChange={e => {
+                                gotoPage(null,Number(e.target.value))
+                              }}
+                            >
+                              {[10, 20, 30, 40, 50].map(pageSize => (
+                                <option key={pageSize} value={pageSize}>
+                                  {pageSize}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        </CPagination>
+                      </div>
+                    </>
+                  }
+                </>
+              )
             }
           </CContainer>
         </div>

@@ -220,7 +220,7 @@ const Sitelineage = () => {
           color: "#4FC1C5"
         },
         className: "green-edge",
-        selectable: false,
+        focusable: false,
       },
       yellow: {
         style: {stroke: "#FED100"},
@@ -229,7 +229,7 @@ const Sitelineage = () => {
           color: "#FED100"
         },
         className: "yellow-edge",
-        selectable: false,
+        focusable: false,
       }
     }
     if(siteCode === 'AT2208000') {
@@ -295,14 +295,14 @@ const Sitelineage = () => {
           source: '0a',
           target: '3a',
           style: {strokeDasharray: 4},
-          selectable: false,
+          focusable: false,
         },
         {
           id: '0b-1',
           source: '0b',
           target: '1',
           style: {strokeDasharray: 4},
-          selectable: false,
+          focusable: false,
         },
         {
           id: '1-2',
@@ -381,14 +381,14 @@ const Sitelineage = () => {
           source: '0b',
           target: '1',
           style: {strokeDasharray: 4},
-          selectable: false,
+          focusable: false,
         },
         {
           id: '0c-1',
           source: '0c',
           target: '3b',
           style: {strokeDasharray: 4},
-          selectable: false,
+          focusable: false,
         },
         {
           id: '1-2',
@@ -415,7 +415,6 @@ const Sitelineage = () => {
           type: 'input',
           className: "basic-node",
           selectable: false,
-          onClick: ()=>alert()
         },
         {
           id: '0b',
@@ -487,21 +486,21 @@ const Sitelineage = () => {
           source: '0a',
           target: '3a',
           style: {strokeDasharray: 4},
-          selectable: false,
+          focusable: false,
         },
         {
           id: '0b-1',
           source: '0b',
           target: '1',
           style: {strokeDasharray: 4},
-          selectable: false,
+          focusable: false,
         },
         {
           id: '0c-1',
           source: '0c',
           target: '3b',
           style: {strokeDasharray: 4},
-          selectable: false,
+          focusable: false,
         },
         {
           id: '1-2',
