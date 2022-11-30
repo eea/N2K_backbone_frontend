@@ -31,7 +31,8 @@ export class ModalEdition extends Component {
     this.state = {
       loading: true, 
       data: {}, 
-      notValidField: "",
+      notValidField: [],
+      validated: true,
       modalValues : {
         visibility: false,
         close: () => {
@@ -65,9 +66,10 @@ export class ModalEdition extends Component {
   renderFields(){
     return(
       <CTabPane role="tabpanel" aria-labelledby="home-tab" visible={true}>
-        <CForm id="siteedition_form">
+        <CForm
+          id="siteedition_form">
           <CRow className="p-3">
-            {this.state.notValidField &&
+            {!(this.state.notValidField === []) &&
               <CAlert color="danger">
                 {this.state.notValidField}
               </CAlert>
@@ -77,6 +79,13 @@ export class ModalEdition extends Component {
         </CForm>
       </CTabPane>
     )
+  }
+  
+  fieldValidator(id, value) {
+    console.log(value)
+    value ? 
+      this.state.notValidField.push(id)
+    : this.state.notValidField = this.state.notValidField.filter((i) => i != id)
   }
 
   createFieldElement(){
@@ -185,6 +194,7 @@ export class ModalEdition extends Component {
                 options={options}
                 isMulti={true}
                 closeMenuOnSelect={false}
+                onChange={this.fieldValidator(id,value)}
               />
             </>
           }
