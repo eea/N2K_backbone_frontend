@@ -312,7 +312,11 @@ const Releases = () => {
                   <CFormSelect aria-label="Default select example" className='form-select-reporting' defaultValue="default" disabled={isLoading} onChange={(e)=>setSelectedRelease2(e.target.value)}>
                     <option disabled value="default" hidden>Select a Release</option>
                     {
-                      releaseList.map((e)=><option value={e.idULHeader} key={"c2-"+e.idULHeader}>{e.Name}</option>)
+                      selectedRelease1 ?
+                        releaseList
+                          .filter((e) => 0 < e.Date.localeCompare(releaseList.find((e) => e.idULHeader == selectedRelease1).Date))
+                          .map((e)=><option value={e.idULHeader} key={"c2-"+e.idULHeader}>{e.Name}</option>)
+                        : <option disabled value="default" hidden>No releases</option>
                     }
                   </CFormSelect>
                   <CButton color="primary" onClick={()=>compareReleases()} disabled={!selectedRelease1 || !selectedRelease2 || isLoading}>
