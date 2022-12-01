@@ -950,23 +950,37 @@ export class ModalEdition extends Component {
   }
 
   saveChangesModal() {
-    this.cleanUnsavedChanges(1);
-    this.props.updateModalValues("Save changes", "This will save the site changes", "Continue", ()=>this.saveChanges(), "Cancel", ()=>{});
-  }
-
-  saveChanges(){
     let body = Object.fromEntries(new FormData(document.querySelector("form")));
     body.BioRegion = Array.from(document.getElementsByName("BioRegion")).map(el => el.value).toString();
-    body.Area = +body.Area;
-    body.Length = +body.Length;
-    body.CentreX = +body.CentreX;
-    body.CentreY = +body.CentreY;
+    body.Area = body.Area ? +body.Area : body.Area;
+    body.Length = body.Length ? +body.Length : body.Length;
+    body.CentreX = body.CentreX ? +body.CentreX : body.CentreX;
+    body.CentreY = body.CentreY ? +body.CentreY : body.CentreY;
     body.Version = this.props.version;
     body.SiteCode = this.props.item;
-    if(Object.values(body).some(val => val === null || val === "")){
-      this.showErrorMessage("fields", "Empty fields are not allowed");
+
+    let errorMargin = 0.00000001;
+
+    if(this.state.data.SiteName !== body.SiteName
+      || this.state.data.SiteType !== body.SiteType
+      || this.state.data.BioRegion.toString() !== body.BioRegion
+      || this.state.data.Area !== body.Area
+      || this.state.data.Length !== body.Length
+      || (Math.abs(this.state.data.CentreX - body.CentreX) > errorMargin)
+      || (Math.abs(this.state.data.CentreY - body.CentreY) > errorMargin)
+    ) {
+      this.cleanUnsavedChanges(1);
+      this.props.updateModalValues("Save changes", "This will save the site changes", "Continue", ()=>this.saveChanges(body), "Cancel", ()=>{});
     }
     else {
+      this.closeModal();
+    }
+  }
+
+  saveChanges(body){
+    if(Object.values(body).some(val => val === null || val === "")){
+      this.showErrorMessage("fields", "Empty fields are not allowed");
+    } else {
       this.sendRequest(ConfigData.SITEDETAIL_SAVE, "POST", body)
       .then((data)=> {
         if(data?.ok){
@@ -979,6 +993,10 @@ export class ModalEdition extends Component {
       });
       this.setState({updatingData:true});
     }
+  }
+
+  cancelChanges(){
+    this.close(true);
   }
 
   sendRequest(url,method,body,path){
