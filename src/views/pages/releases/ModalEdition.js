@@ -30,9 +30,6 @@ import justificationRequiredImg from './../../../assets/images/exclamation.svg'
 import justificationProvidedImg from './../../../assets/images/file-text.svg'
 import {DataLoader} from '../../../components/DataLoader';
 
-import CIcon from '@coreui/icons-react'
-import { cilWarning } from '@coreui/icons'
-
 export class ModalEdition extends Component {
   constructor(props) {
     super(props);
@@ -231,8 +228,8 @@ export class ModalEdition extends Component {
           ) : (<input id="uploadFile" placeholder="No file selected" disabled="disabled" />)}
         </div>
         <div className="document--icons">
-          <CButton color="link" className="btn-icon">
-            <i className="fa-solid fa-floppy-disk" onClick={() => this.handleSubmission()}></i>
+          <CButton color="link" className="btn-icon" onClick={() => this.handleSubmission()}>
+            <i className="fa-solid fa-floppy-disk"></i>
           </CButton>
           <CButton color="link" className="btn-icon" onClick={() => this.deleteDocumentMessage()}>
             <i className="fa-regular fa-trash-can"></i>
