@@ -127,4 +127,16 @@
       transition: $transition-base;
     }
   }
+  &:disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  &:focus, &:active, &:focus:active {
+    background: none;
+    border-color: transparent;
+    box-shadow: none;
+    i {
+      color: $gray-700;
+    }
+  }
 }
