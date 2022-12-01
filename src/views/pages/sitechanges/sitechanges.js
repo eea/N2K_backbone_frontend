@@ -58,6 +58,7 @@ const Sitechanges = () => {
   const [showModal, setShowhowModal] = useState(false);
   const [updatingData, setUpdatingData] = useState(false);
   const turnstoneRef = useRef();
+  const [siteData, setSiteData] = useState({});
 
   let setCodes = (status,data) => {
     if(data) {
@@ -70,6 +71,21 @@ const Sitechanges = () => {
     else if (country){
       setIsLoading(false);
     }
+  }
+
+  let setStatusData = (status,data) => {
+    if(data) {
+      let sData = siteData;
+      sData[status] = data;
+      setSiteData(sData);
+    }
+  }
+
+  let countryDisabled = () =>{
+    return  isLoading||
+            !Object.keys(siteData).includes("pending")||
+            !Object.keys(siteData).includes("accepted")||
+            !Object.keys(siteData).includes("rejected")
   }
 
   let getSitesList = () =>{
@@ -474,7 +490,7 @@ const Sitechanges = () => {
                 <CCol sm={12} md={6} lg={6} className="mb-4">
                   <div className="select--right">
                     <CFormLabel htmlFor="exampleFormControlInput1" className='form-label form-label-reporting col-md-4 col-form-label'>Country </CFormLabel>
-                      <CFormSelect aria-label="Default select example" className='form-select-reporting' disabled={isLoading} value={country} onChange={(e)=>changeCountry(e.target.value)}>
+                      <CFormSelect aria-label="Default select example" className='form-select-reporting' disabled={countryDisabled()} value={country} onChange={(e)=>changeCountry(e.target.value)}>
                       {
                         countries.map((e)=><option value={e.code} key={e.code}>{e.name}</option>)
                       }
@@ -533,6 +549,7 @@ const Sitechanges = () => {
                         showModal={showModal}
                         isTabChanged={isTabChanged}
                         setIsTabChanged={setIsTabChanged}
+                        setStatusData={setStatusData}
                       />
                     </CTabPane>
                     <CTabPane role="tabpanel" aria-labelledby="accepted-tab" visible={activeTab === 2}>
@@ -550,6 +567,7 @@ const Sitechanges = () => {
                         showModal={showModal}
                         isTabChanged={isTabChanged}
                         setIsTabChanged={setIsTabChanged}
+                        setStatusData={setStatusData}
                       />
                     </CTabPane>
                     <CTabPane role="tabpanel" aria-labelledby="rejected-tab" visible={activeTab === 3}>
@@ -567,6 +585,7 @@ const Sitechanges = () => {
                         showModal={showModal}
                         isTabChanged={isTabChanged}
                         setIsTabChanged={setIsTabChanged}
+                        setStatusData={setStatusData}
                       />
                     </CTabPane>
                     </CTabContent>
