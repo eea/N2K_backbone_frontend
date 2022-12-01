@@ -48,6 +48,7 @@ export class ModalEdition extends Component {
   }
 
   close(refresh){
+    this.state.notValidField = [];
     this.props.close(refresh);
     this.state.data = {};
   }
@@ -69,7 +70,7 @@ export class ModalEdition extends Component {
         <CForm
           id="siteedition_form">
           <CRow className="p-3">
-            {!(this.state.notValidField === []) &&
+            {(this.state.notValidField.length > 0) &&
               <CAlert color="danger">
                 {this.state.notValidField}
               </CAlert>
@@ -81,11 +82,21 @@ export class ModalEdition extends Component {
     )
   }
   
-  fieldValidator(id, value) {
-    console.log(value)
-    value ? 
-      this.state.notValidField.push(id)
-    : this.state.notValidField = this.state.notValidField.filter((i) => i != id)
+  fieldValidator() {
+    let body = Object.fromEntries(new FormData(document.querySelector("form")));
+    let data = JSON.parse(JSON.stringify( body, ["SiteCode","SiteName","SiteType","BioRegion","Area","Length","CentreY","CentreX"]));
+    this.state.notValidField = [];
+    for(let i in Object.keys(data)){
+      let field = Object.keys(data)[i]
+      let value = data[field];
+      if(value.toString().length == 0)
+        this.state.notValidField.push(field);
+    }
+    this.state.notValidField.forEach((e) => {
+      document.getElementById("field_" + e).classList.add('invalidField');
+      console.log(e + ": " + document.getElementById("field_"+e).classList.toString())
+    });
+    return this.state.notValidField.length == 0
   }
 
   createFieldElement(){
@@ -194,7 +205,6 @@ export class ModalEdition extends Component {
                 options={options}
                 isMulti={true}
                 closeMenuOnSelect={false}
-                onChange={this.fieldValidator(id,value)}
               />
             </>
           }
@@ -328,44 +338,46 @@ export class ModalEdition extends Component {
   }
 
   saveChanges(){
-    let body = Object.fromEntries(new FormData(document.querySelector("form")));
-    body.BioRegion = Array.from(document.getElementsByName("BioRegion")).map(el => el.value).toString();
-    body.Area = +body.Area;
-    body.Length = +body.Length;
-    body.CentreX = +body.CentreX;
-    body.CentreY = +body.CentreY;
-    body.Version = this.props.version;
-    body.SiteCode = this.props.item;
+    if(this.fieldValidator()) {
+      let body = Object.fromEntries(new FormData(document.querySelector("form")));
+      body.BioRegion = Array.from(document.getElementsByName("BioRegion")).map(el => el.value).toString();
+      body.Area = +body.Area;
+      body.Length = +body.Length;
+      body.CentreX = +body.CentreX;
+      body.CentreY = +body.CentreY;
+      body.Version = this.props.version;
+      body.SiteCode = this.props.item;
 
-    let errorMargin = 0.00000001;
+      let errorMargin = 0.00000001;
 
-    if(this.state.data.Area != body.Area
-        || this.state.data.BioRegion != body.BioRegion
-        || this.state.data.Length != body.Length
-        || (Math.abs(this.state.data.CentreX - body.CentreX) > errorMargin)
-        || (Math.abs(this.state.data.CentreY - body.CentreY) > errorMargin)
-    ) {
-      
-      this.props.updateModalValues("Save changes", "This will save the site changes", "Continue", () => {
+      if(this.state.data.Area != body.Area
+          || this.state.data.BioRegion != body.BioRegion
+          || this.state.data.Length != body.Length
+          || (Math.abs(this.state.data.CentreX - body.CentreX) > errorMargin)
+          || (Math.abs(this.state.data.CentreY - body.CentreY) > errorMargin)
+      ) {
+        
+        this.props.updateModalValues("Save changes", "This will save the site changes", "Continue", () => {
 
-        if(Object.values(body).some(val => val === null || val === "")){
-          this.showErrorMessage("Empty fields are not allowed");
-        } else {
-          this.sendRequest(ConfigData.SITEDETAIL_SAVE, "POST", body)
-          .then((data)=> {
-            if(data?.ok){
-              this.setState({updatingData:false});
-              this.close(true);
-            }
-            else {
-              this.showErrorMessage("Something went wrong");
-            }
-          });
-          this.setState({updatingData:true});
-        }
-      }, "Cancel", () => {this.cancelChanges()});
+          if(Object.values(body).some(val => val === null || val === "")){
+            this.showErrorMessage("Empty fields are not allowed");
+          } else {
+            this.sendRequest(ConfigData.SITEDETAIL_SAVE, "POST", body)
+            .then((data)=> {
+              if(data?.ok){
+                this.setState({updatingData:false});
+                this.close(true);
+              }
+              else {
+                this.showErrorMessage("Something went wrong");
+              }
+            });
+            this.setState({updatingData:true});
+          }
+        }, "Cancel", () => {this.cancelChanges()});
+      }
+      else this.cancelChanges();
     }
-    else this.cancelChanges();
   }
 
   cancelChanges(){
