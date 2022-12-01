@@ -26,14 +26,13 @@ export class ModalRelease extends Component {
     this.state = {
       loading: false,
       pendingData: [],
-      uncompletedData: [],
+      harvestedData: [],
       completedData: [],
       completingEnvelope: {
         state: false,
         id: null,
       },
-      canCreateRelease: false,
-      message: null,
+      message: "",
       updatingData: false,
       modalValues : {
         visibility: false,
@@ -52,7 +51,7 @@ export class ModalRelease extends Component {
     this.props.close(refresh);
     this.setState({
       pendingData: [],
-      uncompletedData: [],
+      harvestedData: [],
       completedData: [],
     });
   }
@@ -65,19 +64,13 @@ export class ModalRelease extends Component {
     return (
       <>
         <div className="release-group">
-          <div className="release-group-title">Pending changes ({this.state.pendingData === "nodata" ? 0 : this.state.pendingData.length})</div>
-          {this.state.pendingData === "nodata" ? 
+          <div className="release-group-title">Pending changes {this.state.harvestedData !== "nodata" && "(" + this.state.harvestedData.length + ")"}</div>
+          {this.state.harvestedData === "nodata" ? 
             "There are no pending changes." : this.renderPendingCards()
           }
         </div>
         <div className="release-group">
-          <div className="release-group-title">Uncompleted countries ({this.state.uncompletedData === "nodata" ? 0 : this.state.uncompletedData.length})</div>
-          {this.state.uncompletedData === "nodata" ? 
-            "There are no uncompleted countries." : this.renderUncompletedCards()
-          }
-        </div>
-        <div className="release-group">
-          <div className="release-group-title">Completed countries ({this.state.completedData === "nodata" ? 0 : this.state.completedData.length})</div>
+          <div className="release-group-title">Completed countries {this.state.completedData !== "nodata" && "("+this.state.completedData.length+")"}</div>
           {this.state.completedData === "nodata" ? 
             "There are no completed countries." : this.renderCompletedCards()
           }
@@ -88,19 +81,30 @@ export class ModalRelease extends Component {
 
   renderPendingCards(){
     let cards = [];
-    for(let i in this.state.pendingData){
-      let card = this.state.pendingData[i];
+    for(let i in this.state.harvestedData){
+      let card = this.state.harvestedData[i];
+      if (card.ChangesPending > 0) {
+        let pending = this.state.pendingData.find(a => a.Code === card.Country);
+        card.NumCritical = pending.NumCritical;
+        card.NumWarning = pending.NumWarning;
+        card.NumInfo = pending.NumInfo;
+      }
+      else {
+        card.NumCritical = 0;
+        card.NumWarning = 0;
+        card.NumInfo = 0;
+      }
       cards.push(
-        <CCol key={card.Code + "Card"} xs={12} md={12} lg={6} xl={4}>
-          <a className="country-card-link" href={"/#/sitechanges?country=" + card.Code}>
+        <CCol key={card.Country + "Card"} xs={12} md={12} lg={6} xl={4}>
+          <a className="country-card-link" href={"/#/sitechanges?country=" + card.Country}>
             <CCard className="country-card">
                 <div className="country-card-header">
                     <div className="country-card-left">
-                        <span className={"card-img--flag cif-" + card.Code.toLowerCase()}></span>
-                        <span className="country-card-title">{card.Country}</span>
+                      <span className={"card-img--flag cif-" + card.Country.toLowerCase()}></span>
+                      <span className="country-card-title">{card.Name}</span>
                     </div>
                     <div className="country-card-right">
-                        <i className="fa-solid fa-arrow-right"></i>
+                      <i className="fa-solid fa-arrow-right"></i>
                     </div>
                 </div>
                 <div className="country-card-body">
@@ -108,35 +112,13 @@ export class ModalRelease extends Component {
                   <span className="badge color--warning"><b>{card.NumWarning}</b> Warning</span>
                   <span className="badge color--info"><b>{card.NumInfo}</b> Info</span>
                 </div>
-            </CCard>
-          </a>
-        </CCol>
-      );
-    }
-    return (
-      <CRow className="grid">
-        {cards}
-      </CRow>
-    )
-  }
-
-  renderUncompletedCards(){
-    let cards = [];
-    for(let i in this.state.uncompletedData){
-      let card = this.state.uncompletedData[i];
-      cards.push(
-        <CCol key={card.Country + "Card"} xs={12} md={12} lg={6} xl={4}>
-          <CCard className="country-card">
-              <div className="country-card-header">
-                  <div className="country-card-left">
-                      <span className={"card-img--flag cif-" + card.Country.toLowerCase()}></span>
-                      <span className="country-card-title">{card.Name}</span>
-                  </div>
-                  <CButton color="primary" disabled={this.state.completingEnvelope.state} onClick={()=>this.props.updateModalValues("Complete envelope", "This will complete the envelope", "Continue", ()=>this.completeEnvelope(card.Country, card.Version), "Cancel", ()=>{})}>
+                <div className="country-card-body">
+                  <CButton color="primary" disabled={this.state.completingEnvelope.state} onClick={(e)=>this.completeEnvelopeModal(e, card)}>
                     {this.state.completingEnvelope.id === card.Country ? <><CSpinner size="sm"/> Completing Envelope</> : "Complete Envelope"}
                   </CButton>
-              </div>
-          </CCard>
+                </div>
+            </CCard>
+          </a>
         </CCol>
       );
     }
@@ -161,8 +143,9 @@ export class ModalRelease extends Component {
                   </div>
               </div>
               <div className="country-card-body">
-                {card.ChangesAccepted > 0 && <span className="badge badge--accepted"><b>{card.ChangesAccepted}</b> Accepted</span>}
-                {card.ChangesAccepted > 0 && <span className="badge badge--rejected"><b>{card.ChangesRejected}</b> Rejected</span>}
+                <span className="badge status--pending"><b>{card.ChangesPending}</b> Pending</span>
+                <span className="badge status--accepted"><b>{card.ChangesAccepted}</b> Accepted</span>
+                <span className="badge status--rejected"><b>{card.ChangesRejected}</b> Rejected</span>
               </div>
           </CCard>
         </CCol>
@@ -183,10 +166,10 @@ export class ModalRelease extends Component {
           <CModalTitle>Release Creation</CModalTitle>
         </CModalHeader>
         <CModalBody >
+          <CAlert color="primary" dismissible visible={this.state.message !== ""} onClose={() => this.setState({message: null})}>{this.state.message}</CAlert>
           <div className="release-group">
             <CForm id="release_form">
               <CRow>
-                <CAlert className="mx-3" color="primary" dismissible visible={this.state.message} onClose={() => this.setState({message: null})}>{this.state.message}</CAlert>
                 <CCol xs={12}>
                   <label className="mb-3">Release Name</label>
                   <CFormInput
@@ -196,9 +179,8 @@ export class ModalRelease extends Component {
                     maxLength={254}
                     placeholder="Release Name"
                     autoComplete="off"
-                    disabled={this.state.canCreateRelease}
                   />
-                  <div className="checkbox" disabled={(this.state.canCreateRelease)}>
+                  <div className="checkbox">
                     <input type="checkbox" className="input-checkbox" id="modal_check_final" name="Final"/>
                     <label htmlFor="modal_check_final" className="input-label">Mark as final</label>
                   </div>
@@ -206,13 +188,12 @@ export class ModalRelease extends Component {
               </CRow>
             </CForm>
           </div>
-          <hr className="mt-4"/>
           {this.renderCards()}
         </CModalBody>
         <CModalFooter>
           <div className="d-flex w-100 justify-content-between">
-            <CButton color="secondary" disabled= {this.state.updatingData} onClick={()=>this.close()}>Cancel</CButton>
-            <CButton color="primary" disabled= {this.state.updatingData || this.state.canCreateRelease} onClick={()=>this.props.updateModalValues("Create Release", "This will create the release.Note: Release creation will launch a process and you will be notified by email when the release is complete.", "Continue", ()=>this.createRelease(), "Cancel", ()=>{})}>
+            <CButton color="secondary" disabled= {this.state.updatingData || this.state.completingEnvelope.state} onClick={()=>this.close()}>Cancel</CButton>
+            <CButton color="primary" disabled= {this.state.updatingData || this.state.completingEnvelope.state} onClick={()=>this.checkReleaseName()}>
               {this.state.updatingData && <CSpinner size="sm"/>}
               {this.state.updatingData ? " Creating":"Create"}
             </CButton>
@@ -263,11 +244,11 @@ export class ModalRelease extends Component {
       promises.push(this.dl.fetch(ConfigData.HARVESTING_GET_STATUS+"?status=Harvested")
       .then(response => response.json())
       .then(data => {
-        if(data.Data.filter(a=>a.ChangesPending === 0).length === 0) {
-          this.setState({uncompletedData: "nodata"});
+        if(data.Data.length === 0) {
+          this.setState({harvestedData: "nodata"});
         }
         else {
-          this.setState({uncompletedData: data.Data.filter(a=>a.ChangesPending === 0)});
+          this.setState({harvestedData: data.Data});
         }
       }));
       promises.push(this.dl.fetch(ConfigData.HARVESTING_CLOSED)
@@ -280,9 +261,19 @@ export class ModalRelease extends Component {
           this.setState({completedData: data.Data});
         }
       }));
-      Promise.all(promises).then(d => this.setState({loading: false, canCreateRelease: !(this.state.pendingData === "nodata" && this.state.uncompletedData === "nodata" && this.state.completedData !== "nodata")}));
+      Promise.all(promises).then(d => this.setState({loading: false}));
     }
   }
+
+  checkReleaseName() {
+    let body = Object.fromEntries(new FormData(document.getElementById("release_form")));
+    if(!body.Name) {
+      this.showMessage("Add a release name");
+    }
+    else {
+      this.props.updateModalValues("Create Release", <><p>This will create the release.</p><p>Note: Release creation will launch a process and you will be notified by email when the release is complete.</p></>, "Continue", ()=>this.createRelease(), "Cancel", ()=>{})
+    }
+  };
 
   showMessage(text) {
     this.setState({message: text});
@@ -294,24 +285,23 @@ export class ModalRelease extends Component {
   createRelease(){
     let body = Object.fromEntries(new FormData(document.getElementById("release_form")));
     body.Final = body.Final ? true : false;
-    if(!body.Name) {
-      this.showMessage("Add valid Release");
-    }
-    else {
-      this.setState({updatingData: true});
-      this.sendRequest(ConfigData.UNIONLIST_CREATE,"POST",body)
-      .then(response => response.json())
-      .then(data => {
-        if(data.Success) {
-          this.close(true);
-          this.setState({updatingData: false});
-        }
-        else {
-          //errors.push(data.Message);
-          console.log("Error: " + data.Message);
-        }
-      })
-    }
+    this.setState({updatingData: true});
+    this.sendRequest(ConfigData.UNIONLIST_CREATE,"POST",body)
+    .then(response => response.json())
+    .then(data => {
+      if(data.Success) {
+        this.close(true);
+        this.setState({updatingData: false});
+      }
+      else {
+        console.log("Error: " + data.Message);
+      }
+    })
+  }
+
+  completeEnvelopeModal(e, card) {
+    e.preventDefault();
+    this.props.updateModalValues("Complete envelope", "This will complete the envelope", "Continue", ()=>this.completeEnvelope(card.Country, card.Version), "Cancel", ()=>{})
   }
 
   completeEnvelope(country, version) {
@@ -320,7 +310,7 @@ export class ModalRelease extends Component {
     .then(response => response.json())
     .then(data => {
       if(data.Success) {
-        this.setState({pendingData: [], uncompletedData: [], completedData: [],completingEnvelope: {state: false, id: null}});
+        this.setState({pendingData: [], harvestedData: [], completedData: [],completingEnvelope: {state: false, id: null}});
       }
       else {
         console.log("Error: " + data.Message);

@@ -58,7 +58,7 @@ const Releases = () => {
 
   if(countries.length === 0 && !loadingCountries){
     setLoadingCountries(true);
-    dl.fetch(ConfigData.COUNTRIES_CONSOLIDATED)
+    dl.fetch(ConfigData.GET_CLOSED_COUNTRIES)
     .then(response => response.json())
     .then(data => {
       setLoadingCountries(false);
@@ -291,6 +291,7 @@ const Releases = () => {
                     ref={turnstoneRef}
                     Item={item}
                     typeahead={false}
+                    disabled={isLoading}
                   />
                   {Object.keys(selectOption).length !== 0 &&
                     <span className="btn-icon" onClick={()=>clearSearch()}>

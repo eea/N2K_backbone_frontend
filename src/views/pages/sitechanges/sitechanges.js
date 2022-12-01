@@ -46,7 +46,6 @@ const Sitechanges = () => {
   const [activeTab, setActiveTab] = useState(1)
   const [isTabChanged, setIsTabChanged] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [forceRefresh, setForceRefresh] = useState(0);
   const [countries, setCountries] = useState([]);
   const [country, setCountry] = useState(defaultCountry);
@@ -54,12 +53,12 @@ const Sitechanges = () => {
   const [disabledBtn, setDisabledBtn] = useState(true);
   const [disabledSearchBtn, setDisabledSearchBtn] = useState(true);
   const [siteCodes, setSitecodes] = useState({});
-  const [pendingChanges, setPendingChanges] = useState();
   const [searchList, setSearchList] = useState({});
   const [selectOption, setSelectOption] = useState({});
   const [showModal, setShowhowModal] = useState(false);
   const [updatingData, setUpdatingData] = useState(false);
   const turnstoneRef = useRef();
+  const [siteData, setSiteData] = useState({});
 
   let setCodes = (status,data) => {
     if(data) {
@@ -67,11 +66,26 @@ const Sitechanges = () => {
       codes[status] = data;
       setSitecodes(codes);
       setSearchList(getSitesList());
-      checkComplete();
+      setIsLoading(false);
     }
     else if (country){
       setIsLoading(false);
     }
+  }
+
+  let setStatusData = (status,data) => {
+    if(data) {
+      let sData = siteData;
+      sData[status] = data;
+      setSiteData(sData);
+    }
+  }
+
+  let countryDisabled = () =>{
+    return  isLoading||
+            !Object.keys(siteData).includes("pending")||
+            !Object.keys(siteData).includes("accepted")||
+            !Object.keys(siteData).includes("rejected")
   }
 
   let getSitesList = () =>{
@@ -83,17 +97,6 @@ const Sitechanges = () => {
         }
       }
     )
-  }
-
-  let checkComplete = () => {
-    dl.fetch(ConfigData.HARVESTING_GET_STATUS+"?status=Harvested")
-    .then(response => response.json())
-    .then(data => {
-      if(Object.keys(data.Data).length > 0) {
-        setPendingChanges(data.Data.find(x => x.Country === country).ChangesPending);
-      }
-      setIsLoading(false);
-    })
   }
 
   let showModalSitechanges = (data) => {
@@ -211,7 +214,6 @@ const Sitechanges = () => {
           setCountries([]);
           setCountry();
           setSitecodes({});
-          setPendingChanges();
           loadCountries();
           setIsLoading(true);
         }
@@ -302,12 +304,21 @@ const Sitechanges = () => {
   const item = (props) => {
     return (
       <div className="search--option">
+        {/* <div><span className={"badge status--" + props.item.status}>{props.item.status}</span></div> */}
         <div>{props.item.Name}</div>
         <div className="search--suboption">{props.item.SiteCode}</div>
       </div>
     )
   }
-  
+
+  const group = (props) => {
+    return (
+      <div>
+        <span className={"badge status--" + props.children}>{props.children}</span>
+      </div>
+    )
+  }
+
   let changeStatus = (tabNum) => {
     setActiveTab(tabNum);
     setIsTabChanged(true);
@@ -322,7 +333,6 @@ const Sitechanges = () => {
     setCountry(country)
     setSitecodes({});
     setSearchList({});
-    setPendingChanges();
     turnstoneRef.current?.clear();
     turnstoneRef.current?.blur();
     if(country !== "") {
@@ -391,33 +401,32 @@ const Sitechanges = () => {
                 </div>
                 <div>
                   <ul className="btn--list">
-                    {!isLoading && activeTab === 1 &&
-                      pendingChanges !== undefined && (pendingChanges > 0 ?
-                        <>
-                          <li>
-                            <CButton color="secondary" onClick={()=>updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(selectedCodes), "Cancel", ()=>{})} disabled={disabledBtn || activeTab!==1}>
-                              Reject changes
-                            </CButton>
-                          </li>
-                          <li>
-                            <CButton color="primary" onClick={()=>updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(selectedCodes), "Cancel", ()=>{})} disabled={disabledBtn || activeTab!==1}>
-                              Accept changes
-                            </CButton>
-                          </li>
-                        </>
-                      :
+                    {!isLoading && country && activeTab === 1 &&
+                      <>
                         <li>
-                          <CButton color="primary" onClick={()=>updateModalValues("Complete Envelopes", "This will complete the envelope", "Continue", ()=>completeEnvelope(), "Cancel", ()=>{})} disabled={updatingData}>
-                            {updatingData && <CSpinner size="sm"/>}
-                            {updatingData ? " Completing Envelope" : "Complete Envelope"}
+                          <CButton color="secondary" onClick={()=>updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(selectedCodes), "Cancel", ()=>{})} disabled={disabledBtn || activeTab!==1}>
+                            Reject changes
                           </CButton>
                         </li>
-                      )
+                        <li>
+                          <CButton color="primary" onClick={()=>updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(selectedCodes), "Cancel", ()=>{})} disabled={disabledBtn || activeTab!==1}>
+                            Accept changes
+                          </CButton>
+                        </li>
+                      </>
                     }
-                    {!isLoading && activeTab !== 1 &&
+                    {!isLoading && country && activeTab !== 1 &&
                       <li>
                         <CButton color="primary" onClick={()=>updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", ()=>setBackToPending(selectedCodes), "Cancel", ()=>{})} disabled={disabledBtn || activeTab===1}>
                           Back to Pending
+                        </CButton>
+                      </li>
+                    }
+                    {!isLoading && country &&
+                      <li>
+                        <CButton color="primary" onClick={()=>updateModalValues("Complete Envelopes", "This will complete the envelope", "Continue", ()=>completeEnvelope(), "Cancel", ()=>{})} disabled={updatingData}>
+                          {updatingData && <CSpinner size="sm"/>}
+                          {updatingData ? " Completing Envelope" : "Complete Envelope"}
                         </CButton>
                       </li>
                     }
@@ -463,7 +472,9 @@ const Sitechanges = () => {
                       onSelect={(e)=>selectSearchOption(e)}
                       ref={turnstoneRef}
                       Item={item}
+                      GroupName={group}
                       typeahead={false}
+                      disabled={isLoading}
                     />
                     {Object.keys(selectOption).length !== 0 &&
                       <span className="btn-icon" onClick={()=>clearSearch()}>
@@ -479,7 +490,7 @@ const Sitechanges = () => {
                 <CCol sm={12} md={6} lg={6} className="mb-4">
                   <div className="select--right">
                     <CFormLabel htmlFor="exampleFormControlInput1" className='form-label form-label-reporting col-md-4 col-form-label'>Country </CFormLabel>
-                      <CFormSelect aria-label="Default select example" className='form-select-reporting' disabled={isLoading} value={country} onChange={(e)=>changeCountry(e.target.value)}>
+                      <CFormSelect aria-label="Default select example" className='form-select-reporting' disabled={countryDisabled()} value={country} onChange={(e)=>changeCountry(e.target.value)}>
                       {
                         countries.map((e)=><option value={e.code} key={e.code}>{e.name}</option>)
                       }
@@ -498,7 +509,7 @@ const Sitechanges = () => {
                           active={activeTab === 1}
                           onClick={() => {changeStatus(1);}}
                         >
-                          Pending <span className="badge badge--pending">{Object.keys(siteCodes).length === 3 && siteCodes.pending.length}</span>
+                          Pending <span className="badge status--pending">{Object.keys(siteCodes).length === 3 && siteCodes.pending.length}</span>
                         </CNavLink>
                       </CNavItem>
                       <CNavItem>
@@ -507,7 +518,7 @@ const Sitechanges = () => {
                           active={activeTab === 2}
                           onClick={() => {changeStatus(2);}}
                         >
-                          Accepted <span className="badge badge--accepted">{Object.keys(siteCodes).length === 3 && siteCodes.accepted.length}</span>
+                          Accepted <span className="badge status--accepted">{Object.keys(siteCodes).length === 3 && siteCodes.accepted.length}</span>
                         </CNavLink>
                       </CNavItem>
                       <CNavItem>
@@ -516,7 +527,7 @@ const Sitechanges = () => {
                           active={activeTab === 3}
                           onClick={() => {changeStatus(3);}}
                         >
-                          Rejected <span className="badge badge--rejected">{Object.keys(siteCodes).length === 3 && siteCodes.rejected.length}</span>
+                          Rejected <span className="badge status--rejected">{Object.keys(siteCodes).length === 3 && siteCodes.rejected.length}</span>
                         </CNavLink>
                       </CNavItem>
                     </CNav>
@@ -538,6 +549,7 @@ const Sitechanges = () => {
                         showModal={showModal}
                         isTabChanged={isTabChanged}
                         setIsTabChanged={setIsTabChanged}
+                        setStatusData={setStatusData}
                       />
                     </CTabPane>
                     <CTabPane role="tabpanel" aria-labelledby="accepted-tab" visible={activeTab === 2}>
@@ -555,6 +567,7 @@ const Sitechanges = () => {
                         showModal={showModal}
                         isTabChanged={isTabChanged}
                         setIsTabChanged={setIsTabChanged}
+                        setStatusData={setStatusData}
                       />
                     </CTabPane>
                     <CTabPane role="tabpanel" aria-labelledby="rejected-tab" visible={activeTab === 3}>
@@ -572,6 +585,7 @@ const Sitechanges = () => {
                         showModal={showModal}
                         isTabChanged={isTabChanged}
                         setIsTabChanged={setIsTabChanged}
+                        setStatusData={setStatusData}
                       />
                     </CTabPane>
                     </CTabContent>

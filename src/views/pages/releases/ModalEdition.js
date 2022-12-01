@@ -995,10 +995,6 @@ export class ModalEdition extends Component {
     }
   }
 
-  cancelChanges(){
-    this.close(true);
-  }
-
   sendRequest(url,method,body,path){
     const options = {
       method: method,
