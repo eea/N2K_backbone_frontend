@@ -59,7 +59,6 @@ const Sitechanges = () => {
   const [updatingData, setUpdatingData] = useState(false);
   const turnstoneRef = useRef();
   const [siteData, setSiteData] = useState({});
-  //const [siteData, setSiteData] = useState({"pending":1,"accepted":1,"rejected":1});
 
   let setCodes = (status,data) => {
     if(data) {
@@ -80,12 +79,6 @@ const Sitechanges = () => {
       sData[status] = data;
       setSiteData(sData);
     }
-  }
-
-  let isCountryDataSet = () =>{
-    return  Object.keys(siteData).includes("pending")&&
-            Object.keys(siteData).includes("accepted")&&
-            Object.keys(siteData).includes("rejected")
   }
 
   let countryDisabled = () =>{
