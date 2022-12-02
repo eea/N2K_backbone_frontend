@@ -405,12 +405,12 @@ const Sitechanges = () => {
                       <>
                         <li>
                           <CButton color="secondary" onClick={()=>updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(selectedCodes), "Cancel", ()=>{})} disabled={disabledBtn || activeTab!==1}>
-                            Reject changes
+                            Reject Changes
                           </CButton>
                         </li>
                         <li>
                           <CButton color="primary" onClick={()=>updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(selectedCodes), "Cancel", ()=>{})} disabled={disabledBtn || activeTab!==1}>
-                            Accept changes
+                            Accept Changes
                           </CButton>
                         </li>
                       </>

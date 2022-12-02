@@ -38,11 +38,9 @@ import {
 
 import TextareaAutosize from 'react-textarea-autosize';
 
-import CIcon from '@coreui/icons-react'
-import { cilWarning } from '@coreui/icons'
-
 import { ConfirmationModal } from './components/ConfirmationModal';
-import justificationprovided from './../../../assets/images/file-text.svg'
+import justificationRequiredImg from './../../../assets/images/exclamation.svg'
+import justificationProvidedImg from './../../../assets/images/file-text.svg'
 
 import MapViewer from './components/MapViewer'
 
@@ -162,7 +160,7 @@ export class ModalChanges extends Component {
       input.focus();
       target.firstChild.classList.replace("fa-pencil", "fa-floppy-disk");
     } else {
-      if (!input.value) {
+      if (!input.value.trim()) {
         this.showErrorMessage("comment", "Add comment");
       }
       else {
@@ -175,7 +173,7 @@ export class ModalChanges extends Component {
     let input = target.closest(".comment--item").querySelector("textarea");
     let comment = input.value;
     let currentDate = new Date().toISOString();
-    if (!comment) {
+    if (!comment.trim()) {
       this.showErrorMessage("comment", "Add a comment");
     }
     else {
@@ -255,7 +253,7 @@ export class ModalChanges extends Component {
       .then((data) => {
         if(data?.ok){
           let cmts = this.state.comments.filter(e => e.Id !== parseInt(id));
-          this.setState({comments: cmts});
+          this.setState({comments: cmts.length > 0 ? cmts : "noData"});
         }
       });
     }
@@ -285,7 +283,7 @@ export class ModalChanges extends Component {
       .then((data) => {
         if(data?.ok){
           let docs = this.state.documents.filter(e => e.Id !== parseInt(id));
-          this.setState({documents: docs});
+          this.setState({documents: docs.length > 0 ? docs : "noData"});
         }
       });
     }
@@ -377,10 +375,10 @@ handleJustProvided(){
     "VersionId": this.state.data.Version,
     "Justification": !this.state.justificationProvided,
   }];  
-  this.sendRequest(ConfigData.PROVIDE_JUSTIFICATION, "POST", body)  
+  this.sendRequest(ConfigData.PROVIDE_JUSTIFICATION, "POST", body)
   .then((data)=> {
-    if(data?.ok){            
-      this.setState({justificationProvided: !this.state.justificationProvided})                 
+    if(data?.ok){
+      this.setState({justificationProvided: !this.state.justificationProvided})
     }
     else {
       this.showErrorMessage("Justification Provided", "Update failed");
@@ -598,12 +596,12 @@ handleJustProvided(){
           ></TextareaAutosize>
         </div>
         <div>
-          <div className="btn-icon" onClick={(e) => this.addComment(e.currentTarget)}> 
+          <CButton color="link" className="btn-icon" onClick={(e) => this.addComment(e.currentTarget)}> 
             <i className="fa-solid fa-floppy-disk"></i>
-          </div>
-          <div className="btn-icon" onClick={() => this.deleteCommentMessage()}>
+          </CButton>
+          <CButton color="link" className="btn-icon" onClick={() => this.deleteCommentMessage()}>
             <i className="fa-regular fa-trash-can"></i>
-          </div>
+          </CButton>
         </div>
       </div>
     )
@@ -650,12 +648,12 @@ handleJustProvided(){
           </label>
         </div>
         <div className="comment--icons">
-          <div className="btn-icon" onClick={(e) => this.updateComment(e.currentTarget)} key={"cmtUpdate_"+id}>
+          <CButton color="link" className="btn-icon" onClick={(e) => this.updateComment(e.currentTarget)} key={"cmtUpdate_"+id}>
             <i className="fa-solid fa-pencil"></i>
-          </div>
-          <div className="btn-icon" onClick={(e) => this.deleteCommentMessage(e.currentTarget)} key={"cmtDelete_"+id}>
+          </CButton>
+          <CButton color="link" className="btn-icon" onClick={(e) => this.deleteCommentMessage(e.currentTarget)} key={"cmtDelete_"+id}>
             <i className="fa-regular fa-trash-can"></i>
-          </div>
+          </CButton>
         </div>
       </div>
     )
@@ -685,12 +683,12 @@ handleJustProvided(){
           ) : (<input id="uploadFile" placeholder="No file selected" disabled="disabled" />)}
         </div>
         <div className="document--icons">
-          <div className="btn-icon">
-            <i className="fa-solid fa-floppy-disk" onClick={() => this.handleSubmission()}></i>
-          </div>
-          <div className="btn-icon" onClick={() => this.deleteDocumentMessage()}>
+          <CButton color="link" className="btn-icon" onClick={() => this.handleSubmission()}>
+            <i className="fa-solid fa-floppy-disk"></i>
+          </CButton>
+          <CButton color="link" className="btn-icon" onClick={() => this.deleteDocumentMessage()}>
             <i className="fa-regular fa-trash-can"></i>
-          </div>
+          </CButton>
         </div>
       </div>
     )
@@ -719,7 +717,7 @@ handleJustProvided(){
     return (
       <div className="document--item" key={"docItem_"+id} id={"docItem_"+id} doc_id={id}>
         <div className="my-auto document--text">
-          <CImage src={justificationprovided} className="ico--md me-3"></CImage>
+          <CImage src={justificationProvidedImg} className="ico--md me-3"></CImage>
           <span>{path.replace(/^.*[\\\/]/, '')}</span>
         </div>
         <div className="document--icons">
@@ -736,9 +734,9 @@ handleJustProvided(){
           <CButton color="link" className="btn-link--dark">
             <a href={path} target="_blank">View</a>
           </CButton>
-          <div className="btn-icon" onClick={(e) => this.deleteDocumentMessage(e.currentTarget)}>
+          <CButton color="link" className="btn-icon" onClick={(e) => this.deleteDocumentMessage(e.currentTarget)}>
             <i className="fa-regular fa-trash-can"></i>
-          </div>
+          </CButton>
         </div>
       </div>
     )
@@ -757,7 +755,7 @@ handleJustProvided(){
               }
               <div className="d-flex justify-content-between align-items-center pb-2">
                 <b>Attached documents</b>
-                <CButton color="link" className="btn-link--dark" onClick={() => this.addNewDocument()}>Add document</CButton>
+                <CButton color="link" className="btn-link--dark" onClick={() => this.addNewDocument()}>Add Document</CButton>
               </div>
               {this.renderDocuments()}
             </CCard>
@@ -771,7 +769,7 @@ handleJustProvided(){
               }
               <div className="d-flex justify-content-between align-items-center pb-2">
                 <b>Comments</b>
-                <CButton color="link" className="btn-link--dark" onClick={() => this.addNewComment()}>Add comment</CButton>
+                <CButton color="link" className="btn-link--dark" onClick={() => this.addNewComment()}>Add Comment</CButton>
               </div>
               {this.renderComments()}
             </CCard>
@@ -779,7 +777,7 @@ handleJustProvided(){
           <CCol className="d-flex">
             <div className="checkbox">
               <input type="checkbox" className="input-checkbox" id="modal_justification_req"
-                onClick={()=>this.props.updateModalValues("Changes", `This will ${this.state.justificationRequired ? "unmark" : "mark"} change as Justification Required`, "Continue", ()=>this.handleJustRequired(), "Cancel", () => {})}
+                onClick={()=>this.props.updateModalValues("Changes", `This will ${this.state.justificationRequired ? "unmark" : "mark"} change as justification required`, "Continue", ()=>this.handleJustRequired(), "Cancel", () => {})}
                 checked={this.state.justificationRequired}
                 readOnly
               />
@@ -787,7 +785,7 @@ handleJustProvided(){
             </div>
             <div className="checkbox" disabled={(this.state.justificationRequired ? false : true)}>
               <input type="checkbox" className="input-checkbox" id="modal_justification_prov"
-                onClick={()=>this.props.updateModalValues("Changes", `This will ${this.state.justificationProvided ? "unmark": "mark"} change as Justification Provided`, "Continue", ()=>this.handleJustProvided(), "Cancel", () => {})}
+                onClick={()=>this.props.updateModalValues("Changes", `This will ${this.state.justificationProvided ? "unmark": "mark"} change as justification provided`, "Continue", ()=>this.handleJustProvided(), "Cancel", () => {})}
                 checked={this.state.justificationProvided} 
                 readOnly
               />
@@ -873,9 +871,19 @@ handleJustProvided(){
           <CCloseButton onClick={()=>this.closeModal()}/>
         </CModalHeader>
         <CModalBody>
-          <CAlert color="primary" className="d-flex align-items-center" visible={this.state.justificationRequired}>
-            <CIcon icon={cilWarning} className="me-2"/>
-            Justification required
+          <CAlert color="primary" className="d-flex align-items-center" visible={this.state.justificationProvided || this.state.justificationRequired}>
+            {this.state.justificationRequired && !this.state.justificationProvided &&
+              <>
+                <CImage src={justificationRequiredImg} className="ico--md me-3"></CImage>
+                Justification required
+              </>
+            }
+            {this.state.justificationProvided &&
+              <>
+                <CImage src={justificationProvidedImg} className="ico--md me-3"></CImage>
+                Justification provided
+              </>
+            }
           </CAlert>
           <CNav variant="tabs" role="tablist">
           <CNavItem>
@@ -914,8 +922,8 @@ handleJustProvided(){
         </CModalBody>
         <CModalFooter>
           <div className="d-flex w-100 justify-content-between">
-            {(this.props.status === 'pending') && <CButton color="secondary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.rejectChangesModal(true), true) : this.rejectChangesModal()}>Reject changes</CButton>}
-            {(this.props.status === 'pending') && <CButton color="primary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.acceptChangesModal(true), true) : this.acceptChangesModal()}>Accept changes</CButton>}
+            {(this.props.status === 'pending') && <CButton color="secondary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.rejectChangesModal(true), true) : this.rejectChangesModal()}>Reject Changes</CButton>}
+            {(this.props.status === 'pending') && <CButton color="primary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.acceptChangesModal(true), true) : this.acceptChangesModal()}>Accept Changes</CButton>}
             {(this.props.status !== 'pending') && <CButton color="primary" className="ms-auto" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.backToPendingModal(true), true) : this.backToPendingModal()}>Back to Pending</CButton>}
           </div>
         </CModalFooter>
@@ -977,7 +985,7 @@ handleJustProvided(){
       .then(response => response.json())
       .then(data => {
         if (data.Data.length > 0) {
-          if(data.Data[0]?.SiteCode === this.props.item && this.state.comments.length === 0)
+          if(data.Data[0]?.SiteCode === this.props.item && (this.state.comments.length === 0 || this.state.comments === "noData"))
           this.setState({comments: data.Data});
         }
         else {
@@ -993,7 +1001,7 @@ handleJustProvided(){
       .then(response => response.json())
       .then(data => {
         if (data.Data.length > 0) {
-          if(data.Data[0]?.SiteCode === this.props.item && this.state.documents.length === 0)
+          if(data.Data[0]?.SiteCode === this.props.item && (this.state.documents.length === 0 || this.state.documents === "noData"))
           this.setState({documents: data.Data});
         }
         else {
