@@ -22,6 +22,7 @@ const SiteGraph = () => {
         promises.push(dl.fetch(ConfigData.GET_SITE_COUNT)
             .then(response => response.json())
             .then(data => {
+                data.Data.sort((a, b) => a.Country.localeCompare(b.Country));
                 setChangesCountriesData(data.Data);
             }));
         promises.push(dl.fetch(ConfigData.GET_SITE_LEVEL + '?status=Pending')
@@ -53,9 +54,9 @@ const SiteGraph = () => {
         chngRejected.push(data[i].NumRejected);
     }
     seriesData = [
-        { name: 'Pending', index: 1, data: chngPending, color: '#e4e4e4' },
-        { name: 'Accepted', index: 2, data: chngAccepted, color: '#daf5d6' },
-        { name: 'Rejected', index: 3, data: chngRejected, color: '#f6cbcf' }
+        { name: 'Pending', index: 1, data: chngPending, color: ConfigData.Colors.Grey },
+        { name: 'Accepted', index: 2, data: chngAccepted, color: ConfigData.Colors.Green },
+        { name: 'Rejected', index: 3, data: chngRejected, color: ConfigData.Colors.Red }
     ];
 
     countryList = changesCountriesData.map((e) => e.Country);

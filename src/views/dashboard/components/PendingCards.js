@@ -21,6 +21,7 @@ const PendingCards = () => {
         promises.push(dl.fetch(ConfigData.GET_PENDING_LEVEL)
             .then(response => response.json())
             .then(data => {
+                data.Data.sort((a, b) => a.Country.localeCompare(b.Country));
                 setPendingCountriesData(data.Data);
             }));
         promises.push(dl.fetch(ConfigData.GET_SITE_LEVEL + '?status=Pending')

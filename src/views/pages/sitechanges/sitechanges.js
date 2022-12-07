@@ -332,11 +332,12 @@ const Sitechanges = () => {
       for(let i in data.Data){
         countriesList.push({name:data.Data[i].Country,code:data.Data[i].Code,version:data.Data[i].Version});
       }
+      countriesList.sort((a, b) => a.name.localeCompare(b.name));
       countriesList = [{name:"",code:""}, ...countriesList];
       setCountries(countriesList);
       if(country === ""){
-          setCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code);
-          changeCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code)
+        setCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code);
+        changeCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code)
       }
       if(countriesList[0]?.code === "") {
         setIsLoading(false);
