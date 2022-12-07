@@ -159,8 +159,7 @@ export class ModalEdition extends Component {
             ,this.state.comments[i].Owner
             ,this.state.comments[i].Edited
             ,this.state.comments[i].EditedDate
-            ,this.state.comments[i].Editedby
-            ,this.state.comments[i].Temporal)
+            ,this.state.comments[i].Editedby)
         )
       }
     }
@@ -174,7 +173,7 @@ export class ModalEdition extends Component {
     )
   }
 
-  createCommentElement(id,comment,date,owner,edited,editeddate,editedby,temporal){
+  createCommentElement(id,comment,date,owner,edited,editeddate,editedby){
     return (
       <div className="comment--item" key={"cmtItem_"+id} id={"cmtItem_"+id}>
         <div className="comment--text">
@@ -193,10 +192,10 @@ export class ModalEdition extends Component {
           </label>
         </div>
         <div className="comment--icons">
-          <CButton color="link" className="btn-icon" onClick={(e) => this.updateComment(e.currentTarget)} key={"cmtUpdate_"+id} disabled={!temporal}>
+          <CButton color="link" className="btn-icon" onClick={(e) => this.updateComment(e.currentTarget)} key={"cmtUpdate_"+id}>
             <i className="fa-solid fa-pencil"></i>
           </CButton>
-          <CButton color="link" className="btn-icon" onClick={(e) => this.deleteCommentMessage(e.currentTarget)} key={"cmtDelete_"+id} disabled={!temporal}>
+          <CButton color="link" className="btn-icon" onClick={(e) => this.deleteCommentMessage(e.currentTarget)} key={"cmtDelete_"+id}>
             <i className="fa-regular fa-trash-can"></i>
           </CButton>
         </div>
@@ -413,7 +412,6 @@ export class ModalEdition extends Component {
             Id: commentId,
             Date: currentDate,
             Owner: data.Data.find(a=>a.Id===commentId).Owner,
-            Temporal: true,
           })
           this.setState({comments: cmts, newComment: false})
         }
