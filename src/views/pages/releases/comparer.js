@@ -303,19 +303,19 @@ const Releases = () => {
                   <CFormSelect aria-label="Default select example" className='form-select-reporting' defaultValue="default" disabled={isLoading} onChange={(e)=>setSelectedRelease1(e.target.value)}>
                     <option disabled value="default" hidden>Select a Release</option>
                     {
-                      releaseList.map((e)=><option value={e.idULHeader} key={"c1-"+e.idULHeader}>{e.Name}</option>)
+                      releaseList.map((e)=><option value={e.ID} key={"c1-"+e.ID}>{e.Title}</option>)
                     }
                   </CFormSelect>
                   <div>
                     <i className="fa-solid fa-code-compare"></i>
                   </div>
-                  <CFormSelect aria-label="Default select example" className='form-select-reporting' defaultValue="default" disabled={isLoading} onChange={(e)=>setSelectedRelease2(e.target.value)}>
+                  <CFormSelect aria-label="Default select example" className='form-select-reporting' defaultValue="default" disabled={isLoading || !selectedRelease1} onChange={(e)=>setSelectedRelease2(e.target.value)}>
                     <option disabled value="default" hidden>Select a Release</option>
                     {
                       selectedRelease1 ?
                         releaseList
-                          .filter((e) => 0 < e.Date.localeCompare(releaseList.find((e) => e.idULHeader == selectedRelease1).Date))
-                          .map((e)=><option value={e.idULHeader} key={"c2-"+e.idULHeader}>{e.Name}</option>)
+                          .filter((e) => 0 < e.CreateDate.localeCompare(releaseList.find((e) => e.ID == selectedRelease1).CreateDate))
+                          .map((e)=><option value={e.ID} key={"c2-"+e.ID}>{e.Title}</option>)
                         : <option disabled value="default" hidden>No releases</option>
                     }
                   </CFormSelect>
