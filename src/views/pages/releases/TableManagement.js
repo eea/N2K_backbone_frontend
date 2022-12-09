@@ -222,7 +222,7 @@ function TableManagement(props) {
         props.setRefresh(false);
       } 
       setIsLoading(true);
-      dl.fetch(ConfigData.UNIONLISTS_GET)
+      dl.fetch(ConfigData.RELEASES_GET)
       .then(response =>response.json())
       .then(data => {
         if(Object.keys(data.Data).length === 0){

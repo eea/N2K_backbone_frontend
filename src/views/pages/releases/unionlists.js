@@ -41,7 +41,7 @@ const Releases = () => {
       let bioRegionsData = [];
       if(bioRegions.length === 0) {
         promises.push(
-          dl.fetch(ConfigData.UNIONLISTS_BIOREGIONS)
+          dl.fetch(ConfigData.RELEASES_BIOREGIONS)
           .then(response =>response.json())
           .then(data => {
             if(Object.keys(data.Data).length > 0){
