@@ -248,6 +248,7 @@ export class ModalRelease extends Component {
           this.setState({harvestedData: "nodata"});
         }
         else {
+          data.Data.sort((a, b) => a.Name.localeCompare(b.Name));
           this.setState({harvestedData: data.Data});
         }
       }));
@@ -258,6 +259,7 @@ export class ModalRelease extends Component {
           this.setState({completedData: "nodata"});
         }
         else {
+          data.Data.sort((a, b) => a.Name.localeCompare(b.Name));
           this.setState({completedData: data.Data});
         }
       }));
