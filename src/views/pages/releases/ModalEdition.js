@@ -89,12 +89,14 @@ export class ModalEdition extends Component {
     for(let i in Object.keys(data)){
       let field = Object.keys(data)[i]
       let value = data[field];
-      if(value.toString().length == 0)
+      if(!value)
         this.state.notValidField.push(field);
     }
     this.state.notValidField.forEach((e) => {
-      document.getElementById("field_" + e).classList.add('invalidField');
-      console.log(e + ": " + document.getElementById("field_"+e).classList.toString())
+      let field = document.getElementById("field_" + e)
+      field.querySelector(".multi-select__control") ?
+        field.querySelector(".multi-select__control").classList.add('invalidField')
+        : field.classList.add('invalidField')
     });
     return this.state.notValidField.length == 0
   }

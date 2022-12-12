@@ -283,6 +283,6 @@ form {
     background: #e5e5e580;
   }
 }
-invalidField {
-  border-color: $danger-base;
+.invalidField {
+  border-color: $danger-base !important;
 }
