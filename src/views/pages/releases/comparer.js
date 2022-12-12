@@ -20,6 +20,7 @@ import {
 
 const Releases = () => {
   const [releaseList, setReleaseList] = useState([]);
+  const [releaseList2, setReleaseList2] = useState([]);
   const [selectedRelease1, setSelectedRelease1] = useState();
   const [selectedRelease2, setSelectedRelease2] = useState();
   const [compare, setCompare] = useState(false);
@@ -39,7 +40,7 @@ const Releases = () => {
 
   let loadUnionLists = () => {
     setIsLoading(true);
-    dl.fetch(ConfigData.UNIONLISTS_GET)
+    dl.fetch(ConfigData.RELEASES_GET)
     .then(response =>response.json())
     .then(data => {
       if(Object.keys(data.Data).length > 0){
@@ -66,7 +67,7 @@ const Releases = () => {
       let bioRegionsData = [];
       if(bioRegions.length === 0) {
         promises.push(
-          dl.fetch(ConfigData.UNIONLISTS_BIOREGIONS)
+          dl.fetch(ConfigData.RELEASES_BIOREGIONS)
           .then(response =>response.json())
           .then(data => {
             if(Object.keys(data.Data).length > 0){
@@ -78,7 +79,7 @@ const Releases = () => {
       }
       if(bioRegionsSummary.length === 0) {
         promises.push(
-          dl.fetch(ConfigData.UNIONLISTS_SUMMARY)
+          dl.fetch(ConfigData.RELEASES_SUMMARY+"idSource="+selectedRelease1+"&idTarget="+selectedRelease2)
           .then(response =>response.json())
           .then(data => {
             if(Object.keys(data.Data).length > 0){
@@ -96,7 +97,7 @@ const Releases = () => {
       else if(!tableDataLoading || (tableData1.length === 0 && tableData2.length === 0)) {
         setTableDataLoading(true);
         promises.push(
-          dl.fetch(ConfigData.UNIONLISTS_COMPARER+"?page="+pageNumber+"&limit="+pageSize + (activeBioregions && "&bioregions="+activeBioregions))
+          dl.fetch(ConfigData.RELEASES_COMPARER+"?page="+pageNumber+"&limit="+pageSize+(activeBioregions && "&bioregions="+activeBioregions)+"&idSource="+selectedRelease1+"&idTarget="+selectedRelease2)
           .then(response => response.json())
           .then(data => {
             if(Object.keys(data.Data).length > 0 && tableData1.length === 0 && tableData2.length === 0) {
@@ -252,6 +253,18 @@ const Releases = () => {
     s2.addEventListener('scroll', select_scroll2, false);
   }
 
+  let selectRelease1 = (release) => {
+    setSelectedRelease1(release);
+    let list2 = releaseList.filter((e) => 0 < e.CreateDate.localeCompare(releaseList.find((e) => e.ID == release).CreateDate));
+    setReleaseList2(list2);
+    if(list2.length === 0){
+      setSelectedRelease2("noData");
+    }
+    else{
+      setSelectedRelease2();
+    }
+  }
+
   releaseList.length === 0 && !isLoading && loadUnionLists();
 
   compare && (tableData1.length === 0 && tableData2.length === 0) && loadData();
@@ -300,7 +313,7 @@ const Releases = () => {
               <CCol>
                 <div className="unionlist-compare">
                   <b>Compare</b>
-                  <CFormSelect aria-label="Default select example" className='form-select-reporting' defaultValue="default" disabled={isLoading} onChange={(e)=>setSelectedRelease1(e.target.value)}>
+                  <CFormSelect aria-label="Default select example" className='form-select-reporting' defaultValue="default" disabled={isLoading} onChange={(e)=>selectRelease1(e.target.value)}>/
                     <option disabled value="default" hidden>Select a Release</option>
                     {
                       releaseList.map((e)=><option value={e.ID} key={"c1-"+e.ID}>{e.Title}</option>)
@@ -309,17 +322,15 @@ const Releases = () => {
                   <div>
                     <i className="fa-solid fa-code-compare"></i>
                   </div>
-                  <CFormSelect aria-label="Default select example" className='form-select-reporting' defaultValue="default" disabled={isLoading || !selectedRelease1} onChange={(e)=>setSelectedRelease2(e.target.value)}>
-                    <option disabled value="default" hidden>Select a Release</option>
+                  <CFormSelect aria-label="Default select example" className='form-select-reporting' value={selectedRelease2 ==="noData" ? "noData":"default"} disabled={isLoading || !selectedRelease1 || selectedRelease2 === "noData"} onChange={(e)=>setSelectedRelease2(e.target.value)}>
+                    {!selectedRelease2 && <option disabled value="default" hidden>Select a Release</option>}
                     {
-                      selectedRelease1 ?
-                        releaseList
-                          .filter((e) => 0 < e.CreateDate.localeCompare(releaseList.find((e) => e.ID == selectedRelease1).CreateDate))
-                          .map((e)=><option value={e.ID} key={"c2-"+e.ID}>{e.Title}</option>)
-                        : <option disabled value="default" hidden>No releases</option>
+                      selectedRelease1 &&
+                      releaseList2.map((e)=><option value={e.ID} key={"c2-"+e.ID}>{e.Title}</option>)
                     }
+                    {selectedRelease2 === "noData" && <option disabled value="noData" hidden>No releases</option>}
                   </CFormSelect>
-                  <CButton color="primary" onClick={()=>compareReleases()} disabled={!selectedRelease1 || !selectedRelease2 || isLoading}>
+                  <CButton color="primary" onClick={()=>compareReleases()} disabled={!selectedRelease1 || (selectedRelease2 === "noData" || !selectedRelease2 ) || isLoading}>
                     Compare
                   </CButton>
                 </div>
