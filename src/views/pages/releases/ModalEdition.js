@@ -100,6 +100,12 @@ export class ModalEdition extends Component {
     });
     return this.state.notValidField.length == 0
   }
+  
+  onChangeField(e) {
+    e.target.classList.contains('invalidField') ?
+      e.target.classList.remove('invalidField') 
+    : {}    
+  }
 
   createFieldElement(){
     let fields = [];
@@ -164,6 +170,7 @@ export class ModalEdition extends Component {
                 placeholder={placeholder}
                 autoComplete="off"
                 disabled={true}
+                onChange={(e) => this.onChangeField(e)}
               />
             </>
           }
@@ -177,6 +184,7 @@ export class ModalEdition extends Component {
                 defaultValue={value}
                 placeholder={placeholder}
                 autoComplete="off"
+                onChange={(e) => this.onChangeField(e)}
               />
             </>
           }
@@ -220,6 +228,7 @@ export class ModalEdition extends Component {
                 defaultValue={value}
                 placeholder={placeholder}
                 autoComplete="off"
+                onChange={(e) => this.onChangeField(e)}
               />
             </>
           }
@@ -233,6 +242,7 @@ export class ModalEdition extends Component {
                 defaultValue={value}
                 placeholder={placeholder}
                 autoComplete="off"
+                onChange={(e) => this.onChangeField(e)}
               />
             </>
           }
@@ -246,6 +256,7 @@ export class ModalEdition extends Component {
                 defaultValue={value}
                 placeholder={placeholder}
                 autoComplete="off"
+                onChange={(e) => this.onChangeField(e)}
               />
             </>
           }
@@ -259,6 +270,7 @@ export class ModalEdition extends Component {
                 defaultValue={value}
                 placeholder={placeholder}
                 autoComplete="off"
+                onChange={(e) => this.onChangeField(e)}
               />
             </>
           }
