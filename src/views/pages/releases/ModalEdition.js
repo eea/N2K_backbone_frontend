@@ -98,7 +98,8 @@ export class ModalEdition extends Component {
         field.querySelector(".multi-select__control").classList.add('invalidField')
         : field.classList.add('invalidField')
     });
-    return this.state.notValidField.length == 0
+    this.state.notValidField.length > 0 && this.showErrorMessage("Empty fields are not allowed");
+    return this.state.notValidField.length == 0;
   }
   
   onChangeField(e) {
@@ -352,6 +353,7 @@ export class ModalEdition extends Component {
   }
 
   saveChanges(){
+    //TODO sitename doesnt change
     if(this.fieldValidator()) {
       let body = Object.fromEntries(new FormData(document.querySelector("form")));
       body.BioRegion = Array.from(document.getElementsByName("BioRegion")).map(el => el.value).toString();
@@ -367,6 +369,8 @@ export class ModalEdition extends Component {
       if(this.state.data.Area != body.Area
           || this.state.data.BioRegion != body.BioRegion
           || this.state.data.Length != body.Length
+          || this.state.data.SiteName != body.SiteName
+          || this.state.data.SiteType != body.SiteType
           || (Math.abs(this.state.data.CentreX - body.CentreX) > errorMargin)
           || (Math.abs(this.state.data.CentreY - body.CentreY) > errorMargin)
       ) {
