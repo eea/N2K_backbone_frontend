@@ -85,17 +85,22 @@ function Table({ columns, data, setSelected, modalProps, updateModalValues }) {
       hooks.visibleColumns.push(columns => [
         ...columns,
         {
-          Header: () => null, 
-          id: 'unionListActions',
-          cellWidth: "64px",
+          Header: () => null,
+          id: 'unionListEdit',
+          cellWidth: "48px",
           Cell: ({ row }) => (
-            <div className="d-flex">
-              <div className="btn-icon" onClick={() => modalProps.showEditModal(row.original.ID, row.original.Title, row.original.IsOfficial === "Yes" ? true : false)}>
-                <i className="fa-solid fa-pencil"></i>
-              </div>
-              <div className="btn-icon" onClick={() => modalProps.showDeleteModal(row.original.ID)}>
-                <i className="fa-regular fa-trash-can"></i>
-              </div>
+            <div className="btn-icon" onClick={() => modalProps.showEditModal(row.original.ID, row.original.Title, row.original.IsOfficial === "Yes" ? true : false)}>
+              <i className="fa-solid fa-pencil"></i>
+            </div>
+          )
+        },
+        {
+          Header: () => null,
+          id: 'unionListDelete',
+          cellWidth: "48px",
+          Cell: ({ row }) => (
+            <div className="btn-icon" onClick={() => modalProps.showDeleteModal(row.original.ID)}>
+              <i className="fa-regular fa-trash-can"></i>
             </div>
           )
         },

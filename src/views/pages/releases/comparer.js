@@ -241,12 +241,21 @@ const Releases = () => {
   });
 
   let tableScroll = () => {
+    var ignoreScrollEvents = false;
     var s1 = document.querySelectorAll(".unionlist-table")[0];
     var s2 = document.querySelectorAll(".unionlist-table")[1];
     let select_scroll1 = (e) => {
+      var ignore = ignoreScrollEvents
+      ignoreScrollEvents = false
+      if (ignore) return
+      ignoreScrollEvents = true
       s2.scrollLeft = s1.scrollLeft;
     }
     let select_scroll2 = (e) => {
+      var ignore = ignoreScrollEvents
+      ignoreScrollEvents = false
+      if (ignore) return
+      ignoreScrollEvents = true
       s1.scrollLeft = s2.scrollLeft;
     }
     s1.addEventListener('scroll', select_scroll1, false);
