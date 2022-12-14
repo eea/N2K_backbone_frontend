@@ -261,7 +261,7 @@ const Releases = () => {
       setSelectedRelease2("noData");
     }
     else{
-      setSelectedRelease2();
+      setSelectedRelease2("default");
     }
   }
 
@@ -322,15 +322,15 @@ const Releases = () => {
                   <div>
                     <i className="fa-solid fa-code-compare"></i>
                   </div>
-                  <CFormSelect aria-label="Default select example" className='form-select-reporting' value={selectedRelease2 ==="noData" ? "noData":"default"} disabled={isLoading || !selectedRelease1 || selectedRelease2 === "noData"} onChange={(e)=>setSelectedRelease2(e.target.value)}>
-                    {!selectedRelease2 && <option disabled value="default" hidden>Select a Release</option>}
+                  <CFormSelect aria-label="Default select example" className='form-select-reporting' defaultValue={!selectedRelease2 && "default" || selectedRelease2 ==="noData" && "noData"} value={selectedRelease2 === "noData" ? "noData" : selectedRelease2} disabled={isLoading || !selectedRelease1 || selectedRelease2 === "noData"} onChange={(e)=>setSelectedRelease2(e.target.value)}>
+                    <option disabled value="default" hidden>Select a Release</option>
                     {
                       selectedRelease1 &&
                       releaseList2.map((e)=><option value={e.ID} key={"c2-"+e.ID}>{e.Title}</option>)
                     }
-                    {selectedRelease2 === "noData" && <option disabled value="noData" hidden>No releases</option>}
+                    <option disabled value="noData" hidden>No releases</option>
                   </CFormSelect>
-                  <CButton color="primary" onClick={()=>compareReleases()} disabled={!selectedRelease1 || (selectedRelease2 === "noData" || !selectedRelease2 ) || isLoading}>
+                  <CButton color="primary" onClick={()=>compareReleases()} disabled={!selectedRelease1 || (selectedRelease2 === "noData" || selectedRelease2 === "default" ) || isLoading}>
                     Compare
                   </CButton>
                 </div>
