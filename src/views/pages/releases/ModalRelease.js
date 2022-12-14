@@ -166,7 +166,7 @@ export class ModalRelease extends Component {
           <CModalTitle>Release Creation</CModalTitle>
         </CModalHeader>
         <CModalBody >
-          <CAlert color="primary" dismissible visible={this.state.message !== ""} onClose={() => this.setState({message: null})}>{this.state.message}</CAlert>
+          {this.state.message && <CAlert color="danger">{this.state.message}</CAlert>}
           <div className="release-group">
             <CForm id="release_form">
               <CRow>
@@ -248,6 +248,7 @@ export class ModalRelease extends Component {
           this.setState({harvestedData: "nodata"});
         }
         else {
+          data.Data.sort((a, b) => a.Name.localeCompare(b.Name));
           this.setState({harvestedData: data.Data});
         }
       }));
@@ -258,6 +259,7 @@ export class ModalRelease extends Component {
           this.setState({completedData: "nodata"});
         }
         else {
+          data.Data.sort((a, b) => a.Name.localeCompare(b.Name));
           this.setState({completedData: data.Data});
         }
       }));
