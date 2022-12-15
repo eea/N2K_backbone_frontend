@@ -260,9 +260,6 @@ const Releases = () => {
     if(list2.length === 0){
       setSelectedRelease2("noData");
     }
-    else{
-      setSelectedRelease2();
-    }
   }
 
   releaseList.length === 0 && !isLoading && loadUnionLists();
@@ -302,7 +299,7 @@ const Releases = () => {
             </li>
           </CSidebarNav>
         </CSidebar>
-        <div className="main-content">
+      <div className="main-content">
           <CContainer fluid>
             <div className="d-flex justify-content-between py-3">
               <div className="page-title">
@@ -316,7 +313,7 @@ const Releases = () => {
                   <CFormSelect aria-label="Default select example" className='form-select-reporting' defaultValue="default" disabled={isLoading} onChange={(e)=>selectRelease1(e.target.value)}>/
                     <option disabled value="default" hidden>Select a Release</option>
                     {
-                      releaseList.map((e)=><option value={e.ID} key={"c1-"+e.ID}>{e.Title}</option>)
+                      releaseList.map((e)=><option value={e.ID} key={"c1-"+e.ID}>{e.Title} {' (' + new Date(e.CreateDate).toLocaleDateString() + ')'}</option>)
                     }
                   </CFormSelect>
                   <div>
@@ -326,7 +323,7 @@ const Releases = () => {
                     {!selectedRelease2 && <option disabled value="default" hidden>Select a Release</option>}
                     {
                       selectedRelease1 &&
-                      releaseList2.map((e)=><option value={e.ID} key={"c2-"+e.ID}>{e.Title}</option>)
+                      releaseList2.map((e)=><option value={e.ID} key={"c2-"+e.ID}>{e.Title} {' (' + new Date(e.CreateDate).toLocaleDateString() + ')'}</option>)
                     }
                     {selectedRelease2 === "noData" && <option disabled value="noData" hidden>No releases</option>}
                   </CFormSelect>
