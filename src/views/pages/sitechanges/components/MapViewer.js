@@ -35,8 +35,7 @@ class MapViewer extends React.Component {
             //let mapRel = new MapImageLayer({ url: "https://trial.discomap.eea.europa.eu/arcgis/rest/services/N2kBackbone/Map/MapServer", visible: false });
 
             let lastRelease = new FeatureLayer({
-                //url: "https://trial.discomap.eea.europa.eu/arcgis/rest/services/N2kBackbone/Map/MapServer/1",
-                url: "https://trial.discomap.eea.europa.eu/arcgis/rest/services/N2KBackbone3857/Map/MapServer/1",
+                url: "https://trial.discomap.eea.europa.eu/arcgis/rest/services/N2kBackbone/Map/MapServer/1",
                 id: 1,
                 popupEnabled: true,
                 title: "Last Release",
@@ -56,8 +55,7 @@ class MapViewer extends React.Component {
               });
 
             let reportedSpatial = new FeatureLayer({
-                //url: "https://trial.discomap.eea.europa.eu/arcgis/rest/services/N2kBackbone/Map/MapServer/0",
-                url: "https://trial.discomap.eea.europa.eu/arcgis/rest/services/N2KBackbone3857/Map/MapServer/0",
+                url: "https://trial.discomap.eea.europa.eu/arcgis/rest/services/N2kBackbone/Map/MapServer/0",
                 id: 0,
                 popupEnabled: true,
                 title: "Reported Geometries",
