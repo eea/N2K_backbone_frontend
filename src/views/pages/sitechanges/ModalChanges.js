@@ -66,6 +66,7 @@ export class ModalChanges extends Component {
       newDocument: false,
       justificationRequired: false,
       justificationProvided: false,
+      updateOnClose: false,
       selectedFile: "",
       isSelected: false,
       notValidComment: "",
@@ -345,47 +346,49 @@ export class ModalChanges extends Component {
     else {
       this.showErrorMessage("document", "Add a file");
     }
-}
+  }
+  
+  handleJustRequired(){
+    let body = [{
+      "SiteCode": this.state.data.SiteCode,
+      "VersionId": this.state.data.Version,
+      "Justification": !this.state.justificationRequired,
+    }];  
+    this.sendRequest(ConfigData.MARK_AS_JUSTIFICATION_REQUIRED, "POST", body)  
+    .then((data)=> {
+      if(data?.ok){     
+        if(this.state.justificationRequired)
+          this.setState({justificationRequired: !this.state.justificationRequired, justificationProvided: false})
+        else
+          this.setState({justificationRequired: !this.state.justificationRequired})      
+        this.state.updateOnClose = true;
+        return data;    
+      }
+      else {
+        this.showErrorMessage("Justification Required", "Update failed");
+        return data;
+      }
+    });
+  }
 
-handleJustRequired(){
-  let body = [{
-    "SiteCode": this.state.data.SiteCode,
-    "VersionId": this.state.data.Version,
-    "Justification": !this.state.justificationRequired,
-  }];  
-  this.sendRequest(ConfigData.MARK_AS_JUSTIFICATION_REQUIRED, "POST", body)  
-  .then((data)=> {
-    if(data?.ok){     
-      if(this.state.justificationRequired)
-        this.setState({justificationRequired: !this.state.justificationRequired, justificationProvided: false})
-      else
-        this.setState({justificationRequired: !this.state.justificationRequired})      
-      return data;    
-    }
-    else {
-      this.showErrorMessage("Justification Required", "Update failed");
-      return data;
-    }
-  });
-}
-
-handleJustProvided(){
-  let body = [{
-    "SiteCode": this.state.data.SiteCode,
-    "VersionId": this.state.data.Version,
-    "Justification": !this.state.justificationProvided,
-  }];  
-  this.sendRequest(ConfigData.PROVIDE_JUSTIFICATION, "POST", body)
-  .then((data)=> {
-    if(data?.ok){
-      this.setState({justificationProvided: !this.state.justificationProvided})
-    }
-    else {
-      this.showErrorMessage("Justification Provided", "Update failed");
-      return data;
-    }
-  });
-}
+  handleJustProvided(){
+    let body = [{
+      "SiteCode": this.state.data.SiteCode,
+      "VersionId": this.state.data.Version,
+      "Justification": !this.state.justificationProvided,
+    }];  
+    this.sendRequest(ConfigData.PROVIDE_JUSTIFICATION, "POST", body)
+    .then((data)=> {
+      if(data?.ok){
+        this.setState({justificationProvided: !this.state.justificationProvided})
+        this.state.updateOnClose = true;
+      }
+      else {
+        this.showErrorMessage("Justification Provided", "Update failed");
+        return data;
+      }
+    });
+  }
 
   renderValuesTable(changes){
     let heads = Object.keys(changes[0]).filter(v=> v!=="ChangeId" && v!=="Fields");
@@ -949,7 +952,11 @@ handleJustProvided(){
 
   closeModal(){
     if (this.checkUnsavedChanges()){
-      this.messageBeforeClose(() => this.close())
+      this.messageBeforeClose(() => this.close());
+    }
+    if(this.state.updateOnClose) {
+      this.state.updateOnClose = false;
+      this.props.close(true);
     }
     else {
       this.close();
