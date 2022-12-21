@@ -23,6 +23,8 @@ const Releases = () => {
   const [releaseList2, setReleaseList2] = useState([]);
   const [selectedRelease1, setSelectedRelease1] = useState();
   const [selectedRelease2, setSelectedRelease2] = useState();
+  const [releaseTitle1, setReleaseTitle1] = useState();
+  const [releaseTitle2, setReleaseTitle2] = useState();
   const [compare, setCompare] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [bioRegions, setBioRegions] = useState([]);
@@ -58,6 +60,8 @@ const Releases = () => {
     setBioRegionsSummary([]);
     setCompare(true);
     setPageNumber(1);
+    setReleaseTitle1(getReleaseTitle(selectedRelease1));
+    setReleaseTitle2(getReleaseTitle(selectedRelease2));
   }
 
   let loadData = () => {
@@ -273,6 +277,13 @@ const Releases = () => {
       setSelectedRelease2("default");
     }
   }
+  
+  let getReleaseTitle = (idRelease) => {
+    if(releaseList.length > 0)
+      return releaseList.find(e => e.ID == idRelease).Title;
+    else
+      return "No selection"
+  }
 
   releaseList.length === 0 && !isLoading && loadUnionLists();
 
@@ -364,7 +375,7 @@ const Releases = () => {
                     <>
                       <CRow>
                         <CCol xs={6}>
-                          <b>Previous Release</b>
+                          <b>{releaseTitle1}</b>
                           <ScrollContainer hideScrollbars={false} className="scroll-container unionlist-table" style={{width: tableWidth}}>
                             {tableData1.length > 0 &&
                               <TableUnionLists data={tableData1} colors={false}/>
@@ -372,7 +383,7 @@ const Releases = () => {
                           </ScrollContainer>
                         </CCol>
                         <CCol xs={6}>
-                          <b>Current</b>
+                          <b>{releaseTitle2}</b>
                           <ScrollContainer hideScrollbars={false} className="scroll-container unionlist-table" style={{width: tableWidth}}>
                             {tableData2.length > 0 &&
                               <TableUnionLists data={tableData2} colors={true}/>
