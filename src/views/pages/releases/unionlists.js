@@ -61,6 +61,7 @@ const Releases = () => {
               setPageResults(data.Count);
               setActiveBioregions(data.Data.BioRegionSummary.filter(a=>a.Count>0).map(a=>a.BioRegion).toString());
             }
+            setIsLoading(false);
           })
         );
       }
@@ -69,6 +70,7 @@ const Releases = () => {
         setTableData2("nodata");
       }
       else if(!tableDataLoading || (tableData1.length === 0 && tableData2.length === 0)) {
+        if(activeBioregions==="") return;
         setTableDataLoading(true);
         promises.push(
           dl.fetch(ConfigData.UNIONLISTS_COMPARER+"?page="+pageNumber+"&limit="+pageSize + (activeBioregions && "&bioregions="+activeBioregions))
