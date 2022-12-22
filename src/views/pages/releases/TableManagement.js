@@ -1,23 +1,16 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState} from 'react'
 import { useTable, usePagination, useFilters,useGlobalFilter, useRowSelect, useAsyncDebounce, useSortBy, useExpanded } from 'react-table'
 import {matchSorter} from 'match-sorter'
 import ConfigData from '../../../config.json';
 import {
   CPagination,
   CPaginationItem,
-  CDropdown,
-  CDropdownToggle,
-  CDropdownMenu,
-  CDropdownItem,
 } from '@coreui/react'
 import {DataLoader} from '../../../components/DataLoader';
-
-const confStatus = ConfigData.HARVESTING_STATUS;
 
 function DefaultColumnFilter({
   column: { filterValue, preFilteredRows, setFilter },
 }) {
-  const count = preFilteredRows.length
 
   return (
     <input
@@ -92,17 +85,22 @@ function Table({ columns, data, setSelected, modalProps, updateModalValues }) {
       hooks.visibleColumns.push(columns => [
         ...columns,
         {
-          Header: () => null, 
-          id: 'unionListActions',
-          cellWidth: "120px",
+          Header: () => null,
+          id: 'unionListEdit',
+          cellWidth: "48px",
           Cell: ({ row }) => (
-            <div className="d-flex">
-              <div className="btn-icon" onClick={() => modalProps.showEditModal(row.original.idULHeader, row.original.Name, row.original.Final)}>
-                <i className="fa-solid fa-pencil"></i>
-              </div>
-              <div className="btn-icon" onClick={() => modalProps.showDeleteModal(row.original.idULHeader)}>
-                <i className="fa-regular fa-trash-can"></i>
-              </div>
+            <div className="btn-icon" onClick={() => modalProps.showEditModal(row.original.ID, row.original.Title, row.original.IsOfficial === "Yes" ? true : false)}>
+              <i className="fa-solid fa-pencil"></i>
+            </div>
+          )
+        },
+        {
+          Header: () => null,
+          id: 'unionListDelete',
+          cellWidth: "48px",
+          Cell: ({ row }) => (
+            <div className="btn-icon" onClick={() => modalProps.showDeleteModal(row.original.ID)}>
+              <i className="fa-regular fa-trash-can"></i>
             </div>
           )
         },
@@ -185,7 +183,6 @@ function Table({ columns, data, setSelected, modalProps, updateModalValues }) {
 }
 
 function TableManagement(props) {
-  const [events, setEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(props.isLoading);
   const [releasesData, setReleasesDate] = useState([]);
   let dl = new(DataLoader);
@@ -203,22 +200,19 @@ function TableManagement(props) {
     () => [
       {
         Header: 'Name',
-        accessor: 'Name',
+        accessor: 'Title',
       },
       {
         Header: 'Final',
-        accessor: 'Final',
-        Cell: ({ cell }) => (
-          cell.value ? "Yes" : "No"
-        )
+        accessor: 'IsOfficial',
       },
       {
         Header: 'User',
-        accessor: 'CreatedBy',
+        accessor: 'Author',
       },
       {
         Header: 'Date',
-        accessor: 'Date',
+        accessor: 'CreateDate',
         Cell: ({ cell }) => (
           formatDate(cell.value)
         )
@@ -233,14 +227,15 @@ function TableManagement(props) {
         props.setRefresh(false);
       } 
       setIsLoading(true);
-      dl.fetch(ConfigData.UNIONLISTS_GET)
+      dl.fetch(ConfigData.RELEASES_GET)
       .then(response =>response.json())
       .then(data => {
         if(Object.keys(data.Data).length === 0){
           setReleasesDate("nodata");
         }
         else {
-          setReleasesDate(data.Data.sort((a,b)=>new Date(b.Date)-new Date(a.Date)));
+          data.Data = data.Data.map(a=>{a.IsOfficial = a.IsOfficial? "Yes":"No"; return a});
+          setReleasesDate(data.Data.sort((a,b)=>new Date(b.CreateDate)-new Date(a.CreateDate)));
         }
         setIsLoading(false);
       });

@@ -41,7 +41,7 @@ const Releases = () => {
       let bioRegionsData = [];
       if(bioRegions.length === 0) {
         promises.push(
-          dl.fetch(ConfigData.UNIONLISTS_BIOREGIONS)
+          dl.fetch(ConfigData.RELEASES_BIOREGIONS)
           .then(response =>response.json())
           .then(data => {
             if(Object.keys(data.Data).length > 0){
@@ -61,6 +61,7 @@ const Releases = () => {
               setPageResults(data.Count);
               setActiveBioregions(data.Data.BioRegionSummary.filter(a=>a.Count>0).map(a=>a.BioRegion).toString());
             }
+            setIsLoading(false);
           })
         );
       }
@@ -69,6 +70,7 @@ const Releases = () => {
         setTableData2("nodata");
       }
       else if(!tableDataLoading || (tableData1.length === 0 && tableData2.length === 0)) {
+        if(activeBioregions==="") return;
         setTableDataLoading(true);
         promises.push(
           dl.fetch(ConfigData.UNIONLISTS_COMPARER+"?page="+pageNumber+"&limit="+pageSize + (activeBioregions && "&bioregions="+activeBioregions))
@@ -208,19 +210,28 @@ const Releases = () => {
         th.style.width = width + "px";
         th2.style.width = width + "px";
       });
-      tableScroll();
+      tableScroll()
       resizeIframe();
       window.addEventListener('resize', resizeIframe);
     }
   });
 
   let tableScroll = () => {
+    var ignoreScrollEvents = false;
     var s1 = document.querySelectorAll(".unionlist-table")[0];
     var s2 = document.querySelectorAll(".unionlist-table")[1];
     let select_scroll1 = (e) => {
+      var ignore = ignoreScrollEvents
+      ignoreScrollEvents = false
+      if (ignore) return
+      ignoreScrollEvents = true
       s2.scrollLeft = s1.scrollLeft;
     }
     let select_scroll2 = (e) => {
+      var ignore = ignoreScrollEvents
+      ignoreScrollEvents = false
+      if (ignore) return
+      ignoreScrollEvents = true
       s1.scrollLeft = s2.scrollLeft;
     }
     s1.addEventListener('scroll', select_scroll1, false);

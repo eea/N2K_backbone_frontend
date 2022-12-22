@@ -411,7 +411,7 @@ const IndeterminateCheckbox = React.forwardRef(
       return props.mark({"SiteCode":change.SiteCode,"VersionId":change.Version,"Justification":!change.JustificationRequired})
       .then(data => {
         if(data?.ok){          
-          forceRefreshData();          
+          forceRefreshData();
         }else
           alert("something went wrong!");
         return data;
@@ -419,7 +419,7 @@ const IndeterminateCheckbox = React.forwardRef(
         alert("something went wrong!");
       });    
    }
-
+  
     const columns = React.useMemo(
       () => [
         {
@@ -621,7 +621,8 @@ const IndeterminateCheckbox = React.forwardRef(
     else
       if(changesData==="nodata")
         return (<div className="nodata-container"><em>No Data</em></div>)
-      else
+      else{
+        props.setStatusData(props.status,true);
         return (
         <>
           <Table 
@@ -652,6 +653,7 @@ const IndeterminateCheckbox = React.forwardRef(
           />
         </>
         )
+      }
   
   }
   
