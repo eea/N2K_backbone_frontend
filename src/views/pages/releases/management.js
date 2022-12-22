@@ -23,6 +23,7 @@ import { ConfirmationModal } from './components/ConfirmationModal';
 
 const Releases = () => {
   const [refresh,setRefresh] = useState(false);
+  const [updating, setUpdating] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalValues, setModalValues] = useState({
     visibility: false,
@@ -114,7 +115,7 @@ const Releases = () => {
     setModalValues((prevState) => ({
       ...prevState,
       primaryButton:{
-        text: <><CSpinner size="sm"/> Creating</>
+        text: <><CSpinner size="sm"/> Deleting</>
       },
     }));
     sendRequest(ConfigData.UNIONLIST_DELETE,"DELETE",body)
@@ -156,7 +157,7 @@ const Releases = () => {
 
   let modalProps = {
     showDeleteModal(id) {
-      updateModalValues("Delete Release", "This will delete this Release", "Continue", ()=>deleteReport(id), "Cancel", ()=>{});
+      updateModalValues("Delete Release", "This will delete this Release", "Continue", ()=>deleteReport(id), "Cancel", ()=>{}, true);
     },
     showEditModal(id, name, final) {
       updateModalValues("Edit Release", renderReleaseForm(name, final), "Continue", ()=>editReport(id), "Cancel", ()=>{}, true);
