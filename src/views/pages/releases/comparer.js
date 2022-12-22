@@ -46,7 +46,7 @@ const Releases = () => {
     .then(response =>response.json())
     .then(data => {
       if(Object.keys(data.Data).length > 0){
-        setReleaseList(data.Data);
+        setReleaseList(data.Data.sort((a,b)=>new Date(b.CreateDate)-new Date(a.CreateDate)));
       }
       setIsLoading(false);
     });
@@ -86,7 +86,12 @@ const Releases = () => {
           dl.fetch(ConfigData.RELEASES_SUMMARY+"idSource="+selectedRelease1+"&idTarget="+selectedRelease2)
           .then(response =>response.json())
           .then(data => {
-            if(Object.keys(data.Data).length > 0){
+            if(data.Count === 0){
+              setPageResults(data.Count);
+              setTableData1("nodata");
+              setTableData2("nodata");
+            }
+            else if(Object.keys(data.Data).length > 0){
               setBioRegionsSummary(data.Data.BioRegionSummary);
               setPageResults(data.Count);
               setActiveBioregions(data.Data.BioRegionSummary.filter(a=>a.Count>0).map(a=>a.BioRegion).toString());
@@ -268,7 +273,7 @@ const Releases = () => {
 
   let selectRelease1 = (release) => {
     setSelectedRelease1(release);
-    let list2 = releaseList.filter((e) => 0 < e.CreateDate.localeCompare(releaseList.find((e) => e.ID == release).CreateDate));
+    let list2 = releaseList.filter((e) => 0 > e.CreateDate.localeCompare(releaseList.find((e) => e.ID == release).CreateDate));
     setReleaseList2(list2);
     if(list2.length === 0){
       setSelectedRelease2("noData");
