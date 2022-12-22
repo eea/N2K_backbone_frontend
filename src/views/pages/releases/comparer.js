@@ -273,7 +273,7 @@ const Releases = () => {
 
   let selectRelease1 = (release) => {
     setSelectedRelease1(release);
-    let list2 = releaseList.filter((e) => 0 > e.CreateDate.localeCompare(releaseList.find((e) => e.ID == release).CreateDate));
+    let list2 = releaseList.filter((e) => 0 < e.CreateDate.localeCompare(releaseList.find((e) => e.ID == release).CreateDate));
     setReleaseList2(list2);
     if(list2.length === 0){
       setSelectedRelease2("noData");
