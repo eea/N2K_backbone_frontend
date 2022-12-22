@@ -82,7 +82,13 @@ const Releases = () => {
           dl.fetch(ConfigData.RELEASES_SUMMARY+"idSource="+selectedRelease1+"&idTarget="+selectedRelease2)
           .then(response =>response.json())
           .then(data => {
-            if(Object.keys(data.Data).length > 0){
+            if(data.Count === 0){
+              setBioRegionsSummary(data.Data.BioRegionSummary);
+              setPageResults(data.Count);
+              setTableData1("nodata");
+              setTableData2("nodata");
+            }
+            else if(Object.keys(data.Data).length > 0){
               setBioRegionsSummary(data.Data.BioRegionSummary);
               setPageResults(data.Count);
               setActiveBioregions(data.Data.BioRegionSummary.filter(a=>a.Count>0).map(a=>a.BioRegion).toString());
@@ -95,6 +101,7 @@ const Releases = () => {
         setTableData2("nodata");
       }
       else if(!tableDataLoading || (tableData1.length === 0 && tableData2.length === 0)) {
+        if(activeBioregions==="") return;
         setTableDataLoading(true);
         promises.push(
           dl.fetch(ConfigData.RELEASES_COMPARER+"?page="+pageNumber+"&limit="+pageSize+(activeBioregions && "&bioregions="+activeBioregions)+"&idSource="+selectedRelease1+"&idTarget="+selectedRelease2)
@@ -391,7 +398,8 @@ const Releases = () => {
                             <span className="table-legend--label">Added/Increased</span>
                           </div>
                         </div>
-                        <CPagination>
+                        {pageResults > 0 &&
+                          <CPagination>
                           <CPaginationItem onClick={() => gotoPage(1, null)} disabled={pageNumber === 1}>
                             <i className="fa-solid fa-angles-left"></i>
                           </CPaginationItem>
@@ -428,6 +436,7 @@ const Releases = () => {
                             </select>
                           </div>
                         </CPagination>
+                        }
                       </div>
                     </>
                   }

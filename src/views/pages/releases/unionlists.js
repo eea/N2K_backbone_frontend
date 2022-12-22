@@ -56,7 +56,13 @@ const Releases = () => {
           dl.fetch(ConfigData.UNIONLISTS_SUMMARY)
           .then(response =>response.json())
           .then(data => {
-            if(Object.keys(data.Data).length > 0){
+            if(data.Count === 0){
+              setBioRegionsSummary(data.Data.BioRegionSummary);
+              setPageResults(data.Count);
+              setTableData1("nodata");
+              setTableData2("nodata");
+            }
+            else if(Object.keys(data.Data).length > 0){
               setBioRegionsSummary(data.Data.BioRegionSummary);
               setPageResults(data.Count);
               setActiveBioregions(data.Data.BioRegionSummary.filter(a=>a.Count>0).map(a=>a.BioRegion).toString());
@@ -344,43 +350,45 @@ const Releases = () => {
                           <span className="table-legend--label">Added/Increased</span>
                         </div>
                       </div>
-                      <CPagination>
-                        <CPaginationItem onClick={() => gotoPage(1, null)} disabled={pageNumber === 1}>
-                          <i className="fa-solid fa-angles-left"></i>
-                        </CPaginationItem>
-                        <CPaginationItem onClick={() => gotoPage(pageNumber-1, null)} disabled={pageNumber === 1}>
-                          <i className="fa-solid fa-angle-left"></i>
-                        </CPaginationItem>
-                        <span>
-                          Page{' '}
-                          <strong>
-                            {pageNumber} of {Math.ceil(pageResults / Number(pageSize))}
-                          </strong>{' '}
-                          ({pageResults === 1 ? pageResults + " result" : pageResults + " results"})
-                        </span>
-                        <CPaginationItem onClick={() => gotoPage(pageNumber+1, null)} disabled={pageNumber === Math.ceil(pageResults / Number(pageSize))}>
-                          <i className="fa-solid fa-angle-right"></i>
-                        </CPaginationItem>
-                        <CPaginationItem onClick={() => gotoPage(Math.ceil(pageResults / Number(pageSize)), null)} disabled={pageNumber === Math.ceil(pageResults / Number(pageSize))}>
-                          <i className="fa-solid fa-angles-right"></i>
-                        </CPaginationItem>
-                        <div className='pagination-rows'>
-                          <label className='form-label'>Rows per page</label>
-                          <select
-                            className='form-select'
-                            value={pageSize}
-                            onChange={e => {
-                              gotoPage(null,Number(e.target.value))
-                            }}
-                          >
-                            {[10, 20, 30, 40, 50].map(pageSize => (
-                              <option key={pageSize} value={pageSize}>
-                                {pageSize}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      </CPagination>
+                      {pageResults > 0 &&
+                        <CPagination>
+                          <CPaginationItem onClick={() => gotoPage(1, null)} disabled={pageNumber === 1}>
+                            <i className="fa-solid fa-angles-left"></i>
+                          </CPaginationItem>
+                          <CPaginationItem onClick={() => gotoPage(pageNumber-1, null)} disabled={pageNumber === 1}>
+                            <i className="fa-solid fa-angle-left"></i>
+                          </CPaginationItem>
+                          <span>
+                            Page{' '}
+                            <strong>
+                              {pageNumber} of {Math.ceil(pageResults / Number(pageSize))}
+                            </strong>{' '}
+                            ({pageResults === 1 ? pageResults + " result" : pageResults + " results"})
+                          </span>
+                          <CPaginationItem onClick={() => gotoPage(pageNumber+1, null)} disabled={pageNumber === Math.ceil(pageResults / Number(pageSize))}>
+                            <i className="fa-solid fa-angle-right"></i>
+                          </CPaginationItem>
+                          <CPaginationItem onClick={() => gotoPage(Math.ceil(pageResults / Number(pageSize)), null)} disabled={pageNumber === Math.ceil(pageResults / Number(pageSize))}>
+                            <i className="fa-solid fa-angles-right"></i>
+                          </CPaginationItem>
+                          <div className='pagination-rows'>
+                            <label className='form-label'>Rows per page</label>
+                            <select
+                              className='form-select'
+                              value={pageSize}
+                              onChange={e => {
+                                gotoPage(null,Number(e.target.value))
+                              }}
+                            >
+                              {[10, 20, 30, 40, 50].map(pageSize => (
+                                <option key={pageSize} value={pageSize}>
+                                  {pageSize}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        </CPagination>
+                      }
                     </div>
                   </>
                 }
