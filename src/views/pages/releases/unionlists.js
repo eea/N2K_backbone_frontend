@@ -339,18 +339,18 @@ const Releases = () => {
                         </ScrollContainer>
                       </CCol>
                     </CRow>
-                    <div className="table-footer mt-3">
-                      <div className="table-legend">
-                        <div className="table-legend--item">
-                          <span className="table-legend--color" style={{backgroundColor: ConfigData.Colors.Red}}></span>
-                          <span className="table-legend--label">Deleted/Decreased/Priority changed</span>
+                    {pageResults > 0 &&
+                      <div className="table-footer mt-3">
+                        <div className="table-legend">
+                          <div className="table-legend--item">
+                            <span className="table-legend--color" style={{backgroundColor: ConfigData.Colors.Red}}></span>
+                            <span className="table-legend--label">Deleted/Decreased/Priority changed</span>
+                          </div>
+                          <div className="table-legend--item">
+                            <span className="table-legend--color" style={{backgroundColor: ConfigData.Colors.Green}}></span>
+                            <span className="table-legend--label">Added/Increased</span>
+                          </div>
                         </div>
-                        <div className="table-legend--item">
-                          <span className="table-legend--color" style={{backgroundColor: ConfigData.Colors.Green}}></span>
-                          <span className="table-legend--label">Added/Increased</span>
-                        </div>
-                      </div>
-                      {pageResults > 0 &&
                         <CPagination>
                           <CPaginationItem onClick={() => gotoPage(1, null)} disabled={pageNumber === 1}>
                             <i className="fa-solid fa-angles-left"></i>
@@ -388,8 +388,8 @@ const Releases = () => {
                             </select>
                           </div>
                         </CPagination>
-                      }
-                    </div>
+                      </div>
+                    }
                   </>
                 }
               </>
