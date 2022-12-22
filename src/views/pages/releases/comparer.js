@@ -23,6 +23,8 @@ const Releases = () => {
   const [releaseList2, setReleaseList2] = useState([]);
   const [selectedRelease1, setSelectedRelease1] = useState();
   const [selectedRelease2, setSelectedRelease2] = useState();
+  const [releaseTitle1, setReleaseTitle1] = useState();
+  const [releaseTitle2, setReleaseTitle2] = useState();
   const [compare, setCompare] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [bioRegions, setBioRegions] = useState([]);
@@ -44,7 +46,7 @@ const Releases = () => {
     .then(response =>response.json())
     .then(data => {
       if(Object.keys(data.Data).length > 0){
-        setReleaseList(data.Data);
+        setReleaseList(data.Data.sort((a,b)=>new Date(b.CreateDate)-new Date(a.CreateDate)));
       }
       setIsLoading(false);
     });
@@ -58,6 +60,8 @@ const Releases = () => {
     setBioRegionsSummary([]);
     setCompare(true);
     setPageNumber(1);
+    setReleaseTitle1(getReleaseTitle(selectedRelease1));
+    setReleaseTitle2(getReleaseTitle(selectedRelease2));
   }
 
   let loadData = () => {
@@ -271,7 +275,7 @@ const Releases = () => {
 
   let selectRelease1 = (release) => {
     setSelectedRelease1(release);
-    let list2 = releaseList.filter((e) => 0 < e.CreateDate.localeCompare(releaseList.find((e) => e.ID == release).CreateDate));
+    let list2 = releaseList.filter((e) => 0 > e.CreateDate.localeCompare(releaseList.find((e) => e.ID == release).CreateDate));
     setReleaseList2(list2);
     if(list2.length === 0){
       setSelectedRelease2("noData");
@@ -279,6 +283,13 @@ const Releases = () => {
     else{
       setSelectedRelease2("default");
     }
+  }
+  
+  let getReleaseTitle = (idRelease) => {
+    if(releaseList.length > 0)
+      return releaseList.find(e => e.ID == idRelease).Title;
+    else
+      return "No selection"
   }
 
   releaseList.length === 0 && !isLoading && loadUnionLists();
@@ -371,7 +382,7 @@ const Releases = () => {
                     <>
                       <CRow>
                         <CCol xs={6}>
-                          <b>Previous Release</b>
+                          <b>{releaseTitle1}</b>
                           <ScrollContainer hideScrollbars={false} className="scroll-container unionlist-table" style={{width: tableWidth}}>
                             {tableData1.length > 0 &&
                               <TableUnionLists data={tableData1} colors={false}/>
@@ -379,7 +390,7 @@ const Releases = () => {
                           </ScrollContainer>
                         </CCol>
                         <CCol xs={6}>
-                          <b>Current</b>
+                          <b>{releaseTitle2}</b>
                           <ScrollContainer hideScrollbars={false} className="scroll-container unionlist-table" style={{width: tableWidth}}>
                             {tableData2.length > 0 &&
                               <TableUnionLists data={tableData2} colors={true}/>
