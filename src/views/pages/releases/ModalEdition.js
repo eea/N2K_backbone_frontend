@@ -426,7 +426,7 @@ export class ModalEdition extends Component {
         "Date": currentDate,
       }
       
-      this.sendRequest(ConfigData.SITEEDITION_ADD_COMMENT,"POST",body)
+      this.sendRequest(ConfigData.ADD_COMMENT,"POST",body)
       .then(response => response.json())
       .then((data) => {
         if(data?.Success){
@@ -451,7 +451,7 @@ export class ModalEdition extends Component {
     let body = this.state.comments.find(a=>a.Id===id);
     body.Comments = comment;
     
-    this.sendRequest(ConfigData.SITEEDITION_UPDATE_COMMENT,"PUT",body)
+    this.sendRequest(ConfigData.UPDATE_COMMENT,"PUT",body)
     .then((data) => {
       let reader = data.body.getReader();
       let txt = "";
@@ -491,7 +491,7 @@ export class ModalEdition extends Component {
       let input = target.closest(".comment--item").querySelector("textarea");
       let id = input.getAttribute("id");
       let body = id;
-      this.sendRequest(ConfigData.SITEEDITION_DELETE_COMMENT,"DELETE",body)
+      this.sendRequest(ConfigData.DELETE_COMMENT,"DELETE",body)
       .then((data) => {
         if(data?.ok){
           let cmts = this.state.comments.filter(e => e.Id !== parseInt(id));
@@ -521,7 +521,7 @@ export class ModalEdition extends Component {
     if(target) {
       let doc = target.closest(".document--item");
       let id = doc.getAttribute("doc_id");
-      this.sendRequest(ConfigData.SITEEDITION_DELETE_FILE+"?justificationId="+id,"DELETE","")
+      this.sendRequest(ConfigData.DELETE_ATTACHED_FILE+"?justificationId="+id,"DELETE","")
       .then((data) => {
         if(data?.ok){
           let docs = this.state.documents.filter(e => e.Id !== parseInt(id));
@@ -550,7 +550,7 @@ export class ModalEdition extends Component {
   uploadFile(data){
     let siteCode = this.state.data.SiteCode;
     let version = this.state.data.Version;
-    return this.dl.xmlHttpRequest(ConfigData.SITEEDITION_UPLOAD_FILE+'?sitecode='+siteCode+'&version='+version,data);
+    return this.dl.xmlHttpRequest(ConfigData.UPLOAD_ATTACHED_FILE+'?sitecode='+siteCode+'&version='+version,data);
   }
 
   handleSubmission () {
@@ -910,7 +910,7 @@ export class ModalEdition extends Component {
 
   loadComments(){
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
-      this.dl.fetch(ConfigData.SITEEDITION_GET_COMMENTS+`siteCode=${this.props.item}&version=${this.props.version}`)
+      this.dl.fetch(ConfigData.GET_SITE_COMMENTS+`siteCode=${this.props.item}&version=${this.props.version}`)
       .then(response => response.json())
       .then(data => {
         if (data.Data.length > 0) {
@@ -926,7 +926,7 @@ export class ModalEdition extends Component {
 
   loadDocuments(){
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
-      this.dl.fetch(ConfigData.SITEEDITION_GET_FILES+`siteCode=${this.props.item}&version=${this.props.version}`)
+      this.dl.fetch(ConfigData.GET_ATTACHED_FILES+`siteCode=${this.props.item}&version=${this.props.version}`)
       .then(response => response.json())
       .then(data => {
         if (data.Data.length > 0) {
