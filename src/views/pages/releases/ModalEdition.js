@@ -49,6 +49,7 @@ export class ModalEdition extends Component {
       isSelected: false,
       notValidComment: "",
       notValidDocument: "",
+      fieldChanged: false,
       modalValues : {
         visibility: false,
         close: () => {
@@ -94,6 +95,7 @@ export class ModalEdition extends Component {
       isSelected: false,
       selectedFile: "",
       notValidField: [],
+      fieldChanged: false,
     });
     this.props.close(refresh);
   }
@@ -110,6 +112,11 @@ export class ModalEdition extends Component {
             {(this.state.notValidField.length > 0) &&
               <CAlert color="danger">
                 {this.state.notValidField}
+              </CAlert>
+            }
+            {!this.state.fieldChanged &&
+              <CAlert color="info">
+                There are no changes to be saved!
               </CAlert>
             }
             {this.createFieldElement()}
@@ -140,9 +147,11 @@ export class ModalEdition extends Component {
   }
   
   onChangeField(e) {
-    e.target.classList.contains('invalidField') ?
-      e.target.classList.remove('invalidField') 
-    : {}    
+    if(e.target)
+      e.target.classList.contains('invalidField') ?
+        e.target.classList.remove('invalidField') 
+      : {}
+    this.checkForChanges(e);
   }
 
   sortComments() {
@@ -721,6 +730,7 @@ export class ModalEdition extends Component {
                 placeholder={placeholder}
                 defaultValue={value}
                 options={options}
+                onChange={(e) => this.onChangeField(e)}
               />
             </>
           }
@@ -737,6 +747,7 @@ export class ModalEdition extends Component {
                 options={options}
                 isMulti={true}
                 closeMenuOnSelect={false}
+                onChange={(e) => this.onChangeField(e)}
               />
             </>
           }
@@ -851,7 +862,7 @@ export class ModalEdition extends Component {
         <CModalFooter>
           <div className="d-flex w-100 justify-content-between">
             <CButton color="secondary" disabled= {this.state.updatingData} onClick={()=>this.closeModal()}>Cancel</CButton>
-            <CButton color="primary" disabled= {this.state.updatingData} onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.saveChangesModal(true), true) : this.saveChangesModal()}>
+            <CButton color="primary" disabled= {this.state.updatingData || !this.state.fieldChanged} onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.saveChangesModal(true), true) : this.saveChangesModal()}>
               {this.state.updatingData && <CSpinner size="sm"/>}
               {this.state.updatingData? " Saving":"Save"}
             </CButton>
@@ -977,32 +988,43 @@ export class ModalEdition extends Component {
     this.deleteComment();
   }
 
+  checkForChanges(e) {
+    let body = this.getBody();
+    let errorMargin = 0.00000001;
+    if(this.state.data.SiteName !== body.SiteName
+      || this.state.data.Area !== body.Area
+      || this.state.data.Length !== body.Length
+      || (Math.abs(this.state.data.CentreX - body.CentreX) > errorMargin)
+      || (Math.abs(this.state.data.CentreY - body.CentreY) > errorMargin)
+      || (Array.isArray(e) && this.state.data.BioRegion.sort().toString() !== e.map(b => b.value).sort().toString())
+      || e.value ? this.state.data.SiteType !== e.value : false
+    ) {
+      this.setState({fieldChanged: true});
+      return true;
+    } else {
+      this.setState({fieldChanged: false});
+      return false;
+    }
+  }
+
+  getBody() {
+    let body = Object.fromEntries(new FormData(document.querySelector("form")));
+    body.BioRegion = Array.from(document.getElementsByName("BioRegion")).map(el => el.value).sort().toString();
+    body.Area = body.Area ? +body.Area : body.Area;
+    body.Length = body.Length ? +body.Length : body.Length;
+    body.CentreX = body.CentreX ? +body.CentreX : body.CentreX;
+    body.CentreY = body.CentreY ? +body.CentreY : body.CentreY;
+    body.Version = this.props.version;
+    body.SiteCode = this.props.item;
+
+    return body;
+  }
+
   saveChangesModal() {
+    let body = this.getBody();
     if(this.fieldValidator()) {
-      let body = Object.fromEntries(new FormData(document.querySelector("form")));
-      body.BioRegion = Array.from(document.getElementsByName("BioRegion")).map(el => el.value).toString();
-      body.Area = body.Area ? +body.Area : body.Area;
-      body.Length = body.Length ? +body.Length : body.Length;
-      body.CentreX = body.CentreX ? +body.CentreX : body.CentreX;
-      body.CentreY = body.CentreY ? +body.CentreY : body.CentreY;
-      body.Version = this.props.version;
-      body.SiteCode = this.props.item;
-
-      let errorMargin = 0.00000001;
-
-      if(this.state.data.SiteName !== body.SiteName
-        || this.state.data.SiteType !== body.SiteType
-        || this.state.data.BioRegion.toString() !== body.BioRegion
-        || this.state.data.Area !== body.Area
-        || this.state.data.Length !== body.Length
-        || (Math.abs(this.state.data.CentreX - body.CentreX) > errorMargin)
-        || (Math.abs(this.state.data.CentreY - body.CentreY) > errorMargin)
-      ) {
-        this.cleanUnsavedChanges(1);
-        this.props.updateModalValues("Save changes", "This will save the site changes", "Continue", ()=>this.saveChanges(body), "Cancel", ()=>{});
-      } else {
-        this.closeModal();
-      }
+      this.cleanUnsavedChanges(1);
+      this.props.updateModalValues("Save changes", "This will save the site changes", "Continue", ()=>this.saveChanges(body), "Cancel", ()=>{});
     }
   }
 
