@@ -314,9 +314,6 @@ const IndeterminateCheckbox = React.forwardRef(
   }
   
   function TableRSPag(props) {
-
-    const [events, setEvents] = useState([]);
-    const [isVisible, setIsVisible] = useState(false);
     const [modalItem, setModalItem] = useState({});
     const [modalVisible, setModalVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -325,20 +322,10 @@ const IndeterminateCheckbox = React.forwardRef(
     const [currentPage, setCurrentPage] = useState(0);
     const [currentSize, setCurrentSize] = useState(30);
     const [levelCountry, setLevelCountry] = useState({});
-    const [pageCount, setPageCount] = useState(0);
 
     let dl = new(DataLoader);
 
     let forceRefreshData = ()=> setChangesData({});
-  
-    let toggleVisibility = () => {
-      setIsVisible = !isVisible;
-    }
-  
-    let resetPagination = () =>{
-      setCurrentPage(0);
-      setCurrentSize(30);
-    }
 
     let loadPage = (page,size) =>{
       setCurrentPage(page);

@@ -1,5 +1,6 @@
 import ConfigData from '../../../config.json';
 import React, { Component, useState } from 'react';
+import Select from 'react-select';
 import {
   CButton,
   CCol,
@@ -33,7 +34,10 @@ import {
   CTooltip,
   CCollapse,
   CCard,
-  CAlert
+  CAlert,
+  CForm,
+  CFormInput,
+  CSpinner,
 } from '@coreui/react'
 
 import TextareaAutosize from 'react-textarea-autosize';
@@ -71,6 +75,11 @@ export class ModalChanges extends Component {
       isSelected: false,
       notValidComment: "",
       notValidDocument: "",
+      fields: {},
+      notValidField: [],
+      regions:[],
+      types:[],
+      updatingData: false,
       modalValues : {
         visibility: false,
         close: () => {
@@ -144,6 +153,12 @@ export class ModalChanges extends Component {
       this.setState({notValidDocument: message});
       setTimeout(() => {
         this.setState({notValidDocument: ""});
+      }, 5000);
+    }
+    else if (target === "fields") {
+      this.setState({notValidField: message});
+      setTimeout(() => {
+        this.setState({notValidField: ""});
       }, 5000);
     }
   }
@@ -747,7 +762,7 @@ export class ModalChanges extends Component {
 
   renderAttachments(){
     return(
-      <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 3}>
+      <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 4}>
         <CRow className="py-3">
           <CCol className="mb-3" xs={12} lg={6}>
             <CCard className="document--list">
@@ -810,12 +825,236 @@ export class ModalChanges extends Component {
     )
   }
 
+  renderFields(){
+    return(
+      <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 3}>
+        {this.state.data.Status === "Pending" ?
+          <CRow className="p-3">
+            <CCol>
+              <p className="text-center mt-5">Accept or reject site changes before editing the site</p>
+            </CCol>
+          </CRow>
+          :
+          <CForm id="siteedition_form">
+            <CRow className="p-3">
+              {(this.state.notValidField.length > 0) &&
+                <CAlert color="danger">
+                  {this.state.notValidField}
+                </CAlert>
+              }
+              {this.createFieldElement()}
+            </CRow>
+          </CForm>
+        }
+      </CTabPane>
+    )
+  }
+
+  createFieldElement(){
+    let fields = [];
+    let data = this.state.fields;
+    data = JSON.parse(JSON.stringify( data, ["SiteCode","SiteName","SiteType","BioRegion","Area","Length","CentreY","CentreX"]));
+    for(let i in Object.keys(data)){
+      let field = Object.keys(data)[i]
+      let id = "field_" + field;
+      let value = data[field];
+      let options;
+      let label;
+      let placeholder;
+      let name = field;
+      switch (field) {
+        case "SiteCode":
+          label = "Site Code";
+          placeholder = "Site code";
+          break;
+        case "SiteName":
+          label = "Site Name";
+          placeholder = "Site name";
+          break;
+        case "SiteType":
+          label = "Site Type";
+          placeholder = "Select site type";
+          options = this.state.types.map(x => x = {label:x.Classification, value:x.Code});
+          value = options.find(y => y.value === value);
+          break;
+        case "BioRegion":
+          label = "Biogeographycal Region";
+          placeholder = "Select a region";
+          options = this.state.regions.map(x => x = {label:x.RefBioGeoName, value:x.Code});
+          value = value.map(x => options.find(y => y.value === x));
+          break;
+        case "Area":
+          label = "Area";
+          placeholder = "Site area";
+          break;
+        case "Length":
+          label = "Length";
+          placeholder = "Site length";
+          break;
+        case "CentreY":
+          label = "Latitude";
+          placeholder = "Site centre location latitude";
+          break;
+        case "CentreX":
+          label = "Longitude";
+          placeholder = "Site centre location longitude";
+          break;
+      }
+      fields.push(
+        <CCol xs={12} md={12} lg={6} key={"fd_"+field} className="mb-4">
+          {field === "SiteCode" &&
+            <>
+              <label>{label}</label>
+                <CFormInput
+                id={id}
+                name={name}
+                type="text"
+                defaultValue={value}
+                placeholder={placeholder}
+                autoComplete="off"
+                disabled={true}
+                onChange={(e) => this.onChangeField(e)}
+              />
+            </>
+          }
+          {field === "SiteName" &&
+            <>
+              <label>{label}</label>
+                <CFormInput
+                id={id}
+                name={name}
+                type="text"
+                defaultValue={value}
+                placeholder={placeholder}
+                autoComplete="off"
+                onChange={(e) => this.onChangeField(e)}
+              />
+            </>
+          }
+          {field === "SiteType" &&
+            <>
+              <label>{label}</label>
+              <Select
+                id={id}
+                name={name}
+                className="multi-select"
+                classNamePrefix="multi-select"
+                placeholder={placeholder}
+                defaultValue={value}
+                options={options}
+              />
+            </>
+          }
+          {field === "BioRegion" &&
+            <>
+              <label>{label}</label>
+              <Select
+                id={id}
+                name={name}
+                className="multi-select"
+                classNamePrefix="multi-select"
+                placeholder={placeholder}
+                defaultValue={value}
+                options={options}
+                isMulti={true}
+                closeMenuOnSelect={false}
+              />
+            </>
+          }
+          {field === "Area" &&
+            <>
+              <label>{label}</label>
+              <CFormInput
+                id={id}
+                name={name}
+                type="number"
+                defaultValue={value}
+                placeholder={placeholder}
+                autoComplete="off"
+                onChange={(e) => this.onChangeField(e)}
+              />
+            </>
+          }
+          {field === "Length" &&
+            <>
+              <label>{label}</label>
+              <CFormInput
+                id={id}
+                name={name}
+                type="number"
+                defaultValue={value}
+                placeholder={placeholder}
+                autoComplete="off"
+                onChange={(e) => this.onChangeField(e)}
+              />
+            </>
+          }
+          {field === "CentreX" &&
+            <>
+              <label>{label}</label>
+              <CFormInput
+                id={id}
+                name={name}
+                type="number"
+                defaultValue={value}
+                placeholder={placeholder}
+                autoComplete="off"
+                onChange={(e) => this.onChangeField(e)}
+              />
+            </>
+          }
+          {field === "CentreY" &&
+            <>
+              <label>{label}</label>
+              <CFormInput
+                id={id}
+                name={name}
+                type="number"
+                defaultValue={value}
+                placeholder={placeholder}
+                autoComplete="off"
+                onChange={(e) => this.onChangeField(e)}
+              />
+            </>
+          }
+        </CCol>
+      )
+    }
+    return fields;
+  }
+
+  fieldValidator() {
+    let body = Object.fromEntries(new FormData(document.querySelector("form")));
+    let data = JSON.parse(JSON.stringify( body, ["SiteCode","SiteName","SiteType","BioRegion","Area","Length","CentreY","CentreX"]));
+    this.state.notValidField = [];
+    for(let i in Object.keys(data)){
+      let field = Object.keys(data)[i]
+      let value = data[field];
+      if(!value)
+        this.state.notValidField.push(field);
+    }
+    this.state.notValidField.forEach((e) => {
+      let field = document.getElementById("field_" + e)
+      field.querySelector(".multi-select__control") ?
+        field.querySelector(".multi-select__control").classList.add('invalidField')
+        : field.classList.add('invalidField')
+    });
+    this.state.notValidField.length > 0 && this.showErrorMessage("fields", "Empty fields are not allowed");
+    return this.state.notValidField.length == 0;
+  }
+  
+  onChangeField(e) {
+    e.target.classList.contains('invalidField') ?
+      e.target.classList.remove('invalidField') 
+    : {}
+  }
+
   checkUnsavedChanges() {
     return this.state.loading === false && ((this.state.newComment && document.querySelector(".comment--item.new textarea")?.value.trim() !== "") || (this.state.newDocument && this.state.isSelected) || (this.state.comments !== "noData" && document.querySelectorAll(".comment--item:not(.new) textarea[disabled]").length !== this.state.comments.length));
   }
 
   warningUnsavedChanges(activeKey) {
-    if(this.checkUnsavedChanges() && this.state.activeKey === 3) {
+    if(this.checkUnsavedChanges() && this.state.activeKey === 4) {
       this.props.updateModalValues("Documents & Comments", "There are unsaved changes. Do you want to continue?", "Continue", () => this.cleanUnsavedChanges(activeKey), "Cancel", () => {});
     }
     else {
@@ -855,6 +1094,50 @@ export class ModalChanges extends Component {
   cleanDocumentsAndComments() {
     this.deleteDocument();
     this.deleteComment();
+  }
+
+  saveChangesModal() {
+    if(this.fieldValidator()) {
+      let body = Object.fromEntries(new FormData(document.querySelector("form")));
+      body.BioRegion = Array.from(document.getElementsByName("BioRegion")).map(el => el.value).toString();
+      body.Area = body.Area ? +body.Area : body.Area;
+      body.Length = body.Length ? +body.Length : body.Length;
+      body.CentreX = body.CentreX ? +body.CentreX : body.CentreX;
+      body.CentreY = body.CentreY ? +body.CentreY : body.CentreY;
+      body.Version = this.props.version;
+      body.SiteCode = this.props.item;
+
+      let errorMargin = 0.00000001;
+      if(this.state.fields.SiteName !== body.SiteName
+        || this.state.fields.SiteType !== body.SiteType
+        || this.state.fields.BioRegion.toString() !== body.BioRegion
+        || this.state.fields.Area !== body.Area
+        || this.state.fields.Length !== body.Length
+        || (Math.abs(this.state.fields.CentreX - body.CentreX) > errorMargin)
+        || (Math.abs(this.state.fields.CentreY - body.CentreY) > errorMargin)
+      ) {
+        this.cleanUnsavedChanges();
+        this.props.updateModalValues("Save changes", "This will save the site changes", "Continue", ()=>this.saveChanges(body), "Cancel", ()=>{});
+      }
+    }
+  }
+
+  saveChanges(body){
+    if(Object.values(body).some(val => val === null || val === "")){
+      this.showErrorMessage("fields", "Empty fields are not allowed");
+    } else {
+      // this.sendRequest(ConfigData.SITEDETAIL_SAVE, "POST", body)
+      // .then((data)=> {
+      //   if(data?.ok){
+      //     this.setState({updatingData:false});
+      //     //this.close(true);
+      //   }
+      //   else {
+      //     this.showErrorMessage("fields", "Something went wrong");
+      //   }
+      // });
+      this.setState({updatingData:true});
+    }
   }
 
   renderModal() {
@@ -913,6 +1196,15 @@ export class ModalChanges extends Component {
                 active={this.state.activeKey === 3}
                 onClick={() => this.setActiveKey(3)}
               >
+                Edit Fields
+              </CNavLink>
+            </CNavItem>
+            <CNavItem>
+              <CNavLink
+                href="javascript:void(0);"
+                active={this.state.activeKey === 4}
+                onClick={() => this.setActiveKey(4)}
+              >
                 Documents & Comments
               </CNavLink>
             </CNavItem>
@@ -921,13 +1213,23 @@ export class ModalChanges extends Component {
       {this.renderChanges()}
       {this.renderAttachments()}
       {this.renderGeometry()}
+      {this.renderFields()}
     </CTabContent>
         </CModalBody>
         <CModalFooter>
           <div className="d-flex w-100 justify-content-between">
-            {(this.props.status === 'pending') && <CButton color="secondary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.rejectChangesModal(true), true) : this.rejectChangesModal()}>Reject Changes</CButton>}
-            {(this.props.status === 'pending') && <CButton color="primary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.acceptChangesModal(true), true) : this.acceptChangesModal()}>Accept Changes</CButton>}
-            {(this.props.status !== 'pending') && <CButton color="primary" className="ms-auto" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.backToPendingModal(true), true) : this.backToPendingModal()}>Back to Pending</CButton>}
+            {this.props.status === 'pending' && <CButton color="secondary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.rejectChangesModal(true), true) : this.rejectChangesModal()}>Reject Changes</CButton>}
+            {this.props.status === 'pending' && <CButton color="primary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.acceptChangesModal(true), true) : this.acceptChangesModal()}>Accept Changes</CButton>}
+            {this.props.status !== 'pending' && this.state.activeKey !== 3 && <CButton color="primary" className="ms-auto" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.backToPendingModal(true), true) : this.backToPendingModal()}>Back to Pending</CButton>}
+            {this.props.status !== 'pending' && this.state.activeKey === 3 &&
+              <>
+                <CButton color="secondary" disabled={this.state.updatingData} onClick={()=>this.closeModal()}>Cancel</CButton>
+                <CButton color="primary" disabled={this.state.updatingData} onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.saveChangesModal(true), true) : this.saveChangesModal()}>
+                  {this.state.updatingData && <CSpinner size="sm"/>}
+                  {this.state.updatingData? " Saving":"Save"}
+                </CButton>
+              </>
+            }
           </div>
         </CModalFooter>
       </>
@@ -938,6 +1240,7 @@ export class ModalChanges extends Component {
     this.loadData();
     this.loadComments();
     this.loadDocuments();
+    this.loadFields();
 
     let contents = this.state.loading
       ? <div className="loading-container"><em>Loading...</em></div>
@@ -1018,9 +1321,36 @@ export class ModalChanges extends Component {
     }
   }
 
+  loadFields(){
+    if (this.isVisible() && (this.state.fields.SiteCode !== this.props.item)){
+      this.dl.fetch(ConfigData.SITEDETAIL_GET+"?siteCode="+this.props.item)
+      .then(response => response.json())
+      .then(data =>{
+        if(data.Data.SiteCode === this.props.item && Object.keys(this.state.data).length === 0) {
+          this.setState({fields: data.Data})
+        }
+      });
+    }
+    if(this.isVisible() && this.state.regions.length === 0){
+      this.dl.fetch(ConfigData.BIOREGIONS_GET)
+      .then(response => response.json())
+      .then(data => {
+        this.setState({regions: data.Data});
+      });
+    }
+  
+    if(this.isVisible() && this.state.types.length === 0){
+      this.dl.fetch(ConfigData.SITETYPES_GET)
+      .then(response => response.json())
+      .then(data => {
+        this.setState({types: data.Data});
+      });
+    }
+  }
+
   acceptChangesModal(clean) {
     if(clean) {
-      this.cleanUnsavedChanges(3);
+      this.cleanUnsavedChanges();
     }
     this.props.updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", () => this.acceptChanges(), "Cancel", () => {});
   }
@@ -1034,7 +1364,7 @@ export class ModalChanges extends Component {
   }
 
   rejectChangesModal() {
-    this.cleanUnsavedChanges(3);
+    this.cleanUnsavedChanges();
     this.props.updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", () => this.rejectChanges(), "Cancel", () => {});
   }
 
@@ -1047,7 +1377,7 @@ export class ModalChanges extends Component {
   }
 
   backToPendingModal() {
-    this.cleanUnsavedChanges(3);
+    this.cleanUnsavedChanges();
     this.props.updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", () => this.setBackToPending(), "Cancel", () => {});
   }
 
