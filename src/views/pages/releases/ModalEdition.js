@@ -114,11 +114,6 @@ export class ModalEdition extends Component {
                 {this.state.notValidField}
               </CAlert>
             }
-            {!this.state.fieldChanged &&
-              <CAlert color="info">
-                There are no changes to be saved!
-              </CAlert>
-            }
             {this.createFieldElement()}
           </CRow>
         </CForm>
@@ -952,16 +947,22 @@ export class ModalEdition extends Component {
   }
 
   checkUnsavedChanges() {
-    return this.state.loading === false && ((this.state.newComment && document.querySelector(".comment--item.new textarea")?.value.trim() !== "") || (this.state.newDocument && this.state.isSelected) || (this.state.comments !== "noData" && document.querySelectorAll(".comment--item:not(.new) textarea[disabled]").length !== this.state.comments.length));
+    return this.state.loading === false
+      && ((this.state.newComment && document.querySelector(".comment--item.new textarea")?.value.trim() !== "")
+        || (this.state.newDocument && this.state.isSelected)
+        || (this.state.comments !== "noData" && document.querySelectorAll(".comment--item:not(.new) textarea[disabled]").length !== this.state.comments.length)
+        || this.checkForChanges()
+    );
   }
 
   warningUnsavedChanges(activeKey) {
+    if(this.checkUnsavedChanges() && this.state.activeKey === 1) {
+      this.props.updateModalValues("Edit fields", "There are unsaved changes. Do you want to continue?", "Continue", () => this.cleanUnsavedChanges(), "Cancel", () => {});
+    }
     if(this.checkUnsavedChanges() && this.state.activeKey === 2) {
-      this.props.updateModalValues("Documents & Comments", "There are unsaved changes. Do you want to continue?", "Continue", () => this.cleanUnsavedChanges(activeKey), "Cancel", () => {});
+      this.props.updateModalValues("Documents & Comments", "There are unsaved changes. Do you want to continue?", "Continue", () => this.cleanUnsavedChanges(), "Cancel", () => {});
     }
-    else {
-      this.cleanUnsavedChanges(activeKey);
-    }
+    this.setActiveKey(activeKey);
   }
 
   messageBeforeClose(action, keepOpen) {
@@ -970,6 +971,7 @@ export class ModalEdition extends Component {
 
   cleanUnsavedChanges(activeKey) {
     this.cleanDocumentsAndComments();
+    this.cleanEditFields();
     if(activeKey) {
       this.setActiveKey(activeKey);
       document.querySelectorAll(".comment--item").forEach((i) => {
@@ -988,6 +990,23 @@ export class ModalEdition extends Component {
     this.deleteComment();
   }
 
+  cleanEditFields() {
+    // TODO reset fields data
+    let body = Object.fromEntries(new FormData(document.querySelector("form")));
+    let inputFields = JSON.parse(JSON.stringify( body, ["SiteCode","SiteName","Area","Length","CentreY","CentreX"]));
+    for(let i in Object.keys(data)){
+      let field = Object.keys(data)[i]
+      console.log(field)
+    }
+    let multiSelectFields = JSON.parse(JSON.stringify(body, ["SiteType","BioRegion"]))
+    this.state.notValidField.forEach((e) => {
+      let field = document.getElementById("field_" + e)
+      field.querySelector(".multi-select__control") ?
+        field.querySelector(".multi-select__control").classList.add('invalidField')
+        : field.classList.add('invalidField')
+    });
+  }
+
   checkForChanges(e) {
     let body = this.getBody();
     let errorMargin = 0.00000001;
@@ -996,8 +1015,8 @@ export class ModalEdition extends Component {
       || this.state.data.Length !== body.Length
       || (Math.abs(this.state.data.CentreX - body.CentreX) > errorMargin)
       || (Math.abs(this.state.data.CentreY - body.CentreY) > errorMargin)
-      || (Array.isArray(e) && this.state.data.BioRegion.sort().toString() !== e.map(b => b.value).sort().toString())
-      || e.value ? this.state.data.SiteType !== e.value : false
+      || e !== undefined && (Array.isArray(e) && this.state.data.BioRegion.sort().toString() !== e.map(b => b.value).sort().toString())
+      || e !== undefined && (e.value ? this.state.data.SiteType !== e.value : false)
     ) {
       this.setState({fieldChanged: true});
       return true;
