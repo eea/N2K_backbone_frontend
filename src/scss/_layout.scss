@@ -94,10 +94,24 @@ html {
     }
   }
   .avatar {
-    margin-right: 0.5rem;
     font-size: inherit;
     width: auto;
     height: auto;
+  }
+  .dropdown {
+    .dropdown-toggle::after {
+      content: none;
+    }
+    li {
+      margin: 0 !important;
+      i {
+        color: $primary-base;
+        margin-right: 0.5rem;
+      }
+      &::after {
+        content: none;
+      }
+    }
   }
 }
 
@@ -161,4 +175,8 @@ html {
   .react-flow__handle {
     visibility: hidden;
   }
+}
+
+.page-image {
+  height: 10rem;
 }
