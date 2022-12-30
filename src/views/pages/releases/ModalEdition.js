@@ -956,33 +956,28 @@ export class ModalEdition extends Component {
   }
 
   warningUnsavedChanges(activeKey) {
+    console.log(this.state.activeKey)
     if(this.checkUnsavedChanges() && this.state.activeKey === 1) {
-      this.props.updateModalValues("Edit fields", "There are unsaved changes. Do you want to continue?", "Continue", () => this.cleanUnsavedChanges(), "Cancel", () => {});
+      this.props.updateModalValues("Edit fields",
+        "There are unsaved changes. Do you want to continue?",
+        "Continue", () => {this.cleanUnsavedChanges(); this.setActiveKey(activeKey)},
+        "Cancel", () => {});
     }
     if(this.checkUnsavedChanges() && this.state.activeKey === 2) {
-      this.props.updateModalValues("Documents & Comments", "There are unsaved changes. Do you want to continue?", "Continue", () => this.cleanUnsavedChanges(), "Cancel", () => {});
+      this.props.updateModalValues("Documents & Comments",
+        "There are unsaved changes. Do you want to continue?",
+        "Continue", () => {this.cleanUnsavedChanges(); this.setActiveKey(activeKey)},
+        "Cancel", () => {});
     }
-    this.setActiveKey(activeKey);
   }
 
   messageBeforeClose(action, keepOpen) {
-    this.props.updateModalValues("Documents & Comments", "There are unsaved changes. Do you want to continue?", "Continue", action, "Cancel", () => {}, keepOpen);
+    this.props.updateModalValues("Site Edition", "There are unsaved changes. Do you want to continue?", "Continue", action, "Cancel", () => {}, keepOpen);
   }
 
   cleanUnsavedChanges(activeKey) {
     this.cleanDocumentsAndComments();
     this.cleanEditFields();
-    if(activeKey) {
-      this.setActiveKey(activeKey);
-      document.querySelectorAll(".comment--item").forEach((i) => {
-        let input = i.querySelector("textarea");
-        if(!input.disabled) {
-          input.value = input.defaultValue;
-          input.disabled = true;
-          i.querySelector("i.fa-floppy-disk").classList.replace("fa-floppy-disk", "fa-pencil");
-        }
-      });
-    }
   }
 
   cleanDocumentsAndComments() {
@@ -992,19 +987,7 @@ export class ModalEdition extends Component {
 
   cleanEditFields() {
     // TODO reset fields data
-    let body = Object.fromEntries(new FormData(document.querySelector("form")));
-    let inputFields = JSON.parse(JSON.stringify( body, ["SiteCode","SiteName","Area","Length","CentreY","CentreX"]));
-    for(let i in Object.keys(data)){
-      let field = Object.keys(data)[i]
-      console.log(field)
-    }
-    let multiSelectFields = JSON.parse(JSON.stringify(body, ["SiteType","BioRegion"]))
-    this.state.notValidField.forEach((e) => {
-      let field = document.getElementById("field_" + e)
-      field.querySelector(".multi-select__control") ?
-        field.querySelector(".multi-select__control").classList.add('invalidField')
-        : field.classList.add('invalidField')
-    });
+    let a = document.getElementById("siteedition_form")
   }
 
   checkForChanges(e) {
