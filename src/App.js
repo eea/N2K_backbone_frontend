@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { HashRouter, Route, Switch } from 'react-router-dom'
+import { HashRouter, Route, Switch , Redirect } from 'react-router-dom'
 import routes from '../src/routes'
 import './scss/style.scss'
 
@@ -15,9 +15,8 @@ class App extends Component {
       <HashRouter>
         <React.Suspense fallback={loading}>
           <Switch>
-          {routes.map((route, idx) => {
-            return (
-              route.component && (
+            {routes.map((route, idx) => {
+              return (
                 <Route
                   key={idx}
                   path={route.path}
@@ -28,10 +27,13 @@ class App extends Component {
                       <route.component {...props} />
                     </>
                   )}
-                />
-              )
-            )
-          })}
+                  />
+                )
+              })
+            }
+            {/* {!this.props.isLoggedIn &&
+              <Redirect to="/notauthorized" />
+            } */}
           </Switch>
         </React.Suspense>
       </HashRouter>

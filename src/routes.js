@@ -35,7 +35,8 @@ const routes = [
   { path: '/releases/comparer', exact: true, name: 'Releases', component: ReleasesComparer },
   { path: '/releases/unionlists', exact: true, name: 'Releases', component: UnionLists },
   { path: '/releases/siteedition', exact: true, name: 'Releases', component: SiteEdition },
-  { path: '*', name: 'Not Found', component: NotFound },
+  { path: '/notauthorized', name: 'Not Authorized', name:'NotAuthorized', component: NotAuthorized },
+  { path: '*', name: 'Not Found', name:'NotFound', component: NotFound },
 ]
 
 export default routes

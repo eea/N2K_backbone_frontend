@@ -82,7 +82,7 @@ html {
       }
     }
     &:hover {
-      & .btn {
+      & .btn-link--bold {
         color: $white;
       }
       &::after {
@@ -92,24 +92,40 @@ html {
         left: -8px;
       }
     }
-  }
-  .avatar {
-    font-size: inherit;
-    width: auto;
-    height: auto;
-  }
-  .dropdown {
-    .dropdown-toggle::after {
-      content: none;
-    }
-    li {
-      margin: 0 !important;
-      i {
-        color: $primary-base;
-        margin-right: 0.5rem;
+    &.dropdown {
+      .dropdown-toggle {
+        .avatar {
+          font-size: inherit;
+          width: auto;
+          height: auto;
+        }
+        &::after {
+          content: none;
+        }
       }
-      &::after {
-        content: none;
+      li {
+        margin: 0 !important;
+        i {
+          color: $primary-base;
+          margin-right: 0.5rem;
+        }
+        &::after {
+          content: none;
+        }
+      }
+    }
+  }
+  &__button {
+    i {
+      margin-right: 0.5rem;
+    }
+    &::after{
+      content: none !important;
+    }
+    .btn {
+      text-decoration: none;
+      &:hover{
+        color: $primary-base;
       }
     }
   }

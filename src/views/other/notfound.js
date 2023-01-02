@@ -24,7 +24,7 @@ const NotFound = () => {
                 </div>
                 <div className="page-title text-center">
                   <h1 className="h1">Page not found</h1>
-                  <CButton color="secondary">Back to Home</CButton>
+                  <CButton color="secondary" href="/#/dashboard">Back to Home</CButton>
                 </div>
               </CCol>
             </CRow>
