@@ -17,6 +17,7 @@ import {
   CFormSelect,
   CPagination,
   CPaginationItem,
+  CTooltip,
 } from '@coreui/react'
 
 import { ModalEdition } from './ModalEdition';
@@ -209,6 +210,8 @@ const Releases = () => {
         let siteName = sites[i].Name;
         let siteCode = sites[i].SiteCode;
         let version = sites[i].Version;
+        let date = "aa"//sites[i].Date;
+        let user = "aa"//sites[i].User;
         cards.push(
           <CCol xs={12} md={6} lg={4} xl={3} key={"card_"+i}>
             <CCard className="search-card">
@@ -223,6 +226,16 @@ const Releases = () => {
                   Edit
                 </CButton>
               </div>
+              {date && user &&
+                <CTooltip 
+                  content={"Edited"
+                    + (date && " on " + date.slice(0,10).split('-').reverse().join('/'))
+                    + (user && " by " + user)}>
+                  <div className="btn-icon btn-editinfo">
+                    <i className="fa-solid fa-circle-info"></i>
+                  </div>
+                </CTooltip>
+              }
             </CCard>
           </CCol>
         )
