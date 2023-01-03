@@ -21,7 +21,7 @@ const AppHeader = (props) => {
     <CHeader className='header--custom'>
       <CRow className='align-items-center'>
         <CCol className="header__title">
-          <div>Natura Change Manager</div>
+          <a href='/#/'>Natura Change Manager</a>
         </CCol>
         <CCol className='header__links'>
           <ul className="btn--list justify-content-between">

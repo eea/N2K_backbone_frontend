@@ -24,7 +24,7 @@ const NotAuthorized = () => {
                 </div>
                 <div className="page-title text-center">
                   <h1 className="h1">Not authotized</h1>
-                  <CButton color="secondary" href="/#/dashboard">Back to Home</CButton>
+                  <CButton color="secondary" href="/#/">Back to Home</CButton>
                 </div>
               </CCol>
             </CRow>

@@ -31,9 +31,6 @@ class App extends Component {
                 )
               })
             }
-            {/* {!this.props.isLoggedIn &&
-              <Redirect to="/notauthorized" />
-            } */}
           </Switch>
         </React.Suspense>
       </HashRouter>

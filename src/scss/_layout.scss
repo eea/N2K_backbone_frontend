@@ -54,6 +54,10 @@ html {
   }
   &__title {
     margin: 0 1rem;
+    a {
+      color: white !important;
+      text-decoration: none;
+    }
   }
   li {
     margin: auto 1rem;
