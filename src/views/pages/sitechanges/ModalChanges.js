@@ -49,7 +49,6 @@ import justificationProvidedImg from './../../../assets/images/file-text.svg'
 import MapViewer from './components/MapViewer'
 
 import {DataLoader} from '../../../components/DataLoader';
-
 export class ModalChanges extends Component {
   constructor(props) {
     super(props);
@@ -77,6 +76,7 @@ export class ModalChanges extends Component {
       notValidDocument: "",
       fields: {},
       notValidField: [],
+      fieldChanged: false,
       regions:[],
       types:[],
       updatingData: false,
@@ -126,6 +126,7 @@ export class ModalChanges extends Component {
       newDocument: false,
       isSelected: false,
       selectedFile: "",
+      fieldChanged: false,
     });
     this.props.close(refresh);
   }
@@ -591,7 +592,7 @@ export class ModalChanges extends Component {
       </CTabPane>
     )
   }
-  
+
   sortComments() {
     this.state.comments.sort(
       (a,b) => b.Date && a.Date ?
@@ -942,6 +943,7 @@ export class ModalChanges extends Component {
                 placeholder={placeholder}
                 defaultValue={value}
                 options={options}
+                onChange={(e) => this.onChangeField(e)}
               />
             </>
           }
@@ -958,6 +960,7 @@ export class ModalChanges extends Component {
                 options={options}
                 isMulti={true}
                 closeMenuOnSelect={false}
+                onChange={(e) => this.onChangeField(e)}
               />
             </>
           }
@@ -1042,11 +1045,13 @@ export class ModalChanges extends Component {
     this.state.notValidField.length > 0 && this.showErrorMessage("fields", "Empty fields are not allowed");
     return this.state.notValidField.length == 0;
   }
-  
+
   onChangeField(e) {
-    e.target.classList.contains('invalidField') ?
+    if(e.target)
+      e.target.classList.contains('invalidField') ?
       e.target.classList.remove('invalidField') 
-    : {}
+      : {}
+    this.checkForChanges(e);
   }
 
   checkUnsavedChanges() {
@@ -1057,6 +1062,9 @@ export class ModalChanges extends Component {
     if(this.checkUnsavedChanges() && this.state.activeKey === 4) {
       this.props.updateModalValues("Documents & Comments", "There are unsaved changes. Do you want to continue?", "Continue", () => this.cleanUnsavedChanges(activeKey), "Cancel", () => {});
     }
+    if(this.state.fieldChanged && this.state.activeKey === 3) {
+      this.props.updateModalValues("Edit Fields", "There are unsaved changes. Do you want to continue?", "Continue", () => this.cleanFields(activeKey), "Cancel", () => {});
+    }
     else {
       this.cleanUnsavedChanges(activeKey);
     }
@@ -1064,6 +1072,17 @@ export class ModalChanges extends Component {
 
   messageBeforeClose(action, keepOpen) {
     this.props.updateModalValues("Documents & Comments", "There are unsaved changes. Do you want to continue?", "Continue", action, "Cancel", () => {}, keepOpen);
+  }
+
+  cleanFields(activeKey) {
+    let fields = this.getBody();
+    delete fields.Version;
+    for(let i in fields) {
+      document.getElementsByName(i)[0].value = this.state.fields[i];
+    }
+    if(activeKey) {
+      this.setActiveKey(activeKey);
+    }
   }
 
   cleanUnsavedChanges(activeKey) {
@@ -1096,33 +1115,47 @@ export class ModalChanges extends Component {
     this.deleteComment();
   }
 
-  saveChangesModal() {
-    if(this.fieldValidator()) {
-      let body = Object.fromEntries(new FormData(document.querySelector("form")));
-      body.BioRegion = Array.from(document.getElementsByName("BioRegion")).map(el => el.value).toString();
-      body.Area = body.Area ? +body.Area : body.Area;
-      body.Length = body.Length ? +body.Length : body.Length;
-      body.CentreX = body.CentreX ? +body.CentreX : body.CentreX;
-      body.CentreY = body.CentreY ? +body.CentreY : body.CentreY;
-      body.Version = this.props.version;
-      body.SiteCode = this.props.item;
-
-      let errorMargin = 0.00000001;
-      if(this.state.fields.SiteName !== body.SiteName
-        || this.state.fields.SiteType !== body.SiteType
-        || this.state.fields.BioRegion.toString() !== body.BioRegion
-        || this.state.fields.Area !== body.Area
-        || this.state.fields.Length !== body.Length
-        || (Math.abs(this.state.fields.CentreX - body.CentreX) > errorMargin)
-        || (Math.abs(this.state.fields.CentreY - body.CentreY) > errorMargin)
-      ) {
-        this.cleanUnsavedChanges();
-        this.props.updateModalValues("Save changes", "This will save the site changes", "Continue", ()=>this.saveChanges(body), "Cancel", ()=>{});
-      }
+  checkForChanges(e) {
+    let body = this.getBody();
+    let errorMargin = 0.00000001;
+    if(this.state.fields.SiteName !== body.SiteName
+      || this.state.fields.Area !== body.Area
+      || this.state.fields.Length !== body.Length
+      || (Math.abs(this.state.fields.CentreX - body.CentreX) > errorMargin)
+      || (Math.abs(this.state.fields.CentreY - body.CentreY) > errorMargin)
+      || (Array.isArray(e) && this.state.fields.BioRegion.sort().toString() !== e.map(b => b.value).sort().toString())
+      || e.value ? this.state.fields.SiteType !== e.value : false
+    ) {
+      this.setState({fieldChanged: true});
+      return true;
+    } else {
+      this.setState({fieldChanged: false});
+      return false;
     }
   }
 
-  saveChanges(body){
+  getBody() {
+    let body = Object.fromEntries(new FormData(document.querySelector("form")));
+    body.BioRegion = Array.from(document.getElementsByName("BioRegion")).map(el => el.value).sort().toString();
+    body.Area = body.Area ? +body.Area : body.Area;
+    body.Length = body.Length ? +body.Length : body.Length;
+    body.CentreX = body.CentreX ? +body.CentreX : body.CentreX;
+    body.CentreY = body.CentreY ? +body.CentreY : body.CentreY;
+    body.Version = this.props.version;
+    body.SiteCode = this.props.item;
+
+    return body;
+  }
+
+  saveChangesModal() {
+    let body = this.getBody();
+    if(this.fieldValidator()) {
+      this.cleanUnsavedChanges();
+      this.props.updateModalValues("Save changes", "This will save the site changes", "Continue", ()=>this.saveChanges(body), "Cancel", ()=>{});
+    }
+  }
+
+  saveChanges(body) {
     if(Object.values(body).some(val => val === null || val === "")){
       this.showErrorMessage("fields", "Empty fields are not allowed");
     } else {
@@ -1224,7 +1257,7 @@ export class ModalChanges extends Component {
             {data.Status !== 'Pending' && this.state.activeKey === 3 &&
               <>
                 <CButton color="secondary" disabled={this.state.updatingData} onClick={()=>this.closeModal()}>Cancel</CButton>
-                <CButton color="primary" disabled={this.state.updatingData} onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.saveChangesModal(true), true) : this.saveChangesModal()}>
+                <CButton color="primary" disabled={this.state.updatingData || !this.state.fieldChanged} onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.saveChangesModal(true), true) : this.saveChangesModal()}>
                   {this.state.updatingData && <CSpinner size="sm"/>}
                   {this.state.updatingData? " Saving":"Save"}
                 </CButton>
