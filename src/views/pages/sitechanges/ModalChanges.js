@@ -55,7 +55,7 @@ export class ModalChanges extends Component {
       activeKey: 1,
       loading: true,
       data: {}, 
-      levels:["Critical"],
+      levels:[this.props.level ? this.props.level : "Critical"],
       bookmark: "",
       bookmarks: [],
       bookmarkUpdate: false,
@@ -106,7 +106,7 @@ export class ModalChanges extends Component {
   close(refresh){
     this.setActiveKey(1);
     this.setState({
-      level:"Warning",
+      levels:[this.props.level ? this.props.level : "Critical"],
       bookmark: "",
       showDetail: "",
       data: {},

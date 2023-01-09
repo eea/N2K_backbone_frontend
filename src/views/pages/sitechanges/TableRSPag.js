@@ -645,6 +645,7 @@ const IndeterminateCheckbox = React.forwardRef(
                         backToPending={()=>setBackToPending(modalItem)}
                         mark={()=>switchMarkChanges(modalItem)}                        
                         status={props.status}
+                        level={props.level}
                         item={modalItem.SiteCode} 
                         version={modalItem.Version} 
                         updateModalValues = {props.updateModalValues}
