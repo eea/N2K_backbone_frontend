@@ -142,4 +142,11 @@
       color: $gray-700;
     }
   }
+  &.btn-editinfo {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    padding: 0;
+    margin: 1rem;
+  }
 }
