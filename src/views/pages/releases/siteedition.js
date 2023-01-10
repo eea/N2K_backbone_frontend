@@ -210,8 +210,8 @@ const Releases = () => {
         let siteName = sites[i].Name;
         let siteCode = sites[i].SiteCode;
         let version = sites[i].Version;
-        let date = sites[i].Date;
-        let user = sites[i].User;
+        let date = sites[i].EditedDate;
+        let user = sites[i].EditedBy;
         cards.push(
           <CCol xs={12} md={6} lg={4} xl={3} key={"card_"+i}>
             <CCard className="search-card">
