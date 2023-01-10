@@ -954,7 +954,7 @@ export class ModalChanges extends Component {
                 placeholder={placeholder}
                 value={this.state.siteTypeValue}
                 options={options}
-                onChange={(e) => this.onChangeField(e, siteTypeValue)}
+                onChange={(e) => this.onChangeField(e, name)}
               />
             </>
           }
@@ -1100,7 +1100,7 @@ export class ModalChanges extends Component {
     if(activeKey) {
       this.setActiveKey(activeKey);
     }
-    this.setState({siteTypeValue: this.siteTypeDefault, siteRegionValue: this.siteRegionDefault});
+    this.setState({siteTypeValue: this.siteTypeDefault, siteRegionValue: this.siteRegionDefault, fieldChanged: false});
   }
 
   cleanUnsavedChanges(activeKey) {
@@ -1158,7 +1158,6 @@ export class ModalChanges extends Component {
   saveChangesModal() {
     let body = this.getBody();
     if(this.fieldValidator()) {
-      //this.cleanUnsavedChanges();
       this.props.updateModalValues("Save changes", "This will save the site changes", "Continue", ()=>this.saveChanges(body), "Cancel", ()=>{});
     }
   }
@@ -1170,8 +1169,13 @@ export class ModalChanges extends Component {
       this.sendRequest(ConfigData.SITEDETAIL_SAVE, "POST", body)
       .then((data)=> {
         if(data?.ok){
-          this.setState({updatingData:false});
-          //this.close(true);
+          body = {
+            ...body,
+            BioRegion: body.BioRegion.split(",").map(Number),
+            JustificationProvided: this.state.justificationProvided,
+            JustificationRequired: this.state.justificationRequired,
+          }
+          this.setState({fields: body, fieldChanged: false, updatingData: false});
         }
         else {
           this.showErrorMessage("fields", "Something went wrong");
