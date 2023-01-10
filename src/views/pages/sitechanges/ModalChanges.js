@@ -90,7 +90,8 @@ export class ModalChanges extends Component {
           });
         }
       },
-      siteTypeValue: "" //DGS
+      siteTypeValue: "",
+      siteRegionValue: "",
     };
   }
 
@@ -879,16 +880,20 @@ export class ModalChanges extends Component {
           placeholder = "Select site type";
           options = this.state.types.map(x => x = {label:x.Classification, value:x.Code});
           value = options.find(y => y.value === value);
-          this.siteTypeDefault = value; //DGS
-          if (this.state.siteTypeValue===""){ //DGS
-            this.setState({siteTypeValue: value});            
-          } 
+          this.siteTypeDefault = value;
+          if(this.state.siteTypeValue === ""){
+            this.setState({siteTypeValue: value});
+          }
           break;
         case "BioRegion":
           label = "Biogeographycal Region";
           placeholder = "Select a region";
           options = this.state.regions.map(x => x = {label:x.RefBioGeoName, value:x.Code});
           value = value.map(x => options.find(y => y.value === x));
+          this.siteRegionDefault = value;
+          if(this.state.siteRegionValue === ""){
+            this.setState({siteRegionValue: value});
+          }
           break;
         case "Area":
           label = "Area";
@@ -947,14 +952,9 @@ export class ModalChanges extends Component {
                 className="multi-select"
                 classNamePrefix="multi-select"
                 placeholder={placeholder}
-                value = {this.state.siteTypeValue} //DGS
+                value={this.state.siteTypeValue}
                 options={options}
-                onChange={
-                  (e) => {
-                    this.onChangeField(e);
-                    this.setState({siteTypeValue: e}); //DGS
-                  }
-                }
+                onChange={(e) => this.onChangeField(e, siteTypeValue)}
               />
             </>
           }
@@ -967,11 +967,11 @@ export class ModalChanges extends Component {
                 className="multi-select"
                 classNamePrefix="multi-select"
                 placeholder={placeholder}
-                defaultValue={value}
+                value={this.state.siteRegionValue}
                 options={options}
                 isMulti={true}
                 closeMenuOnSelect={false}
-                onChange={(e) => this.onChangeField(e)}
+                onChange={(e) => this.onChangeField(e, name)}
               />
             </>
           }
@@ -1057,7 +1057,13 @@ export class ModalChanges extends Component {
     return this.state.notValidField.length == 0;
   }
 
-  onChangeField(e) {
+  onChangeField(e, field) {
+    if(field === "SiteType"){
+      this.setState({siteTypeValue: e})
+    }
+    else if(field === "BioRegion"){
+      this.setState({siteRegionValue: e})
+    }
     if(e.target)
       e.target.classList.contains('invalidField') ?
       e.target.classList.remove('invalidField') 
@@ -1094,7 +1100,7 @@ export class ModalChanges extends Component {
     if(activeKey) {
       this.setActiveKey(activeKey);
     }
-    this.setState({siteTypeValue: this.siteTypeDefault}); //DGS
+    this.setState({siteTypeValue: this.siteTypeDefault, siteRegionValue: this.siteRegionDefault});
   }
 
   cleanUnsavedChanges(activeKey) {
