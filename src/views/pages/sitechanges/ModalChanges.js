@@ -128,6 +128,7 @@ export class ModalChanges extends Component {
       isSelected: false,
       selectedFile: "",
       fieldChanged: false,
+      fields: {},
     });
     this.props.close(refresh);
   }
@@ -1111,16 +1112,6 @@ export class ModalChanges extends Component {
     }
   }
 
-  rejectCleanAndCancel() {
-    this.cleanDocumentsAndComments();
-    this.rejectChanges();
-  }
-
-  acceptCleanAndCancel() {
-    this.cleanDocumentsAndComments();  
-    this.acceptChanges();
-  }
-  
   cleanDocumentsAndComments() {
     this.deleteDocument();
     this.deleteComment();
@@ -1161,7 +1152,7 @@ export class ModalChanges extends Component {
   saveChangesModal() {
     let body = this.getBody();
     if(this.fieldValidator()) {
-      this.cleanUnsavedChanges();
+      //this.cleanUnsavedChanges();
       this.props.updateModalValues("Save changes", "This will save the site changes", "Continue", ()=>this.saveChanges(body), "Cancel", ()=>{});
     }
   }
@@ -1170,16 +1161,16 @@ export class ModalChanges extends Component {
     if(Object.values(body).some(val => val === null || val === "")){
       this.showErrorMessage("fields", "Empty fields are not allowed");
     } else {
-      // this.sendRequest(ConfigData.SITEDETAIL_SAVE, "POST", body)
-      // .then((data)=> {
-      //   if(data?.ok){
-      //     this.setState({updatingData:false});
-      //     //this.close(true);
-      //   }
-      //   else {
-      //     this.showErrorMessage("fields", "Something went wrong");
-      //   }
-      // });
+      this.sendRequest(ConfigData.SITEDETAIL_SAVE, "POST", body)
+      .then((data)=> {
+        if(data?.ok){
+          this.setState({updatingData:false});
+          //this.close(true);
+        }
+        else {
+          this.showErrorMessage("fields", "Something went wrong");
+        }
+      });
       this.setState({updatingData:true});
     }
   }
@@ -1298,15 +1289,18 @@ export class ModalChanges extends Component {
   }
 
   closeModal(){
-    if (this.checkUnsavedChanges()){
+    if(this.state.activeKey === 4 && this.checkUnsavedChanges()){
       this.messageBeforeClose(() => this.close());
     }
-    if(this.state.updateOnClose) {
-      this.state.updateOnClose = false;
-      this.props.close(true);
+    if(this.state.activeKey === 3 && this.state.fieldChanged){
+      this.props.updateModalValues("Edit Fields", "There are unsaved changes. Do you want to continue?", "Continue", () => this.close(true), "Cancel", () => {});
     }
+    // if(this.state.updateOnClose) {
+    //   this.state.updateOnClose = false;
+    //   this.props.close(true);
+    // }
     else {
-      this.close();
+      this.close(true);
     }
   }
 
@@ -1403,12 +1397,14 @@ export class ModalChanges extends Component {
     this.props.accept()
     .then((data) => {
       if(data?.ok)
-        this.close(true);
+        this.setState({data: {}, fields:{}, loading: true});
     });
   }
 
-  rejectChangesModal() {
-    this.cleanUnsavedChanges();
+  rejectChangesModal(clean) {
+    if(clean) {
+      this.cleanUnsavedChanges();
+    }
     this.props.updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", () => this.rejectChanges(), "Cancel", () => {});
   }
 
@@ -1416,12 +1412,14 @@ export class ModalChanges extends Component {
     this.props.reject()
     .then(data => {
         if(data?.ok)
-          this.close(true);
+          this.setState({data: {}, fields:{}, loading: true});
     });
   }
 
-  backToPendingModal() {
-    this.cleanUnsavedChanges();
+  backToPendingModal(clean) {
+    if(clean) {
+      this.cleanUnsavedChanges();
+    }
     this.props.updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", () => this.setBackToPending(), "Cancel", () => {});
   }
 
@@ -1429,7 +1427,7 @@ export class ModalChanges extends Component {
     this.props.backToPending()
     .then((data) => {
       if(data?.ok)
-        this.close(true);
+        this.setState({data: {}, fields:{}, loading: true});
     });
   }
 
