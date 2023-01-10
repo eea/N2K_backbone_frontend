@@ -60,7 +60,9 @@ export class ModalEdition extends Component {
           });
         }
       },
-      updatingData: false
+      updatingData: false,
+      siteTypeValue: "",
+      siteRegionValue: "",
     };
   }
 
@@ -141,7 +143,15 @@ export class ModalEdition extends Component {
     return this.state.notValidField.length == 0;
   }
   
-  onChangeField(e) {
+  onChangeField(e, field) {
+    console.log(e);
+    console.log(field)
+    if(field === "SiteType") {
+      this.setState({siteTypeValue: e})
+    }
+    else if(field === "BioRegion") {
+      this.setState({siteRegionValue: e})
+    }
     if(e.target)
       e.target.classList.contains('invalidField') ?
         e.target.classList.remove('invalidField') 
@@ -659,12 +669,20 @@ export class ModalEdition extends Component {
           placeholder = "Select site type";
           options = this.props.types.map(x => x = {label:x.Classification, value:x.Code});
           value = options.find(y => y.value === value);
+          this.siteTypeDefault = value;
+          if(this.state.siteTypeValue === "") {
+            this.setState({siteTypeValue: value})
+          }
           break;
         case "BioRegion":
           label = "Biogeographycal Region";
           placeholder = "Select a region";
           options = this.props.regions.map(x => x = {label:x.RefBioGeoName, value:x.Code});
           value = value.map(x => options.find(y => y.value === x));
+          this.siteRegionDefault = value;
+          if(this.state.siteRegionValue === "") {
+            this.setState({siteRegionValue: value})
+          }
           break;
         case "Area":
           label = "Area";
@@ -723,9 +741,9 @@ export class ModalEdition extends Component {
                 className="multi-select"
                 classNamePrefix="multi-select"
                 placeholder={placeholder}
-                defaultValue={value}
+                value={this.state.siteTypeValue}
                 options={options}
-                onChange={(e) => this.onChangeField(e)}
+                onChange={(e) => this.onChangeField(e, this.state.siteTypeValue)}
               />
             </>
           }
@@ -738,11 +756,11 @@ export class ModalEdition extends Component {
                 className="multi-select"
                 classNamePrefix="multi-select"
                 placeholder={placeholder}
-                defaultValue={value}
+                value={this.state.siteRegionValue}
                 options={options}
                 isMulti={true}
                 closeMenuOnSelect={false}
-                onChange={(e) => this.onChangeField(e)}
+                onChange={(e) => this.onChangeField(e, name)}
               />
             </>
           }
@@ -956,18 +974,21 @@ export class ModalEdition extends Component {
   }
 
   warningUnsavedChanges(activeKey) {
-    console.log(this.state.activeKey)
-    if(this.checkUnsavedChanges() && this.state.activeKey === 1) {
-      this.props.updateModalValues("Edit fields",
-        "There are unsaved changes. Do you want to continue?",
-        "Continue", () => {this.cleanUnsavedChanges(); this.setActiveKey(activeKey)},
-        "Cancel", () => {});
-    }
-    if(this.checkUnsavedChanges() && this.state.activeKey === 2) {
-      this.props.updateModalValues("Documents & Comments",
-        "There are unsaved changes. Do you want to continue?",
-        "Continue", () => {this.cleanUnsavedChanges(); this.setActiveKey(activeKey)},
-        "Cancel", () => {});
+    if(this.checkUnsavedChanges()) {
+      if(this.state.activeKey === 1) {
+        this.props.updateModalValues("Edit fields",
+          "There are unsaved changes. Do you want to continue?",
+          "Continue", () => {this.cleanUnsavedChanges(); this.setActiveKey(activeKey)},
+          "Cancel", () => {});
+      }
+      if(this.state.activeKey === 2) {
+        this.props.updateModalValues("Documents & Comments",
+          "There are unsaved changes. Do you want to continue?",
+          "Continue", () => {this.cleanUnsavedChanges(); this.setActiveKey(activeKey)},
+          "Cancel", () => {});
+      }
+    } else {
+      this.setActiveKey(activeKey)
     }
   }
 
@@ -986,8 +1007,7 @@ export class ModalEdition extends Component {
   }
 
   cleanEditFields() {
-    // TODO reset fields data
-    let a = document.getElementById("siteedition_form")
+    this.setState({siteTypeValue: this.siteTypeDefault, siteRegionValue: this.siteRegionDefault})
   }
 
   checkForChanges(e) {
