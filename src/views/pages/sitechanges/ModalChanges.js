@@ -89,7 +89,8 @@ export class ModalChanges extends Component {
             }
           });
         }
-      }
+      },
+      siteTypeValue: "" //DGS
     };
   }
 
@@ -877,6 +878,10 @@ export class ModalChanges extends Component {
           placeholder = "Select site type";
           options = this.state.types.map(x => x = {label:x.Classification, value:x.Code});
           value = options.find(y => y.value === value);
+          this.siteTypeDefault = value; //DGS
+          if (this.state.siteTypeValue===""){ //DGS
+            this.setState({siteTypeValue: value});            
+          } 
           break;
         case "BioRegion":
           label = "Biogeographycal Region";
@@ -941,9 +946,14 @@ export class ModalChanges extends Component {
                 className="multi-select"
                 classNamePrefix="multi-select"
                 placeholder={placeholder}
-                defaultValue={value}
+                value = {this.state.siteTypeValue} //DGS
                 options={options}
-                onChange={(e) => this.onChangeField(e)}
+                onChange={
+                  (e) => {
+                    this.onChangeField(e);
+                    this.setState({siteTypeValue: e}); //DGS
+                  }
+                }
               />
             </>
           }
@@ -1083,6 +1093,7 @@ export class ModalChanges extends Component {
     if(activeKey) {
       this.setActiveKey(activeKey);
     }
+    this.setState({siteTypeValue: this.siteTypeDefault}); //DGS
   }
 
   cleanUnsavedChanges(activeKey) {
