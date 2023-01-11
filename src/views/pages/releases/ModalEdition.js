@@ -98,6 +98,8 @@ export class ModalEdition extends Component {
       selectedFile: "",
       notValidField: [],
       fieldChanged: false,
+      siteTypeValue: "",
+      siteRegionValue: "",
     });
     this.props.close(refresh);
   }
@@ -144,8 +146,6 @@ export class ModalEdition extends Component {
   }
   
   onChangeField(e, field) {
-    console.log(e);
-    console.log(field)
     if(field === "SiteType") {
       this.setState({siteTypeValue: e})
     }
@@ -743,7 +743,7 @@ export class ModalEdition extends Component {
                 placeholder={placeholder}
                 value={this.state.siteTypeValue}
                 options={options}
-                onChange={(e) => this.onChangeField(e, this.state.siteTypeValue)}
+                onChange={(e) => this.onChangeField(e, name)}
               />
             </>
           }
@@ -1007,6 +1007,11 @@ export class ModalEdition extends Component {
   }
 
   cleanEditFields() {
+    let fields = this.getBody();
+    delete fields.Version;
+    for(let i in fields) {
+      document.getElementsByName(i)[0].value = this.state.data[i];
+    }
     this.setState({siteTypeValue: this.siteTypeDefault, siteRegionValue: this.siteRegionDefault})
   }
 
