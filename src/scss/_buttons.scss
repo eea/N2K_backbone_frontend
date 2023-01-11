@@ -73,6 +73,22 @@
     color: inherit;
     box-shadow: none;
   }
+  &-white {
+    background: none;
+    color: white;
+    border-color: white;
+    transition: $transition-base;
+    &:hover {
+      background-color: white;
+      color: $primary-base;
+      transition: $transition-base;
+    }
+    &:focus, &:active, &:focus:active {
+      box-shadow: none;
+      background-color: $white;
+      color: $primary-base;
+    }
+  }
 }
 
 .dropdown-menu {

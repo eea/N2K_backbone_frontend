@@ -54,6 +54,10 @@ html {
   }
   &__title {
     margin: 0 1rem;
+    a {
+      color: white !important;
+      text-decoration: none;
+    }
   }
   li {
     margin: auto 1rem;
@@ -82,7 +86,7 @@ html {
       }
     }
     &:hover {
-      & .btn {
+      & .btn-link--bold {
         color: $white;
       }
       &::after {
@@ -92,12 +96,42 @@ html {
         left: -8px;
       }
     }
+    &.dropdown {
+      .dropdown-toggle {
+        .avatar {
+          font-size: inherit;
+          width: auto;
+          height: auto;
+        }
+        &::after {
+          content: none;
+        }
+      }
+      li {
+        margin: 0 !important;
+        i {
+          color: $primary-base;
+          margin-right: 0.5rem;
+        }
+        &::after {
+          content: none;
+        }
+      }
+    }
   }
-  .avatar {
-    margin-right: 0.5rem;
-    font-size: inherit;
-    width: auto;
-    height: auto;
+  &__button {
+    i {
+      margin-right: 0.5rem;
+    }
+    &::after{
+      content: none !important;
+    }
+    .btn {
+      text-decoration: none;
+      &:hover{
+        color: $primary-base;
+      }
+    }
   }
 }
 
@@ -161,4 +195,8 @@ html {
   .react-flow__handle {
     visibility: hidden;
   }
+}
+
+.page-image {
+  height: 10rem;
 }
