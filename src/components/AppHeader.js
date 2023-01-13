@@ -16,22 +16,15 @@ import {
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 const AppHeader = (props) => {
-  let isLoggedIn = true;
   return (
     <CHeader className='header--custom'>
       <CRow className='align-items-center'>
         <CCol className="header__title">
-          <a href='/#/'>Natura Change Manager</a>
+          <div>Natura Change Manager</div>
         </CCol>
         <CCol className='header__links'>
           <ul className="btn--list justify-content-between">
-            {!isLoggedIn ?
-              <li className="header__button ms-auto">
-                <CButton color="white" className='btn-link' href='/#/'>
-                  <i className="fa-solid fa-arrow-right-to-bracket"></i>Log In
-                </CButton>
-              </li>
-              :
+            {props.isLoggedIn !== false &&
               <>
                 <li className={props.page === 'dashboard' ? 'header-active' : ''}>
                   <CButton color="link" className='btn-link--bold' href='/#/dashboard'>Dashboard</CButton>
@@ -58,9 +51,9 @@ const AppHeader = (props) => {
                     </CAvatar>
                   </CDropdownToggle>
                   <CDropdownMenu>
-                    <CDropdownItemPlain><i className="fa-solid fa-user"></i>example@email.com</CDropdownItemPlain>
+                    <CDropdownItemPlain><i className="fa-solid fa-user"></i>User</CDropdownItemPlain>
                     <CDropdownDivider />
-                    <CDropdownItem href="/#/"><i className="fa-solid fa-gear"></i>Settings</CDropdownItem>
+                    {/* <CDropdownItem href="/#/"><i className="fa-solid fa-gear"></i>Settings</CDropdownItem> */}
                     <CDropdownItem href="/#/"><i className="fa-solid fa-arrow-right-from-bracket"></i>Log Out</CDropdownItem>
                   </CDropdownMenu>
                 </CDropdown>
