@@ -1,6 +1,5 @@
 import React from 'react'
 import { AppFooter, AppHeader } from '../../components/index'
-import {ReactComponent as ReactLogo} from './../../../src/assets/images/404_image.svg';
 
 import {
   CContainer,
@@ -9,11 +8,10 @@ import {
   CButton,
 } from '@coreui/react'
 
-const Home = () => {
-
+const Home = (props) => {
   return (
     <div className="container--main min-vh-100">
-      <AppHeader/>
+      <AppHeader isLoggedIn={props.isLoggedIn}/>
       <div className="content--wrapper">
         <div className="main-content">
           <CContainer fluid>
@@ -24,7 +22,9 @@ const Home = () => {
                   <p>
                     Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
                   </p>
-                  <CButton color="secondary" href="/#/dashboard">Start</CButton>
+                  <CButton color="secondary" href="/#/">
+                    <i className="fa-solid fa-arrow-right-to-bracket me-2"></i>Log In
+                  </CButton>
                 </div>
               </CCol>
             </CRow>
