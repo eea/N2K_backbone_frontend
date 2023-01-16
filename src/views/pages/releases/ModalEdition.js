@@ -49,6 +49,7 @@ export class ModalEdition extends Component {
       isSelected: false,
       notValidComment: "",
       notValidDocument: "",
+      fieldChanged: false,
       modalValues : {
         visibility: false,
         close: () => {
@@ -59,7 +60,9 @@ export class ModalEdition extends Component {
           });
         }
       },
-      updatingData: false
+      updatingData: false,
+      siteTypeValue: "",
+      siteRegionValue: "",
     };
   }
 
@@ -94,6 +97,9 @@ export class ModalEdition extends Component {
       isSelected: false,
       selectedFile: "",
       notValidField: [],
+      fieldChanged: false,
+      siteTypeValue: "",
+      siteRegionValue: "",
     });
     this.props.close(refresh);
   }
@@ -139,10 +145,18 @@ export class ModalEdition extends Component {
     return this.state.notValidField.length == 0;
   }
   
-  onChangeField(e) {
-    e.target.classList.contains('invalidField') ?
-      e.target.classList.remove('invalidField') 
-    : {}    
+  onChangeField(e, field) {
+    if(field === "SiteType") {
+      this.setState({siteTypeValue: e})
+    }
+    else if(field === "BioRegion") {
+      this.setState({siteRegionValue: e})
+    }
+    if(e.target)
+      e.target.classList.contains('invalidField') ?
+        e.target.classList.remove('invalidField') 
+      : {}
+    this.checkForChanges();
   }
 
   sortComments() {
@@ -655,12 +669,20 @@ export class ModalEdition extends Component {
           placeholder = "Select site type";
           options = this.props.types.map(x => x = {label:x.Classification, value:x.Code});
           value = options.find(y => y.value === value);
+          this.siteTypeDefault = value;
+          if(this.state.siteTypeValue === "") {
+            this.setState({siteTypeValue: value})
+          }
           break;
         case "BioRegion":
           label = "Biogeographycal Region";
           placeholder = "Select a region";
           options = this.props.regions.map(x => x = {label:x.RefBioGeoName, value:x.Code});
           value = value.map(x => options.find(y => y.value === x));
+          this.siteRegionDefault = value;
+          if(this.state.siteRegionValue === "") {
+            this.setState({siteRegionValue: value})
+          }
           break;
         case "Area":
           label = "Area";
@@ -719,8 +741,9 @@ export class ModalEdition extends Component {
                 className="multi-select"
                 classNamePrefix="multi-select"
                 placeholder={placeholder}
-                defaultValue={value}
+                value={this.state.siteTypeValue}
                 options={options}
+                onChange={(e) => this.onChangeField(e, name)}
               />
             </>
           }
@@ -733,10 +756,11 @@ export class ModalEdition extends Component {
                 className="multi-select"
                 classNamePrefix="multi-select"
                 placeholder={placeholder}
-                defaultValue={value}
+                value={this.state.siteRegionValue}
                 options={options}
                 isMulti={true}
                 closeMenuOnSelect={false}
+                onChange={(e) => this.onChangeField(e, name)}
               />
             </>
           }
@@ -851,7 +875,7 @@ export class ModalEdition extends Component {
         <CModalFooter>
           <div className="d-flex w-100 justify-content-between">
             <CButton color="secondary" disabled= {this.state.updatingData} onClick={()=>this.closeModal()}>Cancel</CButton>
-            <CButton color="primary" disabled= {this.state.updatingData} onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.saveChangesModal(true), true) : this.saveChangesModal()}>
+            <CButton color="primary" disabled= {this.state.updatingData || !this.state.fieldChanged} onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.saveChangesModal(true), true) : this.saveChangesModal()}>
               {this.state.updatingData && <CSpinner size="sm"/>}
               {this.state.updatingData? " Saving":"Save"}
             </CButton>
@@ -941,35 +965,40 @@ export class ModalEdition extends Component {
   }
 
   checkUnsavedChanges() {
-    return this.state.loading === false && ((this.state.newComment && document.querySelector(".comment--item.new textarea")?.value.trim() !== "") || (this.state.newDocument && this.state.isSelected) || (this.state.comments !== "noData" && document.querySelectorAll(".comment--item:not(.new) textarea[disabled]").length !== this.state.comments.length));
+    return this.state.loading === false
+      && ((this.state.newComment && document.querySelector(".comment--item.new textarea")?.value.trim() !== "")
+        || (this.state.newDocument && this.state.isSelected)
+        || (this.state.comments !== "noData" && document.querySelectorAll(".comment--item:not(.new) textarea[disabled]").length !== this.state.comments.length)
+        || this.checkForChanges()
+    );
   }
 
   warningUnsavedChanges(activeKey) {
-    if(this.checkUnsavedChanges() && this.state.activeKey === 2) {
-      this.props.updateModalValues("Documents & Comments", "There are unsaved changes. Do you want to continue?", "Continue", () => this.cleanUnsavedChanges(activeKey), "Cancel", () => {});
-    }
-    else {
-      this.cleanUnsavedChanges(activeKey);
+    if(this.checkUnsavedChanges()) {
+      if(this.state.activeKey === 1) {
+        this.props.updateModalValues("Edit fields",
+          "There are unsaved changes. Do you want to continue?",
+          "Continue", () => {this.cleanUnsavedChanges(); this.setActiveKey(activeKey)},
+          "Cancel", () => {});
+      }
+      if(this.state.activeKey === 2) {
+        this.props.updateModalValues("Documents & Comments",
+          "There are unsaved changes. Do you want to continue?",
+          "Continue", () => {this.cleanUnsavedChanges(); this.setActiveKey(activeKey)},
+          "Cancel", () => {});
+      }
+    } else {
+      this.setActiveKey(activeKey)
     }
   }
 
   messageBeforeClose(action, keepOpen) {
-    this.props.updateModalValues("Documents & Comments", "There are unsaved changes. Do you want to continue?", "Continue", action, "Cancel", () => {}, keepOpen);
+    this.props.updateModalValues("Site Edition", "There are unsaved changes. Do you want to continue?", "Continue", action, "Cancel", () => {}, keepOpen);
   }
 
   cleanUnsavedChanges(activeKey) {
     this.cleanDocumentsAndComments();
-    if(activeKey) {
-      this.setActiveKey(activeKey);
-      document.querySelectorAll(".comment--item").forEach((i) => {
-        let input = i.querySelector("textarea");
-        if(!input.disabled) {
-          input.value = input.defaultValue;
-          input.disabled = true;
-          i.querySelector("i.fa-floppy-disk").classList.replace("fa-floppy-disk", "fa-pencil");
-        }
-      });
-    }
+    this.cleanEditFields();
   }
 
   cleanDocumentsAndComments() {
@@ -977,32 +1006,54 @@ export class ModalEdition extends Component {
     this.deleteComment();
   }
 
+  cleanEditFields() {
+    let fields = this.getBody();
+    delete fields.Version;
+    for(let i in fields) {
+      document.getElementsByName(i)[0].value = this.state.data[i];
+    }
+    this.setState({siteTypeValue: this.siteTypeDefault, siteRegionValue: this.siteRegionDefault})
+    this.siteTypeDefault = this.state.siteTypeValue;
+    this.siteRegionDefault = this.state.siteRegionValue;
+  }
+
+  checkForChanges() {
+    let body = this.getBody();
+    let errorMargin = 0.00000001;
+    if(this.state.data.SiteName !== body.SiteName
+      || this.state.data.Area !== body.Area
+      || this.state.data.Length !== body.Length
+      || (Math.abs(this.state.data.CentreX - body.CentreX) > errorMargin)
+      || (Math.abs(this.state.data.CentreY - body.CentreY) > errorMargin)
+      || JSON.stringify(this.state.siteTypeValue) !== JSON.stringify(this.siteTypeDefault)
+      || JSON.stringify(this.state.siteRegionValue) !== JSON.stringify(this.siteRegionDefault)
+    ) {
+      this.setState({fieldChanged: true});
+      return true;
+    } else {
+      this.setState({fieldChanged: false});
+      return false;
+    }
+  }
+
+  getBody() {
+    let body = Object.fromEntries(new FormData(document.querySelector("form")));
+    body.BioRegion = Array.from(document.getElementsByName("BioRegion")).map(el => el.value).sort().toString();
+    body.Area = body.Area ? +body.Area : body.Area;
+    body.Length = body.Length ? +body.Length : body.Length;
+    body.CentreX = body.CentreX ? +body.CentreX : body.CentreX;
+    body.CentreY = body.CentreY ? +body.CentreY : body.CentreY;
+    body.Version = this.props.version;
+    body.SiteCode = this.props.item;
+
+    return body;
+  }
+
   saveChangesModal() {
+    let body = this.getBody();
     if(this.fieldValidator()) {
-      let body = Object.fromEntries(new FormData(document.querySelector("form")));
-      body.BioRegion = Array.from(document.getElementsByName("BioRegion")).map(el => el.value).toString();
-      body.Area = body.Area ? +body.Area : body.Area;
-      body.Length = body.Length ? +body.Length : body.Length;
-      body.CentreX = body.CentreX ? +body.CentreX : body.CentreX;
-      body.CentreY = body.CentreY ? +body.CentreY : body.CentreY;
-      body.Version = this.props.version;
-      body.SiteCode = this.props.item;
-
-      let errorMargin = 0.00000001;
-
-      if(this.state.data.SiteName !== body.SiteName
-        || this.state.data.SiteType !== body.SiteType
-        || this.state.data.BioRegion.toString() !== body.BioRegion
-        || this.state.data.Area !== body.Area
-        || this.state.data.Length !== body.Length
-        || (Math.abs(this.state.data.CentreX - body.CentreX) > errorMargin)
-        || (Math.abs(this.state.data.CentreY - body.CentreY) > errorMargin)
-      ) {
-        this.cleanUnsavedChanges(1);
-        this.props.updateModalValues("Save changes", "This will save the site changes", "Continue", ()=>this.saveChanges(body), "Cancel", ()=>{});
-      } else {
-        this.closeModal();
-      }
+      this.cleanUnsavedChanges(1);
+      this.props.updateModalValues("Save changes", "This will save the site changes", "Continue", ()=>this.saveChanges(body), "Cancel", ()=>{});
     }
   }
 
