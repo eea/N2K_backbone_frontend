@@ -129,6 +129,11 @@ const Sitechanges = () => {
       setDisabledBtn(true);
   };
 
+  let closeModal = () => {
+    forceRefreshData();
+    setForceRefresh(forceRefresh+1);
+  }
+
   let forceRefreshData = ()=>{
     setIsLoading(true);
     setSitecodes({});
@@ -155,8 +160,8 @@ const Sitechanges = () => {
     return postRequest(ConfigData.MOVE_TO_PENDING, rBody)
     .then(data => {
         if(data.ok){
-          forceRefreshData();
           if(refresh){
+            forceRefreshData();
             setForceRefresh(forceRefresh+1);
           }
         }else
@@ -174,8 +179,8 @@ const Sitechanges = () => {
     return postRequest(ConfigData.ACCEPT_CHANGES, rBody)
     .then(data => {
         if(data.ok){
-          forceRefreshData();
           if(refresh){
+            forceRefreshData();
             setForceRefresh(forceRefresh+1);
           }
         }else
@@ -193,8 +198,8 @@ const Sitechanges = () => {
     return postRequest(ConfigData.REJECT_CHANGES, rBody)
     .then(data => {
         if(data.ok){
-          forceRefreshData();
           if(refresh){
+            forceRefreshData();
             setForceRefresh(forceRefresh+1);
           }
         }else
@@ -554,6 +559,7 @@ const Sitechanges = () => {
                         isTabChanged={isTabChanged}
                         setIsTabChanged={setIsTabChanged}
                         setStatusData={setStatusData}
+                        closeModal={closeModal}
                       />
                     </CTabPane>
                     <CTabPane role="tabpanel" aria-labelledby="accepted-tab" visible={activeTab === 2}>
@@ -574,6 +580,7 @@ const Sitechanges = () => {
                         isTabChanged={isTabChanged}
                         setIsTabChanged={setIsTabChanged}
                         setStatusData={setStatusData}
+                        closeModal={closeModal}
                       />
                     </CTabPane>
                     <CTabPane role="tabpanel" aria-labelledby="rejected-tab" visible={activeTab === 3}>
@@ -594,6 +601,7 @@ const Sitechanges = () => {
                         isTabChanged={isTabChanged}
                         setIsTabChanged={setIsTabChanged}
                         setStatusData={setStatusData}
+                        closeModal={closeModal}
                       />
                     </CTabPane>
                     </CTabContent>

@@ -114,7 +114,7 @@ export class ModalChanges extends Component {
     this.setState({activeKey: val})
   }
 
-  close(refresh){
+  close(){
     this.setActiveKey(1);
     this.setState({
       levels:[this.props.level ? this.props.level : "Critical"],
@@ -131,7 +131,7 @@ export class ModalChanges extends Component {
       fieldChanged: false,
       fields: {},
     });
-    this.props.close(refresh);
+    this.props.close();
   }
 
   isVisible(){
@@ -1303,21 +1303,21 @@ export class ModalChanges extends Component {
       this.messageBeforeClose(() => this.close());
     }
     if(this.state.activeKey === 3 && this.state.fieldChanged){
-      this.props.updateModalValues("Edit Fields", "There are unsaved changes. Do you want to continue?", "Continue", () => this.close(true), "Cancel", () => {});
+      this.props.updateModalValues("Edit Fields", "There are unsaved changes. Do you want to continue?", "Continue", () => this.close(), "Cancel", () => {});
     }
     // if(this.state.updateOnClose) {
     //   this.state.updateOnClose = false;
     //   this.props.close(true);
     // }
     else {
-      this.close(true);
+      this.close();
     }
   }
 
   render() {
     return(
       <>
-        <CModal scrollable size="xl" visible={this.isVisible()} onClose={() => this.closeModal()}>
+        <CModal scrollable size="xl" visible={this.isVisible()} backdrop={"static"} onClose={() => this.closeModal()}>
           {this.renderData()}
         </CModal>
         <ConfirmationModal modalValues={this.state.modalValues}/>
@@ -1441,22 +1441,6 @@ export class ModalChanges extends Component {
     });
   }
 
-  switchMarkChanges(){
-    this.props.mark()
-    .then(data => {
-      if(data?.ok)
-      this.close(false);
-    });
-  }
-
-  switchProvideJustification(){
-    this.props.switchProvideJustification()
-    .then(data => {
-      if(data?.ok)
-      this.close(false);
-    });
-  }
-    
   sendRequest(url,method,body,path){
     const options = {
       method: method,
