@@ -341,8 +341,8 @@ const IndeterminateCheckbox = React.forwardRef(
       }
     }
 
-    let openModal = (data)=>{
-      setModalItem(data);
+    let openModal = (data, activeKey)=>{
+      setModalItem({...data, ActiveKey: activeKey});
       setModalVisible(true);
     }
   
@@ -525,11 +525,13 @@ const IndeterminateCheckbox = React.forwardRef(
           return {
             review: ()=>openModal(row.original),
             backPending: ()=>props.updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", ()=>setBackToPending(row.original, true), "Cancel", ()=>{}),
+            edition: ()=>openModal(row.original, 3),
           }
         case 'rejected':
           return {
             review: ()=>openModal(row.original),
             backPending: ()=>props.updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", ()=>setBackToPending(row.original, true), "Cancel", ()=>{}),
+            edition: ()=>openModal(row.original, 3),
           }
         default:
           return {}
@@ -614,19 +616,21 @@ const IndeterminateCheckbox = React.forwardRef(
             setIsTabChanged={props.setIsTabChanged}
           />
           {props.showModal && showModal(props.showModal)}
-          <ModalChanges visible = {modalVisible} 
-                        close = {closeModal} 
-                        accept={()=>acceptChanges(modalItem)} 
-                        reject={()=>rejectChanges(modalItem)} 
-                        backToPending={()=>setBackToPending(modalItem)}
-                        mark={()=>switchMarkChanges(modalItem)}                        
-                        status={props.status}
-                        level={props.level}
-                        item={modalItem.SiteCode} 
-                        version={modalItem.Version} 
-                        updateModalValues = {props.updateModalValues}
-                        justificationRequired={modalItem.JustificationRequired}
-                        justificationProvided={modalItem.JustificationProvided}
+          <ModalChanges
+            visible = {modalVisible}
+            close = {closeModal}
+            accept={()=>acceptChanges(modalItem)}
+            reject={()=>rejectChanges(modalItem)}
+            backToPending={()=>setBackToPending(modalItem)}
+            mark={()=>switchMarkChanges(modalItem)}
+            status={props.status}
+            level={props.level}
+            item={modalItem.SiteCode}
+            version={modalItem.Version}
+            updateModalValues = {props.updateModalValues}
+            justificationRequired={modalItem.JustificationRequired}
+            justificationProvided={modalItem.JustificationProvided}
+            activeKey={modalItem.ActiveKey}
           />
         </>
         )

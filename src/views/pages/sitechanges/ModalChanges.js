@@ -1331,7 +1331,7 @@ export class ModalChanges extends Component {
       .then(response => response.json())
       .then(data => {
         if(data.Data.SiteCode === this.props.item && Object.keys(this.state.data).length === 0) {
-          this.setState({data: data.Data, loading: false, justificationRequired: data.Data?.JustificationRequired, justificationProvided: data.Data?.JustificationProvided})
+          this.setState({data: data.Data, loading: false, justificationRequired: data.Data?.JustificationRequired, justificationProvided: data.Data?.JustificationProvided, activeKey: this.props.activeKey ? this.props.activeKey : this.state.activeKey})
         }
       });
     }
