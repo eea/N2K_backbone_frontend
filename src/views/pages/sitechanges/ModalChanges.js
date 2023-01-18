@@ -1317,7 +1317,7 @@ export class ModalChanges extends Component {
   render() {
     return(
       <>
-        <CModal scrollable size="xl" visible={this.isVisible()} backdrop={"static"} onClose={() => this.closeModal()}>
+        <CModal scrollable size="xl" visible={this.isVisible()} backdrop="static" onClose={() => this.closeModal()}>
           {this.renderData()}
         </CModal>
         <ConfirmationModal modalValues={this.state.modalValues}/>
