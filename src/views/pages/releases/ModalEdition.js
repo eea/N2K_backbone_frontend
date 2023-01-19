@@ -1016,27 +1016,25 @@ export class ModalEdition extends Component {
   checkForChanges(e) {
     let body = this.getBody();
     let errorMargin = 0.00000001;
-    let hasChanges = false;
     if(this.state.data.SiteName !== body.SiteName
       || this.state.data.Area !== body.Area
       || this.state.data.Length !== body.Length
       || (Math.abs(this.state.data.CentreX - body.CentreX) > errorMargin)
       || (Math.abs(this.state.data.CentreY - body.CentreY) > errorMargin)
+      || JSON.stringify(this.state.siteTypeValue) !== JSON.stringify(this.siteTypeDefault)
+      || JSON.stringify(this.state.siteRegionValue) !== JSON.stringify(this.siteRegionDefault)
     ) {
-      hasChanges = true;
+      this.setState({fieldChanged: true});
+    } else {
+      this.setState({fieldChanged: false});
     }
-    if((typeof e !== 'undefined') &&
-      ((Array.isArray(e) && this.state.data.BioRegion.sort().toString() !== e.map(b => b.value).sort().toString())
-      || e.value ? this.state.data.SiteType !== e.value : false))
-    {
-      hasChanges = true;
+    if(typeof e !== 'undefined') {
       if(e && e.target)
         e.target.classList.contains('invalidField') ?
           e.target.classList.remove('invalidField')
         : {}
     }
 
-    this.setState({fieldChanged: hasChanges});
     return this.state.fieldChanged;
   }
 
