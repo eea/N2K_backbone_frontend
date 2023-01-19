@@ -147,16 +147,14 @@ export class ModalEdition extends Component {
   
   onChangeField(e, field) {
     if(field === "SiteType") {
-      this.setState({siteTypeValue: e})
+      this.setState({siteTypeValue: e}, () => this.checkForChanges(e))
     }
     else if(field === "BioRegion") {
-      this.setState({siteRegionValue: e})
+      this.setState({siteRegionValue: e}, () => this.checkForChanges(e))
     }
-    if(e.target)
-      e.target.classList.contains('invalidField') ?
-        e.target.classList.remove('invalidField') 
-      : {}
-    this.checkForChanges();
+    else {
+      this.checkForChanges(e)
+    }
   }
 
   sortComments() {
@@ -1017,7 +1015,7 @@ export class ModalEdition extends Component {
     this.siteRegionDefault = this.state.siteRegionValue;
   }
 
-  checkForChanges() {
+  checkForChanges(e) {
     let body = this.getBody();
     let errorMargin = 0.00000001;
     if(this.state.data.SiteName !== body.SiteName
@@ -1029,11 +1027,13 @@ export class ModalEdition extends Component {
       || JSON.stringify(this.state.siteRegionValue) !== JSON.stringify(this.siteRegionDefault)
     ) {
       this.setState({fieldChanged: true});
-      return true;
     } else {
       this.setState({fieldChanged: false});
-      return false;
     }
+    if(e?.target)
+      e.target.classList.contains('invalidField') ?
+        e.target.classList.remove('invalidField') 
+      : {}
   }
 
   getBody() {
