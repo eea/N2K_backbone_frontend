@@ -85,7 +85,7 @@ export class ModalEdition extends Component {
     this.setState({activeKey: val})
   }
 
-  close(refresh){
+  close(){
     this.setActiveKey(1);
     this.setState({
       data: {},
@@ -101,7 +101,7 @@ export class ModalEdition extends Component {
       siteTypeValue: "",
       siteRegionValue: "",
     });
-    this.props.close(refresh);
+    this.props.close();
   }
 
   isVisible(){
@@ -147,16 +147,14 @@ export class ModalEdition extends Component {
   
   onChangeField(e, field) {
     if(field === "SiteType") {
-      this.setState({siteTypeValue: e})
+      this.setState({siteTypeValue: e}, () => this.checkForChanges(e))
     }
     else if(field === "BioRegion") {
-      this.setState({siteRegionValue: e})
+      this.setState({siteRegionValue: e}, () => this.checkForChanges(e))
     }
-    if(e.target)
-      e.target.classList.contains('invalidField') ?
-        e.target.classList.remove('invalidField') 
-      : {}
-    this.checkForChanges();
+    else {
+      this.checkForChanges()
+    }
   }
 
   sortComments() {
@@ -970,24 +968,23 @@ export class ModalEdition extends Component {
         || (this.state.newDocument && this.state.isSelected)
         || (this.state.comments !== "noData" && document.querySelectorAll(".comment--item:not(.new) textarea[disabled]").length !== this.state.comments.length)
         || this.checkForChanges()
-    );
+      );
   }
 
   warningUnsavedChanges(activeKey) {
-    if(this.checkUnsavedChanges()) {
-      if(this.state.activeKey === 1) {
-        this.props.updateModalValues("Edit fields",
-          "There are unsaved changes. Do you want to continue?",
-          "Continue", () => {this.cleanUnsavedChanges(); this.setActiveKey(activeKey)},
-          "Cancel", () => {});
-      }
-      if(this.state.activeKey === 2) {
-        this.props.updateModalValues("Documents & Comments",
-          "There are unsaved changes. Do you want to continue?",
-          "Continue", () => {this.cleanUnsavedChanges(); this.setActiveKey(activeKey)},
-          "Cancel", () => {});
-      }
-    } else {
+    if(this.state.fieldChanged && this.state.activeKey === 1) {
+      this.props.updateModalValues("Edit fields",
+        "There are unsaved changes. Do you want to continue?",
+        "Continue", () => {this.cleanEditFields(); this.setActiveKey(activeKey)},
+        "Cancel", () => {});
+    }
+    else if(this.checkUnsavedChanges() && this.state.activeKey === 2) {
+      this.props.updateModalValues("Documents & Comments",
+        "There are unsaved changes. Do you want to continue?",
+        "Continue", () => {this.cleanUnsavedChanges(); this.setActiveKey(activeKey)},
+        "Cancel", () => {});
+    }
+    else {
       this.setActiveKey(activeKey)
     }
   }
@@ -996,9 +993,8 @@ export class ModalEdition extends Component {
     this.props.updateModalValues("Site Edition", "There are unsaved changes. Do you want to continue?", "Continue", action, "Cancel", () => {}, keepOpen);
   }
 
-  cleanUnsavedChanges(activeKey) {
+  cleanUnsavedChanges() {
     this.cleanDocumentsAndComments();
-    this.cleanEditFields();
   }
 
   cleanDocumentsAndComments() {
@@ -1012,12 +1008,12 @@ export class ModalEdition extends Component {
     for(let i in fields) {
       document.getElementsByName(i)[0].value = this.state.data[i];
     }
-    this.setState({siteTypeValue: this.siteTypeDefault, siteRegionValue: this.siteRegionDefault})
+    this.setState({siteTypeValue: this.siteTypeDefault, siteRegionValue: this.siteRegionDefault, fieldChanged: false})
     this.siteTypeDefault = this.state.siteTypeValue;
     this.siteRegionDefault = this.state.siteRegionValue;
   }
 
-  checkForChanges() {
+  checkForChanges(e) {
     let body = this.getBody();
     let errorMargin = 0.00000001;
     if(this.state.data.SiteName !== body.SiteName
@@ -1029,11 +1025,17 @@ export class ModalEdition extends Component {
       || JSON.stringify(this.state.siteRegionValue) !== JSON.stringify(this.siteRegionDefault)
     ) {
       this.setState({fieldChanged: true});
-      return true;
     } else {
       this.setState({fieldChanged: false});
-      return false;
     }
+    if(typeof e !== 'undefined') {
+      if(e && e.target)
+        e.target.classList.contains('invalidField') ?
+          e.target.classList.remove('invalidField')
+        : {}
+    }
+
+    return this.state.fieldChanged;
   }
 
   getBody() {
@@ -1052,7 +1054,6 @@ export class ModalEdition extends Component {
   saveChangesModal() {
     let body = this.getBody();
     if(this.fieldValidator()) {
-      this.cleanUnsavedChanges(1);
       this.props.updateModalValues("Save changes", "This will save the site changes", "Continue", ()=>this.saveChanges(body), "Cancel", ()=>{});
     }
   }
@@ -1064,8 +1065,13 @@ export class ModalEdition extends Component {
       this.sendRequest(ConfigData.SITEDETAIL_SAVE, "POST", body)
       .then((data)=> {
         if(data?.ok){
-          this.setState({updatingData:false});
-          this.close(true);
+          body = {
+            ...body,
+            BioRegion: body.BioRegion.split(",").map(Number),
+            JustificationProvided: this.state.justificationProvided,
+            JustificationRequired: this.state.justificationRequired,
+          }
+          this.setState({data: body, fieldChanged: false, updatingData: false});
         }
         else {
           this.showErrorMessage("fields", "Something went wrong");

@@ -1075,20 +1075,20 @@ export class ModalChanges extends Component {
     return this.state.loading === false && ((this.state.newComment && document.querySelector(".comment--item.new textarea")?.value.trim() !== "") || (this.state.newDocument && this.state.isSelected) || (this.state.comments !== "noData" && document.querySelectorAll(".comment--item:not(.new) textarea[disabled]").length !== this.state.comments.length));
   }
 
-  warningUnsavedChanges(activeKey) {
-    if(this.checkUnsavedChanges() && this.state.activeKey === 4) {
-      this.props.updateModalValues("Documents & Comments", "There are unsaved changes. Do you want to continue?", "Continue", () => this.cleanUnsavedChanges(activeKey), "Cancel", () => {});
-    }
-    if(this.state.fieldChanged && this.state.activeKey === 3) {
-      this.props.updateModalValues("Edit Fields", "There are unsaved changes. Do you want to continue?", "Continue", () => this.cleanFields(activeKey), "Cancel", () => {});
-    }
-    else {
-      this.cleanUnsavedChanges(activeKey);
-    }
-  }
+  //warningUnsavedChanges(activeKey) {
+  //  console.log("warningUnsavedChanges")
+  //  if(this.checkUnsavedChanges() && this.state.activeKey === 4) {
+  //    this.props.updateModalValues("Documents & Comments", "There are unsaved changes. Do you want to continue?", "Continue", () => this.cleanUnsavedChanges(activeKey), "Cancel", () => {});
+  //  }
+  //  if(this.state.fieldChanged && this.state.activeKey === 3) {
+  //    this.props.updateModalValues("Edit Fields", "There are unsaved changes. Do you want to continue?", "Continue", () => this.cleanFields(activeKey), "Cancel", () => {});
+  //  }
+  //  else {
+  //    this.cleanUnsavedChanges(activeKey);
+  //  }
+  //}
 
   messageBeforeClose(action, keepOpen) {
-    this.props.updateModalValues("Documents & Comments", "There are unsaved changes. Do you want to continue?", "Continue", action, "Cancel", () => {}, keepOpen);
   }
 
   cleanFields(activeKey) {
@@ -1300,16 +1300,15 @@ export class ModalChanges extends Component {
 
   closeModal(){
     if(this.state.activeKey === 4 && this.checkUnsavedChanges()){
-      this.messageBeforeClose(() => this.close());
+      this.props.updateModalValues("Documents & Comments", "There are unsaved changes. Do you want to continue?",
+        "Continue", () => this.close(),
+        "Cancel", () => {});
     }
-    if(this.state.activeKey === 3 && this.state.fieldChanged){
-      this.props.updateModalValues("Edit Fields", "There are unsaved changes. Do you want to continue?", "Continue", () => this.close(), "Cancel", () => {});
-    }
-    // if(this.state.updateOnClose) {
-    //   this.state.updateOnClose = false;
-    //   this.props.close(true);
-    // }
-    else {
+    else if(this.state.activeKey === 3 && this.state.fieldChanged){
+      this.props.updateModalValues("Edit Fields", "There are unsaved changes. Do you want to continue?",
+        "Continue", () => this.close(),
+        "Cancel", () => {});
+    } else {
       this.close();
     }
   }

@@ -122,12 +122,10 @@ const Releases = () => {
     setModalItem(data);
   }
 
-  let closeModal = (refresh) => {
+  let closeModal = () => {
     setModalVisible(false);
     setModalItem({});
-    if(refresh) {
-      forceRefreshData();
-    }
+    forceRefreshData();
   }
 
   let forceRefreshData = () => setSitecodes([]);
