@@ -220,7 +220,7 @@ export class ModalRelease extends Component {
   render() {
     return(
       <>
-        <CModal scrollable size="xl" visible={this.isVisible()} onClose={()=>this.close()}>
+        <CModal scrollable size="xl" visible={this.isVisible()} backdrop="static" onClose={()=>this.close()}>
           {this.isVisible() && this.renderData()}
         </CModal>
       </>
