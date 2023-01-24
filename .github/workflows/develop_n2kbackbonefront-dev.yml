@@ -27,7 +27,7 @@ jobs:
 
       - name: npm build
         run: |
-          npm run build
+          false npm run build
       
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
