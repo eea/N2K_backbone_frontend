@@ -54,6 +54,11 @@ export class ModalChanges extends Component {
     super(props);
     this.dl = new(DataLoader);
 
+    this.isLoadingFields = false;
+    this.isLoadingData = false;
+    this.isLoadingComments = false;
+    this.isLoadingDocuments = false;
+
     this.state = {
       activeKey: 1,
       loading: true,
@@ -1286,10 +1291,21 @@ export class ModalChanges extends Component {
   }
 
   renderData(){
-    this.loadData();
-    this.loadComments();
-    this.loadDocuments();
-    this.loadFields();
+    if(!this.isLoadingData) {
+      this.loadData();
+    }
+    if(!this.isLoadingComments) {
+      console.log("renderData1 isLoadingComments: " + this.isLoadingComments);
+      this.loadComments();
+      console.log("renderData2 isLoadingComments: " + this.isLoadingComments);
+      console.log(this.state.comments)
+    }
+    if(!this.isLoadingDocuments) {
+      this.loadDocuments();
+    }
+    if(!this.isLoadingFields) {
+      this.loadFields();
+    }
 
     let contents = this.state.loading
       ? <div className="loading-container"><em>Loading...</em></div>
@@ -1329,7 +1345,9 @@ export class ModalChanges extends Component {
   }
 
   loadData(){
+    console.log("loadData isLoadingData: " + this.isLoadingData);
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
+      this.isLoadingData = true;
       this.dl.fetch(ConfigData.SITECHANGES_DETAIL+`siteCode=${this.props.item}&version=${this.props.version}`)
       .then(response => response.json())
       .then(data => {
@@ -1342,12 +1360,15 @@ export class ModalChanges extends Component {
 
   loadComments(){
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
+      console.log("loadComments isLoadingComments: " + this.isLoadingComments);
+      this.isLoadingComments = true;
       this.dl.fetch(ConfigData.GET_SITE_COMMENTS+`siteCode=${this.props.item}&version=${this.props.version}`)
       .then(response => response.json())
       .then(data => {
         if (data.Data.length > 0) {
           if(data.Data[0]?.SiteCode === this.props.item && (this.state.comments.length === 0 || this.state.comments === "noData"))
           this.setState({comments: data.Data});
+          this.isLoadingComments = false;
         }
         else {
           this.setState({comments: "noData"});
@@ -1358,9 +1379,12 @@ export class ModalChanges extends Component {
 
   loadDocuments(){
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
+      this.isLoadingDocuments = true;
+      console.log("loadDocuments")
       this.dl.fetch(ConfigData.GET_ATTACHED_FILES+`siteCode=${this.props.item}&version=${this.props.version}`)
       .then(response => response.json())
       .then(data => {
+        this.isLoadingDocuments = false;
         if (data.Data.length > 0) {
           if(data.Data[0]?.SiteCode === this.props.item && (this.state.documents.length === 0 || this.state.documents === "noData"))
           this.setState({documents: data.Data});
@@ -1374,6 +1398,8 @@ export class ModalChanges extends Component {
 
   loadFields(){
     if (this.isVisible() && (this.state.fields.SiteCode !== this.props.item)){
+      this.isLoadingFields = true;
+      console.log("loadFields1")
       this.dl.fetch(ConfigData.SITEDETAIL_GET+"?siteCode="+this.props.item)
       .then(response => response.json())
       .then(data =>{
@@ -1383,6 +1409,8 @@ export class ModalChanges extends Component {
       });
     }
     if(this.isVisible() && this.state.regions.length === 0){
+      this.isLoadingFields = true;
+      console.log("loadFields2")
       this.dl.fetch(ConfigData.BIOREGIONS_GET)
       .then(response => response.json())
       .then(data => {
@@ -1391,6 +1419,8 @@ export class ModalChanges extends Component {
     }
   
     if(this.isVisible() && this.state.types.length === 0){
+      this.isLoadingFields = true;
+      console.log("loadFields3")
       this.dl.fetch(ConfigData.SITETYPES_GET)
       .then(response => response.json())
       .then(data => {
