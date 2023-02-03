@@ -16,6 +16,7 @@ const ReleasesComparer = React.lazy(() => import('./views/pages/releases/compare
 const UnionLists = React.lazy(() => import('./views/pages/releases/unionlists'))
 const SiteEdition = React.lazy(() => import('./views/pages/releases/siteedition'))
 const SiteLineage = React.lazy(() => import('./views/pages/sitelineage/sitelineage'))
+const ShareSite = React.lazy(() => import('./views/pages/sitechanges/sharesite'))
 const NotFound = React.lazy(() => import('./views/other/notfound'))
 //const NotAuthorized = React.lazy(() => import('./views/other/notauthorized'))
 
@@ -36,6 +37,7 @@ const routes = [
   { path: '/releases/comparer', exact: true, name: 'Releases', component: ReleasesComparer },
   { path: '/releases/unionlists', exact: true, name: 'Releases', component: UnionLists },
   { path: '/releases/siteedition', exact: true, name: 'Releases', component: SiteEdition },
+  { path: '/sharesite', exact: true, name: 'Share', component: ShareSite },
   { path: '/*', name: 'Not Found', component: NotFound },
 ]
 

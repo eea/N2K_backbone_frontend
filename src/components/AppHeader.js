@@ -26,25 +26,29 @@ const AppHeader = (props) => {
           <ul className="btn--list justify-content-between">
             {props.isLoggedIn !== false &&
               <>
-                <li className={props.page === 'dashboard' ? 'header-active' : ''}>
-                  <CButton color="link" className='btn-link--bold' href='/#/dashboard'>Dashboard</CButton>
-                </li>
-                <li className={props.page && props.page.includes('harvesting') ? 'header-active' : ''}>
-                  <CButton color="link" className='btn-link--bold' href='/#/harvesting/incoming'>Harvesting</CButton>
-                </li>
-                <li className={props.page && props.page.includes('sitechanges') ? 'header-active' : ''}>
-                  <CButton color="link" className='btn-link--bold' href='/#/sitechanges'>Site Changes</CButton>
-                </li>
-                <li className={props.page === 'sitelineage' ? 'header-active' : ''}>
-                  <CButton color="link" className='btn-link--bold' href='/#/sitelineage'>Site Lineage</CButton>
-                </li>
-                <li className={props.page === 'releases' ? 'header-active' : ''}>
-                  <CButton color="link" className='btn-link--bold' href='/#/releases/management'>Releases</CButton>
-                </li>
-                <li className={props.page && props.page.includes('reports') ? 'header-active' : ''}>
-                  <CButton color="link" className='btn-link--bold' href='/#/reports/added'>Reports</CButton>
-                </li>
-                <CDropdown variant="nav-item" alignment="end" className={props.page === 'user' ? 'header-active' : ''}>
+                {props.page !== "share" &&
+                  <>
+                    <li className={props.page === 'dashboard' ? 'header-active' : ''}>
+                      <CButton color="link" className='btn-link--bold' href='/#/dashboard'>Dashboard</CButton>
+                    </li>
+                    <li className={props.page && props.page.includes('harvesting') ? 'header-active' : ''}>
+                      <CButton color="link" className='btn-link--bold' href='/#/harvesting/incoming'>Harvesting</CButton>
+                    </li>
+                    <li className={props.page && props.page.includes('sitechanges') ? 'header-active' : ''}>
+                      <CButton color="link" className='btn-link--bold' href='/#/sitechanges'>Site Changes</CButton>
+                    </li>
+                    <li className={props.page === 'sitelineage' ? 'header-active' : ''}>
+                      <CButton color="link" className='btn-link--bold' href='/#/sitelineage'>Site Lineage</CButton>
+                    </li>
+                    <li className={props.page === 'releases' ? 'header-active' : ''}>
+                      <CButton color="link" className='btn-link--bold' href='/#/releases/management'>Releases</CButton>
+                    </li>
+                    <li className={props.page && props.page.includes('reports') ? 'header-active' : ''}>
+                      <CButton color="link" className='btn-link--bold' href='/#/reports/added'>Reports</CButton>
+                    </li>
+                  </>
+                }
+                <CDropdown variant="nav-item" alignment="end" className={props.page === 'share' ? 'ms-auto' : ''}>
                   <CDropdownToggle color="secondary">
                     <CAvatar>
                       <i className="fa-solid fa-circle-user"></i>

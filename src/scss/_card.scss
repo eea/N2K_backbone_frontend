@@ -331,3 +331,17 @@
 .col-card-flags {
   height: inherit;
 }
+
+.collapse-container {
+  .card {
+    flex-direction: row;
+    padding: 1rem;
+    margin: 0.5rem 0;
+    table {
+      margin-bottom: 0;
+      tr:last-of-type td {
+        border-bottom: none;
+      }
+    }
+  }
+}
