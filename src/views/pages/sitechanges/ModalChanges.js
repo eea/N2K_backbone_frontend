@@ -92,6 +92,7 @@ export class ModalChanges extends Component {
       },
       siteTypeValue: "",
       siteRegionValue: "",
+      showCopyTooltip: false,
     };
   }
 
@@ -491,7 +492,6 @@ export class ModalChanges extends Component {
   renderBookmarks(){
     let bookmarks = [];
     let levels = this.state.levels;
-    let list = [];
     for(let l in levels){
       for(let i in this.state.data[levels[l]]){
         if(!this.bookmarkIsEmpty(this.state.data[levels[l]][i])) {
@@ -1257,13 +1257,26 @@ export class ModalChanges extends Component {
                 Documents & Comments
               </CNavLink>
             </CNavItem>
+            <CButton color="link" className="ms-auto" onClick={()=>this.copyLink()}>
+              { this.state.showCopyTooltip ?
+                <CTooltip 
+                  content="Link copied"
+                  trigger="focus"
+                  visible={true}
+                >
+                  <span><i className="far fa-copy me-2"></i>Share site</span>
+                </CTooltip>
+                : 
+                <><i className="far fa-copy me-2"></i>Share site</>
+              }
+            </CButton>
           </CNav>
-    <CTabContent>
-      {this.renderChanges()}
-      {this.renderAttachments()}
-      {this.renderGeometry()}
-      {this.renderFields()}
-    </CTabContent>
+          <CTabContent>
+            {this.renderChanges()}
+            {this.renderAttachments()}
+            {this.renderGeometry()}
+            {this.renderFields()}
+          </CTabContent>
         </CModalBody>
         <CModalFooter>
           <div className="d-flex w-100 justify-content-between">
@@ -1283,6 +1296,15 @@ export class ModalChanges extends Component {
         </CModalFooter>
       </>
     )
+  }
+
+  copyLink(){
+    let link = window.location.origin + "/#/sharesite?sitecode=" + this.props.item + "&version=" + this.props.version;
+    navigator.clipboard.writeText(link);
+    this.setState({showCopyTooltip: true});
+    setTimeout(() => {
+      this.setState({showCopyTooltip: false});
+    }, 3000);
   }
 
   renderData(){
