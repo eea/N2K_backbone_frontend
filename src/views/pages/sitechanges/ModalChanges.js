@@ -1260,14 +1260,14 @@ export class ModalChanges extends Component {
             <CButton color="link" className="ms-auto" onClick={()=>this.copyLink()}>
               { this.state.showCopyTooltip ?
                 <CTooltip 
-                  content="Copied"
+                  content="Link copied"
                   trigger="focus"
                   visible={true}
                 >
-                  <span><i className="far fa-copy"></i> Copy site link</span>
+                  <span><i className="far fa-copy me-2"></i>Share site</span>
                 </CTooltip>
                 : 
-                <><i className="far fa-copy"></i> Copy site link</>
+                <><i className="far fa-copy me-2"></i>Share site</>
               }
             </CButton>
           </CNav>

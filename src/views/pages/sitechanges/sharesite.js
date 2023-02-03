@@ -37,7 +37,8 @@ const defaultParams = () => {
   const searchParams = new URLSearchParams(window.location.href.split('?')[1]);
   const paramSitecode = searchParams.get('sitecode');
   const paramVersion = +searchParams.get('version');
-  return {paramSitecode, paramVersion};
+  let params = (paramSitecode) || paramVersion ? {paramSitecode, paramVersion} : {paramSitecode: null, paramVersion: null};
+  return params;
 }  
 
 class ModalChanges extends Component {
@@ -68,9 +69,11 @@ class ModalChanges extends Component {
     this.loadComments();
     this.loadDocuments();
 
-    let contents = this.state.loading
-      ? <div className="loading-container"><em>Loading...</em></div>
-      : this.renderContent();
+    let contents = (!this.state.sitecode || !this.state.version)
+      ? <div className="nodata-container"><em>No Data</em></div>
+      : this.state.loading
+        ? <div className="loading-container"><em>Loading...</em></div>
+        : this.renderContent();
 
     return (
       <>
