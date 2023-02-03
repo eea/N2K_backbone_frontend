@@ -29,22 +29,34 @@ const AppHeader = (props) => {
                 {props.page !== "share" &&
                   <>
                     <li className="header__item">
-                      <NavLink to="/dashboard" activeClassName='header-active' exact={true}>Dashboard</NavLink>
+                      <NavLink to="/dashboard" activeClassName='header-active' exact={true}>
+                        Dashboard
+                      </NavLink>
                     </li>
                     <li className="header__item">
-                      <NavLink to="/harvesting/incoming" activeClassName='header-active' exact={true}>Harvesting</NavLink>
+                      <NavLink to="/harvesting/incoming" activeClassName='header-active'isActive={()=>{return props.page.includes('harvesting')?true:false}}>
+                        Harvesting
+                      </NavLink>
                     </li>
                     <li className="header__item">
-                      <NavLink to="/sitechanges" activeClassName='header-active' exact={true}>Site Changes</NavLink>
+                      <NavLink to="/sitechanges" activeClassName='header-active' isActive={()=>{return props.page.includes('sitechanges')?true:false}}>
+                        Site Changes
+                      </NavLink>
                     </li>
                     <li className="header__item">
-                      <NavLink to="/sitelineage" activeClassName='header-active' exact={true}>Site Lineage</NavLink>
+                      <NavLink to="/sitelineage" activeClassName='header-active' exact={true}>
+                        Site Lineage
+                      </NavLink>
                     </li>
                     <li className="header__item">
-                      <NavLink to="/releases/management" activeClassName='header-active' exact={true}>Releases</NavLink>
+                      <NavLink to="/releases/management" activeClassName='header-active' isActive={()=>{return props.page.includes('releases')?true:false}}>
+                        Releases
+                      </NavLink>
                     </li>
                     <li className="header__item">
-                      <NavLink to="/reports/added" activeClassName='header-active' exact={true}>Reports</NavLink>
+                      <NavLink to="/reports/added" activeClassName='header-active' isActive={()=>{return props.page.includes('reports')?true:false}}>
+                        Reports
+                      </NavLink>
                     </li>
                   </>
                 }
