@@ -53,3 +53,15 @@ jobs:
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_50920E647F6E457AB5316D736A449B55 }}
           package: .
+          
+  delete:
+    runs-on: windows-latest
+    needs: deploy
+
+    steps:
+      - name: Delete Old Artifacts
+        id: artifact
+        uses: geekyeggo/delete-artifact@v1
+        with:
+          name: node-app
+          
