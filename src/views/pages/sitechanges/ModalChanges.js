@@ -1295,10 +1295,7 @@ export class ModalChanges extends Component {
       this.loadData();
     }
     if(!this.isLoadingComments) {
-      console.log("renderData1 isLoadingComments: " + this.isLoadingComments);
       this.loadComments();
-      console.log("renderData2 isLoadingComments: " + this.isLoadingComments);
-      console.log(this.state.comments)
     }
     if(!this.isLoadingDocuments) {
       this.loadDocuments();
@@ -1345,7 +1342,6 @@ export class ModalChanges extends Component {
   }
 
   loadData(){
-    console.log("loadData isLoadingData: " + this.isLoadingData);
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
       this.isLoadingData = true;
       this.dl.fetch(ConfigData.SITECHANGES_DETAIL+`siteCode=${this.props.item}&version=${this.props.version}`)
@@ -1360,7 +1356,6 @@ export class ModalChanges extends Component {
 
   loadComments(){
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
-      console.log("loadComments isLoadingComments: " + this.isLoadingComments);
       this.isLoadingComments = true;
       this.dl.fetch(ConfigData.GET_SITE_COMMENTS+`siteCode=${this.props.item}&version=${this.props.version}`)
       .then(response => response.json())
@@ -1380,7 +1375,6 @@ export class ModalChanges extends Component {
   loadDocuments(){
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
       this.isLoadingDocuments = true;
-      console.log("loadDocuments")
       this.dl.fetch(ConfigData.GET_ATTACHED_FILES+`siteCode=${this.props.item}&version=${this.props.version}`)
       .then(response => response.json())
       .then(data => {
@@ -1399,7 +1393,6 @@ export class ModalChanges extends Component {
   loadFields(){
     if (this.isVisible() && (this.state.fields.SiteCode !== this.props.item)){
       this.isLoadingFields = true;
-      console.log("loadFields1")
       this.dl.fetch(ConfigData.SITEDETAIL_GET+"?siteCode="+this.props.item)
       .then(response => response.json())
       .then(data =>{
@@ -1410,7 +1403,6 @@ export class ModalChanges extends Component {
     }
     if(this.isVisible() && this.state.regions.length === 0){
       this.isLoadingFields = true;
-      console.log("loadFields2")
       this.dl.fetch(ConfigData.BIOREGIONS_GET)
       .then(response => response.json())
       .then(data => {
@@ -1420,7 +1412,6 @@ export class ModalChanges extends Component {
   
     if(this.isVisible() && this.state.types.length === 0){
       this.isLoadingFields = true;
-      console.log("loadFields3")
       this.dl.fetch(ConfigData.SITETYPES_GET)
       .then(response => response.json())
       .then(data => {
@@ -1429,10 +1420,18 @@ export class ModalChanges extends Component {
     }
   }
 
+  resetLoading() {
+    this.isLoadingComments = false;
+    this.isLoadingDocuments = false;
+    this.isLoadingData = false;
+    this.isLoadingFields = false;
+  }
+
   acceptChangesModal(clean) {
     if(clean) {
       this.cleanUnsavedChanges();
     }
+    this.resetLoading();
     this.props.updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", () => this.acceptChanges(), "Cancel", () => {});
   }
 
@@ -1448,6 +1447,7 @@ export class ModalChanges extends Component {
     if(clean) {
       this.cleanUnsavedChanges();
     }
+    this.resetLoading();
     this.props.updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", () => this.rejectChanges(), "Cancel", () => {});
   }
 
@@ -1463,6 +1463,7 @@ export class ModalChanges extends Component {
     if(clean) {
       this.cleanUnsavedChanges();
     }
+    this.resetLoading();
     this.props.updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", () => this.setBackToPending(), "Cancel", () => {});
   }
 
