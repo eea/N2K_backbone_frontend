@@ -82,7 +82,7 @@ class MapViewer extends React.Component {
               });*/
 
             this.map = new Map({
-              basemap: "topo",
+              basemap: "satellite",
               layers: [lastRelease,reportedSpatial]
             });
 
