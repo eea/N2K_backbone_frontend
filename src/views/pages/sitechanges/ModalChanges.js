@@ -131,6 +131,8 @@ export class ModalChanges extends Component {
       selectedFile: "",
       fieldChanged: false,
       fields: {},
+      siteTypeValue: "",
+      siteRegionValue: "",
     });
     this.props.close();
   }
@@ -1432,7 +1434,7 @@ export class ModalChanges extends Component {
     this.props.accept()
     .then((data) => {
       if(data?.ok)
-        this.setState({data: {}, fields:{}, loading: true});
+        this.setState({data: {}, fields:{}, loading: true, siteTypeValue: "", siteRegionValue: ""});
     });
   }
 
@@ -1447,7 +1449,7 @@ export class ModalChanges extends Component {
     this.props.reject()
     .then(data => {
         if(data?.ok)
-          this.setState({data: {}, fields:{}, loading: true});
+          this.setState({data: {}, fields:{}, loading: true, siteTypeValue: "", siteRegionValue: ""});
     });
   }
 
@@ -1462,7 +1464,7 @@ export class ModalChanges extends Component {
     this.props.backToPending()
     .then((data) => {
       if(data?.ok)
-        this.setState({data: {}, fields:{}, loading: true});
+        this.setState({data: {}, fields:{}, loading: true, siteTypeValue: "", siteRegionValue: ""});
     });
   }
 
