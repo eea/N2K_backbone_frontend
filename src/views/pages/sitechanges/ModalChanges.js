@@ -1347,7 +1347,7 @@ export class ModalChanges extends Component {
       this.dl.fetch(ConfigData.SITECHANGES_DETAIL+`siteCode=${this.props.item}&version=${this.props.version}`)
       .then(response => response.json())
       .then(data => {
-        if(data.Data.SiteCode === this.props.item && Object.keys(this.state.data).length === 0) {
+        if(data.Success && data.Data.SiteCode === this.props.item && Object.keys(this.state.data).length === 0) {
           this.setState({data: data.Data, loading: false, justificationRequired: data.Data?.JustificationRequired, justificationProvided: data.Data?.JustificationProvided, activeKey: this.props.activeKey ? this.props.activeKey : this.state.activeKey})
         }
       });
@@ -1360,7 +1360,7 @@ export class ModalChanges extends Component {
       this.dl.fetch(ConfigData.GET_SITE_COMMENTS+`siteCode=${this.props.item}&version=${this.props.version}`)
       .then(response => response.json())
       .then(data => {
-        if (data.Data.length > 0) {
+        if (data.Success && data.Data.length > 0) {
           if(data.Data[0]?.SiteCode === this.props.item && (this.state.comments.length === 0 || this.state.comments === "noData"))
           this.setState({comments: data.Data});
           this.isLoadingComments = false;
@@ -1379,7 +1379,7 @@ export class ModalChanges extends Component {
       .then(response => response.json())
       .then(data => {
         this.isLoadingDocuments = false;
-        if (data.Data.length > 0) {
+        if (data.Success && data.Data.length > 0) {
           if(data.Data[0]?.SiteCode === this.props.item && (this.state.documents.length === 0 || this.state.documents === "noData"))
           this.setState({documents: data.Data});
         }
@@ -1396,7 +1396,7 @@ export class ModalChanges extends Component {
       this.dl.fetch(ConfigData.SITEDETAIL_GET+"?siteCode="+this.props.item)
       .then(response => response.json())
       .then(data =>{
-        if(data.Data.SiteCode === this.props.item && Object.keys(this.state.data).length === 0) {
+        if(data.Success && data.Data.SiteCode === this.props.item && Object.keys(this.state.data).length === 0) {
           this.setState({fields: data.Data})
         }
       });
