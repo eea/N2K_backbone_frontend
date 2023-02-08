@@ -599,7 +599,6 @@ const IndeterminateCheckbox = React.forwardRef(
       if(changesData==="nodata")
         return (<div className="nodata-container"><em>No Data</em></div>)
       else{
-        props.setStatusData(props.status,true);
         return (
         <>
           <Table 
