@@ -73,6 +73,22 @@
     color: inherit;
     box-shadow: none;
   }
+  &-white {
+    background: none;
+    color: white;
+    border-color: white;
+    transition: $transition-base;
+    &:hover {
+      background-color: white;
+      color: $primary-base;
+      transition: $transition-base;
+    }
+    &:focus, &:active, &:focus:active {
+      box-shadow: none;
+      background-color: $white;
+      color: $primary-base;
+    }
+  }
 }
 
 .dropdown-menu {
@@ -129,5 +145,24 @@
       transform: scale(1.2);
       transition: $transition-base;
     }
+  }
+  &:disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  &:focus, &:active, &:focus:active {
+    background: none;
+    border-color: transparent;
+    box-shadow: none;
+    i {
+      color: $gray-700;
+    }
+  }
+  &.btn-editinfo {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    padding: 0;
+    margin: 1rem;
   }
 }

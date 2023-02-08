@@ -42,7 +42,7 @@ const Sitelineage = () => {
 
   if(countries.length === 0 && !loadingCountries){
     setLoadingCountries(true);
-    dl.fetch(ConfigData.COUNTRIES_WITH_DATA)
+    dl.fetch(ConfigData.LINEAGE_COUNTRIES)
     .then(response => response.json())
     .then(data => {
       setLoadingCountries(false);
@@ -84,7 +84,7 @@ const Sitelineage = () => {
   let loadSites = () => {
     if(!isLoading && siteCodes.length === 0) {
       setIsLoading(true);
-      dl.fetch(ConfigData.SITEEDITION_GET+"country="+country)
+      dl.fetch(ConfigData.LINEAGE_GET_SITES+"country="+country)
       .then(response =>response.json())
       .then(data => {
         if(Object.keys(data.Data).length === 0){
@@ -608,6 +608,7 @@ const Sitelineage = () => {
                     ref={turnstoneRef}
                     Item={item}
                     typeahead={false}
+                    disabled={isLoading}
                   />
                   {Object.keys(selectOption).length !== 0 &&
                     <span className="btn-icon" onClick={()=>clearSearch()}>

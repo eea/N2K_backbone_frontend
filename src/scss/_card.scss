@@ -1,20 +1,24 @@
 .card {
   border-color: $gray-100;
 }
+
 .card-tag {
   font-size: 0.85rem;
 }
+
 .card--site {
   .card-img {
     width: auto;
-  }  
+  }
 }
+
 .card--dashboard {
   background-color: $primary-25;
   color: $primary;
   max-width: 12rem;
   min-height: 12rem;
   flex-basis: 12rem;
+
   .card {
     &-body {
       display: flex;
@@ -23,16 +27,20 @@
       align-content: center;
       justify-content: space-evenly;
     }
+
     &__icon {
       text-align: center;
       margin-bottom: 0.5rem;
+
       & svg {
         width: 4rem;
       }
     }
+
     &__number {
       display: block;
     }
+
     &-text {
       font-weight: bold;
       text-transform: uppercase;
@@ -47,11 +55,13 @@
   margin-bottom: 1rem;
   display: flex;
   align-items: center;
+
   .h1-main {
     margin: 0;
     font-weight: normal;
   }
-  & > * {
+
+  &>* {
     display: inline-block;
   }
 }
@@ -65,19 +75,23 @@
   flex-direction: column;
   height: 100%;
   transition: $transition-base;
+
   &:hover {
     background-color: $gray-25;
     cursor: pointer;
     transition: $transition-base;
   }
+
   &-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
+
   &-left {
     margin-right: 1rem;
     display: flex;
+
     .card-img {
       &--flag {
         width: 2.5rem;
@@ -85,21 +99,26 @@
       }
     }
   }
+
   &-title {
     font-size: 1.25rem;
     font-weight: bold;
     color: $primary-base;
     vertical-align: middle;
   }
+
   &-body {
     margin-top: 0.5rem;
+
     .badge {
       margin-right: 0.5rem;
+      margin-top: 0.5rem;
       &.color--critical, &.color--warning, &.color--info {
         padding: 0;
       }
     }
   }
+
   &-link {
     text-decoration: none;
   }
@@ -110,28 +129,35 @@
   border-radius: 10px;
   padding: 1rem 0.75rem;
   transition: $transition-base;
+
   &:hover {
     background-color: $gray-25;
     transition: $transition-base;
   }
+
   &-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 0.5rem;
     font-size: 1.25rem;
-    i, svg {
+
+    i,
+    svg {
       color: $gray-400;
     }
   }
+
   &-body {
     margin-bottom: 0.5rem;
+
     .badge {
       border: none;
       padding: 0;
       margin-right: 0.5rem;
     }
   }
+
   &-button {
     .btn {
       padding: 0;
@@ -145,10 +171,12 @@
   border-radius: 10px;
   padding: 1rem 0.75rem;
   transition: $transition-base;
+
   &:hover {
     background-color: $gray-25;
     transition: $transition-base;
   }
+
   &-header {
     display: flex;
     justify-content: space-between;
@@ -156,19 +184,23 @@
     margin-bottom: 0.5rem;
     font-size: 1.25rem;
   }
+
   &-title {
     color: $primary-base;
     font-weight: bold;
     font-size: 1.25rem;
   }
+
   &-body {
     margin-bottom: 0.5rem;
   }
+
   &-description {
     b {
       font-size: 1.125rem;
     }
   }
+
   &-button {
     .btn {
       padding: 0;
@@ -182,6 +214,7 @@
   margin: 0;
   padding: 1rem 0.75rem;
   height: 100%;
+
   h3 {
     text-align: center;
   }
@@ -189,7 +222,8 @@
 
 .grid {
   margin: -0.5rem;
-  > [class*='col-'] {
+
+  >[class*='col-'] {
     padding: 0.5rem;
   }
 }
@@ -198,9 +232,11 @@
   box-shadow: $box-shadow;
   border-radius: 10px;
   padding: 2rem;
+
   a {
     text-decoration: none;
   }
+
   .card-dashboard-new {
     display: flex;
     flex-direction: row;
@@ -216,14 +252,17 @@
     flex-grow: 0;
     height: 100%;
     transition: $transition-base;
+
     &:hover {
       background: #cfe9fc;
       transition: $transition-base;
     }
+
     .card-body {
       display: flex;
       align-items: center;
     }
+
     a {
       text-decoration: none;
     }
@@ -241,7 +280,7 @@
 
 .form-select-reporting {
   // float: right;
-  width: 12rem;
+  width: 18rem;
   line-height: normal;
 }
 
@@ -250,7 +289,7 @@
   width: 97px;
   height: 23px;
   left: 0px;
-  top: 0px;  
+  top: 0px;
   font-family: 'Roboto';
   font-style: normal;
   font-weight: 400;
@@ -262,6 +301,7 @@
 .card-site-level {
   border: 2px dashed $gray-100;
   margin-bottom: 1.5rem;
+
   & h2 {
     font-size: 1rem;
     margin: 0;
@@ -270,7 +310,7 @@
 
 .card-icon-new {
   width: 4rem;
-  float: left;  
+  float: left;
 }
 
 .card-text-new {
@@ -283,7 +323,7 @@
 }
 
 .row-card-flags {
-  top:0;
+  top: 0;
   width: inherit;
   height: 100%;
 }
@@ -292,3 +332,16 @@
   height: inherit;
 }
 
+.collapse-container {
+  .card {
+    flex-direction: row;
+    padding: 1rem;
+    margin: 0.5rem 0;
+    table {
+      margin-bottom: 0;
+      tr:last-of-type td {
+        border-bottom: none;
+      }
+    }
+  }
+}

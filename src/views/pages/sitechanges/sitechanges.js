@@ -129,6 +129,11 @@ const Sitechanges = () => {
       setDisabledBtn(true);
   };
 
+  let closeModal = () => {
+    forceRefreshData();
+    setForceRefresh(forceRefresh+1);
+  }
+
   let forceRefreshData = ()=>{
     setIsLoading(true);
     setSitecodes({});
@@ -149,14 +154,16 @@ const Sitechanges = () => {
     return dl.fetch(url, options)
   }
 
-  let setBackToPending = (changes)=>{
+  let setBackToPending = (changes, refresh)=>{
     let rBody = !Array.isArray(changes)?[changes]:changes
 
     return postRequest(ConfigData.MOVE_TO_PENDING, rBody)
     .then(data => {
         if(data.ok){
-          forceRefreshData();
-          setForceRefresh(forceRefresh+1);
+          if(refresh){
+            forceRefreshData();
+            setForceRefresh(forceRefresh+1);
+          }
         }else
           alert("something went wrong!");
         return data;
@@ -166,16 +173,16 @@ const Sitechanges = () => {
     });
   }
 
-  let acceptChanges = (changes)=>{
+  let acceptChanges = (changes, refresh)=>{
     let rBody = !Array.isArray(changes)?[changes]:changes
 
     return postRequest(ConfigData.ACCEPT_CHANGES, rBody)
     .then(data => {
         if(data.ok){
-          // setRefreshSitechanges("pending",true);
-          // setRefreshSitechanges("accepted",true);
-          forceRefreshData();
-          setForceRefresh(forceRefresh+1);
+          if(refresh){
+            forceRefreshData();
+            setForceRefresh(forceRefresh+1);
+          }
         }else
           alert("something went wrong!");
         return data;
@@ -185,16 +192,16 @@ const Sitechanges = () => {
     });
   }
 
-  let rejectChanges = (changes)=>{
+  let rejectChanges = (changes, refresh)=>{
     let rBody = !Array.isArray(changes)?[changes]:changes
 
     return postRequest(ConfigData.REJECT_CHANGES, rBody)
     .then(data => {
         if(data.ok){
-          // setRefreshSitechanges("pending",true);
-          // setRefreshSitechanges("rejected",true);
-          forceRefreshData();
-          setForceRefresh(forceRefresh+1);
+          if(refresh){
+            forceRefreshData();
+            setForceRefresh(forceRefresh+1);
+          }
         }else
           alert("something went wrong!");
         return data;
@@ -348,11 +355,12 @@ const Sitechanges = () => {
       for(let i in data.Data){
         countriesList.push({name:data.Data[i].Country,code:data.Data[i].Code,version:data.Data[i].Version});
       }
+      countriesList.sort((a, b) => a.name.localeCompare(b.name));
       countriesList = [{name:"",code:""}, ...countriesList];
       setCountries(countriesList);
       if(country === ""){
-          setCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code);
-          changeCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code)
+        setCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code);
+        changeCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code)
       }
       if(countriesList[0]?.code === "") {
         setIsLoading(false);
@@ -404,20 +412,20 @@ const Sitechanges = () => {
                     {!isLoading && country && activeTab === 1 &&
                       <>
                         <li>
-                          <CButton color="secondary" onClick={()=>updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(selectedCodes), "Cancel", ()=>{})} disabled={disabledBtn || activeTab!==1}>
-                            Reject changes
+                          <CButton color="secondary" onClick={()=>updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(selectedCodes, true), "Cancel", ()=>{})} disabled={disabledBtn || activeTab!==1}>
+                            Reject Changes
                           </CButton>
                         </li>
                         <li>
-                          <CButton color="primary" onClick={()=>updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(selectedCodes), "Cancel", ()=>{})} disabled={disabledBtn || activeTab!==1}>
-                            Accept changes
+                          <CButton color="primary" onClick={()=>updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(selectedCodes, true), "Cancel", ()=>{})} disabled={disabledBtn || activeTab!==1}>
+                            Accept Changes
                           </CButton>
                         </li>
                       </>
                     }
                     {!isLoading && country && activeTab !== 1 &&
                       <li>
-                        <CButton color="primary" onClick={()=>updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", ()=>setBackToPending(selectedCodes), "Cancel", ()=>{})} disabled={disabledBtn || activeTab===1}>
+                        <CButton color="primary" onClick={()=>updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", ()=>setBackToPending(selectedCodes, true), "Cancel", ()=>{})} disabled={disabledBtn || activeTab===1}>
                           Back to Pending
                         </CButton>
                       </li>
@@ -542,6 +550,7 @@ const Sitechanges = () => {
                         setRefresh={setRefreshSitechanges}
                         accept={acceptChanges}
                         reject={rejectChanges}
+                        setBackToPending={setBackToPending}
                         mark={switchMarkChanges}
                         updateModalValues={updateModalValues}
                         setSitecodes = {setCodes}
@@ -550,6 +559,7 @@ const Sitechanges = () => {
                         isTabChanged={isTabChanged}
                         setIsTabChanged={setIsTabChanged}
                         setStatusData={setStatusData}
+                        closeModal={closeModal}
                       />
                     </CTabPane>
                     <CTabPane role="tabpanel" aria-labelledby="accepted-tab" visible={activeTab === 2}>
@@ -560,6 +570,8 @@ const Sitechanges = () => {
                         setSelected={setSelectedCodes} 
                         getRefresh={()=>getRefreshSitechanges("accepted")} 
                         setRefresh={setRefreshSitechanges}
+                        accept={acceptChanges}
+                        reject={rejectChanges}
                         setBackToPending={setBackToPending}
                         updateModalValues={updateModalValues}
                         setSitecodes = {setCodes}
@@ -568,6 +580,7 @@ const Sitechanges = () => {
                         isTabChanged={isTabChanged}
                         setIsTabChanged={setIsTabChanged}
                         setStatusData={setStatusData}
+                        closeModal={closeModal}
                       />
                     </CTabPane>
                     <CTabPane role="tabpanel" aria-labelledby="rejected-tab" visible={activeTab === 3}>
@@ -578,6 +591,8 @@ const Sitechanges = () => {
                         setSelected={setSelectedCodes} 
                         getRefresh={()=>getRefreshSitechanges("rejected")} 
                         setRefresh={setRefreshSitechanges}
+                        accept={acceptChanges}
+                        reject={rejectChanges}
                         setBackToPending={setBackToPending}
                         updateModalValues={updateModalValues}
                         setSitecodes = {setCodes}
@@ -586,6 +601,7 @@ const Sitechanges = () => {
                         isTabChanged={isTabChanged}
                         setIsTabChanged={setIsTabChanged}
                         setStatusData={setStatusData}
+                        closeModal={closeModal}
                       />
                     </CTabPane>
                     </CTabContent>

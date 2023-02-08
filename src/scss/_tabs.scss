@@ -4,6 +4,7 @@
     color: $gray-800;
     border-bottom-width: 2px;
     margin-bottom: -2px;
+    cursor: pointer;
     &:not(.active):hover {
       background-color: $gray-25;
       isolation: unset;

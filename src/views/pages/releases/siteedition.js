@@ -17,6 +17,7 @@ import {
   CFormSelect,
   CPagination,
   CPaginationItem,
+  CTooltip,
 } from '@coreui/react'
 
 import { ModalEdition } from './ModalEdition';
@@ -66,11 +67,12 @@ const Releases = () => {
       for(let i in data.Data){
         countriesList.push({name:data.Data[i].Country,code:data.Data[i].Code});
       }
+      countriesList.sort((a, b) => a.name.localeCompare(b.name));
       countriesList = [{name:"",code:""}, ...countriesList];
       setCountries(countriesList);
       if(country === ""){
-          setCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code);
-          changeCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code)
+        setCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code);
+        changeCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code)
       }
     });
   }
@@ -120,12 +122,10 @@ const Releases = () => {
     setModalItem(data);
   }
 
-  let closeModal = (refresh) => {
+  let closeModal = () => {
     setModalVisible(false);
     setModalItem({});
-    if(refresh) {
-      forceRefreshData();
-    }
+    forceRefreshData();
   }
 
   let forceRefreshData = () => setSitecodes([]);
@@ -208,6 +208,8 @@ const Releases = () => {
         let siteName = sites[i].Name;
         let siteCode = sites[i].SiteCode;
         let version = sites[i].Version;
+        let date = sites[i].EditedDate;
+        let user = sites[i].EditedBy;
         cards.push(
           <CCol xs={12} md={6} lg={4} xl={3} key={"card_"+i}>
             <CCard className="search-card">
@@ -222,6 +224,16 @@ const Releases = () => {
                   Edit
                 </CButton>
               </div>
+              {date && user &&
+                <CTooltip 
+                  content={"Edited"
+                    + (date && " on " + date.slice(0,10).split('-').reverse().join('/'))
+                    + (user && " by " + user)}>
+                  <div className="btn-icon btn-editinfo">
+                    <i className="fa-solid fa-circle-info"></i>
+                  </div>
+                </CTooltip>
+              }
             </CCard>
           </CCol>
         )

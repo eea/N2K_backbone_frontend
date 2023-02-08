@@ -1,10 +1,16 @@
 import React from 'react'
+import { NavLink } from "react-router-dom";
 import {
   CRow,
   CCol,
-  CButton,
   CHeader,
-  CAvatar
+  CAvatar,
+  CDropdown,
+  CDropdownToggle,
+  CDropdownMenu,
+  CDropdownItem,
+  CDropdownItemPlain,
+  CDropdownDivider,
 } from '@coreui/react'
 
 import '@fortawesome/fontawesome-free/css/all.min.css';
@@ -18,30 +24,56 @@ const AppHeader = (props) => {
         </CCol>
         <CCol className='header__links'>
           <ul className="btn--list justify-content-between">
-            <li className={!props.page ? 'header-active' : ''}>
-              <CButton color="link" className='btn-link--bold' href='/#/dashboard'>Dashboard</CButton>
-            </li>
-            <li className={props.page && props.page.includes('harvesting') ? 'header-active' : ''}>
-              <CButton color="link" className='btn-link--bold' href='/#/harvesting/incoming'>Harvesting</CButton>
-            </li>
-            <li className={props.page && props.page.includes('sitechanges') ? 'header-active' : ''}>
-              <CButton color="link" className='btn-link--bold' href='/#/sitechanges'>Site Changes</CButton>
-            </li>
-            <li className={props.page === 'sitelineage' ? 'header-active' : ''}>
-              <CButton color="link" className='btn-link--bold' href='/#/sitelineage'>Site Lineage</CButton>
-            </li>
-            <li className={props.page === 'releases' ? 'header-active' : ''}>
-              <CButton color="link" className='btn-link--bold' href='/#/releases/management'>Releases</CButton>
-            </li>
-            <li className={props.page && props.page.includes('reports') ? 'header-active' : ''}>
-              <CButton color="link" className='btn-link--bold' href='/#/reports/added'>Reports</CButton>
-            </li>
-            <li className={props.page === 'user' ? 'header-active' : ''}>
-              <CAvatar>
-                <i className="fa-solid fa-circle-user"></i>
-              </CAvatar>
-              <CButton color="link" className='btn-link--bold'>Username</CButton>
-            </li>
+            {props.isLoggedIn !== false &&
+              <>
+                {props.page !== "share" &&
+                  <>
+                    <li className="header__item">
+                      <NavLink to="/dashboard" activeClassName='header-active' exact={true}>
+                        Dashboard
+                      </NavLink>
+                    </li>
+                    <li className="header__item">
+                      <NavLink to="/harvesting/incoming" activeClassName='header-active'isActive={()=>{return props.page.includes('harvesting')?true:false}}>
+                        Harvesting
+                      </NavLink>
+                    </li>
+                    <li className="header__item">
+                      <NavLink to="/sitechanges" activeClassName='header-active' isActive={()=>{return props.page.includes('sitechanges')?true:false}}>
+                        Site Changes
+                      </NavLink>
+                    </li>
+                    <li className="header__item">
+                      <NavLink to="/sitelineage" activeClassName='header-active' exact={true}>
+                        Site Lineage
+                      </NavLink>
+                    </li>
+                    <li className="header__item">
+                      <NavLink to="/releases/management" activeClassName='header-active' isActive={()=>{return props.page.includes('releases')?true:false}}>
+                        Releases
+                      </NavLink>
+                    </li>
+                    <li className="header__item">
+                      <NavLink to="/reports/added" activeClassName='header-active' isActive={()=>{return props.page.includes('reports')?true:false}}>
+                        Reports
+                      </NavLink>
+                    </li>
+                  </>
+                }
+                <CDropdown variant="nav-item" alignment="end" className={"header__item" + (props.page === 'share' ? ' ms-auto' : '')}>
+                  <CDropdownToggle color="secondary">
+                    <CAvatar>
+                      <i className="fa-solid fa-circle-user"></i>
+                    </CAvatar>
+                  </CDropdownToggle>
+                  <CDropdownMenu>
+                    <CDropdownItemPlain><i className="fa-solid fa-user"></i>User</CDropdownItemPlain>
+                    <CDropdownDivider />
+                    <CDropdownItem href="/#/"><i className="fa-solid fa-arrow-right-from-bracket"></i>Log Out</CDropdownItem>
+                  </CDropdownMenu>
+                </CDropdown>
+              </>
+            }
           </ul>
         </CCol>
       </CRow>

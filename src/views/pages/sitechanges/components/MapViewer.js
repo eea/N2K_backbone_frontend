@@ -13,6 +13,17 @@ class MapViewer extends React.Component {
         this.map=null;
     }
 
+    componentDidUpdate(){
+        if(document.querySelectorAll(".esri-layer-list__item").length > 0) {
+            if(!document.querySelectorAll(".esri-layer-list__item")[0].querySelector(".esri-layer-list__item-label .legend-color")){
+                document.querySelectorAll(".esri-layer-list__item")[0].querySelector(".esri-layer-list__item-label").insertAdjacentHTML( 'beforeend', "<span class='legend-color legend-color-0'></span>" );
+            }
+            if(!document.querySelectorAll(".esri-layer-list__item")[1].querySelector(".esri-layer-list__item-label .legend-color")){
+                document.querySelectorAll(".esri-layer-list__item")[1].querySelector(".esri-layer-list__item-label").insertAdjacentHTML( 'beforeend', "<span class='legend-color legend-color-1'></span>" );
+            }
+        }
+    }
+
     componentDidMount(){
         loadModules(
             ["esri/Map", "esri/views/MapView", "esri/widgets/Zoom", "esri/layers/GeoJSONLayer", "esri/widgets/LayerList", "esri/layers/FeatureLayer",
@@ -24,21 +35,43 @@ class MapViewer extends React.Component {
             //let mapRel = new MapImageLayer({ url: "https://trial.discomap.eea.europa.eu/arcgis/rest/services/N2kBackbone/Map/MapServer", visible: false });
 
             let lastRelease = new FeatureLayer({
-                //url: "https://trial.discomap.eea.europa.eu/arcgis/rest/services/N2kBackbone/Map/MapServer/1",
-                url: "https://trial.discomap.eea.europa.eu/arcgis/rest/services/N2KBackbone3857/Map/MapServer/1",
+                url: "https://trial.discomap.eea.europa.eu/arcgis/rest/services/N2kBackbone/Map/MapServer/1",
                 id: 1,
                 popupEnabled: true,
                 title: "Last Release",
                 opacity: 0.5,
+                renderer: {
+                    type: "simple",
+                    symbol: {
+                        type: "simple-fill",
+                        color: "#4fc1c5",
+                        style: "solid",
+                        outline: {
+                            width: 1,
+                            color: "#444444"
+                        }
+                    },
+                }
               });
 
             let reportedSpatial = new FeatureLayer({
-                //url: "https://trial.discomap.eea.europa.eu/arcgis/rest/services/N2kBackbone/Map/MapServer/0",
-                url: "https://trial.discomap.eea.europa.eu/arcgis/rest/services/N2KBackbone3857/Map/MapServer/0",
+                url: "https://trial.discomap.eea.europa.eu/arcgis/rest/services/N2kBackbone/Map/MapServer/0",
                 id: 0,
                 popupEnabled: true,
                 title: "Reported Geometries",
                 opacity: 0.5,
+                renderer: {
+                    type: "simple",
+                    symbol: {
+                        type: "simple-fill",
+                        color: "#fed100",
+                        style: "solid",
+                        outline: {
+                            width: 1,
+                            color: "#444444"
+                        }
+                    },
+                }
             });
 
             /*reportedSpatial.featureEffect = new FeatureEffect({
@@ -73,7 +106,7 @@ class MapViewer extends React.Component {
             });
 
             let layerList = new LayerList({view: this.view});
-            this.view.ui.add(layerList,{position: "top-right"});
+            this.view.ui.add(layerList,{position: "top-left"});
 
             this.view.popup.visibleElements={closeButton:false};
             this.view.popup.dockOptions={buttonEnabled: false};
@@ -81,9 +114,7 @@ class MapViewer extends React.Component {
             this.view.popup.autoOpenEnabled = true;
 
             this.getReportedGeometry(reportedSpatial,this.props.siteCode);
-
-        });        
-
+        });
     }
 
     getReportedGeometry(layer,code){
@@ -97,10 +128,10 @@ class MapViewer extends React.Component {
                     this.view.extent = feat.geometry.extent;
                     let polylineSymbol = {
                                              type: "simple-line",  // autocasts as SimpleLineSymbol()
-                                             color: [226, 119, 40],
+                                             color: "#000015",
                                              width: 2
                                          };
-                    feat.symbol = polylineSymbol;                                         
+                    feat.symbol = polylineSymbol;
                     this.view.graphics.add(feat);
                 }
             }
@@ -115,7 +146,6 @@ class MapViewer extends React.Component {
             </>
         );
     }
-
 }
 
 export default MapViewer;

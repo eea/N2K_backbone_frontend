@@ -1,5 +1,6 @@
 import ConfigData from '../../../config.json';
 import React, { Component, useState } from 'react';
+import Select from 'react-select';
 import {
   CButton,
   CCol,
@@ -33,21 +34,21 @@ import {
   CTooltip,
   CCollapse,
   CCard,
-  CAlert
+  CAlert,
+  CForm,
+  CFormInput,
+  CSpinner,
 } from '@coreui/react'
 
 import TextareaAutosize from 'react-textarea-autosize';
 
-import CIcon from '@coreui/icons-react'
-import { cilWarning } from '@coreui/icons'
-
 import { ConfirmationModal } from './components/ConfirmationModal';
-import justificationprovided from './../../../assets/images/file-text.svg'
+import justificationRequiredImg from './../../../assets/images/exclamation.svg'
+import justificationProvidedImg from './../../../assets/images/file-text.svg'
 
 import MapViewer from './components/MapViewer'
 
 import {DataLoader} from '../../../components/DataLoader';
-
 export class ModalChanges extends Component {
   constructor(props) {
     super(props);
@@ -57,7 +58,7 @@ export class ModalChanges extends Component {
       activeKey: 1,
       loading: true,
       data: {}, 
-      levels:["Critical"],
+      levels:[this.props.level ? this.props.level : "Critical"],
       bookmark: "",
       bookmarks: [],
       bookmarkUpdate: false,
@@ -68,10 +69,17 @@ export class ModalChanges extends Component {
       newDocument: false,
       justificationRequired: false,
       justificationProvided: false,
+      updateOnClose: false,
       selectedFile: "",
       isSelected: false,
       notValidComment: "",
       notValidDocument: "",
+      fields: {},
+      notValidField: [],
+      fieldChanged: false,
+      regions:[],
+      types:[],
+      updatingData: false,
       modalValues : {
         visibility: false,
         close: () => {
@@ -81,7 +89,10 @@ export class ModalChanges extends Component {
             }
           });
         }
-      }
+      },
+      siteTypeValue: "",
+      siteRegionValue: "",
+      showCopyTooltip: false,
     };
   }
 
@@ -104,10 +115,10 @@ export class ModalChanges extends Component {
     this.setState({activeKey: val})
   }
 
-  close(refresh){
+  close(){
     this.setActiveKey(1);
     this.setState({
-      level:"Warning",
+      levels:[this.props.level ? this.props.level : "Critical"],
       bookmark: "",
       showDetail: "",
       data: {},
@@ -118,8 +129,10 @@ export class ModalChanges extends Component {
       newDocument: false,
       isSelected: false,
       selectedFile: "",
+      fieldChanged: false,
+      fields: {},
     });
-    this.props.close(refresh);
+    this.props.close();
   }
 
   isVisible(){
@@ -147,6 +160,12 @@ export class ModalChanges extends Component {
         this.setState({notValidDocument: ""});
       }, 5000);
     }
+    else if (target === "fields") {
+      this.setState({notValidField: message});
+      setTimeout(() => {
+        this.setState({notValidField: ""});
+      }, 5000);
+    }
   }
 
   addNewComment() {
@@ -162,7 +181,7 @@ export class ModalChanges extends Component {
       input.focus();
       target.firstChild.classList.replace("fa-pencil", "fa-floppy-disk");
     } else {
-      if (!input.value) {
+      if (!input.value.trim()) {
         this.showErrorMessage("comment", "Add comment");
       }
       else {
@@ -175,7 +194,7 @@ export class ModalChanges extends Component {
     let input = target.closest(".comment--item").querySelector("textarea");
     let comment = input.value;
     let currentDate = new Date().toISOString();
-    if (!comment) {
+    if (!comment.trim()) {
       this.showErrorMessage("comment", "Add a comment");
     }
     else {
@@ -255,7 +274,7 @@ export class ModalChanges extends Component {
       .then((data) => {
         if(data?.ok){
           let cmts = this.state.comments.filter(e => e.Id !== parseInt(id));
-          this.setState({comments: cmts});
+          this.setState({comments: cmts.length > 0 ? cmts : "noData"});
         }
       });
     }
@@ -285,7 +304,7 @@ export class ModalChanges extends Component {
       .then((data) => {
         if(data?.ok){
           let docs = this.state.documents.filter(e => e.Id !== parseInt(id));
-          this.setState({documents: docs});
+          this.setState({documents: docs.length > 0 ? docs : "noData"});
         }
       });
     }
@@ -347,47 +366,49 @@ export class ModalChanges extends Component {
     else {
       this.showErrorMessage("document", "Add a file");
     }
-}
+  }
+  
+  handleJustRequired(){
+    let body = [{
+      "SiteCode": this.state.data.SiteCode,
+      "VersionId": this.state.data.Version,
+      "Justification": !this.state.justificationRequired,
+    }];  
+    this.sendRequest(ConfigData.MARK_AS_JUSTIFICATION_REQUIRED, "POST", body)  
+    .then((data)=> {
+      if(data?.ok){     
+        if(this.state.justificationRequired)
+          this.setState({justificationRequired: !this.state.justificationRequired, justificationProvided: false})
+        else
+          this.setState({justificationRequired: !this.state.justificationRequired})      
+        this.state.updateOnClose = true;
+        return data;    
+      }
+      else {
+        this.showErrorMessage("Justification Required", "Update failed");
+        return data;
+      }
+    });
+  }
 
-handleJustRequired(){
-  let body = [{
-    "SiteCode": this.state.data.SiteCode,
-    "VersionId": this.state.data.Version,
-    "Justification": !this.state.justificationRequired,
-  }];  
-  this.sendRequest(ConfigData.MARK_AS_JUSTIFICATION_REQUIRED, "POST", body)  
-  .then((data)=> {
-    if(data?.ok){     
-      if(this.state.justificationRequired)
-        this.setState({justificationRequired: !this.state.justificationRequired, justificationProvided: false})
-      else
-        this.setState({justificationRequired: !this.state.justificationRequired})      
-      return data;    
-    }
-    else {
-      this.showErrorMessage("Justification Required", "Update failed");
-      return data;
-    }
-  });
-}
-
-handleJustProvided(){
-  let body = [{
-    "SiteCode": this.state.data.SiteCode,
-    "VersionId": this.state.data.Version,
-    "Justification": !this.state.justificationProvided,
-  }];  
-  this.sendRequest(ConfigData.PROVIDE_JUSTIFICATION, "POST", body)  
-  .then((data)=> {
-    if(data?.ok){            
-      this.setState({justificationProvided: !this.state.justificationProvided})                 
-    }
-    else {
-      this.showErrorMessage("Justification Provided", "Update failed");
-      return data;
-    }
-  });
-}
+  handleJustProvided(){
+    let body = [{
+      "SiteCode": this.state.data.SiteCode,
+      "VersionId": this.state.data.Version,
+      "Justification": !this.state.justificationProvided,
+    }];  
+    this.sendRequest(ConfigData.PROVIDE_JUSTIFICATION, "POST", body)
+    .then((data)=> {
+      if(data?.ok){
+        this.setState({justificationProvided: !this.state.justificationProvided})
+        this.state.updateOnClose = true;
+      }
+      else {
+        this.showErrorMessage("Justification Provided", "Update failed");
+        return data;
+      }
+    });
+  }
 
   renderValuesTable(changes){
     let heads = Object.keys(changes[0]).filter(v=> v!=="ChangeId" && v!=="Fields");
@@ -471,7 +492,6 @@ handleJustProvided(){
   renderBookmarks(){
     let bookmarks = [];
     let levels = this.state.levels;
-    let list = [];
     for(let l in levels){
       for(let i in this.state.data[levels[l]]){
         if(!this.bookmarkIsEmpty(this.state.data[levels[l]][i])) {
@@ -575,7 +595,7 @@ handleJustProvided(){
       </CTabPane>
     )
   }
-  
+
   sortComments() {
     this.state.comments.sort(
       (a,b) => b.Date && a.Date ?
@@ -598,12 +618,12 @@ handleJustProvided(){
           ></TextareaAutosize>
         </div>
         <div>
-          <div className="btn-icon" onClick={(e) => this.addComment(e.currentTarget)}> 
+          <CButton color="link" className="btn-icon" onClick={(e) => this.addComment(e.currentTarget)}> 
             <i className="fa-solid fa-floppy-disk"></i>
-          </div>
-          <div className="btn-icon" onClick={() => this.deleteCommentMessage()}>
+          </CButton>
+          <CButton color="link" className="btn-icon" onClick={() => this.deleteCommentMessage()}>
             <i className="fa-regular fa-trash-can"></i>
-          </div>
+          </CButton>
         </div>
       </div>
     )
@@ -650,12 +670,12 @@ handleJustProvided(){
           </label>
         </div>
         <div className="comment--icons">
-          <div className="btn-icon" onClick={(e) => this.updateComment(e.currentTarget)} key={"cmtUpdate_"+id}>
+          <CButton color="link" className="btn-icon" onClick={(e) => this.updateComment(e.currentTarget)} key={"cmtUpdate_"+id}>
             <i className="fa-solid fa-pencil"></i>
-          </div>
-          <div className="btn-icon" onClick={(e) => this.deleteCommentMessage(e.currentTarget)} key={"cmtDelete_"+id}>
+          </CButton>
+          <CButton color="link" className="btn-icon" onClick={(e) => this.deleteCommentMessage(e.currentTarget)} key={"cmtDelete_"+id}>
             <i className="fa-regular fa-trash-can"></i>
-          </div>
+          </CButton>
         </div>
       </div>
     )
@@ -685,12 +705,12 @@ handleJustProvided(){
           ) : (<input id="uploadFile" placeholder="No file selected" disabled="disabled" />)}
         </div>
         <div className="document--icons">
-          <div className="btn-icon">
-            <i className="fa-solid fa-floppy-disk" onClick={() => this.handleSubmission()}></i>
-          </div>
-          <div className="btn-icon" onClick={() => this.deleteDocumentMessage()}>
+          <CButton color="link" className="btn-icon" onClick={() => this.handleSubmission()}>
+            <i className="fa-solid fa-floppy-disk"></i>
+          </CButton>
+          <CButton color="link" className="btn-icon" onClick={() => this.deleteDocumentMessage()}>
             <i className="fa-regular fa-trash-can"></i>
-          </div>
+          </CButton>
         </div>
       </div>
     )
@@ -719,7 +739,7 @@ handleJustProvided(){
     return (
       <div className="document--item" key={"docItem_"+id} id={"docItem_"+id} doc_id={id}>
         <div className="my-auto document--text">
-          <CImage src={justificationprovided} className="ico--md me-3"></CImage>
+          <CImage src={justificationProvidedImg} className="ico--md me-3"></CImage>
           <span>{path.replace(/^.*[\\\/]/, '')}</span>
         </div>
         <div className="document--icons">
@@ -736,9 +756,9 @@ handleJustProvided(){
           <CButton color="link" className="btn-link--dark">
             <a href={path} target="_blank">View</a>
           </CButton>
-          <div className="btn-icon" onClick={(e) => this.deleteDocumentMessage(e.currentTarget)}>
+          <CButton color="link" className="btn-icon" onClick={(e) => this.deleteDocumentMessage(e.currentTarget)}>
             <i className="fa-regular fa-trash-can"></i>
-          </div>
+          </CButton>
         </div>
       </div>
     )
@@ -746,7 +766,7 @@ handleJustProvided(){
 
   renderAttachments(){
     return(
-      <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 3}>
+      <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 4}>
         <CRow className="py-3">
           <CCol className="mb-3" xs={12} lg={6}>
             <CCard className="document--list">
@@ -757,7 +777,7 @@ handleJustProvided(){
               }
               <div className="d-flex justify-content-between align-items-center pb-2">
                 <b>Attached documents</b>
-                <CButton color="link" className="btn-link--dark" onClick={() => this.addNewDocument()}>Add document</CButton>
+                <CButton color="link" className="btn-link--dark" onClick={() => this.addNewDocument()}>Add Document</CButton>
               </div>
               {this.renderDocuments()}
             </CCard>
@@ -771,7 +791,7 @@ handleJustProvided(){
               }
               <div className="d-flex justify-content-between align-items-center pb-2">
                 <b>Comments</b>
-                <CButton color="link" className="btn-link--dark" onClick={() => this.addNewComment()}>Add comment</CButton>
+                <CButton color="link" className="btn-link--dark" onClick={() => this.addNewComment()}>Add Comment</CButton>
               </div>
               {this.renderComments()}
             </CCard>
@@ -779,7 +799,7 @@ handleJustProvided(){
           <CCol className="d-flex">
             <div className="checkbox">
               <input type="checkbox" className="input-checkbox" id="modal_justification_req"
-                onClick={()=>this.props.updateModalValues("Changes", `This will ${this.state.justificationRequired ? "unmark" : "mark"} change as Justification Required`, "Continue", ()=>this.handleJustRequired(), "Cancel", () => {})}
+                onClick={()=>this.props.updateModalValues("Changes", `This will ${this.state.justificationRequired ? "unmark" : "mark"} change as justification required`, "Continue", ()=>this.handleJustRequired(), "Cancel", () => {})}
                 checked={this.state.justificationRequired}
                 readOnly
               />
@@ -787,7 +807,7 @@ handleJustProvided(){
             </div>
             <div className="checkbox" disabled={(this.state.justificationRequired ? false : true)}>
               <input type="checkbox" className="input-checkbox" id="modal_justification_prov"
-                onClick={()=>this.props.updateModalValues("Changes", `This will ${this.state.justificationProvided ? "unmark": "mark"} change as Justification Provided`, "Continue", ()=>this.handleJustProvided(), "Cancel", () => {})}
+                onClick={()=>this.props.updateModalValues("Changes", `This will ${this.state.justificationProvided ? "unmark": "mark"} change as justification provided`, "Continue", ()=>this.handleJustProvided(), "Cancel", () => {})}
                 checked={this.state.justificationProvided} 
                 readOnly
               />
@@ -809,13 +829,262 @@ handleJustProvided(){
     )
   }
 
+  renderFields(){
+    return(
+      <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 3}>
+        {this.state.data.Status === "Pending" ?
+          <CRow className="p-3">
+            <CCol>
+              <p className="text-center mt-5">Accept or reject site changes before editing the site</p>
+            </CCol>
+          </CRow>
+          :
+          <CForm id="siteedition_form">
+            <CRow className="p-3">
+              {(this.state.notValidField.length > 0) &&
+                <CAlert color="danger">
+                  {this.state.notValidField}
+                </CAlert>
+              }
+              {this.createFieldElement()}
+            </CRow>
+          </CForm>
+        }
+      </CTabPane>
+    )
+  }
+
+  createFieldElement(){
+    let fields = [];
+    let data = this.state.fields;
+    data = JSON.parse(JSON.stringify( data, ["SiteCode","SiteName","SiteType","BioRegion","Area","Length","CentreY","CentreX"]));
+    for(let i in Object.keys(data)){
+      let field = Object.keys(data)[i]
+      let id = "field_" + field;
+      let value = data[field];
+      let options;
+      let label;
+      let placeholder;
+      let name = field;
+      switch (field) {
+        case "SiteCode":
+          label = "Site Code";
+          placeholder = "Site code";
+          break;
+        case "SiteName":
+          label = "Site Name";
+          placeholder = "Site name";
+          break;
+        case "SiteType":
+          label = "Site Type";
+          placeholder = "Select site type";
+          options = this.state.types.map(x => x = {label:x.Classification, value:x.Code});
+          value = options.find(y => y.value === value);
+          this.siteTypeDefault = value;
+          if(this.state.siteTypeValue === ""){
+            this.setState({siteTypeValue: value});
+          }
+          break;
+        case "BioRegion":
+          label = "Biogeographycal Region";
+          placeholder = "Select a region";
+          options = this.state.regions.map(x => x = {label:x.RefBioGeoName, value:x.Code});
+          value = value.map(x => options.find(y => y.value === x));
+          this.siteRegionDefault = value;
+          if(this.state.siteRegionValue === ""){
+            this.setState({siteRegionValue: value});
+          }
+          break;
+        case "Area":
+          label = "Area";
+          placeholder = "Site area";
+          break;
+        case "Length":
+          label = "Length";
+          placeholder = "Site length";
+          break;
+        case "CentreY":
+          label = "Latitude";
+          placeholder = "Site centre location latitude";
+          break;
+        case "CentreX":
+          label = "Longitude";
+          placeholder = "Site centre location longitude";
+          break;
+      }
+      fields.push(
+        <CCol xs={12} md={12} lg={6} key={"fd_"+field} className="mb-4">
+          {field === "SiteCode" &&
+            <>
+              <label>{label}</label>
+                <CFormInput
+                id={id}
+                name={name}
+                type="text"
+                defaultValue={value}
+                placeholder={placeholder}
+                autoComplete="off"
+                disabled={true}
+                onChange={(e) => this.onChangeField(e)}
+              />
+            </>
+          }
+          {field === "SiteName" &&
+            <>
+              <label>{label}</label>
+                <CFormInput
+                id={id}
+                name={name}
+                type="text"
+                defaultValue={value}
+                placeholder={placeholder}
+                autoComplete="off"
+                onChange={(e) => this.onChangeField(e)}
+              />
+            </>
+          }
+          {field === "SiteType" &&
+            <>
+              <label>{label}</label>
+              <Select
+                id={id}
+                name={name}
+                className="multi-select"
+                classNamePrefix="multi-select"
+                placeholder={placeholder}
+                value={this.state.siteTypeValue}
+                options={options}
+                onChange={(e) => this.onChangeField(e, name)}
+              />
+            </>
+          }
+          {field === "BioRegion" &&
+            <>
+              <label>{label}</label>
+              <Select
+                id={id}
+                name={name}
+                className="multi-select"
+                classNamePrefix="multi-select"
+                placeholder={placeholder}
+                value={this.state.siteRegionValue}
+                options={options}
+                isMulti={true}
+                closeMenuOnSelect={false}
+                onChange={(e) => this.onChangeField(e, name)}
+              />
+            </>
+          }
+          {field === "Area" &&
+            <>
+              <label>{label}</label>
+              <CFormInput
+                id={id}
+                name={name}
+                type="number"
+                defaultValue={value}
+                placeholder={placeholder}
+                autoComplete="off"
+                onChange={(e) => this.onChangeField(e)}
+              />
+            </>
+          }
+          {field === "Length" &&
+            <>
+              <label>{label}</label>
+              <CFormInput
+                id={id}
+                name={name}
+                type="number"
+                defaultValue={value}
+                placeholder={placeholder}
+                autoComplete="off"
+                onChange={(e) => this.onChangeField(e)}
+              />
+            </>
+          }
+          {field === "CentreX" &&
+            <>
+              <label>{label}</label>
+              <CFormInput
+                id={id}
+                name={name}
+                type="number"
+                defaultValue={value}
+                placeholder={placeholder}
+                autoComplete="off"
+                onChange={(e) => this.onChangeField(e)}
+              />
+            </>
+          }
+          {field === "CentreY" &&
+            <>
+              <label>{label}</label>
+              <CFormInput
+                id={id}
+                name={name}
+                type="number"
+                defaultValue={value}
+                placeholder={placeholder}
+                autoComplete="off"
+                onChange={(e) => this.onChangeField(e)}
+              />
+            </>
+          }
+        </CCol>
+      )
+    }
+    return fields;
+  }
+
+  fieldValidator() {
+    let body = Object.fromEntries(new FormData(document.querySelector("form")));
+    let data = JSON.parse(JSON.stringify( body, ["SiteCode","SiteName","SiteType","BioRegion","Area","Length","CentreY","CentreX"]));
+    this.state.notValidField = [];
+    for(let i in Object.keys(data)){
+      let field = Object.keys(data)[i]
+      let value = data[field];
+      if(!value)
+        this.state.notValidField.push(field);
+    }
+    this.state.notValidField.forEach((e) => {
+      let field = document.getElementById("field_" + e)
+      field.querySelector(".multi-select__control") ?
+        field.querySelector(".multi-select__control").classList.add('invalidField')
+        : field.classList.add('invalidField')
+    });
+    this.state.notValidField.length > 0 && this.showErrorMessage("fields", "Empty fields are not allowed");
+    return this.state.notValidField.length == 0;
+  }
+
+  onChangeField(e, field) {
+    if(field === "SiteType"){
+      this.setState({siteTypeValue: e})
+    }
+    else if(field === "BioRegion"){
+      this.setState({siteRegionValue: e})
+    }
+    if(e.target)
+      e.target.classList.contains('invalidField') ?
+      e.target.classList.remove('invalidField') 
+      : {}
+    this.checkForChanges(e);
+  }
+
   checkUnsavedChanges() {
     return this.state.loading === false && ((this.state.newComment && document.querySelector(".comment--item.new textarea")?.value.trim() !== "") || (this.state.newDocument && this.state.isSelected) || (this.state.comments !== "noData" && document.querySelectorAll(".comment--item:not(.new) textarea[disabled]").length !== this.state.comments.length));
   }
 
   warningUnsavedChanges(activeKey) {
-    if(this.checkUnsavedChanges() && this.state.activeKey === 3) {
-      this.props.updateModalValues("Documents & Comments", "There are unsaved changes. Do you want to continue?", "Continue", () => this.cleanUnsavedChanges(activeKey), "Cancel", () => {});
+    if(this.checkUnsavedChanges() && this.state.activeKey === 4) {
+      this.props.updateModalValues("Documents & Comments", "There are unsaved changes. Do you want to continue?",
+        "Continue", () => this.cleanUnsavedChanges(activeKey),
+        "Cancel", () => {});
+    }
+    else if(this.state.fieldChanged && this.state.activeKey === 3) {
+      this.props.updateModalValues("Edit Fields", "There are unsaved changes. Do you want to continue?",
+        "Continue", () => this.cleanFields(activeKey),
+        "Cancel", () => {});
     }
     else {
       this.cleanUnsavedChanges(activeKey);
@@ -823,7 +1092,19 @@ handleJustProvided(){
   }
 
   messageBeforeClose(action, keepOpen) {
-    this.props.updateModalValues("Documents & Comments", "There are unsaved changes. Do you want to continue?", "Continue", action, "Cancel", () => {}, keepOpen);
+    this.props.updateModalValues(this.state.data.SiteCode, "There are unsaved changes. Do you want to continue?", "Continue", action, "Cancel", () => {}, keepOpen);
+  }
+
+  cleanFields(activeKey) {
+    let fields = this.getBody();
+    delete fields.Version;
+    for(let i in fields) {
+      document.getElementsByName(i)[0].value = this.state.fields[i];
+    }
+    if(activeKey) {
+      this.setActiveKey(activeKey);
+    }
+    this.setState({siteTypeValue: this.siteTypeDefault, siteRegionValue: this.siteRegionDefault, fieldChanged: false});
   }
 
   cleanUnsavedChanges(activeKey) {
@@ -841,19 +1122,71 @@ handleJustProvided(){
     }
   }
 
-  rejectCleanAndCancel() {
-    this.cleanDocumentsAndComments();
-    this.rejectChanges();
-  }
-
-  acceptCleanAndCancel() {
-    this.cleanDocumentsAndComments();  
-    this.acceptChanges();
-  }
-  
   cleanDocumentsAndComments() {
     this.deleteDocument();
     this.deleteComment();
+  }
+
+  checkForChanges(e) {
+    let body = this.getBody();
+    let errorMargin = 0.00000001;
+    if(this.state.fields.SiteName !== body.SiteName
+      || this.state.fields.Area !== body.Area
+      || this.state.fields.Length !== body.Length
+      || (Math.abs(this.state.fields.CentreX - body.CentreX) > errorMargin)
+      || (Math.abs(this.state.fields.CentreY - body.CentreY) > errorMargin)
+      || (Array.isArray(e) && this.state.fields.BioRegion.sort().toString() !== e.map(b => b.value).sort().toString())
+      || e.value ? this.state.fields.SiteType !== e.value : false
+    ) {
+      this.setState({fieldChanged: true});
+      return true;
+    } else {
+      this.setState({fieldChanged: false});
+      return false;
+    }
+  }
+
+  getBody() {
+    let body = Object.fromEntries(new FormData(document.querySelector("form")));
+    body.BioRegion = Array.from(document.getElementsByName("BioRegion")).map(el => el.value).sort().toString();
+    body.Area = body.Area ? +body.Area : body.Area;
+    body.Length = body.Length ? +body.Length : body.Length;
+    body.CentreX = body.CentreX ? +body.CentreX : body.CentreX;
+    body.CentreY = body.CentreY ? +body.CentreY : body.CentreY;
+    body.Version = this.props.version;
+    body.SiteCode = this.props.item;
+
+    return body;
+  }
+
+  saveChangesModal() {
+    let body = this.getBody();
+    if(this.fieldValidator()) {
+      this.props.updateModalValues("Save changes", "This will save the site changes", "Continue", ()=>this.saveChanges(body), "Cancel", ()=>{});
+    }
+  }
+
+  saveChanges(body) {
+    if(Object.values(body).some(val => val === null || val === "")){
+      this.showErrorMessage("fields", "Empty fields are not allowed");
+    } else {
+      this.sendRequest(ConfigData.SITEDETAIL_SAVE, "POST", body)
+      .then((data)=> {
+        if(data?.ok){
+          body = {
+            ...body,
+            BioRegion: body.BioRegion.split(",").map(Number),
+            JustificationProvided: this.state.justificationProvided,
+            JustificationRequired: this.state.justificationRequired,
+          }
+          this.setState({fields: body, fieldChanged: false, updatingData: false});
+        }
+        else {
+          this.showErrorMessage("fields", "Something went wrong");
+        }
+      });
+      this.setState({updatingData:true});
+    }
   }
 
   renderModal() {
@@ -873,9 +1206,19 @@ handleJustProvided(){
           <CCloseButton onClick={()=>this.closeModal()}/>
         </CModalHeader>
         <CModalBody>
-          <CAlert color="primary" className="d-flex align-items-center" visible={this.state.justificationRequired}>
-            <CIcon icon={cilWarning} className="me-2"/>
-            Justification required
+          <CAlert color="primary" className="d-flex align-items-center" visible={this.state.justificationProvided || this.state.justificationRequired}>
+            {this.state.justificationRequired && !this.state.justificationProvided &&
+              <>
+                <CImage src={justificationRequiredImg} className="ico--md me-3"></CImage>
+                Justification required
+              </>
+            }
+            {this.state.justificationProvided &&
+              <>
+                <CImage src={justificationProvidedImg} className="ico--md me-3"></CImage>
+                Justification provided
+              </>
+            }
           </CAlert>
           <CNav variant="tabs" role="tablist">
           <CNavItem>
@@ -900,33 +1243,75 @@ handleJustProvided(){
               <CNavLink
                 href="javascript:void(0);"
                 active={this.state.activeKey === 3}
-                onClick={() => this.setActiveKey(3)}
+                onClick={() => this.warningUnsavedChanges(3)}
+              >
+                Edit Fields
+              </CNavLink>
+            </CNavItem>
+            <CNavItem>
+              <CNavLink
+                href="javascript:void(0);"
+                active={this.state.activeKey === 4}
+                onClick={() => this.warningUnsavedChanges(4)}
               >
                 Documents & Comments
               </CNavLink>
             </CNavItem>
+            <CButton color="link" className="ms-auto" onClick={()=>this.copyLink()}>
+              { this.state.showCopyTooltip ?
+                <CTooltip 
+                  content="Link copied"
+                  trigger="focus"
+                  visible={true}
+                >
+                  <span><i className="far fa-copy me-2"></i>Share site</span>
+                </CTooltip>
+                : 
+                <><i className="far fa-copy me-2"></i>Share site</>
+              }
+            </CButton>
           </CNav>
-    <CTabContent>
-      {this.renderChanges()}
-      {this.renderAttachments()}
-      {this.renderGeometry()}
-    </CTabContent>
+          <CTabContent>
+            {this.renderChanges()}
+            {this.renderAttachments()}
+            {this.renderGeometry()}
+            {this.renderFields()}
+          </CTabContent>
         </CModalBody>
         <CModalFooter>
           <div className="d-flex w-100 justify-content-between">
-            {(this.props.status === 'pending') && <CButton color="secondary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.rejectChangesModal(true), true) : this.rejectChangesModal()}>Reject changes</CButton>}
-            {(this.props.status === 'pending') && <CButton color="primary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.acceptChangesModal(true), true) : this.acceptChangesModal()}>Accept changes</CButton>}
-            {(this.props.status !== 'pending') && <CButton color="primary" className="ms-auto" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.backToPendingModal(true), true) : this.backToPendingModal()}>Back to Pending</CButton>}
+            {data.Status === 'Pending' && <CButton color="secondary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.rejectChangesModal(true), true) : this.rejectChangesModal()}>Reject Changes</CButton>}
+            {data.Status === 'Pending' && <CButton color="primary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.acceptChangesModal(true), true) : this.acceptChangesModal()}>Accept Changes</CButton>}
+            {data.Status !== 'Pending' && this.state.activeKey !== 3 && <CButton color="primary" className="ms-auto" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.backToPendingModal(true), true) : this.backToPendingModal()}>Back to Pending</CButton>}
+            {data.Status !== 'Pending' && this.state.activeKey === 3 &&
+              <>
+                <CButton color="secondary" disabled={this.state.updatingData} onClick={()=>this.closeModal()}>Cancel</CButton>
+                <CButton color="primary" disabled={this.state.updatingData || !this.state.fieldChanged} onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.saveChangesModal(true), true) : this.saveChangesModal()}>
+                  {this.state.updatingData && <CSpinner size="sm"/>}
+                  {this.state.updatingData? " Saving":"Save"}
+                </CButton>
+              </>
+            }
           </div>
         </CModalFooter>
       </>
     )
   }
 
+  copyLink(){
+    let link = window.location.origin + "/#/sharesite?sitecode=" + this.props.item + "&version=" + this.props.version;
+    navigator.clipboard.writeText(link);
+    this.setState({showCopyTooltip: true});
+    setTimeout(() => {
+      this.setState({showCopyTooltip: false});
+    }, 3000);
+  }
+
   renderData(){
     this.loadData();
     this.loadComments();
     this.loadDocuments();
+    this.loadFields();
 
     let contents = this.state.loading
       ? <div className="loading-container"><em>Loading...</em></div>
@@ -940,10 +1325,16 @@ handleJustProvided(){
   }
 
   closeModal(){
-    if (this.checkUnsavedChanges()){
-      this.messageBeforeClose(() => this.close())
+    if(this.state.activeKey === 4 && this.checkUnsavedChanges()){
+      this.props.updateModalValues("Documents & Comments", "There are unsaved changes. Do you want to continue?",
+        "Continue", () => this.close(),
+        "Cancel", () => {});
     }
-    else {
+    else if(this.state.activeKey === 3 && this.state.fieldChanged){
+      this.props.updateModalValues("Edit Fields", "There are unsaved changes. Do you want to continue?",
+        "Continue", () => this.close(),
+        "Cancel", () => {});
+    } else {
       this.close();
     }
   }
@@ -951,7 +1342,7 @@ handleJustProvided(){
   render() {
     return(
       <>
-        <CModal scrollable size="xl" visible={this.isVisible()} onClose={() => this.closeModal()}>
+        <CModal scrollable size="xl" visible={this.isVisible()} backdrop="static" onClose={() => this.closeModal()}>
           {this.renderData()}
         </CModal>
         <ConfirmationModal modalValues={this.state.modalValues}/>
@@ -965,7 +1356,7 @@ handleJustProvided(){
       .then(response => response.json())
       .then(data => {
         if(data.Data.SiteCode === this.props.item && Object.keys(this.state.data).length === 0) {
-          this.setState({data: data.Data, loading: false, justificationRequired: data.Data?.JustificationRequired, justificationProvided: data.Data?.JustificationProvided})
+          this.setState({data: data.Data, loading: false, justificationRequired: data.Data?.JustificationRequired, justificationProvided: data.Data?.JustificationProvided, activeKey: this.props.activeKey ? this.props.activeKey : this.state.activeKey})
         }
       });
     }
@@ -977,7 +1368,7 @@ handleJustProvided(){
       .then(response => response.json())
       .then(data => {
         if (data.Data.length > 0) {
-          if(data.Data[0]?.SiteCode === this.props.item && this.state.comments.length === 0)
+          if(data.Data[0]?.SiteCode === this.props.item && (this.state.comments.length === 0 || this.state.comments === "noData"))
           this.setState({comments: data.Data});
         }
         else {
@@ -993,7 +1384,7 @@ handleJustProvided(){
       .then(response => response.json())
       .then(data => {
         if (data.Data.length > 0) {
-          if(data.Data[0]?.SiteCode === this.props.item && this.state.documents.length === 0)
+          if(data.Data[0]?.SiteCode === this.props.item && (this.state.documents.length === 0 || this.state.documents === "noData"))
           this.setState({documents: data.Data});
         }
         else {
@@ -1003,9 +1394,36 @@ handleJustProvided(){
     }
   }
 
+  loadFields(){
+    if (this.isVisible() && (this.state.fields.SiteCode !== this.props.item)){
+      this.dl.fetch(ConfigData.SITEDETAIL_GET+"?siteCode="+this.props.item)
+      .then(response => response.json())
+      .then(data =>{
+        if(data.Data.SiteCode === this.props.item && Object.keys(this.state.data).length === 0) {
+          this.setState({fields: data.Data})
+        }
+      });
+    }
+    if(this.isVisible() && this.state.regions.length === 0){
+      this.dl.fetch(ConfigData.BIOREGIONS_GET)
+      .then(response => response.json())
+      .then(data => {
+        this.setState({regions: data.Data});
+      });
+    }
+  
+    if(this.isVisible() && this.state.types.length === 0){
+      this.dl.fetch(ConfigData.SITETYPES_GET)
+      .then(response => response.json())
+      .then(data => {
+        this.setState({types: data.Data});
+      });
+    }
+  }
+
   acceptChangesModal(clean) {
     if(clean) {
-      this.cleanUnsavedChanges(3);
+      this.cleanUnsavedChanges();
     }
     this.props.updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", () => this.acceptChanges(), "Cancel", () => {});
   }
@@ -1014,12 +1432,14 @@ handleJustProvided(){
     this.props.accept()
     .then((data) => {
       if(data?.ok)
-        this.close(true);
+        this.setState({data: {}, fields:{}, loading: true});
     });
   }
 
-  rejectChangesModal() {
-    this.cleanUnsavedChanges(3);
+  rejectChangesModal(clean) {
+    if(clean) {
+      this.cleanUnsavedChanges();
+    }
     this.props.updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", () => this.rejectChanges(), "Cancel", () => {});
   }
 
@@ -1027,12 +1447,14 @@ handleJustProvided(){
     this.props.reject()
     .then(data => {
         if(data?.ok)
-          this.close(true);
+          this.setState({data: {}, fields:{}, loading: true});
     });
   }
 
-  backToPendingModal() {
-    this.cleanUnsavedChanges(3);
+  backToPendingModal(clean) {
+    if(clean) {
+      this.cleanUnsavedChanges();
+    }
     this.props.updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", () => this.setBackToPending(), "Cancel", () => {});
   }
 
@@ -1040,26 +1462,10 @@ handleJustProvided(){
     this.props.backToPending()
     .then((data) => {
       if(data?.ok)
-        this.close(true);
+        this.setState({data: {}, fields:{}, loading: true});
     });
   }
 
-  switchMarkChanges(){
-    this.props.mark()
-    .then(data => {
-      if(data?.ok)
-      this.close(false);
-    });
-  }
-
-  switchProvideJustification(){
-    this.props.switchProvideJustification()
-    .then(data => {
-      if(data?.ok)
-      this.close(false);
-    });
-  }
-    
   sendRequest(url,method,body,path){
     const options = {
       method: method,
