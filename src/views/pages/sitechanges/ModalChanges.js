@@ -79,6 +79,7 @@ export class ModalChanges extends Component {
       isSelected: false,
       notValidComment: "",
       notValidDocument: "",
+      errorLoading: false,
       fields: {},
       notValidField: [],
       fieldChanged: false,
@@ -1304,9 +1305,14 @@ export class ModalChanges extends Component {
       this.loadFields();
     }
 
-    let contents = this.state.loading
-      ? <div className="loading-container"><em>Loading...</em></div>
-      : this.renderModal();
+    let contents = this.state.loading ?
+      <div className="loading-container"><em>Loading...</em></div>
+      : (this.state.errorLoading ?
+        <>
+          <CCloseButton onClick={()=>this.closeModal()}/>
+          <div className="loading-container"><CAlert color="danger">Error: Loading data failed!</CAlert></div>
+        </>
+        : this.renderModal());
 
     return (
       <>
@@ -1345,8 +1351,15 @@ export class ModalChanges extends Component {
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
       this.isLoadingData = true;
       this.dl.fetch(ConfigData.SITECHANGES_DETAIL+`siteCode=${this.props.item}&version=${this.props.version}`)
-      .then(response => response.json())
+      .then(response => {
+        if(response.status === 200)
+          return response.json();
+        else
+          return this.setState({errorLoading: true, loading: false});
+      })
       .then(data => {
+        if(!data.Success)
+          this.setState({errorLoading: true});
         if(data.Success && data.Data.SiteCode === this.props.item && Object.keys(this.state.data).length === 0) {
           this.setState({data: data.Data, loading: false, justificationRequired: data.Data?.JustificationRequired, justificationProvided: data.Data?.JustificationProvided, activeKey: this.props.activeKey ? this.props.activeKey : this.state.activeKey})
         }
@@ -1358,8 +1371,15 @@ export class ModalChanges extends Component {
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
       this.isLoadingComments = true;
       this.dl.fetch(ConfigData.GET_SITE_COMMENTS+`siteCode=${this.props.item}&version=${this.props.version}`)
-      .then(response => response.json())
+      .then(response => {
+        if(response.status === 200)
+          return response.json();
+        else
+          return this.setState({errorLoading: true, loading: false});
+      })
       .then(data => {
+        if(!data.Success)
+          this.setState({errorLoading: true});
         if (data.Success && data.Data.length > 0) {
           if(data.Data[0]?.SiteCode === this.props.item && (this.state.comments.length === 0 || this.state.comments === "noData"))
           this.setState({comments: data.Data});
@@ -1376,9 +1396,16 @@ export class ModalChanges extends Component {
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
       this.isLoadingDocuments = true;
       this.dl.fetch(ConfigData.GET_ATTACHED_FILES+`siteCode=${this.props.item}&version=${this.props.version}`)
-      .then(response => response.json())
+      .then(response => {
+        if(response.status === 200)
+          return response.json();
+        else
+          return this.setState({errorLoading: true, loading: false});
+      })
       .then(data => {
         this.isLoadingDocuments = false;
+        if(!data.Success)
+          this.setState({errorLoading: true});
         if (data.Success && data.Data.length > 0) {
           if(data.Data[0]?.SiteCode === this.props.item && (this.state.documents.length === 0 || this.state.documents === "noData"))
           this.setState({documents: data.Data});
@@ -1394,8 +1421,15 @@ export class ModalChanges extends Component {
     if (this.isVisible() && (this.state.fields.SiteCode !== this.props.item)){
       this.isLoadingFields = true;
       this.dl.fetch(ConfigData.SITEDETAIL_GET+"?siteCode="+this.props.item)
-      .then(response => response.json())
+      .then(response => {
+        if(response.status === 200)
+          return response.json();
+        else
+          return this.setState({errorLoading: true, loading: false});
+      })
       .then(data =>{
+        if(!data.Success)
+          this.setState({errorLoading: true});
         if(data.Success && data.Data.SiteCode === this.props.item && Object.keys(this.state.data).length === 0) {
           this.setState({fields: data.Data})
         }
@@ -1404,8 +1438,15 @@ export class ModalChanges extends Component {
     if(this.isVisible() && this.state.regions.length === 0){
       this.isLoadingFields = true;
       this.dl.fetch(ConfigData.BIOREGIONS_GET)
-      .then(response => response.json())
+      .then(response => {
+        if(response.status === 200)
+          return response.json();
+        else
+          return this.setState({errorLoading: true, loading: false});
+      })
       .then(data => {
+        if(!data.Success)
+          this.setState({errorLoading: true});
         this.setState({regions: data.Data});
       });
     }
@@ -1413,8 +1454,15 @@ export class ModalChanges extends Component {
     if(this.isVisible() && this.state.types.length === 0){
       this.isLoadingFields = true;
       this.dl.fetch(ConfigData.SITETYPES_GET)
-      .then(response => response.json())
+      .then(response => {
+        if(response.status === 200)
+          return response.json();
+        else
+          return this.setState({errorLoading: true, loading: false});
+      })
       .then(data => {
+        if(!data.Success)
+          this.setState({errorLoading: true});
         this.setState({types: data.Data});
       });
     }
