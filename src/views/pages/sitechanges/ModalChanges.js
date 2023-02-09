@@ -1309,8 +1309,12 @@ export class ModalChanges extends Component {
       <div className="loading-container"><em>Loading...</em></div>
       : (this.state.errorLoading ?
         <>
-          <CCloseButton onClick={()=>this.closeModal()}/>
-          <div className="loading-container"><CAlert color="danger">Error: Loading data failed!</CAlert></div>
+          <CModalHeader closeButton={false}>
+            <CCloseButton onClick={()=>this.closeModal()}/>
+          </CModalHeader>
+          <CModalBody>
+            <div className="loading-container"><CAlert color="danger">Error: Loading data failed!</CAlert></div>
+          </CModalBody>
         </>
         : this.renderModal());
 
