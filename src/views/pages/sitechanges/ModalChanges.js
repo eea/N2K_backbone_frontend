@@ -779,10 +779,9 @@ export class ModalChanges extends Component {
       <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 4}>
         <CRow className="py-3">
           <CCol className="mb-3" xs={12} lg={6}>
-            {this.errorLoadingDocuments &&
+            {this.errorLoadingDocuments ?
               <CAlert color="danger">Error loading documents</CAlert>
-            }
-            {!this.errorLoadingDocuments &&
+              :
               <CCard className="document--list">
                 {this.state.notValidDocument &&
                   <CAlert color="danger">
@@ -798,10 +797,9 @@ export class ModalChanges extends Component {
             }
           </CCol>
           <CCol className="mb-3" xs={12} lg={6}>
-            {this.errorLoadingComments &&
+            {this.errorLoadingComments ?
               <CAlert color="danger">Error loading comments</CAlert>
-            }
-            {!this.errorLoadingComments &&
+              :
               <CCard className="comment--list">
                 {this.state.notValidComment &&
                   <CAlert color="danger">
@@ -843,7 +841,9 @@ export class ModalChanges extends Component {
     return(
       this.state.errorLoading ?
       <>
-        <CAlert color="danger">Error loading data</CAlert>
+        <div className="loading-container">
+          <CAlert color="danger">Error loading data</CAlert>
+        </div>
       </>
       :
       <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 2}>
@@ -876,12 +876,12 @@ export class ModalChanges extends Component {
                   {this.state.notValidField}
                 </CAlert>
               }
-              {this.errorLoadingFields &&
+              {this.errorLoadingFields ?
                 <>
                   <CAlert color="danger">Error loading fields data</CAlert>
                 </>
+                : this.createFieldElement()
               }
-              {!this.errorLoadingFields && this.createFieldElement()}
             </CRow>
           </CForm>
         }
