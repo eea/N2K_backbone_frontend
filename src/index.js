@@ -6,10 +6,13 @@ import App from './App'
 import * as serviceWorker from './serviceWorker'
 import { Provider } from 'react-redux'
 import store from './store'
+import { EULogin } from './components/EULogin'
+
+//let euLogin = new(EULogin);
 
 ReactDOM.render(
   <Provider store={store}>
-    <App isLoggedIn={true}/>
+    <App isLoggedIn={EULogin.userIsLoaded()}/>
   </Provider>,
   document.getElementById('root'),
 )
