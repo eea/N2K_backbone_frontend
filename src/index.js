@@ -8,8 +8,6 @@ import { Provider } from 'react-redux'
 import store from './store'
 import { EULogin } from './components/EULogin'
 
-//let euLogin = new(EULogin);
-
 ReactDOM.render(
   <Provider store={store}>
     <App isLoggedIn={EULogin.userIsLoaded()}/>

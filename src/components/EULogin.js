@@ -24,6 +24,7 @@ export class EULogin {
     }
 
     static userIsLoaded(){
+        if (document.location.href.includes("localhost")) return true;
         return sessionStorage.getItem("token")?true:false;
     }
 
