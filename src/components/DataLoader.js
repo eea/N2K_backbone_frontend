@@ -1,10 +1,17 @@
 import ConfigData from '../config.json';
 
 export class DataLoader {
+    constructor(){
+        this.token = sessionStorage.getItem("token");
+        if (!this.token){
+            this.token = ConfigData.token;
+        } 
+    }
+
     fetch(url, parms) {
         
         const options = parms?.headers?parms:{headers:{}};
-        options.headers['Authorization'] = 'Bearer '+ConfigData.token;
+        options.headers['Authorization'] = 'Bearer '+this.token;
 
         if(parms && parms.method)
             options['method'] = parms.method;
@@ -16,7 +23,7 @@ export class DataLoader {
         return new Promise((resolve,reject) =>{
             const request = new XMLHttpRequest();
             request.open("POST", url, true);
-            request.setRequestHeader('Authorization', 'Bearer ' + ConfigData.token);
+            request.setRequestHeader('Authorization', 'Bearer ' + this.token);
             request.onload = (oEvent) => {
                 if (request.status >= 200 && request.status < 300) {
                 resolve(JSON.parse(request.response));

@@ -61,5 +61,7 @@
     "Grey": "#e4e4e4",
     "Green": "#daf5d6",
     "Red": "#f6cbcf"
-  }
+  },
+  "EULoginServiceUrl": "https://n2kbackboneback-dev.azurewebsites.net/api/",
+  "EULogoutURL": "https://ecas.acceptance.ec.europa.eu/cas/oauth2/logout"
 }

@@ -1,5 +1,6 @@
 import React from 'react'
 import { AppFooter, AppHeader } from '../../components/index'
+import { EULogin } from 'src/components/EULogin'
 
 import {
   CContainer,
@@ -9,6 +10,13 @@ import {
 } from '@coreui/react'
 
 const Home = (props) => {
+  let euLogin = new (EULogin);
+  
+  let login = ()=>{
+    euLogin.generateCodeVerifier();
+    euLogin.generateLoginUrl().then(a=>location.href =a);
+  }
+
   return (
     <div className="container--main min-vh-100">
       <AppHeader isLoggedIn={props.isLoggedIn}/>
@@ -22,7 +30,7 @@ const Home = (props) => {
                   <p>
                     Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
                   </p>
-                  <CButton color="secondary" href="/#/">
+                  <CButton color="secondary" href="/#/" onClick={()=>login()}>
                     <i className="fa-solid fa-arrow-right-to-bracket me-2"></i>Log In
                   </CButton>
                 </div>
