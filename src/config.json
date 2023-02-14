@@ -63,6 +63,5 @@
     "Red": "#f6cbcf"
   },
   "EULoginServiceUrl": "https://n2kbackboneback-dev.azurewebsites.net/api/",
-  "EULoginRedirectionURL": "http%3A%23%23%23%23bm2-141.bilbomatica.es%3A3000",
   "EULogoutURL": "https://ecas.acceptance.ec.europa.eu/cas/oauth2/logout"
 }

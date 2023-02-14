@@ -54,9 +54,9 @@ export class EULogin {
 
     generateLoginUrl() {	
         var codeChallenge= this.base64URL(CryptoJS.SHA256(this.codeVerifier));
-        console.log(codeChallenge)
+        let redirectionUrl = encodeURIComponent(document.location.origin.replace(/\//g, "##"));
         var cUrl=   ConfigData.EULoginServiceUrl +  "EULogin/GetLoginUrlByCodeChallenge/redirectionUrl=" + 
-                    ConfigData.EULoginRedirectionURL +"&code_challenge=" +  codeChallenge;
+                    redirectionUrl +"&code_challenge=" +  codeChallenge;
         
         return this.dl.fetch(cUrl)
         .then(response => response.json())
@@ -66,12 +66,14 @@ export class EULogin {
                 return a.Data;
             })
         .catch((error) => {
-                console.log(error)});
+                console.log(error)
+            });
     }
 
     createToken() {
+        let redirectionUrl = encodeURIComponent(document.location.origin.replace(/\//g, "##"));
         var cUrl =  ConfigData.EULoginServiceUrl + "EULogin/GetToken/redirectionUrl="+ 
-                    ConfigData.EULoginRedirectionURL  + "&code=" +  sessionStorage.getItem("code") + 
+                    redirectionUrl  + "&code=" +  sessionStorage.getItem("code") + 
                     "&code_verifier=" + sessionStorage.getItem("codeVerifier");	
         return this.dl.fetch(cUrl)
         .then(response => response.json())
