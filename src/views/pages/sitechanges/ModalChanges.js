@@ -54,6 +54,15 @@ export class ModalChanges extends Component {
     super(props);
     this.dl = new(DataLoader);
 
+    this.isLoadingFields = false;
+    this.isLoadingData = false;
+    this.isLoadingComments = false;
+    this.isLoadingDocuments = false;
+
+    this.errorLoadingFields = false;
+    this.errorLoadingComments = false;
+    this.errorLoadingDocuments = false;
+
     this.state = {
       activeKey: 1,
       loading: true,
@@ -74,6 +83,7 @@ export class ModalChanges extends Component {
       isSelected: false,
       notValidComment: "",
       notValidDocument: "",
+      errorLoading: false,
       fields: {},
       notValidField: [],
       fieldChanged: false,
@@ -771,32 +781,40 @@ export class ModalChanges extends Component {
       <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 4}>
         <CRow className="py-3">
           <CCol className="mb-3" xs={12} lg={6}>
-            <CCard className="document--list">
-              {this.state.notValidDocument &&
-                <CAlert color="danger">
-                  {this.state.notValidDocument}
-                </CAlert>
-              }
-              <div className="d-flex justify-content-between align-items-center pb-2">
-                <b>Attached documents</b>
-                <CButton color="link" className="btn-link--dark" onClick={() => this.addNewDocument()}>Add Document</CButton>
-              </div>
-              {this.renderDocuments()}
-            </CCard>
+            {this.errorLoadingDocuments ?
+              <CAlert color="danger">Error loading documents</CAlert>
+              :
+              <CCard className="document--list">
+                {this.state.notValidDocument &&
+                  <CAlert color="danger">
+                    {this.state.notValidDocument}
+                  </CAlert>
+                }
+                <div className="d-flex justify-content-between align-items-center pb-2">
+                  <b>Attached documents</b>
+                  <CButton color="link" className="btn-link--dark" onClick={() => this.addNewDocument()}>Add Document</CButton>
+                </div>
+                {this.renderDocuments()}
+              </CCard>
+            }
           </CCol>
           <CCol className="mb-3" xs={12} lg={6}>
-            <CCard className="comment--list">
-              {this.state.notValidComment &&
-                <CAlert color="danger">
-                  {this.state.notValidComment}
-                </CAlert>
-              }
-              <div className="d-flex justify-content-between align-items-center pb-2">
-                <b>Comments</b>
-                <CButton color="link" className="btn-link--dark" onClick={() => this.addNewComment()}>Add Comment</CButton>
-              </div>
-              {this.renderComments()}
-            </CCard>
+            {this.errorLoadingComments ?
+              <CAlert color="danger">Error loading comments</CAlert>
+              :
+              <CCard className="comment--list">
+                {this.state.notValidComment &&
+                  <CAlert color="danger">
+                    {this.state.notValidComment}
+                  </CAlert>
+                }
+                <div className="d-flex justify-content-between align-items-center pb-2">
+                  <b>Comments</b>
+                  <CButton color="link" className="btn-link--dark" onClick={() => this.addNewComment()}>Add Comment</CButton>
+                </div>
+                {this.renderComments()}
+              </CCard>
+            }
           </CCol>
           <CCol className="d-flex">
             <div className="checkbox">
@@ -823,10 +841,22 @@ export class ModalChanges extends Component {
 
   renderGeometry(){
     return(
+      this.state.errorLoading ?
+      <>
+        <div className="loading-container">
+          <CAlert color="danger">Error loading data</CAlert>
+        </div>
+      </>
+      :
       <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 2}>
-        <CRow >
-          <MapViewer siteCode={this.props.item} version={this.props.version}/>
-        </CRow>
+        {this.state.errorLoading &&
+          <CAlert color="danger">Error loading data</CAlert>
+        }
+        {!this.state.errorLoading &&
+          <CRow >
+            <MapViewer siteCode={this.props.item} version={this.props.version}/>
+          </CRow>
+        }
       </CTabPane>
     )
   }
@@ -848,7 +878,12 @@ export class ModalChanges extends Component {
                   {this.state.notValidField}
                 </CAlert>
               }
-              {this.createFieldElement()}
+              {this.errorLoadingFields ?
+                <>
+                  <CAlert color="danger">Error loading fields data</CAlert>
+                </>
+                : this.createFieldElement()
+              }
             </CRow>
           </CForm>
         }
@@ -1194,6 +1229,18 @@ export class ModalChanges extends Component {
   renderModal() {
     let data = this.state.data;
     return(
+      this.state.errorLoading ?
+      <>
+        <CModalHeader closeButton={false}>
+          <CCloseButton onClick={()=>this.closeModal()}/>
+        </CModalHeader>
+        <CModalBody>
+          <div className="loading-container">
+            <CAlert color="danger">Error loading site data</CAlert>
+          </div>
+        </CModalBody>
+      </>
+      :
       <>
         <CModalHeader closeButton={false}>
           <CModalTitle>
@@ -1310,13 +1357,21 @@ export class ModalChanges extends Component {
   }
 
   renderData(){
-    this.loadData();
-    this.loadComments();
-    this.loadDocuments();
-    this.loadFields();
+    if(!this.isLoadingData) {
+      this.loadData();
+    }
+    if(!this.isLoadingComments) {
+      this.loadComments();
+    }
+    if(!this.isLoadingDocuments) {
+      this.loadDocuments();
+    }
+    if(!this.isLoadingFields) {
+      this.loadFields();
+    }
 
-    let contents = this.state.loading
-      ? <div className="loading-container"><em>Loading...</em></div>
+    let contents = this.state.loading ?
+      <div className="loading-container"><em>Loading...</em></div>
       : this.renderModal();
 
     return (
@@ -1354,24 +1409,40 @@ export class ModalChanges extends Component {
 
   loadData(){
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
+      this.isLoadingData = true;
       this.dl.fetch(ConfigData.SITECHANGES_DETAIL+`siteCode=${this.props.item}&version=${this.props.version}`)
-      .then(response => response.json())
+      .then(response => {
+        if(response.status === 200)
+          return response.json();
+        else
+          return this.setState({errorLoading: true, loading: false});
+      })
       .then(data => {
-        if(data.Data.SiteCode === this.props.item && Object.keys(this.state.data).length === 0) {
+        if(!data.Success)
+          this.setState({errorLoading: true, loading: false});
+        else(data.Data.SiteCode === this.props.item && Object.keys(this.state.data).length === 0)
           this.setState({data: data.Data, loading: false, justificationRequired: data.Data?.JustificationRequired, justificationProvided: data.Data?.JustificationProvided, activeKey: this.props.activeKey ? this.props.activeKey : this.state.activeKey})
-        }
       });
     }
   }
 
   loadComments(){
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
+      this.isLoadingComments = true;
       this.dl.fetch(ConfigData.GET_SITE_COMMENTS+`siteCode=${this.props.item}&version=${this.props.version}`)
-      .then(response => response.json())
+      .then(response => {
+        if(response.status === 200)
+          return response.json();
+        else {
+          this.errorLoadingComments = true;
+        }
+      })
       .then(data => {
-        if (data.Data.length > 0) {
+        if(!data.Success)
+          this.errorLoadingComments = true;
+        else if(data.Data.length > 0) {
           if(data.Data[0]?.SiteCode === this.props.item && (this.state.comments.length === 0 || this.state.comments === "noData"))
-          this.setState({comments: data.Data});
+            this.setState({comments: data.Data});
         }
         else {
           this.setState({comments: "noData"});
@@ -1382,10 +1453,18 @@ export class ModalChanges extends Component {
 
   loadDocuments(){
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
+      this.isLoadingDocuments = true;
       this.dl.fetch(ConfigData.GET_ATTACHED_FILES+`siteCode=${this.props.item}&version=${this.props.version}`)
-      .then(response => response.json())
+      .then(response => {
+        if(response.status === 200)
+          return response.json();
+        else
+          return this.errorLoadingDocuments = true;
+      })
       .then(data => {
-        if (data.Data.length > 0) {
+        if(!data.Success)
+          this.errorLoadingDocuments = true;
+        else if (data.Data.length > 0) {
           if(data.Data[0]?.SiteCode === this.props.item && (this.state.documents.length === 0 || this.state.documents === "noData"))
           this.setState({documents: data.Data});
         }
@@ -1398,35 +1477,71 @@ export class ModalChanges extends Component {
 
   loadFields(){
     if (this.isVisible() && (this.state.fields.SiteCode !== this.props.item)){
+      this.isLoadingFields = true;
       this.dl.fetch(ConfigData.SITEDETAIL_GET+"?siteCode="+this.props.item)
-      .then(response => response.json())
-      .then(data =>{
-        if(data.Data.SiteCode === this.props.item && Object.keys(this.state.data).length === 0) {
-          this.setState({fields: data.Data})
+      .then(response => {
+        if(response.status === 200)
+          return response.json();
+        else {
+          this.errorLoadingFields = true;
         }
+      })
+      .then(data =>{
+        if(!data.Success)
+          this.errorLoadingFields = true;
+        else(data.Data.SiteCode === this.props.item && Object.keys(this.state.data).length === 0)
+          this.setState({fields: data.Data});
       });
     }
     if(this.isVisible() && this.state.regions.length === 0){
+      this.isLoadingFields = true;
       this.dl.fetch(ConfigData.BIOREGIONS_GET)
-      .then(response => response.json())
+      .then(response => {
+        if(response.status === 200)
+          return response.json();
+        else {
+          this.errorLoadingFields = true;
+        }
+      })
       .then(data => {
-        this.setState({regions: data.Data});
+        if(!data.Success)
+          this.errorLoadingFields = true;
+        else
+          this.setState({regions: data.Data});
       });
     }
   
     if(this.isVisible() && this.state.types.length === 0){
+      this.isLoadingFields = true;
       this.dl.fetch(ConfigData.SITETYPES_GET)
-      .then(response => response.json())
+      .then(response => {
+        if(response.status === 200)
+          return response.json();
+        else {
+          this.errorLoadingFields = true;
+        }
+      })
       .then(data => {
-        this.setState({types: data.Data});
+        if(!data.Success)
+          this.errorLoadingFields = true;
+        else
+          this.setState({types: data.Data});
       });
     }
+  }
+
+  resetLoading() {
+    this.isLoadingComments = false;
+    this.isLoadingDocuments = false;
+    this.isLoadingData = false;
+    this.isLoadingFields = false;
   }
 
   acceptChangesModal(clean) {
     if(clean) {
       this.cleanUnsavedChanges();
     }
+    this.resetLoading();
     this.props.updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", () => this.acceptChanges(), "Cancel", () => {});
   }
 
@@ -1442,6 +1557,7 @@ export class ModalChanges extends Component {
     if(clean) {
       this.cleanUnsavedChanges();
     }
+    this.resetLoading();
     this.props.updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", () => this.rejectChanges(), "Cancel", () => {});
   }
 
@@ -1457,6 +1573,7 @@ export class ModalChanges extends Component {
     if(clean) {
       this.cleanUnsavedChanges();
     }
+    this.resetLoading();
     this.props.updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", () => this.setBackToPending(), "Cancel", () => {});
   }
 
