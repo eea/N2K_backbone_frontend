@@ -1233,7 +1233,9 @@ export class ModalChanges extends Component {
           <CCloseButton onClick={()=>this.closeModal()}/>
         </CModalHeader>
         <CModalBody>
-          <CAlert color="danger">Error loading site data</CAlert>
+          <div className="loading-container">
+            <CAlert color="danger">Error loading site data</CAlert>
+          </div>
         </CModalBody>
       </>
       :
