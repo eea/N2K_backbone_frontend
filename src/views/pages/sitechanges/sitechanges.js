@@ -55,7 +55,7 @@ const Sitechanges = () => {
   const [siteCodes, setSitecodes] = useState({});
   const [searchList, setSearchList] = useState({});
   const [selectOption, setSelectOption] = useState({});
-  const [showModal, setShowhowModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [updatingData, setUpdatingData] = useState(false);
   const turnstoneRef = useRef();
 
@@ -85,10 +85,10 @@ const Sitechanges = () => {
 
   let showModalSitechanges = (data) => {
     if (data) {
-      setShowhowModal(data);
+      setShowModal(data);
     }
     else {
-      setShowhowModal();
+      setShowModal();
     }
   }
 
@@ -114,6 +114,8 @@ const Sitechanges = () => {
   };
 
   let closeModal = () => {
+    setShowModal(false);
+    clearSearch();
     forceRefreshData();
     setForceRefresh(forceRefresh+1);
   }
