@@ -95,12 +95,17 @@ export class EULogin {
     }
 
     static logout() {
+        let redirectionUrl = document.location.origin;
+        
+        var cUrl =  ConfigData.EULogoutURL + "?id_token_hint=" + sessionStorage.getItem("token") + 
+                    "&state=loggout&post_logout_redirect_uri=" + redirectionUrl
+
         if(sessionStorage.getItem("code")) sessionStorage.removeItem("code");
         if(sessionStorage.getItem("codeVerifier")) sessionStorage.removeItem("codeVerifier");
         if(sessionStorage.getItem("loginUrl")) sessionStorage.removeItem("loginUrl");
         if(sessionStorage.getItem("token")) sessionStorage.removeItem("token")
-
-		document.location.reload();
+		location.href = cUrl;				
+		//document.location.reload();
     }
 }
 
