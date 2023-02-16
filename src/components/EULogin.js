@@ -23,6 +23,13 @@ export class EULogin {
         }
     }
 
+    static tokenDecode(token){
+        return JSON.parse(
+                decodeURIComponent(window.atob(token.split('.')[1].replace('-', '+').replace('_', '/')).split('')
+                .map(c => `%${('00' + c.charCodeAt(0).toString(16)).slice(-2)}`).join(''))
+            );
+    }
+
     static userIsLoaded(){
         if (document.location.href.includes("localhost")) return true;
         return sessionStorage.getItem("token")?true:false;
@@ -83,18 +90,8 @@ export class EULogin {
         .catch(e=>console.log(error));
     }
 
-    username() {
-        console.log("hola");
-        var cUrl =ConfigData.EULoginServiceUrl + "EULogin/Getusername/token=" +  sessionStorage.getItem("token");
-        console.log(cUrl);
-        return this.dl.fetch(cUrl)
-        .then(response => response.json())
-        .then(a => console.log(a))
-        .catch(
-            e => {
-                console.log(e);
-            }
-        )
+    static getUserName() {
+        return EULogin.tokenDecode(sessionStorage.getItem('token')).email;
     }
 
     static logout() {
