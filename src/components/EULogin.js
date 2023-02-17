@@ -78,20 +78,33 @@ export class EULogin {
     }
 
     createToken() {
-        let redirectionUrl = encodeURIComponent(document.location.origin.replace(/\//g, "##"));
+        /*let redirectionUrl = encodeURIComponent(document.location.origin.replace(/\//g, "##"));
         var cUrl =  ConfigData.EULoginServiceUrl + "EULogin/GetToken/redirectionUrl="+ 
                     redirectionUrl  + "&code=" +  sessionStorage.getItem("code") + 
-                    "&code_verifier=" + sessionStorage.getItem("codeVerifier");	
-        return this.dl.fetch(cUrl)
+                    "&code_verifier=" + sessionStorage.getItem("codeVerifier");	*/
+        var cUrl =  ConfigData.EULoginServiceUrl + "EULogin/GetToken";
+        const options = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                "RedirectionUrl": document.location.origin,
+                "Code": sessionStorage.getItem("code"),
+                "Code_Verifier": sessionStorage.getItem("codeVerifier")
+            }),
+        };
+
+        return this.dl.fetch(cUrl,options)
         .then(response => response.json())
         .then((a) => {
             sessionStorage.setItem("token",a.Data);
         })
-        .catch(e=>console.log(error));
+        .catch(e=>console.log(e));
     }
 
     static getUserName() {
-        return EULogin.tokenDecode(sessionStorage.getItem('token')).email;
+        return sessionStorage.getItem('token')?EULogin.tokenDecode(sessionStorage.getItem('token')).email:"";
     }
 
     static logout() {
