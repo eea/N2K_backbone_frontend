@@ -12,7 +12,8 @@ import {
 const Home = (props) => {
   let euLogin = new (EULogin);
   
-  let login = ()=>{
+  let login = (e)=>{
+    e.preventDefault();
     euLogin.generateCodeVerifier();
     euLogin.generateLoginUrl().then(a=>location.href =a);
   }
@@ -30,7 +31,7 @@ const Home = (props) => {
                   <p>
                     Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
                   </p>
-                  <CButton color="secondary" href="/#/" onClick={()=>login()}>
+                  <CButton color="secondary" href="/#/" onClick={(e)=>login(e)}>
                     <i className="fa-solid fa-arrow-right-to-bracket me-2"></i>Log In
                   </CButton>
                 </div>
