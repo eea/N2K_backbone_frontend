@@ -23,6 +23,13 @@ export class EULogin {
         }
     }
 
+    static tokenDecode(token){
+        return JSON.parse(
+                decodeURIComponent(window.atob(token.split('.')[1].replace('-', '+').replace('_', '/')).split('')
+                .map(c => `%${('00' + c.charCodeAt(0).toString(16)).slice(-2)}`).join(''))
+            );
+    }
+
     static userIsLoaded(){
         if (document.location.href.includes("localhost")) return true;
         return sessionStorage.getItem("token")?true:false;
@@ -71,39 +78,47 @@ export class EULogin {
     }
 
     createToken() {
-        let redirectionUrl = encodeURIComponent(document.location.origin.replace(/\//g, "##"));
+        /*let redirectionUrl = encodeURIComponent(document.location.origin.replace(/\//g, "##"));
         var cUrl =  ConfigData.EULoginServiceUrl + "EULogin/GetToken/redirectionUrl="+ 
                     redirectionUrl  + "&code=" +  sessionStorage.getItem("code") + 
-                    "&code_verifier=" + sessionStorage.getItem("codeVerifier");	
-        return this.dl.fetch(cUrl)
+                    "&code_verifier=" + sessionStorage.getItem("codeVerifier");	*/
+        var cUrl =  ConfigData.EULoginServiceUrl + "EULogin/GetToken";
+        const options = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                "RedirectionUrl": document.location.origin,
+                "Code": sessionStorage.getItem("code"),
+                "Code_Verifier": sessionStorage.getItem("codeVerifier")
+            }),
+        };
+
+        return this.dl.fetch(cUrl,options)
         .then(response => response.json())
         .then((a) => {
             sessionStorage.setItem("token",a.Data);
         })
-        .catch(e=>console.log(error));
+        .catch(e=>console.log(e));
     }
 
-    username() {
-        console.log("hola");
-        var cUrl =ConfigData.EULoginServiceUrl + "EULogin/Getusername/token=" +  sessionStorage.getItem("token");
-        console.log(cUrl);
-        return this.dl.fetch(cUrl)
-        .then(response => response.json())
-        .then(a => console.log(a))
-        .catch(
-            e => {
-                console.log(e);
-            }
-        )
+    static getUserName() {
+        return sessionStorage.getItem('token')?EULogin.tokenDecode(sessionStorage.getItem('token')).email:"";
     }
 
     static logout() {
+        let redirectionUrl = document.location.origin;
+        
+        var cUrl =  ConfigData.EULogoutURL + "?id_token_hint=" + sessionStorage.getItem("token") + 
+                    "&state=loggout&post_logout_redirect_uri=" + redirectionUrl
+
         if(sessionStorage.getItem("code")) sessionStorage.removeItem("code");
         if(sessionStorage.getItem("codeVerifier")) sessionStorage.removeItem("codeVerifier");
         if(sessionStorage.getItem("loginUrl")) sessionStorage.removeItem("loginUrl");
         if(sessionStorage.getItem("token")) sessionStorage.removeItem("token")
-
-		document.location.reload();
+		location.href = cUrl;				
+		//document.location.reload();
     }
 }
 

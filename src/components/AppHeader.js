@@ -17,9 +17,9 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import { EULogin } from './EULogin';
 
 const AppHeader = (props) => {
-  const logout = function(){
-    EULogin.logout();
-  }
+  const logout = () => EULogin.logout();
+  const getUser = () => EULogin.getUserName();
+
   return (
     <CHeader className='header--custom'>
       <CRow className='align-items-center'>
@@ -71,7 +71,7 @@ const AppHeader = (props) => {
                     </CAvatar>
                   </CDropdownToggle>
                   <CDropdownMenu>
-                    <CDropdownItemPlain><i className="fa-solid fa-user"></i>User</CDropdownItemPlain>
+                    <CDropdownItemPlain><i className="fa-solid fa-user"></i>{getUser()}</CDropdownItemPlain>
                     <CDropdownDivider />
                     <CDropdownItem href="/#/" onClick={()=>logout()}><i className="fa-solid fa-arrow-right-from-bracket"></i>Log Out</CDropdownItem>
                   </CDropdownMenu>
