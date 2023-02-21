@@ -150,7 +150,6 @@ const Harvesting = () => {
       updating: true,
       harvesting: true,
     }));
-    console.log(updatingData)
   }
 
   async function discardHandler(values) {
