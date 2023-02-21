@@ -17,6 +17,16 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import { EULogin } from './EULogin';
 
 const AppHeader = (props) => {
+
+  if(EULogin.userIsLoaded()){
+    let url;
+    if(url = sessionStorage.getItem("sharedUrl")){
+      sessionStorage.removeItem("sharedUrl");
+      location.href = url;
+    }
+  }
+    
+
   const logout = (e) => {
                           e.preventDefault();
                           EULogin.logout();
