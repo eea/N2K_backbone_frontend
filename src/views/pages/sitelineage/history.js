@@ -16,6 +16,8 @@ import {
   CCard,
   CFormLabel,
   CFormSelect,
+  CSidebar,
+  CSidebarNav
 } from '@coreui/react'
 
 const defaultCountry = () => {
@@ -87,14 +89,16 @@ const Sitelineage = () => {
       dl.fetch(ConfigData.LINEAGE_GET_SITES+"country="+country)
       .then(response =>response.json())
       .then(data => {
-        if(Object.keys(data.Data).length === 0){
-          setSiteCodes("nodata");
+        if(data.Success) {
+          if(Object.keys(data.Data).length === 0){
+            setSiteCodes("nodata");
+          }
+          else {
+            setSiteCodes(data.Data);
+            setSearchList(getSitesList(data.Data));
+          }
+          setIsLoading(false);
         }
-        else {
-          setSiteCodes(data.Data);
-          setSearchList(getSitesList(data.Data));
-        }
-        setIsLoading(false);
       });
     }
   }
@@ -105,52 +109,52 @@ const Sitelineage = () => {
       dl.fetch(ConfigData.SITEDETAIL_GET+"?siteCode="+siteCode)
       .then(response => response.json())
       .then(data => {
-        if(data.Data.SiteCode === siteCode) {
+        if(data.Success && data.Data.SiteCode === siteCode) {
           setIsLoading(false);
           setSiteData(data.Data);
           let testData = [
             {
               "SiteCode": siteCode,
-              "Version": "V1",
+              "Version": "2019-2020",
               "Antecessors": {
                 "SiteCode": null,
                 "Version": null,
               },
               "Successors": {
                 "SiteCode": siteCode,
-                "Version": "V2",
+                "Version": "2020-2021",
               },
             },
             {
               "SiteCode": siteCode,
-              "Version": "V2",
+              "Version": "2020-2021",
               "Antecessors": {
                 "SiteCode": siteCode,
-                "Version": "V1",
+                "Version": "2019-2020",
               },
               "Successors": {
                 "SiteCode": "AT2208000, AT2209000",
-                "Version": "V2",
+                "Version": "2020-2021",
               },
             },
             {
               "SiteCode": "AT2208000",
-              "Version": "V3",
+              "Version": "2021-2022",
               "Antecessors": {
                 "SiteCode": siteCode,
-                "Version": "V2",
+                "Version": "2020-2021",
               },
               "Successors": {
                 "SiteCode": "AT2208000",
-                "Version": "V4",
+                "Version": "2022-2023",
               },
             },
             {
               "SiteCode": "AT2208000",
-              "Version": "V4",
+              "Version": "2022-2023",
               "Antecessors": {
                 "SiteCode": "AT2208000",
-                "Version": "V3"
+                "Version": "2021-2022"
               },
               "Successors": {
                 "SiteCode": null,
@@ -159,10 +163,10 @@ const Sitelineage = () => {
             },
             {
               "SiteCode": "AT2209000",
-              "Version": "V3",
+              "Version": "2021-2022",
               "Antecessors": {
                 "SiteCode": siteCode,
-                "Version": "V2"
+                "Version": "2020-2021"
               },
               "Successors": {
                 "SiteCode": null,
@@ -179,14 +183,18 @@ const Sitelineage = () => {
   let loadCard = () => {
     let countryName = countries.find(a=>a.code===country).name;
     return (
-      <CCol xs={12} md={6} lg={4} xl={3}>
+      <CCol xs={12} md={6} lg={4} xl={3} className="lineage-container-left">
         <div className="search-card-header">
           <span className="search-card-title">{siteData.SiteName}</span>
         </div>
-        <div className="mb-2"><b>{siteCode}</b> | {countryName}</div>
+        <div className="mb-2">
+          <b className="me-2">{siteCode}</b> | <span className="ms-2">{countryName}</span>
+        </div>
+        <div className="mb-2">Release Date: 20/02/2020</div>
         <div>
           Area: {siteData.Area} ha
         </div>
+        <CButton color="primary">Review Lineage</CButton>
       </CCol>
     )
   }
@@ -257,7 +265,7 @@ const Sitelineage = () => {
           position: { x: 150, y: 0 },
           sourcePosition: 'right',
           targetPosition: 'left',
-          data: { label: 'V1' },
+          data: { label: '2019-2020' },
           className: 'color-node yellow-node',
           selectable: false,
         },
@@ -265,8 +273,8 @@ const Sitelineage = () => {
           id: '2',
           sourcePosition: 'right',
           targetPosition: 'left',
-          position: { x: 250, y: 0 },
-          data: { label: 'V2' },
+          position: { x: 300, y: 0 },
+          data: { label: '2020-2021' },
           className: 'color-node yellow-node',
           selectable: false,
         },
@@ -274,8 +282,8 @@ const Sitelineage = () => {
           id: '3a',
           sourcePosition: 'right',
           targetPosition: 'left',
-          position: { x: 350, y: -50 },
-          data: { label: 'V3' },
+          position: { x: 450, y: -50 },
+          data: { label: '2021-2022' },
           className: 'color-node green-node',
           selectable: false,
         },
@@ -284,7 +292,7 @@ const Sitelineage = () => {
           sourcePosition: 'right',
           targetPosition: 'left',
           position: { x: 450, y: -50 },
-          data: { label: "V4" },
+          data: { label: "2022-2023" },
           className: 'color-node green-node',
           selectable: false,
         },
@@ -351,7 +359,7 @@ const Sitelineage = () => {
           position: { x: 150, y: 0 },
           sourcePosition: 'right',
           targetPosition: 'left',
-          data: { label: 'V1' },
+          data: { label: '2019-2020' },
           className: 'color-node yellow-node',
           selectable: false,
         },
@@ -359,8 +367,8 @@ const Sitelineage = () => {
           id: '2',
           sourcePosition: 'right',
           targetPosition: 'left',
-          position: { x: 250, y: 0 },
-          data: { label: 'V2' },
+          position: { x: 300, y: 0 },
+          data: { label: '2020-2021' },
           className: 'color-node yellow-node',
           selectable: false,
         },
@@ -369,8 +377,8 @@ const Sitelineage = () => {
           id: '3b',
           sourcePosition: 'right',
           targetPosition: 'left',
-          position: { x: 350, y: 50 },
-          data: { label: 'V3' },
+          position: { x: 450, y: 50 },
+          data: { label: '2021-2022' },
           className: 'color-node green-node',
           selectable: false,
         }
@@ -439,7 +447,7 @@ const Sitelineage = () => {
           position: { x: 150, y: 0 },
           sourcePosition: 'right',
           targetPosition: 'left',
-          data: { label: 'V1' },
+          data: { label: '2019-2020' },
           className: 'color-node green-node',
           selectable: false,
         },
@@ -447,8 +455,8 @@ const Sitelineage = () => {
           id: '2',
           sourcePosition: 'right',
           targetPosition: 'left',
-          position: { x: 250, y: 0 },
-          data: { label: 'V2' },
+          position: { x: 300, y: 0 },
+          data: { label: '2020-2021' },
           className: 'color-node green-node',
           selectable: false,
         },
@@ -456,8 +464,8 @@ const Sitelineage = () => {
           id: '3a',
           sourcePosition: 'right',
           targetPosition: 'left',
-          position: { x: 350, y: -50 },
-          data: { label: 'V3' },
+          position: { x: 450, y: -50 },
+          data: { label: '2021-2022' },
           className: 'color-node yellow-node',
           selectable: false,
         },
@@ -465,8 +473,8 @@ const Sitelineage = () => {
           id: '3b',
           sourcePosition: 'right',
           targetPosition: 'left',
-          position: { x: 350, y: 50 },
-          data: { label: "V3" },
+          position: { x: 450, y: 50 },
+          data: { label: "2021-2022" },
           className: 'color-node yellow-node',
           selectable: false,
         },
@@ -474,8 +482,8 @@ const Sitelineage = () => {
           id: '4a',
           sourcePosition: 'right',
           targetPosition: 'left',
-          position: { x: 450, y: -50 },
-          data: { label: "V4" },
+          position: { x: 600, y: -50 },
+          data: { label: "2022-2023" },
           className: 'color-node yellow-node',
           selectable: false,
         },
@@ -532,7 +540,7 @@ const Sitelineage = () => {
       ];
     }
     return (
-      <CCol xs={12} md={6} lg={8} xl={9}>
+      <CCol xs={12} md={6} lg={8} xl={9} className="lineage-container-right">
         <div className="chart-container" style={{height:"300px"}}>
           <ReactFlow
             nodes={nodes}
@@ -586,11 +594,34 @@ const Sitelineage = () => {
     <div className="container--main min-vh-100">
       <AppHeader page="sitelineage"/>
       <div className="content--wrapper">
+      <CSidebar className="sidebar--light">
+          <CSidebarNav>
+            <li className="nav-title">Site Lineage</li>
+            <li className="nav-item">
+              <a className="nav-link" href="/#/sitelineage/overview">
+                <i className="fa-solid fa-bookmark"></i>
+                Changes Overview
+              </a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link" href="/#/sitelineage/management">
+                <i className="fa-solid fa-bookmark"></i>
+                Changes Management
+              </a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link active" href="/#/sitelineage/history">
+                <i className="fa-solid fa-bookmark"></i>
+                Lineage History
+              </a>
+            </li>
+          </CSidebarNav>
+        </CSidebar>
         <div className="main-content">
           <CContainer fluid>
             <div className="d-flex justify-content-between py-3">
               <div className="page-title">
-                <h1 className="h1">Site Lineage</h1>
+                <h1 className="h1">Lineage History</h1>
               </div>
             </div>
             <CRow>

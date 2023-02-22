@@ -15,10 +15,12 @@ const ReleasesManagement = React.lazy(() => import('./views/pages/releases/manag
 const ReleasesComparer = React.lazy(() => import('./views/pages/releases/comparer'))
 const UnionLists = React.lazy(() => import('./views/pages/releases/unionlists'))
 const SiteEdition = React.lazy(() => import('./views/pages/releases/siteedition'))
-const SiteLineage = React.lazy(() => import('./views/pages/sitelineage/sitelineage'))
+const LineageOverview = React.lazy(() => import('./views/pages/sitelineage/overview'))
+const LineageManagement = React.lazy(() => import('./views/pages/sitelineage/management'))
+const LineageHistory = React.lazy(() => import('./views/pages/sitelineage/history'))
 const ShareSite = React.lazy(() => import('./views/pages/sitechanges/sharesite'))
 const NotFound = React.lazy(() => import('./views/other/notfound'))
-//const NotAuthorized = React.lazy(() => import('./views/other/notauthorized'))
+//const NotAuthorized = React.lazy(() => import('./views/other/notauthorized')) 
 
 const routes = [
   { path: '/', exact: true, name:'Home', component: Home },
@@ -29,7 +31,6 @@ const routes = [
   { path: '/harvesting/processed', exact: true, name: 'Harvesting', component: HarvestingReadPocessed },
   { path: '/harvesting/all', exact: true, name: 'Harvesting', component: HarvestingReadAll },
   { path: '/sitechanges', exact: true, name: 'Sitechanges', component: SiteChanges },
-  { path: '/sitelineage', exact: true, name: 'SiteLineage', component: SiteLineage },
   { path: '/reports/added', exact: true, name: 'Reports', component: ReportsAdded },
   { path: '/reports/deleted', exact: true, name: 'Reports', component: ReportsDeleted },
   { path: '/reports/changes', exact: true, name: 'Reports', component: ReportsChanges },
@@ -37,6 +38,9 @@ const routes = [
   { path: '/releases/comparer', exact: true, name: 'Releases', component: ReleasesComparer },
   { path: '/releases/unionlists', exact: true, name: 'Releases', component: UnionLists },
   { path: '/releases/siteedition', exact: true, name: 'Releases', component: SiteEdition },
+  { path: '/sitelineage/overview', exact: true, name: 'SiteLineage', component: LineageOverview },
+  { path: '/sitelineage/management', exact: true, name: 'SiteLineage', component: LineageManagement },
+  { path: '/sitelineage/history', exact: true, name: 'SiteLineage', component: LineageHistory },
   { path: '/sharesite', exact: true, name: 'Share', component: ShareSite },
   { path: '/*', name: 'Not Found', component: NotFound },
 ]
