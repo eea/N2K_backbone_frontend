@@ -14,8 +14,13 @@ const Home = (props) => {
   
   let login = (e)=>{
     e.preventDefault();
+    if(location.hash.includes("sharesite")) {
+      sessionStorage.setItem("sharedUrl",document.location.href);
+    }
     euLogin.generateCodeVerifier();
-    euLogin.generateLoginUrl().then(a=>location.href =a);
+    euLogin.generateLoginUrl().then(a=>{
+        location.href =a;
+    });
   }
 
   return (
