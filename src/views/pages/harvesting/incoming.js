@@ -33,7 +33,8 @@ const Harvesting = () => {
   });
   const [alertValues, setAlertValues] = useState({
     visible: false,
-    text: ''
+    text: '',
+    color: 'primary'
   });
   const [modalValues, setModalValues] = useState({
     visibility: false,
@@ -85,11 +86,20 @@ const Harvesting = () => {
   }
 
   const showMessage = (text) => {
-    setAlertValues({visible:true, text:text});
-    setTimeout(() => {
-      setAlertValues({visible:false, text:''});
-    }, 4000);
+    setAlertValues({visible:true, text:text, color:'primary'});
+    messageTimeOut();
   };
+
+  const showErrorMessage = (text) => {
+    setAlertValues({visible:true, text:text, color:'danger'})
+    messageTimeOut();
+  }
+
+  const messageTimeOut = () => {
+    setTimeout(() => {
+      setAlertValues({visible:false, text:'', color:'primary'});
+    }, 5000);
+  }
 
   const sendRequest = (url,method,body,path) => {
     const options = {
@@ -123,7 +133,7 @@ const Harvesting = () => {
           showMessage("Envelope successfully discarded");
           setRefreshEnvelopes(true);
         } else {
-          showMessage("Something went wrong");
+          showErrorMessage("Something went wrong");
         }
         setUpdatingData(state => ({
           ...state,

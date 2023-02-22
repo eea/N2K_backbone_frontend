@@ -20,7 +20,8 @@ import {
   CTabPane,
   CSpinner,
   CPopover,
-  CTooltip
+  CTooltip,
+  CAlert
 } from '@coreui/react'
 
 import { ConfirmationModal } from './components/ConfirmationModal';
@@ -57,6 +58,7 @@ const Sitechanges = () => {
   const [selectOption, setSelectOption] = useState({});
   const [showModal, setShowModal] = useState(false);
   const [updatingData, setUpdatingData] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const turnstoneRef = useRef();
 
   let setCodes = (status,data) => {
@@ -90,6 +92,11 @@ const Sitechanges = () => {
     else {
       setShowModal();
     }
+  }
+
+  const showErrorMessage = (message) => {
+    setErrorMessage("Something went wrong: " + message);
+    setTimeout(() => {setErrorMessage('')}, 5000);
   }
 
   let selectedCodes = [],
@@ -151,10 +158,10 @@ const Sitechanges = () => {
             setForceRefresh(forceRefresh+1);
           }
         }else
-          alert("something went wrong!");
+          showErrorMessage("Back To Pending");
         return data;
     }).catch(e => {
-      alert("something went wrong!");
+      showErrorMessage("Back To Pending");
       console.log(e);
     });
   }
@@ -170,10 +177,10 @@ const Sitechanges = () => {
             setForceRefresh(forceRefresh+1);
           }
         }else
-          alert("something went wrong!");
+          showErrorMessage("Accept Changes");
         return data;
     }).catch(e => {
-      alert("something went wrong!");
+      showErrorMessage("Accept Changes");
       console.log(e);
     });
   }
@@ -189,10 +196,10 @@ const Sitechanges = () => {
             setForceRefresh(forceRefresh+1);
           }
         }else
-          alert("something went wrong!");
+          showErrorMessage("Reject Changes");
         return data;
     }).catch(e => {
-      alert("something went wrong!");
+      showErrorMessage("Reject Changes");
       console.log(e);
     });
   }
@@ -211,6 +218,7 @@ const Sitechanges = () => {
           setIsLoading(true);
         }
         else {
+          showErrorMessage("Complete Envelope");
           console.log("Error: " + data.Message);
         }
       })
@@ -237,10 +245,10 @@ const Sitechanges = () => {
         forceRefreshData();
       }
       else 
-        alert("something went wrong!");
+        showErrorMessage("Switch Mark Changes");
       return data;
     }).catch(e => {
-      alert("something went wrong!");
+      showErrorMessage("Switch Mark Changes");
       console.log(e);
     });
   }
@@ -426,6 +434,9 @@ const Sitechanges = () => {
                     }
                   </ul>
                 </div>
+              </div>
+              <div>
+                <CAlert color='danger' visible={errorMessage.length > 0}>{errorMessage}</CAlert>
               </div>
               <div className="d-flex flex-start align-items-center p-3 card-site-level">
                 <div className="me-5"><h2 className="card-site-level-title">Site Level ONLY</h2></div>
