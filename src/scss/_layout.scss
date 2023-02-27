@@ -169,6 +169,23 @@ html {
   }
 }
 
+.lineage-container-left {
+  display: flex;
+  flex-direction: column;
+  border-right: solid 2px #e5e5e5;
+  padding-right: 1rem !important;
+  margin-bottom: 1rem;
+  .btn {
+    margin-top: auto;
+    margin-right: auto;
+  }
+}
+
+.lineage-container-right {
+  padding-left: 1rem !important;
+  margin-bottom: 1rem;
+}
+
 .react-flow {
   .react-flow__minimap, .react-flow__controls {
     margin: 0;
