@@ -61,7 +61,7 @@ const AppHeader = (props) => {
                       </NavLink>
                     </li>
                     <li className="header__item">
-                      <NavLink to="/sitelineage/changes" activeClassName='header-active' isActive={()=>{return props.page.includes('sitelineage')?true:false}}>
+                      <NavLink to="/sitelineage/overview" activeClassName='header-active' isActive={()=>{return props.page.includes('sitelineage')?true:false}}>
                         Site Lineage
                       </NavLink>
                     </li>
