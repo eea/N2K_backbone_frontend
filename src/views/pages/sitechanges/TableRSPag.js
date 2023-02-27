@@ -167,7 +167,7 @@ const IndeterminateCheckbox = React.forwardRef(
         data,
         defaultColumn,
         filterTypes,
-        initialState: {pageSize: currentSize, pageIndex:currentPage},
+        initialState: {pageSize: currentSize, pageIndex:currentPage, hiddenColumns: ["EditedDate", "EditedBy", "JustificationRequired", "JustificationProvided"]},
         manualPagination:true,
         pageCount: pgCount,
         paginateExpandedRows: false
@@ -474,28 +474,59 @@ const IndeterminateCheckbox = React.forwardRef(
                 content="Justification Required"
                 placement="top"
               > 
-                <CImage src={justificationrequired} className="ico--md "></CImage> 
+                <div className="btn-icon btn-hover">
+                  <CImage src={justificationrequired} className="ico--md "></CImage>
+                </div>
               </CTooltip>
             : null } </> : null : null } 
             
             {row.values.JustificationProvided ?
-             row.canExpand ? <> {row.values.JustificationRequired && row.values.JustificationProvided ?
-              <CTooltip
-                content="Justification Provided"
-                placement="top">
-                <CImage src={justificationprovided} className="ico--md "></CImage>
-              </CTooltip>
-                : null  } </> : null : null} 
+              row.canExpand ? <> {row.values.JustificationRequired && row.values.JustificationProvided ?
+                <CTooltip
+                  content="Justification Provided"
+                  placement="top"
+                >
+                  <div className="btn-icon btn-hover">
+                    <CImage src={justificationprovided} className="ico--md "></CImage>
+                  </div>
+                </CTooltip>
+              : null } </> : null : null }
             </>)
         },
         {
           Header: () => null,
+          accessor: 'Edition',
+          Cell: ({ row }) => {
+            return (
+              row.values.EditedDate && row.values.EditedBy ? (
+                  <CTooltip 
+                    content={"Edited"
+                      + (row.values.EditedDate && " on " + row.values.EditedDate.slice(0,10).split('-').reverse().join('/'))
+                      + (row.values.EditedBy && " by " + row.values.EditedBy)}>
+                    <div className="btn-icon btn-hover">
+                      <i className="fa-solid fa-pen-to-square"></i>
+                    </div>
+                  </CTooltip>
+              ) : null
+            )
+          }
+        },
+        {
+          Header: () => null,
           accessor: "JustificationRequired",                            
-        },    
+        },
         {
           Header: () => null,
           accessor: "JustificationProvided",         
-        },    
+        },
+        {
+          Header: () => null,
+          accessor: "EditedDate",
+        },
+        {
+          Header: () => null,
+          accessor: "EditedBy",
+        },
         {
           Header: () => null, 
           id: 'dropdownsiteChanges',

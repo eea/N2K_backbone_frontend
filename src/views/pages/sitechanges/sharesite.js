@@ -412,7 +412,7 @@ class ModalChanges extends Component {
               content={"Uploaded"
                 + (date && " on " + date.slice(0,10).split('-').reverse().join('/'))
                 + (user && " by " + user)}>
-              <div className="btn-icon">
+              <div className="btn-icon btn-hover">
                 <i className="fa-solid fa-circle-info"></i>
               </div>
             </CTooltip>

@@ -132,6 +132,9 @@
   font-size: 1.125rem;
   padding: 0.25rem 0.5rem;
   cursor: pointer;
+  &.btn-hover {
+    cursor: auto;
+  }
   i {
     color: $gray-700;
     vertical-align: middle;
@@ -142,8 +145,6 @@
     border-color: transparent;
     i {
       color: $primary-base;
-      transform: scale(1.2);
-      transition: $transition-base;
     }
   }
   &:disabled {
