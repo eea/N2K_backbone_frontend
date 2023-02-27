@@ -229,8 +229,8 @@ const Releases = () => {
                   content={"Edited"
                     + (date && " on " + date.slice(0,10).split('-').reverse().join('/'))
                     + (user && " by " + user)}>
-                  <div className="btn-icon btn-editinfo">
-                    <i className="fa-solid fa-circle-info"></i>
+                  <div className="btn-icon btn-hover btn-editinfo">
+                    <i className="fa-solid fa-pen-to-square"></i>
                   </div>
                 </CTooltip>
               }
