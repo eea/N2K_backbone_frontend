@@ -1545,7 +1545,7 @@ export class ModalChanges extends Component {
       this.cleanUnsavedChanges();
     }
     this.resetLoading();
-    this.props.updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", () => this.acceptChanges(), "Cancel", () => {});
+    this.props.updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", () => this.acceptChanges(), "Cancel", () => {this.changingStatus = false});
   }
 
   acceptChanges(){
@@ -1564,7 +1564,7 @@ export class ModalChanges extends Component {
       this.cleanUnsavedChanges();
     }
     this.resetLoading();
-    this.props.updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", () => this.rejectChanges(), "Cancel", () => {});
+    this.props.updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", () => this.rejectChanges(), "Cancel", () => {this.changingStatus = false});
   }
 
   rejectChanges(){
@@ -1583,7 +1583,7 @@ export class ModalChanges extends Component {
       this.cleanUnsavedChanges();
     }
     this.resetLoading();
-    this.props.updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", () => this.setBackToPending(), "Cancel", () => {});
+    this.props.updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", () => this.setBackToPending(), "Cancel", () => {this.changingStatus = false});
   }
 
   setBackToPending(){
