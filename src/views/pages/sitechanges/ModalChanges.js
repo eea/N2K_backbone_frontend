@@ -905,6 +905,7 @@ export class ModalChanges extends Component {
       let label;
       let placeholder;
       let name = field;
+      let original = this.state.fields["Original" + field];
       switch (field) {
         case "SiteCode":
           label = "Site Code";
@@ -923,6 +924,7 @@ export class ModalChanges extends Component {
           if(this.state.siteTypeValue === ""){
             this.setState({siteTypeValue: value});
           }
+          original = original && this.state.types.find(y => y.Code === original).Classification;
           break;
         case "BioRegion":
           label = "Biogeographycal Region";
@@ -933,6 +935,7 @@ export class ModalChanges extends Component {
           if(this.state.siteRegionValue === ""){
             this.setState({siteRegionValue: value});
           }
+          original = original && original.map(x => this.state.regions.find(y => y.Code === x).RefBioGeoName).join(", ");
           break;
         case "Area":
           label = "Area";
@@ -1069,6 +1072,11 @@ export class ModalChanges extends Component {
                 onChange={(e) => this.onChangeField(e)}
               />
             </>
+          }
+          {original?.toString() &&
+            <div className="original-field">
+              <i className="fa-solid fa-pen-to-square"></i><span>{original}</span>
+            </div>
           }
         </CCol>
       )
@@ -1217,6 +1225,29 @@ export class ModalChanges extends Component {
             BioRegion: body.BioRegion.split(",").map(Number),
             JustificationProvided: this.state.justificationProvided,
             JustificationRequired: this.state.justificationRequired,
+          }
+          let newFields = Object.keys(this.state.fields).filter(a=>!body.hasOwnProperty(a));
+          for(let i in newFields){
+            let field = newFields[i];
+            let value = this.state.fields[field];
+            let ref = field.replace('Original','');
+            if(field === "OriginalBioRegion"){
+              if(!value && JSON.stringify(body[ref]) !== JSON.stringify(this.state.fields[ref])){
+                value = this.state.fields[ref];
+              }
+              else if(value && JSON.stringify(body[ref]) === JSON.stringify(value)){
+                value = null;
+              }
+            }
+            else {
+              if(!value?.toString() && body[ref] !== this.state.fields[ref]){
+                value = this.state.fields[ref];
+              }
+              else if(value?.toString() && body[ref] === value){
+                value = null;
+              }
+            }
+            body[field] = value;
           }
           this.setState({fields: body, fieldChanged: false, updatingData: false});
         }

@@ -653,6 +653,7 @@ export class ModalEdition extends Component {
       let label;
       let placeholder;
       let name = field;
+      let original = this.state.data["Original" + field];
       switch (field) {
         case "SiteCode":
           label = "Site Code";
@@ -671,6 +672,7 @@ export class ModalEdition extends Component {
           if(this.state.siteTypeValue === "") {
             this.setState({siteTypeValue: value})
           }
+          original = original && this.props.types.find(y => y.Code === original).Classification;
           break;
         case "BioRegion":
           label = "Biogeographycal Region";
@@ -681,6 +683,7 @@ export class ModalEdition extends Component {
           if(this.state.siteRegionValue === "") {
             this.setState({siteRegionValue: value})
           }
+          original = original && original.map(x => this.props.regions.find(y => y.Code === x).RefBioGeoName).join(", ");
           break;
         case "Area":
           label = "Area";
@@ -817,6 +820,11 @@ export class ModalEdition extends Component {
                 onChange={(e) => this.onChangeField(e)}
               />
             </>
+          }
+          {original?.toString() &&
+            <div className="original-field">
+              <i className="fa-solid fa-pen-to-square"></i><span>{original}</span>
+            </div>
           }
         </CCol>
       )
@@ -1070,6 +1078,29 @@ export class ModalEdition extends Component {
             BioRegion: body.BioRegion.split(",").map(Number),
             JustificationProvided: this.state.justificationProvided,
             JustificationRequired: this.state.justificationRequired,
+          }
+          let newFields = Object.keys(this.state.data).filter(a=>!body.hasOwnProperty(a));
+          for(let i in newFields){
+            let field = newFields[i];
+            let value = this.state.data[field];
+            let ref = field.replace('Original','');
+            if(field === "OriginalBioRegion"){
+              if(!value && JSON.stringify(body[ref]) !== JSON.stringify(this.state.data[ref])){
+                value = this.state.data[ref];
+              }
+              else if(value && JSON.stringify(body[ref]) === JSON.stringify(value)){
+                value = null;
+              }
+            }
+            else {
+              if(!value?.toString() && body[ref] !== this.state.data[ref]){
+                value = this.state.data[ref];
+              }
+              else if(value?.toString() && body[ref] === value){
+                value = null;
+              }
+            }
+            body[field] = value;
           }
           this.setState({data: body, fieldChanged: false, updatingData: false});
         }
