@@ -1552,8 +1552,8 @@ export class ModalChanges extends Component {
     this.props.accept()
     .then((data) => {
       if(data?.ok) {
-        this.setState({data: {}, fields:{}, loading: true, siteTypeValue: "", siteRegionValue: ""});
         this.changingStatus = false;
+        this.setState({data: {}, fields:{}, loading: true, siteTypeValue: "", siteRegionValue: ""});
       }
     });
   }
@@ -1571,8 +1571,8 @@ export class ModalChanges extends Component {
     this.props.reject()
     .then(data => {
       if(data?.ok) {
-        this.setState({data: {}, fields:{}, loading: true, siteTypeValue: "", siteRegionValue: ""});
         this.changingStatus = false;
+        this.setState({data: {}, fields:{}, loading: true, siteTypeValue: "", siteRegionValue: ""});
       }
     });
   }
@@ -1590,8 +1590,8 @@ export class ModalChanges extends Component {
     this.props.backToPending()
     .then((data) => {
       if(data?.ok) {
-        this.setState({data: {}, fields:{}, loading: true, siteTypeValue: "", siteRegionValue: ""});
         this.changingStatus = false;
+        this.setState({data: {}, fields:{}, loading: true, siteTypeValue: "", siteRegionValue: ""});
       }
     });
   }
