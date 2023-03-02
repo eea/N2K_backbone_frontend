@@ -63,6 +63,8 @@ export class ModalChanges extends Component {
     this.errorLoadingComments = false;
     this.errorLoadingDocuments = false;
 
+    this.changingStatus = false;
+
     this.state = {
       activeKey: 1,
       loading: true,
@@ -1329,9 +1331,9 @@ export class ModalChanges extends Component {
         </CModalBody>
         <CModalFooter>
           <div className="d-flex w-100 justify-content-between">
-            {data.Status === 'Pending' && <CButton color="secondary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.rejectChangesModal(true), true) : this.rejectChangesModal()}>Reject Changes</CButton>}
-            {data.Status === 'Pending' && <CButton color="primary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.acceptChangesModal(true), true) : this.acceptChangesModal()}>Accept Changes</CButton>}
-            {data.Status !== 'Pending' && this.state.activeKey !== 3 && <CButton color="primary" className="ms-auto" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.backToPendingModal(true), true) : this.backToPendingModal()}>Back to Pending</CButton>}
+            {data.Status === 'Pending' && <CButton disabled={this.changingStatus} color="secondary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.rejectChangesModal(true), true) : this.rejectChangesModal()}>Reject Changes</CButton>}
+            {data.Status === 'Pending' && <CButton disabled={this.changingStatus} color="primary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.acceptChangesModal(true), true) : this.acceptChangesModal()}>Accept Changes</CButton>}
+            {data.Status !== 'Pending' && this.state.activeKey !== 3 && <CButton disabled={this.changingStatus} color="primary" className="ms-auto" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(()=>this.backToPendingModal(true), true) : this.backToPendingModal()}>Back to Pending</CButton>}
             {data.Status !== 'Pending' && this.state.activeKey === 3 &&
               <>
                 <CButton color="secondary" disabled={this.state.updatingData} onClick={()=>this.closeModal()}>Cancel</CButton>
@@ -1538,6 +1540,7 @@ export class ModalChanges extends Component {
   }
 
   acceptChangesModal(clean) {
+    this.changingStatus = true;
     if(clean) {
       this.cleanUnsavedChanges();
     }
@@ -1548,12 +1551,15 @@ export class ModalChanges extends Component {
   acceptChanges(){
     this.props.accept()
     .then((data) => {
-      if(data?.ok)
+      if(data?.ok) {
         this.setState({data: {}, fields:{}, loading: true, siteTypeValue: "", siteRegionValue: ""});
+        this.changingStatus = false;
+      }
     });
   }
 
   rejectChangesModal(clean) {
+    this.changingStatus = true;
     if(clean) {
       this.cleanUnsavedChanges();
     }
@@ -1564,12 +1570,15 @@ export class ModalChanges extends Component {
   rejectChanges(){
     this.props.reject()
     .then(data => {
-        if(data?.ok)
-          this.setState({data: {}, fields:{}, loading: true, siteTypeValue: "", siteRegionValue: ""});
+      if(data?.ok) {
+        this.setState({data: {}, fields:{}, loading: true, siteTypeValue: "", siteRegionValue: ""});
+        this.changingStatus = false;
+      }
     });
   }
 
   backToPendingModal(clean) {
+    this.changingStatus = true;
     if(clean) {
       this.cleanUnsavedChanges();
     }
@@ -1580,8 +1589,10 @@ export class ModalChanges extends Component {
   setBackToPending(){
     this.props.backToPending()
     .then((data) => {
-      if(data?.ok)
+      if(data?.ok) {
         this.setState({data: {}, fields:{}, loading: true, siteTypeValue: "", siteRegionValue: ""});
+        this.changingStatus = false;
+      }
     });
   }
 
