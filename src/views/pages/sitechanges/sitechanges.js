@@ -148,11 +148,13 @@ const Sitechanges = () => {
   }
 
   let setBackToPending = (changes, refresh)=>{
+    setUpdatingData(true);
     let rBody = !Array.isArray(changes)?[changes]:changes
 
     return postRequest(ConfigData.MOVE_TO_PENDING, rBody)
     .then(data => {
         if(data.ok){
+          setUpdatingData(false);
           if(refresh){
             forceRefreshData();
             setForceRefresh(forceRefresh+1);
@@ -167,11 +169,13 @@ const Sitechanges = () => {
   }
 
   let acceptChanges = (changes, refresh)=>{
+    setUpdatingData(true);
     let rBody = !Array.isArray(changes)?[changes]:changes
 
     return postRequest(ConfigData.ACCEPT_CHANGES, rBody)
     .then(data => {
         if(data.ok){
+          setUpdatingData(false);
           if(refresh){
             forceRefreshData();
             setForceRefresh(forceRefresh+1);
@@ -186,11 +190,13 @@ const Sitechanges = () => {
   }
 
   let rejectChanges = (changes, refresh)=>{
+    setUpdatingData(true);
     let rBody = !Array.isArray(changes)?[changes]:changes
 
     return postRequest(ConfigData.REJECT_CHANGES, rBody)
     .then(data => {
         if(data.ok){
+          setUpdatingData(false);
           if(refresh){
             forceRefreshData();
             setForceRefresh(forceRefresh+1);
@@ -406,12 +412,12 @@ const Sitechanges = () => {
                     {!isLoading && country && activeTab === 1 &&
                       <>
                         <li>
-                          <CButton color="secondary" onClick={()=>updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(selectedCodes, true), "Cancel", ()=>{})} disabled={disabledBtn || activeTab!==1}>
+                          <CButton color="secondary" onClick={()=>updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(selectedCodes, true), "Cancel", ()=>{})} disabled={updatingData || disabledBtn || activeTab!==1}>
                             Reject Changes
                           </CButton>
                         </li>
                         <li>
-                          <CButton color="primary" onClick={()=>updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(selectedCodes, true), "Cancel", ()=>{})} disabled={disabledBtn || activeTab!==1}>
+                          <CButton color="primary" onClick={()=>updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(selectedCodes, true), "Cancel", ()=>{})} disabled={updatingData || disabledBtn || activeTab!==1}>
                             Accept Changes
                           </CButton>
                         </li>
@@ -419,7 +425,7 @@ const Sitechanges = () => {
                     }
                     {!isLoading && country && activeTab !== 1 &&
                       <li>
-                        <CButton color="primary" onClick={()=>updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", ()=>setBackToPending(selectedCodes, true), "Cancel", ()=>{})} disabled={disabledBtn || activeTab===1}>
+                        <CButton color="primary" onClick={()=>updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", ()=>setBackToPending(selectedCodes, true), "Cancel", ()=>{})} disabled={updatingData || disabledBtn || activeTab===1}>
                           Back to Pending
                         </CButton>
                       </li>
