@@ -576,8 +576,10 @@ const IndeterminateCheckbox = React.forwardRef(
       return dl.fetch(url)
       .then(response => response.json())
       .then(data => {
-        props.setSitecodes(props.status,data.Data);
-        setSitecodes(data.Data);
+        if(data?.Success) {
+          props.setSitecodes(props.status,data.Data);
+          setSitecodes(data.Data);
+        }
       });
     }
   
@@ -602,10 +604,12 @@ const IndeterminateCheckbox = React.forwardRef(
           dl.fetch(url)
           .then(response => response.json())
           .then(data => {
-            if(Object.keys(data.Data).length===0)
-              setChangesData("nodata");
-            else
-              setChangesData(data.Data);
+            if(data?.Success) {
+              if(Object.keys(data.Data).length===0)
+                setChangesData("nodata");
+              else
+                setChangesData(data.Data);
+            }
           })
         )
         Promise.all(promises).then(v=>setIsLoading(false));

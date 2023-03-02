@@ -513,8 +513,10 @@ class ModalChanges extends Component {
       this.dl.fetch(ConfigData.SITECHANGES_DETAIL+`siteCode=${this.state.sitecode}&version=${this.state.version}`)
       .then(response => response.json())
       .then(data => {
-        if(data.Data.SiteCode === this.state.sitecode && Object.keys(this.state.data).length === 0) {
-          this.setState({data: data.Data, loading: false, justificationRequired: data.Data?.JustificationRequired, justificationProvided: data.Data?.JustificationProvided, activeKey: this.props.activeKey ? this.props.activeKey : this.state.activeKey})
+        if(data?.Success) {
+          if(data.Data.SiteCode === this.state.sitecode && Object.keys(this.state.data).length === 0) {
+            this.setState({data: data.Data, loading: false, justificationRequired: data.Data?.JustificationRequired, justificationProvided: data.Data?.JustificationProvided, activeKey: this.props.activeKey ? this.props.activeKey : this.state.activeKey})
+          }
         }
       });
     }
@@ -525,12 +527,14 @@ class ModalChanges extends Component {
       this.dl.fetch(ConfigData.GET_SITE_COMMENTS+`siteCode=${this.state.sitecode}&version=${this.state.version}`)
       .then(response => response.json())
       .then(data => {
-        if (data.Data.length > 0) {
-          if(data.Data[0]?.SiteCode === this.state.sitecode && (this.state.comments.length === 0 || this.state.comments === "noData"))
-          this.setState({comments: data.Data});
-        }
-        else {
-          this.setState({comments: "noData"});
+        if(data?.Success) {
+          if (data.Data.length > 0) {
+            if(data.Data[0]?.SiteCode === this.state.sitecode && (this.state.comments.length === 0 || this.state.comments === "noData"))
+            this.setState({comments: data.Data});
+          }
+          else {
+            this.setState({comments: "noData"});
+          }
         }
       });
     }
@@ -541,12 +545,14 @@ class ModalChanges extends Component {
       this.dl.fetch(ConfigData.GET_ATTACHED_FILES+`siteCode=${this.state.sitecode}&version=${this.state.version}`)
       .then(response => response.json())
       .then(data => {
-        if (data.Data.length > 0) {
-          if(data.Data[0]?.SiteCode === this.state.sitecode && (this.state.documents.length === 0 || this.state.documents === "noData"))
-          this.setState({documents: data.Data});
-        }
-        else {
-          this.setState({documents: "noData"});
+        if(data?.Success) {
+          if (data.Data.length > 0) {
+            if(data.Data[0]?.SiteCode === this.state.sitecode && (this.state.documents.length === 0 || this.state.documents === "noData"))
+            this.setState({documents: data.Data});
+          }
+          else {
+            this.setState({documents: "noData"});
+          }
         }
       });
     }

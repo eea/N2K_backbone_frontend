@@ -22,23 +22,31 @@ const SiteGraph = () => {
         promises.push(dl.fetch(ConfigData.GET_SITE_COUNT)
             .then(response => response.json())
             .then(data => {
-                data.Data.sort((a, b) => a.Country.localeCompare(b.Country));
-                setChangesCountriesData(data.Data);
+                if(data?.Success) {
+                    data.Data.sort((a, b) => a.Country.localeCompare(b.Country));
+                    setChangesCountriesData(data.Data);
+                }
             }));
         promises.push(dl.fetch(ConfigData.GET_SITE_LEVEL + '?status=Pending')
             .then(response => response.json())
             .then(data => {
-                setSitesPendingData(data.Data);
+                if(data?.Success) {
+                    setSitesPendingData(data.Data);
+                }
             }));
         promises.push(dl.fetch(ConfigData.GET_SITE_LEVEL + '?status=Accepted')
             .then(response => response.json())
             .then(data => {
-                setSitesAcceptedData(data.Data);
+                if(data?.Success) {
+                    setSitesAcceptedData(data.Data);
+                }
             }));
         promises.push(dl.fetch(ConfigData.GET_SITE_LEVEL + '?status=Rejected')
             .then(response => response.json())
             .then(data => {
-                setSitesRejectedData(data.Data);
+                if(data?.Success) {
+                    setSitesRejectedData(data.Data);
+                }
             }));
         Promise.all(promises).then(d => setIsLoading(false));
     })

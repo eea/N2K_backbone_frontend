@@ -246,14 +246,16 @@ export class ModalChanges extends Component {
     
     this.sendRequest(ConfigData.UPDATE_COMMENT,"PUT",body)
     .then((data) => {
-      let reader = data.body.getReader();
-      let txt = "";
-      let readData = (data) => {
-        if(data.done)
-          return JSON.parse(txt);
-        else{
-          txt += new TextDecoder().decode(data.value);
-          return reader.read().then(readData);
+      if(data?.ok) {
+        let reader = data.body.getReader();
+        let txt = "";
+        let readData = (data) => {
+          if(data.done)
+            return JSON.parse(txt);
+          else{
+            txt += new TextDecoder().decode(data.value);
+            return reader.read().then(readData);
+          }
         }
       }
 
