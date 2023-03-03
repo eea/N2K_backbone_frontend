@@ -62,17 +62,19 @@ const Releases = () => {
     dl.fetch(ConfigData.GET_CLOSED_COUNTRIES)
     .then(response => response.json())
     .then(data => {
-      setLoadingCountries(false);
-      let countriesList = [];
-      for(let i in data.Data){
-        countriesList.push({name:data.Data[i].Country,code:data.Data[i].Code});
-      }
-      countriesList.sort((a, b) => a.name.localeCompare(b.name));
-      countriesList = [{name:"",code:""}, ...countriesList];
-      setCountries(countriesList);
-      if(country === ""){
-        setCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code);
-        changeCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code)
+      if(data?.Success) {
+        setLoadingCountries(false);
+        let countriesList = [];
+        for(let i in data.Data){
+          countriesList.push({name:data.Data[i].Country,code:data.Data[i].Code});
+        }
+        countriesList.sort((a, b) => a.name.localeCompare(b.name));
+        countriesList = [{name:"",code:""}, ...countriesList];
+        setCountries(countriesList);
+        if(country === ""){
+          setCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code);
+          changeCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code)
+        }
       }
     });
   }
@@ -89,8 +91,10 @@ const Releases = () => {
     dl.fetch(ConfigData.BIOREGIONS_GET)
     .then(response => response.json())
     .then(data => {
-      let regionsList = data.Data;
-      setBioRegions(regionsList);
+      if(data?.Success) {
+        let regionsList = data.Data;
+        setBioRegions(regionsList);
+      }
     });
   }
 
@@ -98,8 +102,10 @@ const Releases = () => {
     dl.fetch(ConfigData.SITETYPES_GET)
     .then(response => response.json())
     .then(data => {
-      let typesList = data.Data;
-      setSiteTypes(typesList);
+      if(data?.Success) {
+        let typesList = data.Data;
+        setSiteTypes(typesList);
+      }
     });
   }
 
@@ -162,15 +168,17 @@ const Releases = () => {
       dl.fetch(ConfigData.SITEEDITION_NON_PENDING_GET+"country="+country)
       .then(response =>response.json())
       .then(data => {
-        if(Object.keys(data.Data).length === 0){
-          setSitecodes("nodata");
+        if(data?.Success) {
+          if(Object.keys(data.Data).length === 0){
+            setSitecodes("nodata");
+          }
+          else {
+            setSitecodes(data.Data);
+            setSearchList(getSitesList(data.Data));
+            setPageCount(Math.ceil(data.Data.length / Number(pageSize)));
+          }
+          setIsLoading(false);
         }
-        else {
-          setSitecodes(data.Data);
-          setSearchList(getSitesList(data.Data));
-          setPageCount(Math.ceil(data.Data.length / Number(pageSize)));
-        }
-        setIsLoading(false);
       });
     }
   }
