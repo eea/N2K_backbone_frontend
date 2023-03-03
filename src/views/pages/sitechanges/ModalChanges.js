@@ -1086,7 +1086,7 @@ export class ModalChanges extends Component {
 
   fieldValidator() {
     let body = Object.fromEntries(new FormData(document.querySelector("form")));
-    let data = JSON.parse(JSON.stringify( body, ["SiteCode","SiteName","SiteType","BioRegion","Area","Length","CentreY","CentreX"]));
+    let data = JSON.parse(JSON.stringify( body, ["SiteCode","SiteName","SiteType","BioRegion"]));
     this.state.notValidField = [];
     for(let i in Object.keys(data)){
       let field = Object.keys(data)[i]
@@ -1214,49 +1214,46 @@ export class ModalChanges extends Component {
   }
 
   saveChanges(body) {
-    if(Object.values(body).some(val => val === null || val === "")){
-      this.showErrorMessage("fields", "Empty fields are not allowed");
-    } else {
-      this.sendRequest(ConfigData.SITEDETAIL_SAVE, "POST", body)
-      .then((data)=> {
-        if(data?.ok){
-          body = {
-            ...body,
-            BioRegion: body.BioRegion.split(",").map(Number),
-            JustificationProvided: this.state.justificationProvided,
-            JustificationRequired: this.state.justificationRequired,
-          }
-          let newFields = Object.keys(this.state.fields).filter(a=>!body.hasOwnProperty(a));
-          for(let i in newFields){
-            let field = newFields[i];
-            let value = this.state.fields[field];
-            let ref = field.replace('Original','');
-            if(field === "OriginalBioRegion"){
-              if(!value && JSON.stringify(body[ref]) !== JSON.stringify(this.state.fields[ref])){
-                value = this.state.fields[ref];
-              }
-              else if(value && JSON.stringify(body[ref]) === JSON.stringify(value)){
-                value = null;
-              }
-            }
-            else {
-              if(!value?.toString() && body[ref] !== this.state.fields[ref]){
-                value = this.state.fields[ref];
-              }
-              else if(value?.toString() && body[ref] === value){
-                value = null;
-              }
-            }
-            body[field] = value;
-          }
-          this.setState({fields: body, fieldChanged: false, updatingData: false});
+    // TODO error 400 Bad Request
+    this.sendRequest(ConfigData.SITEDETAIL_SAVE, "POST", body)
+    .then((data)=> {
+      if(data?.ok){
+        body = {
+          ...body,
+          BioRegion: body.BioRegion.split(",").map(Number),
+          JustificationProvided: this.state.justificationProvided,
+          JustificationRequired: this.state.justificationRequired,
         }
-        else {
-          this.showErrorMessage("fields", "Something went wrong");
+        let newFields = Object.keys(this.state.fields).filter(a=>!body.hasOwnProperty(a));
+        for(let i in newFields){
+          let field = newFields[i];
+          let value = this.state.fields[field];
+          let ref = field.replace('Original','');
+          if(field === "OriginalBioRegion"){
+            if(!value && JSON.stringify(body[ref]) !== JSON.stringify(this.state.fields[ref])){
+              value = this.state.fields[ref];
+            }
+            else if(value && JSON.stringify(body[ref]) === JSON.stringify(value)){
+              value = null;
+            }
+          }
+          else {
+            if(!value?.toString() && body[ref] !== this.state.fields[ref]){
+              value = this.state.fields[ref];
+            }
+            else if(value?.toString() && body[ref] === value){
+              value = null;
+            }
+          }
+          body[field] = value;
         }
-      });
-      this.setState({updatingData:true});
-    }
+        this.setState({fields: body, fieldChanged: false, updatingData: false});
+      }
+      else {
+        this.showErrorMessage("fields", "Something went wrong");
+      }
+    });
+    this.setState({updatingData:true});
   }
 
   renderModal() {
@@ -1509,7 +1506,7 @@ export class ModalChanges extends Component {
   }
 
   loadFields(){
-    if (this.isVisible() && (this.state.fields.SiteCode !== this.props.item)){
+    if (this.isVisible() && (this.state.fields?.SiteCode !== this.props.item)){
       this.isLoadingFields = true;
       this.dl.fetch(ConfigData.SITEDETAIL_GET+"?siteCode="+this.props.item)
       .then(response => {
