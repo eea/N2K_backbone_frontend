@@ -1202,6 +1202,8 @@ export class ModalChanges extends Component {
     body.CentreY = body.CentreY ? +body.CentreY : body.CentreY;
     body.Version = this.props.version;
     body.SiteCode = this.props.item;
+    body.JustificationProvided = this.state.justificationProvided;
+    body.JustificationRequired = this.state.justificationRequired;
 
     return body;
   }
@@ -1223,8 +1225,6 @@ export class ModalChanges extends Component {
           body = {
             ...body,
             BioRegion: body.BioRegion.split(",").map(Number),
-            JustificationProvided: this.state.justificationProvided,
-            JustificationRequired: this.state.justificationRequired,
           }
           let newFields = Object.keys(this.state.fields).filter(a=>!body.hasOwnProperty(a));
           for(let i in newFields){
