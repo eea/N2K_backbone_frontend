@@ -1055,8 +1055,6 @@ export class ModalEdition extends Component {
     body.CentreY = body.CentreY ? +body.CentreY : body.CentreY;
     body.Version = this.props.version;
     body.SiteCode = this.props.item;
-    body.JustificationProvided = this.state.justificationProvided;
-    body.JustificationRequired = this.state.justificationRequired;
 
     return body;
   }
@@ -1072,6 +1070,8 @@ export class ModalEdition extends Component {
     if(Object.values(body).some(val => val === null || val === "")){
       this.showErrorMessage("fields", "Empty fields are not allowed");
     } else {
+      body.JustificationProvided = this.state.justificationProvided;
+      body.JustificationRequired = this.state.justificationRequired;
       this.sendRequest(ConfigData.SITEDETAIL_SAVE, "POST", body)
       .then((data)=> {
         if(data?.ok){
