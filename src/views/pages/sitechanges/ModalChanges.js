@@ -1217,16 +1217,14 @@ export class ModalChanges extends Component {
   }
 
   saveChanges(body) {
-    // TODO error 400 Bad Request
-    // TODO return null values instead of ""
+    body.JustificationProvided = this.state.justificationProvided;
+    body.JustificationRequired = this.state.justificationRequired;
     this.sendRequest(ConfigData.SITEDETAIL_SAVE, "POST", body)
       .then((data) => {
-        if (data?.ok) {
+        if(data?.ok) {
           body = {
             ...body,
             BioRegion: body.BioRegion.split(",").map(Number),
-            JustificationProvided: this.state.justificationProvided,
-            JustificationRequired: this.state.justificationRequired,
           }
           let newFields = Object.keys(this.state.fields).filter(a => !body.hasOwnProperty(a));
           for (let i in newFields) {
