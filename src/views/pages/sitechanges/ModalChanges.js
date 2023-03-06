@@ -1179,9 +1179,9 @@ export class ModalChanges extends Component {
   checkForChanges(e) {
     let body = this.getBody();
     let errorMargin = 0.00000001;
-    if (this.state.fields.SiteName !== body.SiteName
-      || this.state.fields.Area !== body.Area
-      || this.state.fields.Length !== body.Length
+    if (this.state.fields.SiteName != body.SiteName
+      || this.state.fields.Area != body.Area
+      || this.state.fields.Length != body.Length
       || (Math.abs(this.state.fields.CentreX - body.CentreX) > errorMargin)
       || (Math.abs(this.state.fields.CentreY - body.CentreY) > errorMargin)
       || (Array.isArray(e) && this.state.fields.BioRegion.sort().toString() !== e.map(b => b.value).sort().toString())
@@ -1527,7 +1527,7 @@ export class ModalChanges extends Component {
             let informed = [];
             let a = JSON.parse(JSON.stringify(data.Data, ["SiteName", "BioRegion", "Area", "Length", "CentreY", "CentreX"]));
             Object.keys(a).forEach(key => {
-              if (a[key] != null)
+              if (a[key]?.toString() != '' && a[key]?.toString() != undefined)
                 informed.push(key);
             })
             this.setState({ fields: data.Data, informedFields: informed });
