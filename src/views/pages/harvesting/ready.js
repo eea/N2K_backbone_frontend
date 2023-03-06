@@ -125,7 +125,7 @@ const Harvesting = () => {
         sendRequest(ConfigData.HARVESTING_CHANGE_STATUS+"?country="+code.country+"&version="+code.version+"&toStatus=Harvested","POST","")
         .then(response => response.json())
         .then(data => {
-          if(!data.Success) {
+          if(!data?.Success) {
             errors.push(data.Message);
             console.log("Error: " + data.Message);
           }
@@ -162,7 +162,7 @@ const Harvesting = () => {
         sendRequest(ConfigData.HARVESTING_CHANGE_STATUS+"?country="+code.country+"&version="+code.version+"&toStatus=Discarded","POST","")
         .then(response => response.json())
         .then(data => {
-          if(!data.Success) {
+          if(!data?.Success) {
             errors.push(data.Message);
             console.log("Error: " + data.Message);
           }

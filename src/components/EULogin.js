@@ -68,13 +68,15 @@ export class EULogin {
         return this.dl.fetch(cUrl)
         .then(response => response.json())
         .then((a) => {
+            if(a?.Success) {
                 this.loginUrl = a.Data;
                 localStorage.setItem("loginUrl",this.loginUrl);
                 return a.Data;
-            })
+            } else { throw(a.Message) }
+        })
         .catch((error) => {
                 console.log(error)
-            });
+        });
     }
 
     createToken() {
@@ -98,7 +100,9 @@ export class EULogin {
         return this.dl.fetch(cUrl,options)
         .then(response => response.json())
         .then((a) => {
-            localStorage.setItem("token",a.Data);
+            if(a?.Success) {
+                localStorage.setItem("token",a.Data);
+            } else { throw(a.Message) }
         })
         .catch(e=>console.log(e));
     }

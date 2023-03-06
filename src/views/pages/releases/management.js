@@ -121,7 +121,7 @@ const Releases = () => {
     sendRequest(ConfigData.UNIONLIST_DELETE,"DELETE",body)
     .then(response => response.json())
     .then(data => {
-      if(data.Success) {
+      if(data?.Success) {
         modalValues.close();
         setRefresh(true);
       }
@@ -143,7 +143,7 @@ const Releases = () => {
       sendRequest(ConfigData.UNIONLIST_UPDATE,"PUT",body)
       .then(response => response.json())
       .then(data => {
-        if(data.Success) {
+        if(data?.Success) {
           modalValues.close();
           setRefresh(true);
         }

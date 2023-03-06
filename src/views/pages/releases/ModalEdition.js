@@ -923,8 +923,10 @@ export class ModalEdition extends Component {
       this.dl.fetch(ConfigData.SITEDETAIL_GET+"?siteCode="+this.props.item)
       .then(response => response.json())
       .then(data =>{
-        if(data.Data.SiteCode === this.props.item && Object.keys(this.state.data).length === 0) {
-          this.setState({data: data.Data, loading: false, justificationRequired: data.Data.JustificationRequired, justificationProvided: data.Data.JustificationProvided})
+        if(data?.Success) {
+          if(data.Data.SiteCode === this.props.item && Object.keys(this.state.data).length === 0) {
+            this.setState({data: data.Data, loading: false, justificationRequired: data.Data.JustificationRequired, justificationProvided: data.Data.JustificationProvided})
+          }
         }
       });
     }
@@ -935,12 +937,14 @@ export class ModalEdition extends Component {
       this.dl.fetch(ConfigData.GET_SITE_COMMENTS+`siteCode=${this.props.item}&version=${this.props.version}`)
       .then(response => response.json())
       .then(data => {
-        if (data.Data.length > 0) {
-          if(data.Data[0]?.SiteCode === this.props.item && (this.state.comments.length === 0 || this.state.comments === "noData"))
-          this.setState({comments: data.Data});
-        }
-        else {
-          this.setState({comments: "noData"});
+        if(data?.Success) {
+          if (data.Data.length > 0) {
+            if(data.Data[0]?.SiteCode === this.props.item && (this.state.comments.length === 0 || this.state.comments === "noData"))
+            this.setState({comments: data.Data});
+          }
+          else {
+            this.setState({comments: "noData"});
+          }
         }
       });
     }
@@ -951,12 +955,14 @@ export class ModalEdition extends Component {
       this.dl.fetch(ConfigData.GET_ATTACHED_FILES+`siteCode=${this.props.item}&version=${this.props.version}`)
       .then(response => response.json())
       .then(data => {
-        if (data.Data.length > 0) {
-          if(data.Data[0]?.SiteCode === this.props.item && (this.state.documents.length === 0 || this.state.documents === "noData"))
-          this.setState({documents: data.Data});
-        }
-        else {
-          this.setState({documents: "noData"});
+        if(data?.Success) {
+          if (data.Data.length > 0) {
+            if(data.Data[0]?.SiteCode === this.props.item && (this.state.documents.length === 0 || this.state.documents === "noData"))
+            this.setState({documents: data.Data});
+          }
+          else {
+            this.setState({documents: "noData"});
+          }
         }
       });
     }
