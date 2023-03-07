@@ -1,5 +1,5 @@
 import ConfigData from '../../../config.json';
-import React, { Component, useState } from 'react';
+import React, { Component } from 'react';
 import Select from 'react-select';
 import {
   CButton,

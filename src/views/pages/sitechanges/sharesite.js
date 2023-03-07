@@ -46,6 +46,10 @@ class ModalChanges extends Component {
     super(props);
     this.dl = new(DataLoader);
 
+    this.errorLoadingData = false;
+    this.errorLoadingComments = false;
+    this.errorLoadingDocuments = false;
+
     this.state = {
       activeKey: 1,
       loading: true,
@@ -310,7 +314,10 @@ class ModalChanges extends Component {
     }
     return (
       <>
-        {list}
+        {this.errorLoadingData ?
+          <CAlert color="danger">Error loading changes data</CAlert>
+          : list
+        }
       </>
     )
   }
@@ -347,20 +354,26 @@ class ModalChanges extends Component {
       <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 3}>
         <CRow className="py-3">
         <CCol className="mb-3" xs={12} lg={6}>
-            <CCard className="comment--list">
-              <div className="d-flex justify-content-between align-items-center pb-2">
-                <b>Attached documents</b>
-              </div>
-              {this.renderDocuments()}
-            </CCard>
+              {this.errorLoadingDocuments ?
+                <CAlert color="danger">Error loading documents</CAlert>
+                : <CCard className="comment--list">
+                  <div className="d-flex justify-content-between align-items-center pb-2">
+                    <b>Attached documents</b>
+                  </div>
+                  this.renderDocuments()
+                </CCard>
+              }
           </CCol>
           <CCol className="mb-3" xs={12} lg={6}>
-            <CCard className="comment--list">
-              <div className="d-flex justify-content-between align-items-center pb-2">
-                <b>Comments</b>
-              </div>
-              {this.renderComments()}
-            </CCard>
+              {this.errorLoadingComments ?
+                <CAlert color="danger">Error loading comments</CAlert>
+                : <CCard className="comment--list">
+                  <div className="d-flex justify-content-between align-items-center pb-2">
+                    <b>Comments</b>
+                  </div>
+                    this.renderComments()
+                </CCard>
+              }
           </CCol>
         </CRow>
       </CTabPane>
@@ -517,7 +530,7 @@ class ModalChanges extends Component {
           if(data.Data.SiteCode === this.state.sitecode && Object.keys(this.state.data).length === 0) {
             this.setState({data: data.Data, loading: false, justificationRequired: data.Data?.JustificationRequired, justificationProvided: data.Data?.JustificationProvided, activeKey: this.props.activeKey ? this.props.activeKey : this.state.activeKey})
           }
-        }
+        } else { this.errorLoadingData = true }
       });
     }
   }
@@ -535,7 +548,7 @@ class ModalChanges extends Component {
           else {
             this.setState({comments: "noData"});
           }
-        }
+        } else { this.errorLoadingComments = true }
       });
     }
   }
@@ -553,7 +566,7 @@ class ModalChanges extends Component {
           else {
             this.setState({documents: "noData"});
           }
-        }
+        } else { this.errorLoadingDocuments = true }
       });
     }
   }
