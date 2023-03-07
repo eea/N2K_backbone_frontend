@@ -3,10 +3,12 @@ import ConfigData from '../../../config.json';
 import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
 import {DataLoader} from '../../../components/DataLoader';
+import { CAlert } from '@coreui/react';
 
 const SiteGraph = () => {
     const [changesCountriesData, setChangesCountriesData] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [errorsLoading, setErrorsLoading] = useState(false);
     const [sitesPendingData, setSitesPendingData] = useState([]);
     const [sitesAcceptedData, setSitesAcceptedData] = useState([]);
     const [sitesRejectedData, setSitesRejectedData] = useState([]);
@@ -25,14 +27,14 @@ const SiteGraph = () => {
                 if(data?.Success) {
                     data.Data.sort((a, b) => a.Country.localeCompare(b.Country));
                     setChangesCountriesData(data.Data);
-                }
+                } else { setErrorsLoading(true) }
             }));
         promises.push(dl.fetch(ConfigData.GET_SITE_LEVEL + '?status=Pending')
             .then(response => response.json())
             .then(data => {
                 if(data?.Success) {
                     setSitesPendingData(data.Data);
-                }
+                } else { setErrorsLoading(true) }
             }));
         promises.push(dl.fetch(ConfigData.GET_SITE_LEVEL + '?status=Accepted')
             .then(response => response.json())
@@ -140,6 +142,10 @@ const SiteGraph = () => {
     if(isLoading)
         return (
             <em className="loading-container">Loading...</em>
+        )
+    else if(errorsLoading)
+        return (
+            <div><CAlert color="danger">Error loading graph data</CAlert></div>
         )
     else
         return (
