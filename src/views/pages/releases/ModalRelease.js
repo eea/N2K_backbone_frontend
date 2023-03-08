@@ -300,7 +300,7 @@ export class ModalRelease extends Component {
       if(data?.Success) {
         this.close(true);
         this.setState({updatingData: false});
-      } else { showMessage("Error: " + data.Message) }
+      } else { this.showMessage("Error: " + data.Message) }
     })
   }
 
@@ -317,7 +317,7 @@ export class ModalRelease extends Component {
       if(data?.Success) {
         this.setState({pendingData: [], harvestedData: [], completedData: [],completingEnvelope: {state: false, id: null}});
       }
-      else { showMessage("Error: " + data.Message) }
+      else { this.showMessage("Error: " + data.Message) }
     })
   }
 
