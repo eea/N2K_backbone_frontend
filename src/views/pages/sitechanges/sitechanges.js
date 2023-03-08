@@ -58,6 +58,7 @@ const Sitechanges = () => {
   const [selectOption, setSelectOption] = useState({});
   const [showModal, setShowModal] = useState(false);
   const [updatingData, setUpdatingData] = useState(false);
+  const [completingEnvelope, setCompletingEnvelope] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const turnstoneRef = useRef();
 
@@ -217,6 +218,7 @@ const Sitechanges = () => {
       .then(data => {
         if(data.Success) {
           setUpdatingData(false);
+          setCompletingEnvelope(false);
           setCountries([]);
           setCountry();
           setSitecodes({});
@@ -229,6 +231,7 @@ const Sitechanges = () => {
         }
       })
     setUpdatingData(true);
+    setCompletingEnvelope(true);
   }
 
   let sendRequest = (url,method,body,path)=>  {
@@ -333,6 +336,7 @@ const Sitechanges = () => {
 
   let changeLevel = (level)=>{
     setLevel(level);
+    clearSearch();
     forceRefreshData();
   }
 
@@ -435,8 +439,8 @@ const Sitechanges = () => {
                     {!isLoading && country &&
                       <li>
                         <CButton color="primary" onClick={()=>updateModalValues("Complete Envelopes", "This will complete the envelope", "Continue", ()=>completeEnvelope(), "Cancel", ()=>{})} disabled={updatingData}>
-                          {updatingData && <CSpinner size="sm"/>}
-                          {updatingData ? " Completing Envelope" : "Complete Envelope"}
+                          {completingEnvelope && <CSpinner size="sm"/>}
+                          {completingEnvelope ? " Completing Envelope" : "Complete Envelope"}
                         </CButton>
                       </li>
                     }
@@ -451,19 +455,19 @@ const Sitechanges = () => {
                 <div>
                   <ul className="btn--list">
                     <li>
-                      <div className="checkbox">
+                      <div className="checkbox" disabled={Object.keys(siteCodes).length < 3}>
                         <input type="checkbox" className="input-checkbox" id="site_check_critical" checked={level==="Critical"} onClick={()=>changeLevel("Critical")} readOnly/>
                         <label htmlFor="site_check_critical" className="input-label badge color--critical">Critical</label>
                       </div>
                     </li>
                     <li>
-                      <div className="checkbox">
+                      <div className="checkbox" disabled={Object.keys(siteCodes).length < 3}>
                         <input type="checkbox" className="input-checkbox" id="site_check_warning" checked={level==="Warning"} onClick={()=>changeLevel("Warning")} readOnly/>
                         <label htmlFor="site_check_warning" className="input-label badge color--warning">Warning</label>
                       </div>
                     </li>
                     <li>
-                      <div className="checkbox">
+                      <div className="checkbox" disabled={Object.keys(siteCodes).length < 3}>
                         <input type="checkbox" className="input-checkbox" id="site_check_info" checked={level==="Info"} onClick={()=>changeLevel("Info")} readOnly/>
                         <label htmlFor="site_check_info" className="input-label badge color--info">Info</label>
                       </div>

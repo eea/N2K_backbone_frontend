@@ -655,7 +655,7 @@ const Sitelineage = () => {
                   <i className="fa-solid fa-magnifying-glass"></i>
                 </CButton>
               </CCol>
-              <CCol className="mb-4">
+              <CCol md={12} lg={6} xl={3} className="mb-4">
                   <div className="select--right">
                     <CFormLabel className="form-label form-label-reporting col-md-4 col-form-label">Country </CFormLabel>
                     <CFormSelect aria-label="Default select example" className='form-select-reporting' disabled={isLoading} value={country} onChange={(e)=>changeCountry(e.target.value)}>
