@@ -287,7 +287,7 @@ export class ModalRelease extends Component {
     this.setState({message: text});
     setTimeout(() => {
       this.setState({message: null});
-    }, 4000);
+    }, 5000);
   };
 
   createRelease(){
@@ -300,10 +300,7 @@ export class ModalRelease extends Component {
       if(data?.Success) {
         this.close(true);
         this.setState({updatingData: false});
-      }
-      else {
-        console.log("Error: " + data.Message);
-      }
+      } else { showMessage("Error: " + data.Message) }
     })
   }
 
@@ -320,9 +317,7 @@ export class ModalRelease extends Component {
       if(data?.Success) {
         this.setState({pendingData: [], harvestedData: [], completedData: [],completingEnvelope: {state: false, id: null}});
       }
-      else {
-        console.log("Error: " + data.Message);
-      }
+      else { showMessage("Error: " + data.Message) }
     })
   }
 
