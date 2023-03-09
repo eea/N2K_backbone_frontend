@@ -1088,7 +1088,6 @@ export class ModalChanges extends Component {
   fieldValidator() {
     let body = Object.fromEntries(new FormData(document.querySelector("form")));
     let data = JSON.parse(JSON.stringify(body, this.state.informedFields));
-    // TODO discuss how to comunicate to the user null fields
     this.state.notValidField = [];
     for (let i in Object.keys(data)) {
       let field = Object.keys(data)[i]
@@ -1198,10 +1197,10 @@ export class ModalChanges extends Component {
   getBody() {
     let body = Object.fromEntries(new FormData(document.querySelector("form")));
     body.BioRegion = Array.from(document.getElementsByName("BioRegion")).map(el => el.value).sort().toString();
-    body.Area = body.Area == "" ? null : body.Area;
-    body.Length = body.Length == "" ? null : body.Length;
-    body.CentreX = body.CentreX == "" ? null : body.CentreX;
-    body.CentreY = body.CentreY == "" ? null : body.CentreY;
+    body.Area = body.Area == "" ? null : Number(body.Area);
+    body.Length = body.Length == "" ? null : Number(body.Length);
+    body.CentreX = body.CentreX == "" ? null : Number.parseFloat(body.CentreX);
+    body.CentreY = body.CentreY == "" ? null : Number.parseFloat(body.CentreY);
     body.Version = this.props.version;
     body.SiteCode = this.props.item;
 
@@ -1210,7 +1209,6 @@ export class ModalChanges extends Component {
 
   saveChangesModal() {
     let body = this.getBody();
-    console.log(body)
     if (this.fieldValidator()) {
       this.props.updateModalValues("Save changes", "This will save the site changes", "Continue", () => this.saveChanges(body), "Cancel", () => { });
     }
