@@ -129,7 +129,7 @@ const Releases = () => {
       else {
         modalValues.close();
         setErrorRequest(true);
-        setTimeout(() => setErrorRequest(false), 5000);
+        setTimeout(() => setErrorRequest(false), ConfigData.MessageTimeout);
       }
     })
   }
@@ -145,14 +145,14 @@ const Releases = () => {
       sendRequest(ConfigData.UNIONLIST_UPDATE,"PUT",body)
       .then(response => response.json())
       .then(data => {
-        if(!data?.Success) {
+        if(data?.Success) {
           modalValues.close();
           setRefresh(true);
         }
         else {
           modalValues.close();
           setErrorRequest(true);
-          setTimeout(() => setErrorRequest(false), 5000);
+          setTimeout(() => setErrorRequest(false), ConfiData.MessageTimeout);
         }
       })
     }
