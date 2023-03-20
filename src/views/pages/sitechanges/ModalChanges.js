@@ -65,6 +65,9 @@ export class ModalChanges extends Component {
 
     this.changingStatus = false;
 
+    this.versionChanged = false;
+    this.currentVersion = props.version;
+
     this.state = {
       activeKey: 1,
       loading: true,
@@ -86,6 +89,7 @@ export class ModalChanges extends Component {
       notValidComment: "",
       notValidDocument: "",
       errorLoading: false,
+      generalError: "",
       fields: {},
       informedFields: [],
       notValidField: [],
@@ -167,19 +171,25 @@ export class ModalChanges extends Component {
       this.setState({ notValidComment: message });
       setTimeout(() => {
         this.setState({ notValidComment: "" });
-      }, 5000);
+      }, ConfigData.MessageTimeout);
     }
     else if (target === "document") {
       this.setState({ notValidDocument: message });
       setTimeout(() => {
         this.setState({ notValidDocument: "" });
-      }, 5000);
+      }, ConfigData.MessageTimeout);
     }
     else if (target === "fields") {
       this.setState({ notValidField: message });
       setTimeout(() => {
         this.setState({ notValidField: "" });
-      }, 5000);
+      }, ConfigData.MessageTimeout);
+    }
+    else if (target === "general") {
+      this.setState({ generalError: message });
+      setTimeout(() => {
+        this.setState({ generalError: "" });
+      }, ConfigData.MessageTimeout);
     }
   }
 
@@ -1209,7 +1219,6 @@ export class ModalChanges extends Component {
 
   saveChangesModal() {
     let body = this.getBody();
-    console.log(body)
     if (this.fieldValidator()) {
       this.props.updateModalValues("Save changes", "This will save the site changes", "Continue", () => this.saveChanges(body), "Cancel", () => { });
     }
@@ -1300,6 +1309,9 @@ export class ModalChanges extends Component {
                 </>
               }
             </CAlert>
+            { this.state.generalError !== "" &&
+              <CAlert color="danger">{this.state.generalError}</CAlert>
+            }
             <CNav variant="tabs" role="tablist">
               <CNavItem>
                 <CNavLink
@@ -1384,7 +1396,7 @@ export class ModalChanges extends Component {
     this.setState({ showCopyTooltip: true });
     setTimeout(() => {
       this.setState({ showCopyTooltip: false });
-    }, 3000);
+    }, ConfigData.MessageTimeout);
   }
 
   renderData() {
@@ -1441,7 +1453,7 @@ export class ModalChanges extends Component {
   loadData() {
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)) {
       this.isLoadingData = true;
-      this.dl.fetch(ConfigData.SITECHANGES_DETAIL + `siteCode=${this.props.item}&version=${this.props.version}`)
+      this.dl.fetch(ConfigData.SITECHANGES_DETAIL + `siteCode=${this.props.item}&version=${this.versionChanged ? this.currentVersion : this.props.version}`)
         .then(response => {
           if (response.status === 200)
             return response.json();
@@ -1587,10 +1599,10 @@ export class ModalChanges extends Component {
   acceptChanges() {
     this.props.accept()
       .then((data) => {
-        if (data?.ok) {
+        if (data?.Success) {
           this.changingStatus = false;
           this.setState({ data: {}, fields: {}, loading: true, siteTypeValue: "", siteRegionValue: "" });
-        }
+        } else { this.showErrorMessage("general", "Error accepting changes") }
       });
   }
 
@@ -1606,10 +1618,10 @@ export class ModalChanges extends Component {
   rejectChanges() {
     this.props.reject()
       .then(data => {
-        if (data?.ok) {
+        if (data?.Success) {
           this.changingStatus = false;
           this.setState({ data: {}, fields: {}, loading: true, siteTypeValue: "", siteRegionValue: "" });
-        }
+        } else { this.showErrorMessage("general", "Error rejecting changes") }
       });
   }
 
@@ -1625,11 +1637,25 @@ export class ModalChanges extends Component {
   setBackToPending() {
     this.props.backToPending()
       .then((data) => {
-        if (data?.ok) {
+        if (data?.Success) {
           this.changingStatus = false;
+          this.versionChanged = true;
+          this.currentVersion = data.Data[0].VersionId;
           this.setState({ data: {}, fields: {}, loading: true, siteTypeValue: "", siteRegionValue: "" });
-        }
+        } else { this.showErrorMessage("general", "Error setting changes back to pending") }
       });
+  }
+
+  async getCurrentVersion() {
+    this.currentVersion = this.props.version;
+    this.dl.fetch(ConfigData.SITEDETAIL_GET + "?siteCode=" + this.props.item)
+      .then(response => response.json())
+      .then(data => {
+        if(data?.Success)
+          return data.Data.Version;
+        else
+          return this.props.version;
+    })
   }
 
   sendRequest(url, method, body, path) {

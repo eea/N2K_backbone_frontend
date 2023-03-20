@@ -70,7 +70,7 @@
     }
   }
   &:focus, &:focus:active {
-    color: inherit;
+    color: $primary-base;
     box-shadow: none;
   }
   &-white {
