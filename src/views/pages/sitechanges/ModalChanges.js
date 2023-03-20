@@ -1454,19 +1454,7 @@ export class ModalChanges extends Component {
   loadData() {
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)) {
       this.isLoadingData = true;
-      this.dl.fetch(ConfigData.SITEDETAIL_GET + "?siteCode=" + this.props.item)
-        .then(response => response.json())
-        .then(data => {
-          if(data?.Success)
-            return data.Data.Version;
-          else
-            return this.props.version;
-      })
-        .then(version => {
-          this.currentVersion = version;
-          this.versionChanged = false;
-          return this.dl.fetch(ConfigData.SITECHANGES_DETAIL + `siteCode=${this.props.item}&version=${this.versionChanged ? this.currentVersion : this.props.version}`)
-      })
+      this.dl.fetch(ConfigData.SITECHANGES_DETAIL + `siteCode=${this.props.item}&version=${this.versionChanged ? this.currentVersion : this.props.version}`)
         .then(response => {
           if (response.status === 200)
             return response.json();
@@ -1653,6 +1641,7 @@ export class ModalChanges extends Component {
         if (data?.Success) {
           this.changingStatus = false;
           this.versionChanged = true;
+          this.currentVersion = data.Data[0].VersionId;
           this.setState({ data: {}, fields: {}, loading: true, siteTypeValue: "", siteRegionValue: "" });
         } else { this.showErrorMessage("general", "Error setting changes back to pending") }
       });
