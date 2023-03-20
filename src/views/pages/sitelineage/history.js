@@ -47,16 +47,18 @@ const Sitelineage = () => {
     dl.fetch(ConfigData.LINEAGE_COUNTRIES)
     .then(response => response.json())
     .then(data => {
-      setLoadingCountries(false);
-      let countriesList = [];
-      for(let i in data.Data){
-        countriesList.push({name:data.Data[i].Country,code:data.Data[i].Code});
-      }
-      countriesList = [{name:"",code:""}, ...countriesList];
-      setCountries(countriesList);
-      if(country === ""){
-        setCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code);
-        changeCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code);
+      if(data?.Success) {
+        setLoadingCountries(false);
+        let countriesList = [];
+        for(let i in data.Data){
+          countriesList.push({name:data.Data[i].Country,code:data.Data[i].Code});
+        }
+        countriesList = [{name:"",code:""}, ...countriesList];
+        setCountries(countriesList);
+        if(country === ""){
+          setCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code);
+          changeCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code);
+        }
       }
     });
   }
@@ -89,7 +91,7 @@ const Sitelineage = () => {
       dl.fetch(ConfigData.LINEAGE_GET_SITES+"country="+country)
       .then(response =>response.json())
       .then(data => {
-        if(data.Success) {
+        if(data?.Success) {
           if(Object.keys(data.Data).length === 0){
             setSiteCodes("nodata");
           }
@@ -109,72 +111,74 @@ const Sitelineage = () => {
       dl.fetch(ConfigData.SITEDETAIL_GET+"?siteCode="+siteCode)
       .then(response => response.json())
       .then(data => {
-        if(data.Success && data.Data.SiteCode === siteCode) {
-          setIsLoading(false);
-          setSiteData(data.Data);
-          let testData = [
-            {
-              "SiteCode": siteCode,
-              "Version": "2019-2020",
-              "Antecessors": {
-                "SiteCode": null,
-                "Version": null,
-              },
-              "Successors": {
-                "SiteCode": siteCode,
-                "Version": "2020-2021",
-              },
-            },
-            {
-              "SiteCode": siteCode,
-              "Version": "2020-2021",
-              "Antecessors": {
+        if(data?.Success) {
+          if(data.Data.SiteCode === siteCode) {
+            setIsLoading(false);
+            setSiteData(data.Data);
+            let testData = [
+              {
                 "SiteCode": siteCode,
                 "Version": "2019-2020",
+                "Antecessors": {
+                  "SiteCode": null,
+                  "Version": null,
+                },
+                "Successors": {
+                  "SiteCode": siteCode,
+                  "Version": "2020-2021",
+                },
               },
-              "Successors": {
-                "SiteCode": "AT2208000, AT2209000",
-                "Version": "2020-2021",
-              },
-            },
-            {
-              "SiteCode": "AT2208000",
-              "Version": "2021-2022",
-              "Antecessors": {
+              {
                 "SiteCode": siteCode,
                 "Version": "2020-2021",
+                "Antecessors": {
+                  "SiteCode": siteCode,
+                  "Version": "2019-2020",
+                },
+                "Successors": {
+                  "SiteCode": "AT2208000, AT2209000",
+                  "Version": "2020-2021",
+                },
               },
-              "Successors": {
+              {
+                "SiteCode": "AT2208000",
+                "Version": "2021-2022",
+                "Antecessors": {
+                  "SiteCode": siteCode,
+                  "Version": "2020-2021",
+                },
+                "Successors": {
+                  "SiteCode": "AT2208000",
+                  "Version": "2022-2023",
+                },
+              },
+              {
                 "SiteCode": "AT2208000",
                 "Version": "2022-2023",
+                "Antecessors": {
+                  "SiteCode": "AT2208000",
+                  "Version": "2021-2022"
+                },
+                "Successors": {
+                  "SiteCode": null,
+                  "Version": null
+                },
               },
-            },
-            {
-              "SiteCode": "AT2208000",
-              "Version": "2022-2023",
-              "Antecessors": {
-                "SiteCode": "AT2208000",
-                "Version": "2021-2022"
+              {
+                "SiteCode": "AT2209000",
+                "Version": "2021-2022",
+                "Antecessors": {
+                  "SiteCode": siteCode,
+                  "Version": "2020-2021"
+                },
+                "Successors": {
+                  "SiteCode": null,
+                  "Version": null
+                },
               },
-              "Successors": {
-                "SiteCode": null,
-                "Version": null
-              },
-            },
-            {
-              "SiteCode": "AT2209000",
-              "Version": "2021-2022",
-              "Antecessors": {
-                "SiteCode": siteCode,
-                "Version": "2020-2021"
-              },
-              "Successors": {
-                "SiteCode": null,
-                "Version": null
-              },
-            },
-          ]
-          setTestTableData(testData);
+            ]
+            setTestTableData(testData);
+          }
         }
       });
     }

@@ -234,33 +234,39 @@ export class ModalRelease extends Component {
       promises.push(this.dl.fetch(ConfigData.GET_PENDING_LEVEL)
       .then(response => response.json())
       .then(data => {
-        if(data.Data.length === 0) {
-          this.setState({pendingData: "nodata"});
-        }
-        else {
-          this.setState({pendingData: data.Data});
+        if(data?.Success) {
+          if(data.Data.length === 0) {
+            this.setState({pendingData: "nodata"});
+          }
+          else {
+            this.setState({pendingData: data.Data});
+          }
         }
       }));
       promises.push(this.dl.fetch(ConfigData.HARVESTING_GET_STATUS+"?status=Harvested")
       .then(response => response.json())
       .then(data => {
-        if(data.Data.length === 0) {
-          this.setState({harvestedData: "nodata"});
-        }
-        else {
-          data.Data.sort((a, b) => a.Name.localeCompare(b.Name));
-          this.setState({harvestedData: data.Data});
+        if(data?.Success) {
+          if(data.Data.length === 0) {
+            this.setState({harvestedData: "nodata"});
+          }
+          else {
+            data.Data.sort((a, b) => a.Name.localeCompare(b.Name));
+            this.setState({harvestedData: data.Data});
+          }
         }
       }));
       promises.push(this.dl.fetch(ConfigData.HARVESTING_CLOSED)
       .then(response => response.json())
       .then(data => {
-        if(data.Data.length === 0) {
-          this.setState({completedData: "nodata"});
-        }
-        else {
-          data.Data.sort((a, b) => a.Name.localeCompare(b.Name));
-          this.setState({completedData: data.Data});
+        if(data?.Success) {
+          if(data.Data.length === 0) {
+            this.setState({completedData: "nodata"});
+          }
+          else {
+            data.Data.sort((a, b) => a.Name.localeCompare(b.Name));
+            this.setState({completedData: data.Data});
+          }
         }
       }));
       Promise.all(promises).then(d => this.setState({loading: false}));
@@ -291,13 +297,10 @@ export class ModalRelease extends Component {
     this.sendRequest(ConfigData.UNIONLIST_CREATE,"POST",body)
     .then(response => response.json())
     .then(data => {
-      if(data.Success) {
+      if(data?.Success) {
         this.close(true);
         this.setState({updatingData: false});
-      }
-      else {
-        console.log("Error: " + data.Message);
-      }
+      } else { this.showMessage("Error: " + data.Message) }
     })
   }
 
@@ -311,12 +314,10 @@ export class ModalRelease extends Component {
     this.sendRequest(ConfigData.HARVESTING_CHANGE_STATUS+"?country="+country+"&version="+version+"&toStatus=Closed","POST","")
     .then(response => response.json())
     .then(data => {
-      if(data.Success) {
+      if(data?.Success) {
         this.setState({pendingData: [], harvestedData: [], completedData: [],completingEnvelope: {state: false, id: null}});
       }
-      else {
-        console.log("Error: " + data.Message);
-      }
+      else { this.showMessage("Error: " + data.Message) }
     })
   }
 

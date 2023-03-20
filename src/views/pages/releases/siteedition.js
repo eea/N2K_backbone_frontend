@@ -1,4 +1,5 @@
 import React, { lazy, useState, useRef } from 'react'
+import { CAlert } from '@coreui/react';
 import { AppFooter, AppHeader } from '../../../components/index'
 import ConfigData from '../../../config.json';
 import '@fortawesome/fontawesome-free/css/all.min.css';
@@ -33,6 +34,7 @@ const Releases = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalItem, setModalItem] = useState({});
   const [siteCodes, setSitecodes] = useState([]);
+  const [errorLoading, setErrorLoading] = useState(false);
   const [searchList, setSearchList] = useState({});
   const [selectOption, setSelectOption] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -62,18 +64,20 @@ const Releases = () => {
     dl.fetch(ConfigData.GET_CLOSED_COUNTRIES)
     .then(response => response.json())
     .then(data => {
+      if(data?.Success) {
+        let countriesList = [];
+        for(let i in data.Data){
+          countriesList.push({name:data.Data[i].Country,code:data.Data[i].Code});
+        }
+        countriesList.sort((a, b) => a.name.localeCompare(b.name));
+        countriesList = [{name:"",code:""}, ...countriesList];
+        setCountries(countriesList);
+        if(country === ""){
+          setCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code);
+          changeCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code)
+        }
+      } else { setErrorLoading(true) }
       setLoadingCountries(false);
-      let countriesList = [];
-      for(let i in data.Data){
-        countriesList.push({name:data.Data[i].Country,code:data.Data[i].Code});
-      }
-      countriesList.sort((a, b) => a.name.localeCompare(b.name));
-      countriesList = [{name:"",code:""}, ...countriesList];
-      setCountries(countriesList);
-      if(country === ""){
-        setCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code);
-        changeCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code)
-      }
     });
   }
 
@@ -89,8 +93,10 @@ const Releases = () => {
     dl.fetch(ConfigData.BIOREGIONS_GET)
     .then(response => response.json())
     .then(data => {
-      let regionsList = data.Data;
-      setBioRegions(regionsList);
+      if(data?.Success) {
+        let regionsList = data.Data;
+        setBioRegions(regionsList);
+      }
     });
   }
 
@@ -98,8 +104,10 @@ const Releases = () => {
     dl.fetch(ConfigData.SITETYPES_GET)
     .then(response => response.json())
     .then(data => {
-      let typesList = data.Data;
-      setSiteTypes(typesList);
+      if(data?.Success) {
+        let typesList = data.Data;
+        setSiteTypes(typesList);
+      }
     });
   }
 
@@ -157,19 +165,21 @@ const Releases = () => {
 
   let loadData = () => {
     if(siteCodes.length !==0) return;
-    if(country !=="" && !isLoading && siteCodes!=="nodata" && siteCodes.length === 0){
+    if(country !=="" && !isLoading && siteCodes!=="nodata" && siteCodes.length === 0 && !errorLoading){
       setIsLoading(true);
       dl.fetch(ConfigData.SITEEDITION_NON_PENDING_GET+"country="+country)
       .then(response =>response.json())
       .then(data => {
-        if(Object.keys(data.Data).length === 0){
-          setSitecodes("nodata");
-        }
-        else {
-          setSitecodes(data.Data);
-          setSearchList(getSitesList(data.Data));
-          setPageCount(Math.ceil(data.Data.length / Number(pageSize)));
-        }
+        if(data?.Success) {
+          if(Object.keys(data.Data).length === 0){
+            setSitecodes("nodata");
+          }
+          else {
+            setSitecodes(data.Data);
+            setSearchList(getSitesList(data.Data));
+            setPageCount(Math.ceil(data.Data.length / Number(pageSize)));
+          }
+        } else { setErrorLoading(true) }
         setIsLoading(false);
       });
     }
@@ -327,7 +337,10 @@ const Releases = () => {
                 </CCol>
             </CRow>
             <CRow className="grid">
-              {isLoading ?
+              {(errorLoading && !isLoading) &&
+                <CAlert color="danger">Error loading data</CAlert>
+              }
+              {(!errorLoading && isLoading) ?
                 <div className="loading-container"><em>Loading...</em></div>
               : (siteCodes === "nodata" ?
                 <div className="nodata-container"><em>No Data</em></div>

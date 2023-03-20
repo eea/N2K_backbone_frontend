@@ -230,14 +230,16 @@ function TableManagement(props) {
       dl.fetch(ConfigData.RELEASES_GET)
       .then(response =>response.json())
       .then(data => {
-        if(Object.keys(data.Data).length === 0){
-          setReleasesDate("nodata");
+        if(data?.Success) {
+          if(Object.keys(data.Data).length === 0){
+            setReleasesDate("nodata");
+          }
+          else {
+            data.Data = data.Data.map(a=>{a.IsOfficial = a.IsOfficial? "Yes":"No"; return a});
+            setReleasesDate(data.Data.sort((a,b)=>new Date(b.CreateDate)-new Date(a.CreateDate)));
+          }
+          setIsLoading(false);
         }
-        else {
-          data.Data = data.Data.map(a=>{a.IsOfficial = a.IsOfficial? "Yes":"No"; return a});
-          setReleasesDate(data.Data.sort((a,b)=>new Date(b.CreateDate)-new Date(a.CreateDate)));
-        }
-        setIsLoading(false);
       });
     }
   }

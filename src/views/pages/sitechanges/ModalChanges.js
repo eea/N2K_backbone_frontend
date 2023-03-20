@@ -1,5 +1,5 @@
 import ConfigData from '../../../config.json';
-import React, { Component, useState } from 'react';
+import React, { Component } from 'react';
 import Select from 'react-select';
 import {
   CButton,
@@ -254,29 +254,28 @@ export class ModalChanges extends Component {
   saveComment(id, input, comment, target) {
     let body = this.state.comments.find(a => a.Id === id);
     body.Comments = comment;
-
-    this.sendRequest(ConfigData.UPDATE_COMMENT, "PUT", body)
+    this.sendRequest(ConfigData.UPDATE_COMMENT,"PUT",body)
       .then((data) => {
-        let reader = data.body.getReader();
-        let txt = "";
-        let readData = (data) => {
-          if (data.done)
-            return JSON.parse(txt);
-          else {
-            txt += new TextDecoder().decode(data.value);
-            return reader.read().then(readData);
+        if(data?.ok) {
+          let reader = data.body.getReader();
+          let txt = "";
+          let readData = (data) => {
+            if(data.done)
+              return JSON.parse(txt);
+            else{
+              txt += new TextDecoder().decode(data.value);
+              return reader.read().then(readData);
+            }
           }
-        }
 
-        reader.read().then(readData).then((data) => {
-          this.setState({ comments: data.Data })
-        });
+          reader.read().then(readData).then((data) => {
+            this.setState({ comments: data.Data })
+          });
 
-        if (data?.ok) {
           input.disabled = true;
           input.readOnly = true;
           target.firstChild.classList.replace("fa-floppy-disk", "fa-pencil");
-        }
+        } else { this.showErrorMessage("comment", "Error saving comment") }
       })
     this.loadComments();
   }
@@ -300,7 +299,7 @@ export class ModalChanges extends Component {
           if (data?.ok) {
             let cmts = this.state.comments.filter(e => e.Id !== parseInt(id));
             this.setState({ comments: cmts.length > 0 ? cmts : "noData" });
-          }
+          } else { this.showErrorMessage("comment", "Error deleting comment") }
         });
     }
     else {
@@ -330,7 +329,7 @@ export class ModalChanges extends Component {
           if (data?.ok) {
             let docs = this.state.documents.filter(e => e.Id !== parseInt(id));
             this.setState({ documents: docs.length > 0 ? docs : "noData" });
-          }
+          } else { this.showErrorMessage("document", "Error deleting document") }
         });
     }
     else {

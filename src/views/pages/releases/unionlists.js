@@ -44,9 +44,11 @@ const Releases = () => {
           dl.fetch(ConfigData.RELEASES_BIOREGIONS)
           .then(response =>response.json())
           .then(data => {
-            if(Object.keys(data.Data).length > 0){
-              setBioRegions(data.Data);
-              bioRegionsData = data.Data;
+            if(data?.Success) {
+              if(Object.keys(data.Data).length > 0){
+                setBioRegions(data.Data);
+                bioRegionsData = data.Data;
+              }
             }
           })
         );
@@ -56,18 +58,20 @@ const Releases = () => {
           dl.fetch(ConfigData.UNIONLISTS_SUMMARY)
           .then(response =>response.json())
           .then(data => {
-            if(data.Count === 0){
-              setBioRegionsSummary(data.Data.BioRegionSummary);
-              setPageResults(data.Count);
-              setTableData1("nodata");
-              setTableData2("nodata");
+            if(data?.Success) {
+              if(data.Count === 0){
+                setBioRegionsSummary(data.Data.BioRegionSummary);
+                setPageResults(data.Count);
+                setTableData1("nodata");
+                setTableData2("nodata");
+              }
+              else if(Object.keys(data.Data).length > 0){
+                setBioRegionsSummary(data.Data.BioRegionSummary);
+                setPageResults(data.Count);
+                setActiveBioregions(data.Data.BioRegionSummary.filter(a=>a.Count>0).map(a=>a.BioRegion).toString());
+              }
+              setIsLoading(false);
             }
-            else if(Object.keys(data.Data).length > 0){
-              setBioRegionsSummary(data.Data.BioRegionSummary);
-              setPageResults(data.Count);
-              setActiveBioregions(data.Data.BioRegionSummary.filter(a=>a.Count>0).map(a=>a.BioRegion).toString());
-            }
-            setIsLoading(false);
           })
         );
       }
@@ -82,66 +86,68 @@ const Releases = () => {
           dl.fetch(ConfigData.UNIONLISTS_COMPARER+"?page="+pageNumber+"&limit="+pageSize + (activeBioregions && "&bioregions="+activeBioregions))
           .then(response => response.json())
           .then(data => {
-            if(Object.keys(data.Data).length > 0 && tableData1.length === 0 && tableData2.length === 0) {
-              let bioReg = bioRegions.length === 0 ? bioRegionsData : bioRegions;
-              let dataTable1 = [];
-              let dataTable2 = [];
-              for(let i in data.Data) {
-                let row = data.Data[i];
-                let rowTable1 = {};
-                let rowTable2 = {};
-                Object.keys(row).forEach((key) => {
-                  let value = row[key]?.Source === undefined ? row[key] : row[key]?.Source;
-                  if(key === "BioRegion") {
-                    value = bioReg.find(a=>a.BioRegionShortCode === value).RefBioGeoName;
-                  }
-                  if(row.Changes === "ADDED" && (key === "BioRegion" || key === "Sitecode")) {
-                    value = "";
-                  }
-                  else if(key === "Priority") {
-                    value = value !== null && (value ? "Yes" : "No");
-                  }
-                  rowTable1[key] = value;
-                });
-                dataTable1.push(rowTable1);
-                Object.keys(row).forEach((key) => {
-                  let value;
-                  if((row.Changes === "ADDED" || row.Changes === "DELETED")) {
-                    value = row[key]?.Target === undefined ? row[key] : row[key]?.Target;
-                    if(key === "Priority") {
-                      value = value !== null && (value ? "Yes" : "No");
-                    }
+            if(data?.Success) {
+              if(Object.keys(data.Data).length > 0 && tableData1.length === 0 && tableData2.length === 0) {
+                let bioReg = bioRegions.length === 0 ? bioRegionsData : bioRegions;
+                let dataTable1 = [];
+                let dataTable2 = [];
+                for(let i in data.Data) {
+                  let row = data.Data[i];
+                  let rowTable1 = {};
+                  let rowTable2 = {};
+                  Object.keys(row).forEach((key) => {
+                    let value = row[key]?.Source === undefined ? row[key] : row[key]?.Source;
                     if(key === "BioRegion") {
                       value = bioReg.find(a=>a.BioRegionShortCode === value).RefBioGeoName;
                     }
-                    if(row.Changes === "DELETED" && (key === "BioRegion" || key === "Sitecode")) {
+                    if(row.Changes === "ADDED" && (key === "BioRegion" || key === "Sitecode")) {
                       value = "";
                     }
-                  }
-                  else {
-                    if(row[key]?.Change === null) {
+                    else if(key === "Priority") {
+                      value = value !== null && (value ? "Yes" : "No");
+                    }
+                    rowTable1[key] = value;
+                  });
+                  dataTable1.push(rowTable1);
+                  Object.keys(row).forEach((key) => {
+                    let value;
+                    if((row.Changes === "ADDED" || row.Changes === "DELETED")) {
                       value = row[key]?.Target === undefined ? row[key] : row[key]?.Target;
                       if(key === "Priority") {
                         value = value !== null && (value ? "Yes" : "No");
                       }
-                    }
-                    else {
-                      value = row[key];
-                      if(key === "Priority") {
-                        value.Source = value.Source ? "Yes" : "No";
-                        value.Target = value.Target ? "Yes" : "No";
+                      if(key === "BioRegion") {
+                        value = bioReg.find(a=>a.BioRegionShortCode === value).RefBioGeoName;
+                      }
+                      if(row.Changes === "DELETED" && (key === "BioRegion" || key === "Sitecode")) {
+                        value = "";
                       }
                     }
-                    if(key === "BioRegion") {
-                      value = bioReg.find(a=>a.BioRegionShortCode === value).RefBioGeoName;
+                    else {
+                      if(row[key]?.Change === null) {
+                        value = row[key]?.Target === undefined ? row[key] : row[key]?.Target;
+                        if(key === "Priority") {
+                          value = value !== null && (value ? "Yes" : "No");
+                        }
+                      }
+                      else {
+                        value = row[key];
+                        if(key === "Priority") {
+                          value.Source = value.Source ? "Yes" : "No";
+                          value.Target = value.Target ? "Yes" : "No";
+                        }
+                      }
+                      if(key === "BioRegion") {
+                        value = bioReg.find(a=>a.BioRegionShortCode === value).RefBioGeoName;
+                      }
                     }
-                  }
-                  rowTable2[key] = value;
-                });
-                dataTable2.push(rowTable2);
+                    rowTable2[key] = value;
+                  });
+                  dataTable2.push(rowTable2);
+                }
+                setTableData1(dataTable1);
+                setTableData2(dataTable2);
               }
-              setTableData1(dataTable1);
-              setTableData2(dataTable2);
             }
           })
         );
@@ -250,8 +256,10 @@ const Releases = () => {
     dl.fetch(ConfigData.UNIONLISTS_DOWNLOAD+"?bioregs="+regions)
       .then(response => response.json())
       .then(data => {
-        window.location = data.Data;
-        setIsDownloading(false);
+        if(data?.Success) {
+          window.location = data.Data;
+          setIsDownloading(false);
+        }
       });
   }
 

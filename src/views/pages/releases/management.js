@@ -24,6 +24,7 @@ import { ConfirmationModal } from './components/ConfirmationModal';
 const Releases = () => {
   const [refresh,setRefresh] = useState(false);
   const [updating, setUpdating] = useState(false);
+  const [errorRequest, setErrorRequest]  = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalValues, setModalValues] = useState({
     visibility: false,
@@ -121,13 +122,14 @@ const Releases = () => {
     sendRequest(ConfigData.UNIONLIST_DELETE,"DELETE",body)
     .then(response => response.json())
     .then(data => {
-      if(data.Success) {
+      if(data?.Success) {
         modalValues.close();
         setRefresh(true);
       }
       else {
-        //errors.push(data.Message);
-        console.log("Error: " + data.Message);
+        modalValues.close();
+        setErrorRequest(true);
+        setTimeout(() => setErrorRequest(false), ConfigData.MessageTimeout);
       }
     })
   }
@@ -143,13 +145,14 @@ const Releases = () => {
       sendRequest(ConfigData.UNIONLIST_UPDATE,"PUT",body)
       .then(response => response.json())
       .then(data => {
-        if(data.Success) {
+        if(data?.Success) {
           modalValues.close();
           setRefresh(true);
         }
         else {
-          //errors.push(data.Message);
-          console.log("Error: " + data.Message);
+          modalValues.close();
+          setErrorRequest(true);
+          setTimeout(() => setErrorRequest(false), ConfiData.MessageTimeout);
         }
       })
     }
@@ -251,6 +254,9 @@ const Releases = () => {
                   </ul>
               </div>
             </div>
+            {errorRequest && 
+              <CAlert color="danger">Something went wrong with your request</CAlert>
+            }
             <CRow>
               <CCol>
                 <TableManagement
