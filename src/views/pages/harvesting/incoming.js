@@ -98,7 +98,7 @@ const Harvesting = () => {
   const messageTimeOut = () => {
     setTimeout(() => {
       setAlertValues({visible:false, text:'', color:'primary'});
-    }, 5000);
+    }, ConfigData.MessageTimeout);
   }
 
   const sendRequest = (url,method,body,path) => {

@@ -97,7 +97,7 @@ const Sitechanges = () => {
 
   const showErrorMessage = (message) => {
     setErrorMessage("Something went wrong: " + message);
-    setTimeout(() => {setErrorMessage('')}, 5000);
+    setTimeout(() => {setErrorMessage('')}, ConfigData.MessageTimeout);
   }
 
   let selectedCodes = [],
@@ -134,7 +134,7 @@ const Sitechanges = () => {
     setSearchList({});
     for(let i in refreshSitechanges)
       setRefreshSitechanges(i,true)
-    //setIsLoading(false);
+    setIsLoading(false);
     };
 
   let postRequest = (url,body)=>{
@@ -148,24 +148,42 @@ const Sitechanges = () => {
     return dl.fetch(url, options)
   }
 
+  const readResponse = (data, errorMessage) => {
+    let reader = data.body.getReader();
+    let txt = "";
+    let readData = (data) => {
+      if (data.done)
+        return JSON.parse(txt);
+      else {
+        txt += new TextDecoder().decode(data.value);
+        return reader.read().then(readData);
+      }
+    }
+    return reader.read().then(readData).then((data) => {
+      if(!data.Success)
+        showErrorMessage(errorMessage)
+      return data;
+    });
+  }
+
   let setBackToPending = (changes, refresh)=>{
     setUpdatingData(true);
     let rBody = !Array.isArray(changes)?[changes]:changes
 
     return postRequest(ConfigData.MOVE_TO_PENDING, rBody)
     .then(data => {
-        if(data.ok){
+        if(data?.ok){
           setUpdatingData(false);
+          let response = readResponse(data, "Back To Pending");
           if(refresh){
             forceRefreshData();
             setForceRefresh(forceRefresh+1);
           }
-        }else
-          showErrorMessage("Back To Pending");
-        return data;
+          return response;
+        } else showErrorMessage("Back To Pending");
     }).catch(e => {
       showErrorMessage("Back To Pending");
-      console.log(e);
+      console.error(e)
     });
   }
 
@@ -177,16 +195,16 @@ const Sitechanges = () => {
     .then(data => {
         if(data.ok){
           setUpdatingData(false);
+          let response = readResponse(data, "Accept Changes");
           if(refresh){
             forceRefreshData();
             setForceRefresh(forceRefresh+1);
           }
-        }else
-          showErrorMessage("Accept Changes");
-        return data;
+          return response;
+        } else showErrorMessage("Accept Changes");
     }).catch(e => {
       showErrorMessage("Accept Changes");
-      console.log(e);
+      console.error(e);
     });
   }
 
@@ -198,16 +216,16 @@ const Sitechanges = () => {
     .then(data => {
         if(data.ok){
           setUpdatingData(false);
+          let response = readResponse(data, "Reject Changes");
           if(refresh){
             forceRefreshData();
             setForceRefresh(forceRefresh+1);
           }
-        }else
-          showErrorMessage("Reject Changes");
-        return data;
+          return response;
+        } else showErrorMessage("Reject Changes");
     }).catch(e => {
       showErrorMessage("Reject Changes");
-      console.log(e);
+      console.error(e);
     });
   }
 
@@ -524,7 +542,7 @@ const Sitechanges = () => {
                           active={activeTab === 1}
                           onClick={() => {changeStatus(1);}}
                         >
-                          Pending <span className="badge status--pending">{Object.keys(siteCodes).length === 3 && siteCodes.pending.length}</span>
+                          Pending <span className="badge status--pending">{Object.keys(siteCodes).length === 3 && siteCodes.pending?.length}</span>
                         </CNavLink>
                       </CNavItem>
                       <CNavItem>
@@ -533,7 +551,7 @@ const Sitechanges = () => {
                           active={activeTab === 2}
                           onClick={() => {changeStatus(2);}}
                         >
-                          Accepted <span className="badge status--accepted">{Object.keys(siteCodes).length === 3 && siteCodes.accepted.length}</span>
+                          Accepted <span className="badge status--accepted">{Object.keys(siteCodes).length === 3 && siteCodes.accepted?.length}</span>
                         </CNavLink>
                       </CNavItem>
                       <CNavItem>
@@ -542,7 +560,7 @@ const Sitechanges = () => {
                           active={activeTab === 3}
                           onClick={() => {changeStatus(3);}}
                         >
-                          Rejected <span className="badge status--rejected">{Object.keys(siteCodes).length === 3 && siteCodes.rejected.length}</span>
+                          Rejected <span className="badge status--rejected">{Object.keys(siteCodes).length === 3 && siteCodes.rejected?.length}</span>
                         </CNavLink>
                       </CNavItem>
                     </CNav>

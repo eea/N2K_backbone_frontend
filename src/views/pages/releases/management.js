@@ -61,7 +61,7 @@ const Releases = () => {
           text: null,
         }
       }));
-    }, 4000);
+    }, ConfigData.MessageTimeout);
   };
 
   function updateModalValues(title, text, primaryButtonText, primaryButtonFunction, secondaryButtonText, secondaryButtonFunction, keepOpen) {

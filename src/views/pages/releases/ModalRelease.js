@@ -281,7 +281,7 @@ export class ModalRelease extends Component {
     this.setState({message: text});
     setTimeout(() => {
       this.setState({message: null});
-    }, 4000);
+    }, ConfigData.MessageTimeout);
   };
 
   createRelease(){
