@@ -171,25 +171,25 @@ export class ModalChanges extends Component {
       this.setState({ notValidComment: message });
       setTimeout(() => {
         this.setState({ notValidComment: "" });
-      }, 5000);
+      }, ConfigData.MessageTimeout);
     }
     else if (target === "document") {
       this.setState({ notValidDocument: message });
       setTimeout(() => {
         this.setState({ notValidDocument: "" });
-      }, 5000);
+      }, ConfigData.MessageTimeout);
     }
     else if (target === "fields") {
       this.setState({ notValidField: message });
       setTimeout(() => {
         this.setState({ notValidField: "" });
-      }, 5000);
+      }, ConfigData.MessageTimeout);
     }
     else if (target === "general") {
       this.setState({ generalError: message });
       setTimeout(() => {
         this.setState({ generalError: "" });
-      }, 5000);
+      }, ConfigData.MessageTimeout);
     }
   }
 
@@ -1397,7 +1397,7 @@ export class ModalChanges extends Component {
     this.setState({ showCopyTooltip: true });
     setTimeout(() => {
       this.setState({ showCopyTooltip: false });
-    }, 3000);
+    }, ConfigData.MessageTimeout);
   }
 
   renderData() {

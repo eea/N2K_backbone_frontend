@@ -97,7 +97,7 @@ const Sitechanges = () => {
 
   const showErrorMessage = (message) => {
     setErrorMessage("Something went wrong: " + message);
-    setTimeout(() => {setErrorMessage('')}, 5000);
+    setTimeout(() => {setErrorMessage('')}, ConfigData.MessageTimeout);
   }
 
   let selectedCodes = [],
