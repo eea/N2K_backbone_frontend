@@ -1532,7 +1532,7 @@ export class ModalChanges extends Component {
         .then(data => {
           if (!data.Success) {
             this.errorLoadingFields = true;
-          } else (data.Data.SiteCode === this.props.item && Object.keys(this.state.data).length === 0); {
+          } else if (data.Data.SiteCode === this.props.item && Object.keys(this.state.data).length === 0) {
             let informed = [];
             let a = JSON.parse(JSON.stringify(data.Data, ["SiteName", "BioRegion", "Area", "Length", "CentreY", "CentreX"]));
             Object.keys(a).forEach(key => {
