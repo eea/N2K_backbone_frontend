@@ -2,7 +2,7 @@ import ConfigData from '../config.json';
 
 export class DataLoader {
     constructor(){
-        this.token = sessionStorage.getItem("token");
+        this.token = localStorage.getItem("token");
         if (!this.token){
             this.token = ConfigData.token;
         } 
