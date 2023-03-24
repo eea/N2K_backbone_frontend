@@ -217,6 +217,10 @@ const IndeterminateCheckbox = React.forwardRef(
       }
     }, [isTabChanged]);
 
+    let countSitesOnPage = () => {
+      return page.filter(row => !row.id.includes(".")).length;
+    }
+
     // Render the UI for your table
     return (
       <>
@@ -230,7 +234,7 @@ const IndeterminateCheckbox = React.forwardRef(
           </div>
           :
           <div className="message-board">
-            <span className="message-board-text">The <b>{page.length}</b> sites of this page are selected</span>
+            <span className="message-board-text">The <b>{countSitesOnPage()}</b> sites of this page are selected</span>
             <span className="message-board-link" onClick={() =>(setSelectedRows(siteCodes.length), setSelected(siteCodes))}>Select {siteCodes.length} sites</span>
           </div> 
         )
