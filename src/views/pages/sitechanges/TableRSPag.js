@@ -342,6 +342,7 @@ const IndeterminateCheckbox = React.forwardRef(
     }
 
     let openModal = (data, activeKey)=>{
+      console.log(data)
       setModalItem({...data, ActiveKey: activeKey});
       setModalVisible(true);
     }
@@ -350,6 +351,11 @@ const IndeterminateCheckbox = React.forwardRef(
       setModalVisible(false);
       setModalItem({});
       props.closeModal();
+    }
+
+    let saveChanges = (refresh) => {
+      if(refresh)
+        forceRefreshData();
     }
 
     let setBackToPending = (change, refresh)=>{
@@ -655,11 +661,13 @@ const IndeterminateCheckbox = React.forwardRef(
             accept={()=>acceptChanges(modalItem)}
             reject={()=>rejectChanges(modalItem)}
             backToPending={()=>setBackToPending(modalItem)}
+            saveChanges={()=>saveChanges(true)}
             mark={()=>switchMarkChanges(modalItem)}
             status={props.status}
             level={props.level}
             item={modalItem.SiteCode}
             version={modalItem.Version}
+            setModalItem={setModalItem}
             updateModalValues = {props.updateModalValues}
             justificationRequired={modalItem.JustificationRequired}
             justificationProvided={modalItem.JustificationProvided}

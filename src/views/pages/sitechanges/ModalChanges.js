@@ -154,6 +154,11 @@ export class ModalChanges extends Component {
     this.props.close();
   }
 
+  forceRefreshData() {
+    this.resetLoading();
+    this.props.forceRefreshData();
+  }
+
   isVisible() {
     return this.props.visible;
   }
@@ -1257,6 +1262,7 @@ export class ModalChanges extends Component {
             body[field] = value;
           }
           this.setState({ fields: body, fieldChanged: false, updatingData: false });
+          this.props.saveChanges();
         }
         else {
           this.showErrorMessage("fields", "Something went wrong");
@@ -1529,6 +1535,7 @@ export class ModalChanges extends Component {
           }
         })
         .then(data => {
+          console.log(data)
           if (!data.Success) {
             this.errorLoadingFields = true;
           } else if (data.Data.SiteCode === this.props.item && Object.keys(this.state.data).length === 0) {
@@ -1539,6 +1546,8 @@ export class ModalChanges extends Component {
                 informed.push(key);
             })
             this.setState({ fields: data.Data, informedFields: informed });
+            this.props.setModalItem({data: data.Data, ActiveKey: this.state.activeKey});
+            console.log(this.state.fields.Version)
           }
         });
     }
