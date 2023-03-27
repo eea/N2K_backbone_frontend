@@ -1262,7 +1262,6 @@ export class ModalChanges extends Component {
             body[field] = value;
           }
           this.setState({ fields: body, fieldChanged: false, updatingData: false });
-          this.props.saveChanges();
         }
         else {
           this.showErrorMessage("fields", "Something went wrong");
@@ -1458,19 +1457,25 @@ export class ModalChanges extends Component {
   loadData() {
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)) {
       this.isLoadingData = true;
-      this.dl.fetch(ConfigData.SITECHANGES_DETAIL + `siteCode=${this.props.item}&version=${this.versionChanged ? this.currentVersion : this.props.version}`)
-        .then(response => {
+      console.log(this)
+      this.getCurrentVersion().then(() => {
+        if(this.currentVersion && this.currentVersion !== this.props.version)
+          this.versionChanged = true;
+      }).then(() =>
+        this.dl.fetch(ConfigData.SITECHANGES_DETAIL + `siteCode=${this.props.item}&version=${this.versionChanged ? this.currentVersion : this.props.version}`)
+      )
+      .then(response => {
           if (response.status === 200)
             return response.json();
           else
             return this.setState({ errorLoading: true, loading: false });
-        })
-        .then(data => {
-          if (!data.Success)
-            this.setState({ errorLoading: true, loading: false });
-          else (data.Data.SiteCode === this.props.item && Object.keys(this.state.data).length === 0)
-          this.setState({ data: data.Data, loading: false, justificationRequired: data.Data?.JustificationRequired, justificationProvided: data.Data?.JustificationProvided, activeKey: this.props.activeKey ? this.props.activeKey : this.state.activeKey })
-        });
+      })
+      .then(data => {
+        if (!data.Success)
+          this.setState({ errorLoading: true, loading: false });
+        else (data.Data.SiteCode === this.props.item && Object.keys(this.state.data).length === 0)
+        this.setState({ data: data.Data, loading: false, justificationRequired: data.Data?.JustificationRequired, justificationProvided: data.Data?.JustificationProvided, activeKey: this.props.activeKey ? this.props.activeKey : this.state.activeKey })
+      });
     }
   }
 
@@ -1654,15 +1659,14 @@ export class ModalChanges extends Component {
       });
   }
 
-  async getCurrentVersion() {
+  getCurrentVersion() {
     this.currentVersion = this.props.version;
     this.dl.fetch(ConfigData.SITEDETAIL_GET + "?siteCode=" + this.props.item)
       .then(response => response.json())
       .then(data => {
         if(data?.Success)
-          return data.Data.Version;
-        else
-          return this.props.version;
+          this.currentVersion = data.Data.Version;
+        return;
     })
   }
 
