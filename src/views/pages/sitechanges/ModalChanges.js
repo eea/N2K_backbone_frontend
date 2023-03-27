@@ -1661,7 +1661,7 @@ export class ModalChanges extends Component {
 
   getCurrentVersion() {
     this.currentVersion = this.props.version;
-    this.dl.fetch(ConfigData.SITEDETAIL_GET + "?siteCode=" + this.props.item)
+    return this.dl.fetch(ConfigData.SITEDETAIL_GET + "?siteCode=" + this.props.item)
       .then(response => response.json())
       .then(data => {
         if(data?.Success)
