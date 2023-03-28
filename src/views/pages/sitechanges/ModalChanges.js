@@ -154,11 +154,6 @@ export class ModalChanges extends Component {
     this.props.close();
   }
 
-  forceRefreshData() {
-    this.resetLoading();
-    this.props.forceRefreshData();
-  }
-
   isVisible() {
     return this.props.visible;
   }
@@ -1262,8 +1257,6 @@ export class ModalChanges extends Component {
             body[field] = value;
           }
           this.setState({ fields: body, fieldChanged: false, updatingData: false });
-          if(this.state.data.Status === "Accepted")
-            this.forceRefreshData()
         }
         else {
           this.showErrorMessage("fields", "Something went wrong");
