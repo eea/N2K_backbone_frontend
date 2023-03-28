@@ -1452,7 +1452,7 @@ export class ModalChanges extends Component {
   loadData() {
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)) {
       this.isLoadingData = true;
-      return this.dl.fetch(ConfigData.SITECHANGES_DETAIL + `siteCode=${this.props.item}&version=${this.versionChanged ? this.currentVersion : this.props.version}`)
+      this.dl.fetch(ConfigData.SITECHANGES_DETAIL + `siteCode=${this.props.item}&version=${this.versionChanged ? this.currentVersion : this.props.version}`)
       .then(response => {
           if (response.status === 200)
             return response.json();
