@@ -356,16 +356,23 @@ const IndeterminateCheckbox = React.forwardRef(
       props.closeModal();
     }
 
+    let setBackToPendingWithVersion = (version) => {
+      let newModalItem = modalItem;
+      newModalItem.Version = version;
+      setModalItem({...newModalItem});
+      return setBackToPending(modalItem);
+    }
+
     let setBackToPending = (change, refresh)=>{
       return props.setBackToPending({"SiteCode":change.SiteCode,"VersionId":change.Version}, refresh)
-      .then(data => {
+        .then(data => {
           if(data?.ok){
             if(refresh) {
               forceRefreshData();
             }
           }
           return data;
-      });
+        });
     }
 
     let acceptChanges = (change, refresh)=>{
@@ -658,7 +665,7 @@ const IndeterminateCheckbox = React.forwardRef(
             close = {closeModal}
             accept={()=>acceptChanges(modalItem)}
             reject={()=>rejectChanges(modalItem)}
-            backToPending={()=>setBackToPending(modalItem)}
+            backToPending={(version) => setBackToPendingWithVersion(version)}
             mark={()=>switchMarkChanges(modalItem)}
             status={props.status}
             level={props.level}

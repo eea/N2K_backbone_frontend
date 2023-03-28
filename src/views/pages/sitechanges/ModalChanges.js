@@ -1453,18 +1453,18 @@ export class ModalChanges extends Component {
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)) {
       this.isLoadingData = true;
       this.dl.fetch(ConfigData.SITECHANGES_DETAIL + `siteCode=${this.props.item}&version=${this.versionChanged ? this.currentVersion : this.props.version}`)
-        .then(response => {
+      .then(response => {
           if (response.status === 200)
             return response.json();
           else
             return this.setState({ errorLoading: true, loading: false });
-        })
-        .then(data => {
-          if (!data.Success)
-            this.setState({ errorLoading: true, loading: false });
-          else (data.Data.SiteCode === this.props.item && Object.keys(this.state.data).length === 0)
+      })
+      .then(data => {
+        if (!data.Success)
+          this.setState({ errorLoading: true, loading: false });
+        else
           this.setState({ data: data.Data, loading: false, justificationRequired: data.Data?.JustificationRequired, justificationProvided: data.Data?.JustificationProvided, activeKey: this.props.activeKey ? this.props.activeKey : this.state.activeKey })
-        });
+      });
     }
   }
 
@@ -1633,29 +1633,41 @@ export class ModalChanges extends Component {
     this.props.updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", () => this.setBackToPending(), "Cancel", () => { this.changingStatus = false });
   }
 
-  setBackToPending() {
-    this.props.backToPending()
-      .then((data) => {
-        if (data?.Success) {
-          this.changingStatus = false;
-          this.versionChanged = true;
-          this.currentVersion = data.Data[0].VersionId;
-          this.setState({ data: {}, fields: {}, loading: true, siteTypeValue: "", siteRegionValue: "" });
-        } else { this.showErrorMessage("general", "Error setting changes back to pending") }
-      });
-  }
-
-  async getCurrentVersion() {
-    this.currentVersion = this.props.version;
-    this.dl.fetch(ConfigData.SITEDETAIL_GET + "?siteCode=" + this.props.item)
+  getCurrentVersion() {
+    return this.dl.fetch(ConfigData.SITEDETAIL_GET + "?siteCode=" + this.props.item)
       .then(response => response.json())
       .then(data => {
         if(data?.Success)
           return data.Data.Version;
-        else
-          return this.props.version;
-    })
+      })
   }
+
+  setBackToPending() {
+    let controlResult = (data) => {
+      if (data?.Success) {
+        this.changingStatus = false;
+        this.versionChanged = true;
+        this.currentVersion = data.Data[0].VersionId;
+        this.setState({ data: {}, fields: {}, loading: true, siteTypeValue: "", siteRegionValue: "" });
+      } else { this.showErrorMessage("general", "Error setting changes back to pending") }
+    }
+
+    if(this.state.data.Status === "Accepted")
+      this.getCurrentVersion()
+        .then(version => { 
+          this.props.backToPending(version)
+          .then((data) => {
+            controlResult(data);
+          })
+        });
+    else
+      this.props.backToPending(this.props.version)
+        .then((data) => {
+          controlResult(data);
+        })
+  }
+
+  
 
   sendRequest(url, method, body, path) {
     const options = {
