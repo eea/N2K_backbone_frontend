@@ -1262,6 +1262,8 @@ export class ModalChanges extends Component {
             body[field] = value;
           }
           this.setState({ fields: body, fieldChanged: false, updatingData: false });
+          if(this.state.data.Status === "Accepted")
+            this.forceRefreshData()
         }
         else {
           this.showErrorMessage("fields", "Something went wrong");
@@ -1457,13 +1459,7 @@ export class ModalChanges extends Component {
   loadData() {
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)) {
       this.isLoadingData = true;
-      console.log(this)
-      this.getCurrentVersion().then(() => {
-        if(this.currentVersion && this.currentVersion !== this.props.version)
-          this.versionChanged = true;
-      }).then(() =>
-        this.dl.fetch(ConfigData.SITECHANGES_DETAIL + `siteCode=${this.props.item}&version=${this.versionChanged ? this.currentVersion : this.props.version}`)
-      )
+      return this.dl.fetch(ConfigData.SITECHANGES_DETAIL + `siteCode=${this.props.item}&version=${this.versionChanged ? this.currentVersion : this.props.version}`)
       .then(response => {
           if (response.status === 200)
             return response.json();
@@ -1473,8 +1469,8 @@ export class ModalChanges extends Component {
       .then(data => {
         if (!data.Success)
           this.setState({ errorLoading: true, loading: false });
-        else (data.Data.SiteCode === this.props.item && Object.keys(this.state.data).length === 0)
-        this.setState({ data: data.Data, loading: false, justificationRequired: data.Data?.JustificationRequired, justificationProvided: data.Data?.JustificationProvided, activeKey: this.props.activeKey ? this.props.activeKey : this.state.activeKey })
+        else
+          this.setState({ data: data.Data, loading: false, justificationRequired: data.Data?.JustificationRequired, justificationProvided: data.Data?.JustificationProvided, activeKey: this.props.activeKey ? this.props.activeKey : this.state.activeKey })
       });
     }
   }
@@ -1540,7 +1536,6 @@ export class ModalChanges extends Component {
           }
         })
         .then(data => {
-          console.log(data)
           if (!data.Success) {
             this.errorLoadingFields = true;
           } else if (data.Data.SiteCode === this.props.item && Object.keys(this.state.data).length === 0) {
@@ -1551,8 +1546,6 @@ export class ModalChanges extends Component {
                 informed.push(key);
             })
             this.setState({ fields: data.Data, informedFields: informed });
-            this.props.setModalItem({data: data.Data, ActiveKey: this.state.activeKey});
-            console.log(this.state.fields.Version)
           }
         });
     }
@@ -1647,28 +1640,41 @@ export class ModalChanges extends Component {
     this.props.updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", () => this.setBackToPending(), "Cancel", () => { this.changingStatus = false });
   }
 
-  setBackToPending() {
-    this.props.backToPending()
-      .then((data) => {
-        if (data?.Success) {
-          this.changingStatus = false;
-          this.versionChanged = true;
-          this.currentVersion = data.Data[0].VersionId;
-          this.setState({ data: {}, fields: {}, loading: true, siteTypeValue: "", siteRegionValue: "" });
-        } else { this.showErrorMessage("general", "Error setting changes back to pending") }
-      });
-  }
-
   getCurrentVersion() {
-    this.currentVersion = this.props.version;
     return this.dl.fetch(ConfigData.SITEDETAIL_GET + "?siteCode=" + this.props.item)
       .then(response => response.json())
       .then(data => {
         if(data?.Success)
-          this.currentVersion = data.Data.Version;
-        return;
-    })
+          return data.Data.Version;
+      })
   }
+
+  setBackToPending() {
+    let controlResult = (data) => {
+      if (data?.Success) {
+        this.changingStatus = false;
+        this.versionChanged = true;
+        this.currentVersion = data.Data[0].VersionId;
+        this.setState({ data: {}, fields: {}, loading: true, siteTypeValue: "", siteRegionValue: "" });
+      } else { this.showErrorMessage("general", "Error setting changes back to pending") }
+    }
+
+    if(this.state.data.Status === "Accepted")
+      this.getCurrentVersion()
+        .then(version => { 
+          this.props.backToPending(version)
+          .then((data) => {
+            controlResult(data);
+          })
+        });
+    else
+      this.props.backToPending(this.props.version)
+        .then((data) => {
+          controlResult(data);
+        })
+  }
+
+  
 
   sendRequest(url, method, body, path) {
     const options = {
