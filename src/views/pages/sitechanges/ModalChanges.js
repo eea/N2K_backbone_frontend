@@ -434,7 +434,29 @@ export class ModalChanges extends Component {
       });
   }
 
+  filteredValuesTable(changes) {
+    let informedFields = [];
+    changes.map(c => {
+      for(let key in c) {
+        if(key === "Fields")
+          informedFields.push(key)
+        else
+          if(c[key] != null)
+            informedFields.push(key)
+      }
+    })
+    let filteredChanges = changes.map(c => {
+      for(let key in c) {
+        if(!informedFields.includes(key))
+          delete c[key]
+      }
+      return c
+    })
+    return filteredChanges;
+  }
+
   renderValuesTable(changes) {
+    changes = this.filteredValuesTable(changes);
     let heads = Object.keys(changes[0]).filter(v => v !== "ChangeId" && v !== "Fields");
     let fields = Object.keys(changes[0]["Fields"]);
     let titles = heads.concat(fields).map(v => { return (<CTableHeaderCell scope="col" key={v}> {v} </CTableHeaderCell>) });
