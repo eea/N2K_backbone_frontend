@@ -59,6 +59,9 @@ const Sitechanges = () => {
   const [showModal, setShowModal] = useState(false);
   const [updatingData, setUpdatingData] = useState(false);
   const [completingEnvelope, setCompletingEnvelope] = useState(false);
+  const [accepting, setAccepting] = useState(false);
+  const [rejecting, setRejecting] = useState(false);
+  const [backing, setBacking] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const turnstoneRef = useRef();
 
@@ -167,6 +170,7 @@ const Sitechanges = () => {
   }
 
   let setBackToPending = (changes, refresh)=>{
+    setBacking(true);
     setUpdatingData(true);
     let rBody = !Array.isArray(changes)?[changes]:changes
 
@@ -174,6 +178,7 @@ const Sitechanges = () => {
     .then(data => {
         if(data?.ok){
           setUpdatingData(false);
+          setBacking(false);
           let response = readResponse(data, "Back To Pending");
           if(refresh){
             forceRefreshData();
@@ -181,6 +186,7 @@ const Sitechanges = () => {
           }
           return response;
         } else showErrorMessage("Back To Pending");
+        setBacking(false);
     }).catch(e => {
       showErrorMessage("Back To Pending");
       console.error(e)
@@ -188,6 +194,7 @@ const Sitechanges = () => {
   }
 
   let acceptChanges = (changes, refresh)=>{
+    setAccepting(true);
     setUpdatingData(true);
     let rBody = !Array.isArray(changes)?[changes]:changes
 
@@ -195,6 +202,7 @@ const Sitechanges = () => {
     .then(data => {
         if(data.ok){
           setUpdatingData(false);
+          setAccepting(false);
           let response = readResponse(data, "Accept Changes");
           if(refresh){
             forceRefreshData();
@@ -202,6 +210,7 @@ const Sitechanges = () => {
           }
           return response;
         } else showErrorMessage("Accept Changes");
+        setAccepting(false);
     }).catch(e => {
       showErrorMessage("Accept Changes");
       console.error(e);
@@ -209,6 +218,7 @@ const Sitechanges = () => {
   }
 
   let rejectChanges = (changes, refresh)=>{
+    setRejecting(true);
     setUpdatingData(true);
     let rBody = !Array.isArray(changes)?[changes]:changes
 
@@ -216,6 +226,7 @@ const Sitechanges = () => {
     .then(data => {
         if(data.ok){
           setUpdatingData(false);
+          setRejecting(false);
           let response = readResponse(data, "Reject Changes");
           if(refresh){
             forceRefreshData();
@@ -223,6 +234,7 @@ const Sitechanges = () => {
           }
           return response;
         } else showErrorMessage("Reject Changes");
+        setRejecting(false);
     }).catch(e => {
       showErrorMessage("Reject Changes");
       console.error(e);
@@ -437,12 +449,14 @@ const Sitechanges = () => {
                       <>
                         <li>
                           <CButton color="secondary" onClick={()=>updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(selectedCodes, true), "Cancel", ()=>{})} disabled={updatingData || disabledBtn || activeTab!==1}>
-                            Reject Changes
+                            {rejecting && <CSpinner size="sm"/>}
+                            {rejecting ? " Rejecting Changes" : "Reject Changes"}
                           </CButton>
                         </li>
                         <li>
                           <CButton color="primary" onClick={()=>updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(selectedCodes, true), "Cancel", ()=>{})} disabled={updatingData || disabledBtn || activeTab!==1}>
-                            Accept Changes
+                            {accepting && <CSpinner size="sm"/>}
+                            {accepting ? " Accepting Changes" : "Accept Changes"}
                           </CButton>
                         </li>
                       </>
@@ -450,7 +464,8 @@ const Sitechanges = () => {
                     {!isLoading && country && activeTab !== 1 &&
                       <li>
                         <CButton color="primary" onClick={()=>updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", ()=>setBackToPending(selectedCodes, true), "Cancel", ()=>{})} disabled={updatingData || disabledBtn || activeTab===1}>
-                          Back to Pending
+                          {backing && <CSpinner size="sm"/>}
+                          {backing ? " Sending Back to Pending" : "Back to Pending"}
                         </CButton>
                       </li>
                     }
