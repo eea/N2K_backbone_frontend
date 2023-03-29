@@ -360,7 +360,7 @@ class ModalChanges extends Component {
                   <div className="d-flex justify-content-between align-items-center pb-2">
                     <b>Attached documents</b>
                   </div>
-                  this.renderDocuments()
+                  {this.renderDocuments()}
                 </CCard>
               }
           </CCol>
@@ -371,7 +371,7 @@ class ModalChanges extends Component {
                   <div className="d-flex justify-content-between align-items-center pb-2">
                     <b>Comments</b>
                   </div>
-                    this.renderComments()
+                    {this.renderComments()}
                 </CCard>
               }
           </CCol>
