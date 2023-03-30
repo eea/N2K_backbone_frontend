@@ -898,7 +898,7 @@ export class ModalChanges extends Component {
   renderFields() {
     return (
       <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 3}>
-        {this.state.data.Status === "Pending" ?
+        {this.state.fields != "noData" && this.state.data.Status === "Pending" ?
           <CRow className="p-3">
             <CCol>
               <p className="text-center mt-5">Accept or reject site changes before editing the site</p>
@@ -920,6 +920,9 @@ export class ModalChanges extends Component {
               }
             </CRow>
           </CForm>
+        }
+        {this.state.fields == "noData" &&
+          <div className="nodata-container"><em>No Data: This site has been deleted</em></div>
         }
       </CTabPane>
     )
@@ -1485,6 +1488,8 @@ export class ModalChanges extends Component {
         if (!data.Success)
           this.setState({ errorLoading: true, loading: false });
         else
+          if(this.isSiteDeleted())
+            this.setState({ fields: "noData" })
           this.setState({ data: data.Data, loading: false, justificationRequired: data.Data?.JustificationRequired, justificationProvided: data.Data?.JustificationProvided, activeKey: this.props.activeKey ? this.props.activeKey : this.state.activeKey })
       });
     }
@@ -1553,6 +1558,8 @@ export class ModalChanges extends Component {
         .then(data => {
           if (!data.Success) {
             this.errorLoadingFields = true;
+          } else if(data.Data == null) {
+            this.setState({ fields: "noData", informedFields: [] })
           } else if (data.Data.SiteCode === this.props.item && Object.keys(this.state.data).length === 0) {
             let informed = [];
             let a = JSON.parse(JSON.stringify(data.Data, ["SiteName", "BioRegion", "Area", "Length", "CentreY", "CentreX"]));
@@ -1664,6 +1671,13 @@ export class ModalChanges extends Component {
       })
   }
 
+  isSiteDeleted() {
+    return this.state.data.Critical?.SiteInfo.ChangesByCategory
+        .map(c => c.ChangeType === "Site Deleted")
+        .reduce((result, next) => result || next, false);
+  }
+
+
   setBackToPending() {
     let controlResult = (data) => {
       if (data?.Success) {
@@ -1674,7 +1688,7 @@ export class ModalChanges extends Component {
       } else { this.showErrorMessage("general", "Error setting changes back to pending") }
     }
 
-    if(this.state.data.Status === "Accepted")
+    if(this.state.data.Status === "Accepted" && !this.isSiteDeleted())
       this.getCurrentVersion()
         .then(version => { 
           this.props.backToPending(version)
@@ -1688,8 +1702,6 @@ export class ModalChanges extends Component {
           controlResult(data);
         })
   }
-
-  
 
   sendRequest(url, method, body, path) {
     const options = {
