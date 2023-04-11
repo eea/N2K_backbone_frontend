@@ -98,7 +98,7 @@ const Harvesting = () => {
   const messageTimeOut = () => {
     setTimeout(() => {
       setAlertValues({visible:false, text:'', color:'primary'});
-    }, 5000);
+    }, ConfigData.MessageTimeout);
   }
 
   const sendRequest = (url,method,body,path) => {
@@ -122,7 +122,7 @@ const Harvesting = () => {
         sendRequest(ConfigData.HARVESTING_CHANGE_STATUS+"?country="+code.country+"&version="+code.version+"&toStatus=Discarded","POST","")
         .then(response => response.json())
         .then(data => {
-          if(!data.Success) {
+          if(!data?.Success) {
             errors.push(data.Message);
             console.log("Error: " + data.Message);
           }

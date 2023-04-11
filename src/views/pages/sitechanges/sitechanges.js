@@ -58,6 +58,10 @@ const Sitechanges = () => {
   const [selectOption, setSelectOption] = useState({});
   const [showModal, setShowModal] = useState(false);
   const [updatingData, setUpdatingData] = useState(false);
+  const [completingEnvelope, setCompletingEnvelope] = useState(false);
+  const [accepting, setAccepting] = useState(false);
+  const [rejecting, setRejecting] = useState(false);
+  const [backing, setBacking] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const turnstoneRef = useRef();
 
@@ -96,7 +100,7 @@ const Sitechanges = () => {
 
   const showErrorMessage = (message) => {
     setErrorMessage("Something went wrong: " + message);
-    setTimeout(() => {setErrorMessage('')}, 5000);
+    setTimeout(() => {setErrorMessage('')}, ConfigData.MessageTimeout);
   }
 
   let selectedCodes = [],
@@ -133,7 +137,7 @@ const Sitechanges = () => {
     setSearchList({});
     for(let i in refreshSitechanges)
       setRefreshSitechanges(i,true)
-    //setIsLoading(false);
+    setIsLoading(false);
     };
 
   let postRequest = (url,body)=>{
@@ -147,60 +151,93 @@ const Sitechanges = () => {
     return dl.fetch(url, options)
   }
 
+  const readResponse = (data, errorMessage) => {
+    let reader = data.body.getReader();
+    let txt = "";
+    let readData = (data) => {
+      if (data.done)
+        return JSON.parse(txt);
+      else {
+        txt += new TextDecoder().decode(data.value);
+        return reader.read().then(readData);
+      }
+    }
+    return reader.read().then(readData).then((data) => {
+      if(!data.Success)
+        showErrorMessage(errorMessage)
+      return data;
+    });
+  }
+
   let setBackToPending = (changes, refresh)=>{
+    setBacking(true);
+    setUpdatingData(true);
     let rBody = !Array.isArray(changes)?[changes]:changes
 
     return postRequest(ConfigData.MOVE_TO_PENDING, rBody)
     .then(data => {
-        if(data.ok){
+        if(data?.ok){
+          setUpdatingData(false);
+          setBacking(false);
+          let response = readResponse(data, "Back To Pending");
           if(refresh){
             forceRefreshData();
             setForceRefresh(forceRefresh+1);
           }
-        }else
-          showErrorMessage("Back To Pending");
-        return data;
+          return response;
+        } else showErrorMessage("Back To Pending");
+        setBacking(false);
     }).catch(e => {
       showErrorMessage("Back To Pending");
-      console.log(e);
+      console.error(e)
     });
   }
 
   let acceptChanges = (changes, refresh)=>{
+    setAccepting(true);
+    setUpdatingData(true);
     let rBody = !Array.isArray(changes)?[changes]:changes
 
     return postRequest(ConfigData.ACCEPT_CHANGES, rBody)
     .then(data => {
         if(data.ok){
+          setUpdatingData(false);
+          setAccepting(false);
+          let response = readResponse(data, "Accept Changes");
           if(refresh){
             forceRefreshData();
             setForceRefresh(forceRefresh+1);
           }
-        }else
-          showErrorMessage("Accept Changes");
-        return data;
+          return response;
+        } else showErrorMessage("Accept Changes");
+        setAccepting(false);
     }).catch(e => {
       showErrorMessage("Accept Changes");
-      console.log(e);
+      console.error(e);
     });
   }
 
   let rejectChanges = (changes, refresh)=>{
+    setRejecting(true);
+    setUpdatingData(true);
     let rBody = !Array.isArray(changes)?[changes]:changes
 
     return postRequest(ConfigData.REJECT_CHANGES, rBody)
     .then(data => {
         if(data.ok){
+          setUpdatingData(false);
+          setRejecting(false);
+          let response = readResponse(data, "Reject Changes");
           if(refresh){
             forceRefreshData();
             setForceRefresh(forceRefresh+1);
           }
-        }else
-          showErrorMessage("Reject Changes");
-        return data;
+          return response;
+        } else showErrorMessage("Reject Changes");
+        setRejecting(false);
     }).catch(e => {
       showErrorMessage("Reject Changes");
-      console.log(e);
+      console.error(e);
     });
   }
 
@@ -211,6 +248,7 @@ const Sitechanges = () => {
       .then(data => {
         if(data.Success) {
           setUpdatingData(false);
+          setCompletingEnvelope(false);
           setCountries([]);
           setCountry();
           setSitecodes({});
@@ -223,6 +261,7 @@ const Sitechanges = () => {
         }
       })
     setUpdatingData(true);
+    setCompletingEnvelope(true);
   }
 
   let sendRequest = (url,method,body,path)=>  {
@@ -327,6 +366,7 @@ const Sitechanges = () => {
 
   let changeLevel = (level)=>{
     setLevel(level);
+    clearSearch();
     forceRefreshData();
   }
 
@@ -345,19 +385,21 @@ const Sitechanges = () => {
     dl.fetch(ConfigData.COUNTRIES_WITH_DATA)
     .then(response => response.json())
     .then(data => {
-      let countriesList = [];
-      for(let i in data.Data){
-        countriesList.push({name:data.Data[i].Country,code:data.Data[i].Code,version:data.Data[i].Version});
-      }
-      countriesList.sort((a, b) => a.name.localeCompare(b.name));
-      countriesList = [{name:"",code:""}, ...countriesList];
-      setCountries(countriesList);
-      if(country === ""){
-        setCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code);
-        changeCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code)
-      }
-      if(countriesList[0]?.code === "") {
-        setIsLoading(false);
+      if(data?.Success) {
+        let countriesList = [];
+        for(let i in data.Data){
+          countriesList.push({name:data.Data[i].Country,code:data.Data[i].Code,version:data.Data[i].Version});
+        }
+        countriesList.sort((a, b) => a.name.localeCompare(b.name));
+        countriesList = [{name:"",code:""}, ...countriesList];
+        setCountries(countriesList);
+        if(country === ""){
+          setCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code);
+          changeCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code)
+        }
+        if(countriesList[0]?.code === "") {
+          setIsLoading(false);
+        }
       }
     });
   }
@@ -406,29 +448,32 @@ const Sitechanges = () => {
                     {!isLoading && country && activeTab === 1 &&
                       <>
                         <li>
-                          <CButton color="secondary" onClick={()=>updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(selectedCodes, true), "Cancel", ()=>{})} disabled={disabledBtn || activeTab!==1}>
-                            Reject Changes
+                          <CButton color="secondary" onClick={()=>updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(selectedCodes, true), "Cancel", ()=>{})} disabled={updatingData || disabledBtn || activeTab!==1}>
+                            {rejecting && <CSpinner size="sm"/>}
+                            {rejecting ? " Rejecting Changes" : "Reject Changes"}
                           </CButton>
                         </li>
                         <li>
-                          <CButton color="primary" onClick={()=>updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(selectedCodes, true), "Cancel", ()=>{})} disabled={disabledBtn || activeTab!==1}>
-                            Accept Changes
+                          <CButton color="primary" onClick={()=>updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(selectedCodes, true), "Cancel", ()=>{})} disabled={updatingData || disabledBtn || activeTab!==1}>
+                            {accepting && <CSpinner size="sm"/>}
+                            {accepting ? " Accepting Changes" : "Accept Changes"}
                           </CButton>
                         </li>
                       </>
                     }
                     {!isLoading && country && activeTab !== 1 &&
                       <li>
-                        <CButton color="primary" onClick={()=>updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", ()=>setBackToPending(selectedCodes, true), "Cancel", ()=>{})} disabled={disabledBtn || activeTab===1}>
-                          Back to Pending
+                        <CButton color="primary" onClick={()=>updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", ()=>setBackToPending(selectedCodes, true), "Cancel", ()=>{})} disabled={updatingData || disabledBtn || activeTab===1}>
+                          {backing && <CSpinner size="sm"/>}
+                          {backing ? " Sending Back to Pending" : "Back to Pending"}
                         </CButton>
                       </li>
                     }
                     {!isLoading && country &&
                       <li>
                         <CButton color="primary" onClick={()=>updateModalValues("Complete Envelopes", "This will complete the envelope", "Continue", ()=>completeEnvelope(), "Cancel", ()=>{})} disabled={updatingData}>
-                          {updatingData && <CSpinner size="sm"/>}
-                          {updatingData ? " Completing Envelope" : "Complete Envelope"}
+                          {completingEnvelope && <CSpinner size="sm"/>}
+                          {completingEnvelope ? " Completing Envelope" : "Complete Envelope"}
                         </CButton>
                       </li>
                     }
@@ -443,19 +488,19 @@ const Sitechanges = () => {
                 <div>
                   <ul className="btn--list">
                     <li>
-                      <div className="checkbox">
+                      <div className="checkbox" disabled={Object.keys(siteCodes).length < 3}>
                         <input type="checkbox" className="input-checkbox" id="site_check_critical" checked={level==="Critical"} onClick={()=>changeLevel("Critical")} readOnly/>
                         <label htmlFor="site_check_critical" className="input-label badge color--critical">Critical</label>
                       </div>
                     </li>
                     <li>
-                      <div className="checkbox">
+                      <div className="checkbox" disabled={Object.keys(siteCodes).length < 3}>
                         <input type="checkbox" className="input-checkbox" id="site_check_warning" checked={level==="Warning"} onClick={()=>changeLevel("Warning")} readOnly/>
                         <label htmlFor="site_check_warning" className="input-label badge color--warning">Warning</label>
                       </div>
                     </li>
                     <li>
-                      <div className="checkbox">
+                      <div className="checkbox" disabled={Object.keys(siteCodes).length < 3}>
                         <input type="checkbox" className="input-checkbox" id="site_check_info" checked={level==="Info"} onClick={()=>changeLevel("Info")} readOnly/>
                         <label htmlFor="site_check_info" className="input-label badge color--info">Info</label>
                       </div>
@@ -514,7 +559,7 @@ const Sitechanges = () => {
                           active={activeTab === 1}
                           onClick={() => {changeStatus(1);}}
                         >
-                          Pending <span className="badge status--pending">{Object.keys(siteCodes).length === 3 && siteCodes.pending.length}</span>
+                          Pending <span className="badge status--pending">{Object.keys(siteCodes).length === 3 && siteCodes.pending?.length}</span>
                         </CNavLink>
                       </CNavItem>
                       <CNavItem>
@@ -523,7 +568,7 @@ const Sitechanges = () => {
                           active={activeTab === 2}
                           onClick={() => {changeStatus(2);}}
                         >
-                          Accepted <span className="badge status--accepted">{Object.keys(siteCodes).length === 3 && siteCodes.accepted.length}</span>
+                          Accepted <span className="badge status--accepted">{Object.keys(siteCodes).length === 3 && siteCodes.accepted?.length}</span>
                         </CNavLink>
                       </CNavItem>
                       <CNavItem>
@@ -532,7 +577,7 @@ const Sitechanges = () => {
                           active={activeTab === 3}
                           onClick={() => {changeStatus(3);}}
                         >
-                          Rejected <span className="badge status--rejected">{Object.keys(siteCodes).length === 3 && siteCodes.rejected.length}</span>
+                          Rejected <span className="badge status--rejected">{Object.keys(siteCodes).length === 3 && siteCodes.rejected?.length}</span>
                         </CNavLink>
                       </CNavItem>
                     </CNav>

@@ -167,7 +167,7 @@ const IndeterminateCheckbox = React.forwardRef(
         data,
         defaultColumn,
         filterTypes,
-        initialState: {pageSize: currentSize, pageIndex:currentPage},
+        initialState: {pageSize: currentSize, pageIndex:currentPage, hiddenColumns: ["EditedDate", "EditedBy", "JustificationRequired", "JustificationProvided"]},
         manualPagination:true,
         pageCount: pgCount,
         paginateExpandedRows: false
@@ -217,6 +217,10 @@ const IndeterminateCheckbox = React.forwardRef(
       }
     }, [isTabChanged]);
 
+    let countSitesOnPage = () => {
+      return page.filter(row => !row.id.includes(".")).length;
+    }
+
     // Render the UI for your table
     return (
       <>
@@ -230,7 +234,7 @@ const IndeterminateCheckbox = React.forwardRef(
           </div>
           :
           <div className="message-board">
-            <span className="message-board-text">The <b>{page.length}</b> sites of this page are selected</span>
+            <span className="message-board-text">The <b>{countSitesOnPage()}</b> sites of this page are selected</span>
             <span className="message-board-link" onClick={() =>(setSelectedRows(siteCodes.length), setSelected(siteCodes))}>Select {siteCodes.length} sites</span>
           </div> 
         )
@@ -352,16 +356,23 @@ const IndeterminateCheckbox = React.forwardRef(
       props.closeModal();
     }
 
+    let setBackToPendingWithVersion = (version) => {
+      let newModalItem = modalItem;
+      newModalItem.Version = version;
+      setModalItem({...newModalItem});
+      return setBackToPending(modalItem);
+    }
+
     let setBackToPending = (change, refresh)=>{
       return props.setBackToPending({"SiteCode":change.SiteCode,"VersionId":change.Version}, refresh)
-      .then(data => {
+        .then(data => {
           if(data?.ok){
             if(refresh) {
               forceRefreshData();
             }
           }
           return data;
-      });
+        });
     }
 
     let acceptChanges = (change, refresh)=>{
@@ -474,28 +485,59 @@ const IndeterminateCheckbox = React.forwardRef(
                 content="Justification Required"
                 placement="top"
               > 
-                <CImage src={justificationrequired} className="ico--md "></CImage> 
+                <div className="btn-icon btn-hover">
+                  <CImage src={justificationrequired} className="ico--md "></CImage>
+                </div>
               </CTooltip>
             : null } </> : null : null } 
             
             {row.values.JustificationProvided ?
-             row.canExpand ? <> {row.values.JustificationRequired && row.values.JustificationProvided ?
-              <CTooltip
-                content="Justification Provided"
-                placement="top">
-                <CImage src={justificationprovided} className="ico--md "></CImage>
-              </CTooltip>
-                : null  } </> : null : null} 
+              row.canExpand ? <> {row.values.JustificationRequired && row.values.JustificationProvided ?
+                <CTooltip
+                  content="Justification Provided"
+                  placement="top"
+                >
+                  <div className="btn-icon btn-hover">
+                    <CImage src={justificationprovided} className="ico--md "></CImage>
+                  </div>
+                </CTooltip>
+              : null } </> : null : null }
             </>)
         },
         {
           Header: () => null,
+          accessor: 'Edition',
+          Cell: ({ row }) => {
+            return (
+              row.values.EditedDate && row.values.EditedBy ? (
+                  <CTooltip 
+                    content={"Edited"
+                      + (row.values.EditedDate && " on " + row.values.EditedDate.slice(0,10).split('-').reverse().join('/'))
+                      + (row.values.EditedBy && " by " + row.values.EditedBy)}>
+                    <div className="btn-icon btn-hover">
+                      <i className="fa-solid fa-pen-to-square"></i>
+                    </div>
+                  </CTooltip>
+              ) : null
+            )
+          }
+        },
+        {
+          Header: () => null,
           accessor: "JustificationRequired",                            
-        },    
+        },
         {
           Header: () => null,
           accessor: "JustificationProvided",         
-        },    
+        },
+        {
+          Header: () => null,
+          accessor: "EditedDate",
+        },
+        {
+          Header: () => null,
+          accessor: "EditedBy",
+        },
         {
           Header: () => null, 
           id: 'dropdownsiteChanges',
@@ -545,8 +587,10 @@ const IndeterminateCheckbox = React.forwardRef(
       return dl.fetch(url)
       .then(response => response.json())
       .then(data => {
-        props.setSitecodes(props.status,data.Data);
-        setSitecodes(data.Data);
+        if(data?.Success) {
+          props.setSitecodes(props.status,data.Data);
+          setSitecodes(data.Data);
+        }
       });
     }
   
@@ -571,10 +615,12 @@ const IndeterminateCheckbox = React.forwardRef(
           dl.fetch(url)
           .then(response => response.json())
           .then(data => {
-            if(Object.keys(data.Data).length===0)
-              setChangesData("nodata");
-            else
-              setChangesData(data.Data);
+            if(data?.Success) {
+              if(Object.keys(data.Data).length===0)
+                setChangesData("nodata");
+              else
+                setChangesData(data.Data);
+            }
           })
         )
         Promise.all(promises).then(v=>setIsLoading(false));
@@ -619,7 +665,7 @@ const IndeterminateCheckbox = React.forwardRef(
             close = {closeModal}
             accept={()=>acceptChanges(modalItem)}
             reject={()=>rejectChanges(modalItem)}
-            backToPending={()=>setBackToPending(modalItem)}
+            backToPending={(version) => setBackToPendingWithVersion(version)}
             mark={()=>switchMarkChanges(modalItem)}
             status={props.status}
             level={props.level}

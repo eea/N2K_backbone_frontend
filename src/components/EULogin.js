@@ -8,14 +8,14 @@ export class EULogin {
         if(EULogin.userIsLoaded()) return;
         this.dl = new(DataLoader);
         //Retrieve storage values if existing ones
-        this.codeVerifier = sessionStorage.getItem("codeVerifier");
-        this.loginUrl = sessionStorage.getItem("loginUrl");
-        this.token = sessionStorage.getItem("token");
+        this.codeVerifier = localStorage.getItem("codeVerifier");
+        this.loginUrl = localStorage.getItem("loginUrl");
+        this.token = localStorage.getItem("token");
 
         const paramsString1 = this.getQuery();		
         if (paramsString1.code) {
             this.code = paramsString1.code;
-            sessionStorage.setItem('code', paramsString1.code);
+            localStorage.setItem('code', paramsString1.code);
         } 
 
         if (this.code && this.codeVerifier && this.loginUrl && !this.token){
@@ -32,7 +32,7 @@ export class EULogin {
 
     static userIsLoaded(){
         if (document.location.href.includes("localhost")) return true;
-        return sessionStorage.getItem("token")?true:false;
+        return localStorage.getItem("token")?true:false;
     }
 
     getQuery() {
@@ -55,7 +55,7 @@ export class EULogin {
 
     generateCodeVerifier() {
         this.codeVerifier = this.generateRandomString(128)
-        sessionStorage.setItem('codeVerifier', this.codeVerifier);
+        localStorage.setItem('codeVerifier', this.codeVerifier);
         return this.codeVerifier;
     }
 
@@ -68,20 +68,22 @@ export class EULogin {
         return this.dl.fetch(cUrl)
         .then(response => response.json())
         .then((a) => {
+            if(a?.Success) {
                 this.loginUrl = a.Data;
-                sessionStorage.setItem("loginUrl",this.loginUrl);
+                localStorage.setItem("loginUrl",this.loginUrl);
                 return a.Data;
-            })
+            } else { throw(a.Message) }
+        })
         .catch((error) => {
                 console.log(error)
-            });
+        });
     }
 
     createToken() {
         /*let redirectionUrl = encodeURIComponent(document.location.origin.replace(/\//g, "##"));
         var cUrl =  ConfigData.EULoginServiceUrl + "EULogin/GetToken/redirectionUrl="+ 
-                    redirectionUrl  + "&code=" +  sessionStorage.getItem("code") + 
-                    "&code_verifier=" + sessionStorage.getItem("codeVerifier");	*/
+                    redirectionUrl  + "&code=" +  localStorage.getItem("code") + 
+                    "&code_verifier=" + localStorage.getItem("codeVerifier");	*/
         var cUrl =  ConfigData.EULoginServiceUrl + "EULogin/GetToken";
         const options = {
             method: 'POST',
@@ -90,33 +92,35 @@ export class EULogin {
             },
             body: JSON.stringify({
                 "RedirectionUrl": document.location.origin,
-                "Code": sessionStorage.getItem("code"),
-                "Code_Verifier": sessionStorage.getItem("codeVerifier")
+                "Code": localStorage.getItem("code"),
+                "Code_Verifier": localStorage.getItem("codeVerifier")
             }),
         };
 
         return this.dl.fetch(cUrl,options)
         .then(response => response.json())
         .then((a) => {
-            sessionStorage.setItem("token",a.Data);
+            if(a?.Success) {
+                localStorage.setItem("token",a.Data);
+            } else { throw(a.Message) }
         })
         .catch(e=>console.log(e));
     }
 
     static getUserName() {
-        return sessionStorage.getItem('token')?EULogin.tokenDecode(sessionStorage.getItem('token')).email:"";
+        return localStorage.getItem('token')?EULogin.tokenDecode(localStorage.getItem('token')).email:"";
     }
 
     static logout() {
         let redirectionUrl = document.location.origin;
         
-        var cUrl =  ConfigData.EULogoutURL + "?id_token_hint=" + sessionStorage.getItem("token") + 
+        var cUrl =  ConfigData.EULogoutURL + "?id_token_hint=" + localStorage.getItem("token") + 
                     "&state=loggout&post_logout_redirect_uri=" + redirectionUrl
 
-        if(sessionStorage.getItem("code")) sessionStorage.removeItem("code");
-        if(sessionStorage.getItem("codeVerifier")) sessionStorage.removeItem("codeVerifier");
-        if(sessionStorage.getItem("loginUrl")) sessionStorage.removeItem("loginUrl");
-        if(sessionStorage.getItem("token")) sessionStorage.removeItem("token")
+        if(localStorage.getItem("code")) localStorage.removeItem("code");
+        if(localStorage.getItem("codeVerifier")) localStorage.removeItem("codeVerifier");
+        if(localStorage.getItem("loginUrl")) localStorage.removeItem("loginUrl");
+        if(localStorage.getItem("token")) localStorage.removeItem("token")
 		location.href = cUrl;				
 		//document.location.reload();
     }

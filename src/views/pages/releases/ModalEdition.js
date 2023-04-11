@@ -31,9 +31,19 @@ import justificationProvidedImg from './../../../assets/images/file-text.svg'
 import {DataLoader} from '../../../components/DataLoader';
 
 export class ModalEdition extends Component {
+
   constructor(props) {
     super(props);
     this.dl = new(DataLoader);
+
+    this.isDataLoaded = false;
+    this.isDocumentsLoaded = false;
+    this.isCommentsLoaded = false;
+
+    this.errorLoadingData = false;
+    this.errorLoadingDocuments = false;
+    this.errorLoadingComments = false;
+
     this.state = {
       activeKey: 1,
       loading: true, 
@@ -118,7 +128,10 @@ export class ModalEdition extends Component {
                 {this.state.notValidField}
               </CAlert>
             }
-            {this.createFieldElement()}
+            {!this.errorLoadingData ?
+              this.createFieldElement()
+              : <CAlert color="danger">Error loading data</CAlert>
+            }
           </CRow>
         </CForm>
       </CTabPane>
@@ -309,7 +322,7 @@ export class ModalEdition extends Component {
               content={"Uploaded"
                 + (date && " on " + date.slice(0,10).split('-').reverse().join('/'))
                 + (user && " by " + user)}>
-              <div className="btn-icon">
+              <div className="btn-icon btn-hover">
                 <i className="fa-solid fa-circle-info"></i>
               </div>
             </CTooltip>
@@ -330,32 +343,42 @@ export class ModalEdition extends Component {
       <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 2}>
         <CRow className="py-3">
           <CCol className="mb-3" xs={12} lg={6}>
-            <CCard className="document--list">
-              {this.state.notValidDocument &&
-                <CAlert color="danger">
-                  {this.state.notValidDocument}
-                </CAlert>
-              }
-              <div className="d-flex justify-content-between align-items-center pb-2">
-                <b>Attached documents</b>
-                <CButton color="link" className="btn-link--dark" onClick={() => this.addNewDocument()}>Add Document</CButton>
-              </div>
-              {this.renderDocuments()}
-            </CCard>
+            {!this.errorLoadingDocuments &&
+              <CCard className="document--list">
+                {this.state.notValidDocument &&
+                  <CAlert color="danger">
+                    {this.state.notValidDocument}
+                  </CAlert>
+                }
+                <div className="d-flex justify-content-between align-items-center pb-2">
+                  <b>Attached documents</b>
+                  <CButton color="link" className="btn-link--dark" onClick={() => this.addNewDocument()}>Add Document</CButton>
+                </div>
+                {this.renderDocuments()}
+              </CCard>
+            }
+            {this.errorLoadingDocuments &&
+              <CAlert color="danger">Error loading documents</CAlert>
+            }
           </CCol>
           <CCol className="mb-3" xs={12} lg={6}>
-            <CCard className="comment--list">
-              {this.state.notValidComment &&
-                <CAlert color="danger">
-                  {this.state.notValidComment}
-                </CAlert>
-              }
-              <div className="d-flex justify-content-between align-items-center pb-2">
-                <b>Comments</b>
-                <CButton color="link" className="btn-link--dark" onClick={() => this.addNewComment()}>Add Comment</CButton>
-              </div>
-              {this.renderComments()}
-            </CCard>
+            {!this.errorLoadingComments &&
+              <CCard className="comment--list">
+                {this.state.notValidComment &&
+                  <CAlert color="danger">
+                    {this.state.notValidComment}
+                  </CAlert>
+                }
+                <div className="d-flex justify-content-between align-items-center pb-2">
+                  <b>Comments</b>
+                  <CButton color="link" className="btn-link--dark" onClick={() => this.addNewComment()}>Add Comment</CButton>
+                </div>
+                {this.renderComments()}
+              </CCard>
+            }
+            {this.errorLoadingComments &&
+              <CAlert color="danger">Error loading comments</CAlert>
+            }
           </CCol>
           <CCol className="d-flex">
             <div className="checkbox">
@@ -385,19 +408,19 @@ export class ModalEdition extends Component {
       this.setState({notValidComment: message});
       setTimeout(() => {
         this.setState({notValidComment: ""});
-      }, 5000);
+      }, ConfigData.MessageTimeout);
     }
     else if (target === "document") {
       this.setState({notValidDocument: message});
       setTimeout(() => {
         this.setState({notValidDocument: ""});
-      }, 5000);
+      }, ConfigData.MessageTimeout);
     }
     else if (target === "fields") {
       this.setState({notValidField: message});
       setTimeout(() => {
         this.setState({notValidField: ""});
-      }, 5000);
+      }, ConfigData.MessageTimeout);
     }
   }
 
@@ -453,7 +476,7 @@ export class ModalEdition extends Component {
             Owner: data.Data.find(a=>a.Id===commentId).Owner,
           })
           this.setState({comments: cmts, newComment: false})
-        }
+        } else { this.showErrorMessage("comment", "Error adding comment")}
       });
       this.loadComments();
     }
@@ -484,7 +507,7 @@ export class ModalEdition extends Component {
         input.disabled = true;
         input.readOnly = true;
         target.firstChild.classList.replace("fa-floppy-disk", "fa-pencil");
-      }
+      } else { this.showErrorMessage("comment", "Error saving comment")}
     })
     this.loadComments();
   }
@@ -508,7 +531,7 @@ export class ModalEdition extends Component {
         if(data?.ok){
           let cmts = this.state.comments.filter(e => e.Id !== parseInt(id));
           this.setState({comments: cmts.length > 0 ? cmts : "noData"});
-        }
+        } else { this.showErrorMessage("comment", "Error deleting comment") }
       });
     }
     else {
@@ -538,7 +561,7 @@ export class ModalEdition extends Component {
         if(data?.ok){
           let docs = this.state.documents.filter(e => e.Id !== parseInt(id));
           this.setState({documents: docs.length > 0 ? docs : "noData"});
-        }
+        } else { this.showErrorMessage("document", "Error deleting document") }
       });
     }
     else {
@@ -653,6 +676,7 @@ export class ModalEdition extends Component {
       let label;
       let placeholder;
       let name = field;
+      let original = this.state.data["Original" + field];
       switch (field) {
         case "SiteCode":
           label = "Site Code";
@@ -671,6 +695,7 @@ export class ModalEdition extends Component {
           if(this.state.siteTypeValue === "") {
             this.setState({siteTypeValue: value})
           }
+          original = original && this.props.types.find(y => y.Code === original).Classification;
           break;
         case "BioRegion":
           label = "Biogeographycal Region";
@@ -681,6 +706,7 @@ export class ModalEdition extends Component {
           if(this.state.siteRegionValue === "") {
             this.setState({siteRegionValue: value})
           }
+          original = original && original.map(x => this.props.regions.find(y => y.Code === x).RefBioGeoName).join(", ");
           break;
         case "Area":
           label = "Area";
@@ -818,6 +844,11 @@ export class ModalEdition extends Component {
               />
             </>
           }
+          {original?.toString() &&
+            <div className="original-field">
+              <i className="fa-solid fa-pen-to-square"></i><span>{original}</span>
+            </div>
+          }
         </CCol>
       )
     }
@@ -884,9 +915,12 @@ export class ModalEdition extends Component {
   }
 
   renderData(){
-    this.loadData();
-    this.loadComments();
-    this.loadDocuments();
+    if(!this.isDataLoaded)
+      this.loadData();
+    if(!this.isCommentsLoaded)
+      this.loadComments();
+    if(!this.isDocumentsLoaded)
+      this.loadDocuments();
 
     let contents = this.state.loading
       ? <div className="loading-container"><em>Loading...</em></div>
@@ -920,44 +954,53 @@ export class ModalEdition extends Component {
 
   loadData(){
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
+      this.isDataLoaded = true;
       this.dl.fetch(ConfigData.SITEDETAIL_GET+"?siteCode="+this.props.item)
       .then(response => response.json())
       .then(data =>{
-        if(data.Data.SiteCode === this.props.item && Object.keys(this.state.data).length === 0) {
-          this.setState({data: data.Data, loading: false, justificationRequired: data.Data.JustificationRequired, justificationProvided: data.Data.JustificationProvided})
-        }
+        if(data?.Success) {
+          if(data.Data.SiteCode === this.props.item && Object.keys(this.state.data).length === 0) {
+            this.setState({data: data.Data, loading: false, justificationRequired: data.Data.JustificationRequired, justificationProvided: data.Data.JustificationProvided})
+          }
+        } else { this.errorLoadingData = true; this.setState({loading: false}) }
       });
     }
   }
 
   loadComments(){
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
+      this.isCommentsLoaded = true;
       this.dl.fetch(ConfigData.GET_SITE_COMMENTS+`siteCode=${this.props.item}&version=${this.props.version}`)
       .then(response => response.json())
       .then(data => {
-        if (data.Data.length > 0) {
-          if(data.Data[0]?.SiteCode === this.props.item && (this.state.comments.length === 0 || this.state.comments === "noData"))
-          this.setState({comments: data.Data});
-        }
-        else {
-          this.setState({comments: "noData"});
-        }
+        if(data?.Success) {
+          if (data.Data.length > 0) {
+            if(data.Data[0]?.SiteCode === this.props.item && (this.state.comments.length === 0 || this.state.comments === "noData"))
+            this.setState({comments: data.Data});
+          }
+          else {
+            this.setState({comments: "noData"});
+          }
+        } else { this.errorLoadingComments = true }
       });
     }
   }
 
   loadDocuments(){
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
+      this.isDocumentsLoaded = true;
       this.dl.fetch(ConfigData.GET_ATTACHED_FILES+`siteCode=${this.props.item}&version=${this.props.version}`)
       .then(response => response.json())
       .then(data => {
-        if (data.Data.length > 0) {
-          if(data.Data[0]?.SiteCode === this.props.item && (this.state.documents.length === 0 || this.state.documents === "noData"))
-          this.setState({documents: data.Data});
-        }
-        else {
-          this.setState({documents: "noData"});
-        }
+        if(data?.Success) {
+          if (data.Data.length > 0) {
+            if(data.Data[0]?.SiteCode === this.props.item && (this.state.documents.length === 0 || this.state.documents === "noData"))
+            this.setState({documents: data.Data});
+          }
+          else {
+            this.setState({documents: "noData"});
+          }
+        } else { this.errorLoadingDocuments = true }
       });
     }
   }
@@ -1062,14 +1105,37 @@ export class ModalEdition extends Component {
     if(Object.values(body).some(val => val === null || val === "")){
       this.showErrorMessage("fields", "Empty fields are not allowed");
     } else {
+      body.JustificationProvided = this.state.justificationProvided;
+      body.JustificationRequired = this.state.justificationRequired;
       this.sendRequest(ConfigData.SITEDETAIL_SAVE, "POST", body)
       .then((data)=> {
         if(data?.ok){
           body = {
             ...body,
             BioRegion: body.BioRegion.split(",").map(Number),
-            JustificationProvided: this.state.justificationProvided,
-            JustificationRequired: this.state.justificationRequired,
+          }
+          let newFields = Object.keys(this.state.data).filter(a=>!body.hasOwnProperty(a));
+          for(let i in newFields){
+            let field = newFields[i];
+            let value = this.state.data[field];
+            let ref = field.replace('Original','');
+            if(field === "OriginalBioRegion"){
+              if(!value && JSON.stringify(body[ref]) !== JSON.stringify(this.state.data[ref])){
+                value = this.state.data[ref];
+              }
+              else if(value && JSON.stringify(body[ref]) === JSON.stringify(value)){
+                value = null;
+              }
+            }
+            else {
+              if(!value?.toString() && body[ref] !== this.state.data[ref]){
+                value = this.state.data[ref];
+              }
+              else if(value?.toString() && body[ref] === value){
+                value = null;
+              }
+            }
+            body[field] = value;
           }
           this.setState({data: body, fieldChanged: false, updatingData: false});
         }
