@@ -584,6 +584,7 @@ const IndeterminateCheckbox = React.forwardRef(
       url += 'country='+props.country;
       url += '&status='+props.status;
       url += '&level='+props.level;
+      // url += '&onlyedited='+props.onlyEdited;
       return dl.fetch(url)
       .then(response => response.json())
       .then(data => {
