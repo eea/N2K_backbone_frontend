@@ -96,6 +96,7 @@ export class ModalEdition extends Component {
   }
 
   close(){
+    this.resetLoading();
     this.setActiveKey(1);
     this.setState({
       data: {},
@@ -950,6 +951,12 @@ export class ModalEdition extends Component {
         </CModal>
       </>
     )
+  }
+
+  resetLoading() {
+    this.isDataLoaded = false;
+    this.isDocumentsLoaded = false;
+    this.isCommentsLoaded = false;
   }
 
   loadData(){
