@@ -113,7 +113,10 @@
     .badge {
       margin-right: 0.5rem;
       margin-top: 0.5rem;
-      &.color--critical, &.color--warning, &.color--info {
+
+      &.color--critical,
+      &.color--warning,
+      &.color--info {
         padding: 0;
       }
     }
@@ -203,6 +206,7 @@
 
   &-button {
     margin-top: auto;
+
     .btn {
       padding: 0;
     }
@@ -307,6 +311,15 @@
     font-size: 1rem;
     margin: 0;
   }
+
+  &-filter {
+    boder: none;
+
+    & h2 {
+      font-size: 1rem;
+      margin: 0;
+    }
+  }
 }
 
 .card-icon-new {
@@ -338,8 +351,10 @@
     flex-direction: row;
     padding: 1rem;
     margin: 0.5rem 0;
+
     table {
       margin-bottom: 0;
+
       tr:last-of-type td {
         border-bottom: none;
       }

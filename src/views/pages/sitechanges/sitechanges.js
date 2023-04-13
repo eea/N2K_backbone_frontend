@@ -515,13 +515,6 @@ const Sitechanges = () => {
                   </ul>
                 </div>
               </div>
-              <div className="d-flex flex-start align-items-center p-2 card-site-level">
-                <div className="me-5"><h2 className="card-site-level-title">Filter by</h2></div>
-                  <div className="checkbox">
-                    <input type="checkbox" className="input-checkbox" id="site_check_edited" checked={filterEdited===true} onClick={()=>changeFilterEdited(!filterEdited)} />
-                    <label htmlFor="site_check_edited" className="input-label badge color--warning">Edited</label>
-                  </div>
-              </div>
               <CRow>
                 <CCol sm={12} md={6} lg={6} className="d-flex mb-4">
                   <div className="search--input">
@@ -595,6 +588,19 @@ const Sitechanges = () => {
                         </CNavLink>
                       </CNavItem>
                     </CNav>
+                    {activeTab === 2 &&
+                      <div className="d-flex flex-start align-items-center p-2 card-site-level-filter">
+                        <div className="me-4"><h2 className="card-site-level-title">Filter by:</h2></div>
+                          <ul className="btn--list">
+                            <li>
+                              <div className="checkbox">
+                                <input type="checkbox" className="input-checkbox" id="site_check_edited" checked={filterEdited===true} onClick={()=>changeFilterEdited(!filterEdited)} />
+                                <label htmlFor="site_check_edited" className="input-label badge color--default">Edited</label>
+                              </div>
+                            </li>
+                          </ul>
+                      </div>
+                    }
                     <CTabContent>
                     <CTabPane role="tabpanel" aria-labelledby="pending-tab" visible={activeTab === 1}>
                       <TableRSPag 
