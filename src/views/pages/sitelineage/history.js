@@ -118,62 +118,62 @@ const Sitelineage = () => {
             let testData = [
               {
                 "SiteCode": siteCode,
-                "Version": "2019-2020",
-                "Antecessors": {
+                "Release": "2019-2020",
+                "Predecessors": {
                   "SiteCode": null,
-                  "Version": null,
+                  "Release": null,
                 },
                 "Successors": {
                   "SiteCode": siteCode,
-                  "Version": "2020-2021",
+                  "Release": "2020-2021",
                 },
               },
               {
                 "SiteCode": siteCode,
-                "Version": "2020-2021",
-                "Antecessors": {
+                "Release": "2020-2021",
+                "Predecessors": {
                   "SiteCode": siteCode,
-                  "Version": "2019-2020",
+                  "Release": "2019-2020",
                 },
                 "Successors": {
                   "SiteCode": "AT2208000, AT2209000",
-                  "Version": "2020-2021",
+                  "Release": "2020-2021",
                 },
               },
               {
                 "SiteCode": "AT2208000",
-                "Version": "2021-2022",
-                "Antecessors": {
+                "Release": "2021-2022",
+                "Predecessors": {
                   "SiteCode": siteCode,
-                  "Version": "2020-2021",
+                  "Release": "2020-2021",
                 },
                 "Successors": {
                   "SiteCode": "AT2208000",
-                  "Version": "2022-2023",
+                  "Release": "2022-2023",
                 },
               },
               {
                 "SiteCode": "AT2208000",
-                "Version": "2022-2023",
-                "Antecessors": {
+                "Release": "2022-2023",
+                "Predecessors": {
                   "SiteCode": "AT2208000",
-                  "Version": "2021-2022"
+                  "Release": "2021-2022"
                 },
                 "Successors": {
                   "SiteCode": null,
-                  "Version": null
+                  "Release": null
                 },
               },
               {
                 "SiteCode": "AT2209000",
-                "Version": "2021-2022",
-                "Antecessors": {
+                "Release": "2021-2022",
+                "Predecessors": {
                   "SiteCode": siteCode,
-                  "Version": "2020-2021"
+                  "Release": "2020-2021"
                 },
                 "Successors": {
                   "SiteCode": null,
-                  "Version": null
+                  "Release": null
                 },
               },
             ]
@@ -604,13 +604,13 @@ const Sitelineage = () => {
             <li className="nav-item">
               <a className="nav-link" href="/#/sitelineage/overview">
                 <i className="fa-solid fa-bookmark"></i>
-                Changes Overview
+                Lineage Overview
               </a>
             </li>
             <li className="nav-item">
               <a className="nav-link" href="/#/sitelineage/management">
                 <i className="fa-solid fa-bookmark"></i>
-                Changes Management
+                Lineage Management
               </a>
             </li>
             <li className="nav-item">
