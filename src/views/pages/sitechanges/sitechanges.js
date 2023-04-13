@@ -607,7 +607,7 @@ const Sitechanges = () => {
                         status="pending" 
                         country = {country}
                         level = {level}
-                        onlyEdited = {filterEdited}
+                        onlyEdited = {false}
                         setSelected={setSelectedCodes} 
                         getRefresh={()=>getRefreshSitechanges("pending")} 
                         setRefresh={setRefreshSitechanges}
@@ -650,7 +650,7 @@ const Sitechanges = () => {
                         status="rejected" 
                         country = {country}
                         level = {level}
-                        onlyEdited = {filterEdited}
+                        onlyEdited = {false}
                         setSelected={setSelectedCodes} 
                         getRefresh={()=>getRefreshSitechanges("rejected")} 
                         setRefresh={setRefreshSitechanges}
