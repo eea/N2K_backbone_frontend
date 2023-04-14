@@ -572,7 +572,6 @@ const IndeterminateCheckbox = React.forwardRef(
           return {
             review: ()=>openModal(row.original),
             backPending: ()=>props.updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", ()=>setBackToPending(row.original, true), "Cancel", ()=>{}),
-            edition: ()=>openModal(row.original, 3),
           }
         default:
           return {}

@@ -898,10 +898,15 @@ export class ModalChanges extends Component {
   renderFields() {
     return (
       <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 3}>
-        {this.state.fields != "noData" && this.state.data.Status === "Pending" ?
+        {this.state.fields != "noData" && this.state.data.Status !== "Accepted" ?
           <CRow className="p-3">
             <CCol>
-              <p className="text-center mt-5">Accept or reject site changes before editing the site</p>
+              {this.state.data.Status === "Pending" && 
+                <p className="text-center mt-5">Accept site changes before editing the site</p>
+              }
+              {this.state.data.Status === "Rejected" && 
+                <p className="text-center mt-5">Rejected sites cannot be edited</p>
+              }
             </CCol>
           </CRow>
           :
