@@ -612,6 +612,7 @@ const IndeterminateCheckbox = React.forwardRef(
         url += '&level='+props.level;
         url += '&page='+(currentPage+1);
         url += '&limit='+currentSize;
+        url += '&onlyedited='+props.onlyEdited;
         promises.push(
           dl.fetch(url)
           .then(response => response.json())
