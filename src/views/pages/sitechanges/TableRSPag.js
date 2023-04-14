@@ -583,6 +583,7 @@ const IndeterminateCheckbox = React.forwardRef(
       url += 'country='+props.country;
       url += '&status='+props.status;
       url += '&level='+props.level;
+      url += '&onlyedited='+props.onlyEdited;
       return dl.fetch(url)
       .then(response => response.json())
       .then(data => {
@@ -610,6 +611,7 @@ const IndeterminateCheckbox = React.forwardRef(
         url += '&level='+props.level;
         url += '&page='+(currentPage+1);
         url += '&limit='+currentSize;
+        url += '&onlyedited='+props.onlyEdited;
         promises.push(
           dl.fetch(url)
           .then(response => response.json())

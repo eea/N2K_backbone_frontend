@@ -51,6 +51,7 @@ const Sitechanges = () => {
   const [countries, setCountries] = useState([]);
   const [country, setCountry] = useState(defaultCountry);
   const [level, setLevel] = useState('Critical');
+  const [filterEdited, setFilterEdited] = useState(false)
   const [disabledBtn, setDisabledBtn] = useState(true);
   const [disabledSearchBtn, setDisabledSearchBtn] = useState(true);
   const [siteCodes, setSitecodes] = useState({});
@@ -370,6 +371,12 @@ const Sitechanges = () => {
     forceRefreshData();
   }
 
+  let changeFilterEdited = (edited) => {
+    setFilterEdited(edited);
+    clearSearch();
+    forceRefreshData();
+  }
+
   let changeCountry = (country)=>{
     setCountry(country)
     setSitecodes({});
@@ -483,7 +490,7 @@ const Sitechanges = () => {
               <div>
                 <CAlert color='danger' visible={errorMessage.length > 0}>{errorMessage}</CAlert>
               </div>
-              <div className="d-flex flex-start align-items-center p-3 card-site-level">
+              <div className="d-flex flex-start align-items-center p-2 card-site-level">
                 <div className="me-5"><h2 className="card-site-level-title">Site Level ONLY</h2></div>
                 <div>
                   <ul className="btn--list">
@@ -581,12 +588,26 @@ const Sitechanges = () => {
                         </CNavLink>
                       </CNavItem>
                     </CNav>
+                    {activeTab === 2 &&
+                      <div className="d-flex flex-start align-items-center p-2 card-site-level-filter">
+                        <div className="me-4"><h2 className="card-site-level-title">Filter by:</h2></div>
+                          <ul className="btn--list">
+                            <li>
+                              <div className="checkbox">
+                                <input type="checkbox" className="input-checkbox" id="site_check_edited" checked={filterEdited===true} onClick={()=>changeFilterEdited(!filterEdited)} />
+                                <label htmlFor="site_check_edited" className="input-label badge color--default">Edited</label>
+                              </div>
+                            </li>
+                          </ul>
+                      </div>
+                    }
                     <CTabContent>
                     <CTabPane role="tabpanel" aria-labelledby="pending-tab" visible={activeTab === 1}>
                       <TableRSPag 
                         status="pending" 
                         country = {country}
                         level = {level}
+                        onlyEdited = {false}
                         setSelected={setSelectedCodes} 
                         getRefresh={()=>getRefreshSitechanges("pending")} 
                         setRefresh={setRefreshSitechanges}
@@ -608,6 +629,7 @@ const Sitechanges = () => {
                         status="accepted" 
                         country = {country}
                         level = {level}
+                        onlyEdited = {filterEdited}
                         setSelected={setSelectedCodes} 
                         getRefresh={()=>getRefreshSitechanges("accepted")} 
                         setRefresh={setRefreshSitechanges}
@@ -628,6 +650,7 @@ const Sitechanges = () => {
                         status="rejected" 
                         country = {country}
                         level = {level}
+                        onlyEdited = {false}
                         setSelected={setSelectedCodes} 
                         getRefresh={()=>getRefreshSitechanges("rejected")} 
                         setRefresh={setRefreshSitechanges}
