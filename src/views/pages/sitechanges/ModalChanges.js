@@ -1059,7 +1059,7 @@ export class ModalChanges extends Component {
           }
           {field === "Area" &&
             <>
-              <label>{label}</label>
+              <label>{label} (ha)</label>
               <CFormInput
                 id={id}
                 name={name}
@@ -1073,7 +1073,7 @@ export class ModalChanges extends Component {
           }
           {field === "Length" &&
             <>
-              <label>{label}</label>
+              <label>{label} (m)</label>
               <CFormInput
                 id={id}
                 name={name}
@@ -1087,7 +1087,7 @@ export class ModalChanges extends Component {
           }
           {field === "CentreX" &&
             <>
-              <label>{label}</label>
+              <label>{label} (deg)</label>
               <CFormInput
                 id={id}
                 name={name}
@@ -1101,7 +1101,7 @@ export class ModalChanges extends Component {
           }
           {field === "CentreY" &&
             <>
-              <label>{label}</label>
+              <label>{label} (deg)</label>
               <CFormInput
                 id={id}
                 name={name}
