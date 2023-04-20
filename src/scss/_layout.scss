@@ -169,6 +169,18 @@ html {
   }
 }
 
+.card-lineage-type {
+  border: 2px dashed $gray-100;
+  margin-bottom: 1.5rem;
+  & h2 {
+    font-size: 1rem;
+    margin: 0;
+  }
+  .checkbox .badge {
+    border: none;
+  }
+}
+
 .lineage-container-left {
   display: flex;
   flex-direction: column;
@@ -184,6 +196,11 @@ html {
 .lineage-container-right {
   padding-left: 1rem !important;
   margin-bottom: 1rem;
+}
+
+table .badge--lineage {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
 }
 
 .react-flow {

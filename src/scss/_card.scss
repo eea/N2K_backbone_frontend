@@ -109,7 +109,6 @@
 
   &-body {
     margin-top: 0.5rem;
-
     .badge {
       margin-right: 0.5rem;
       margin-top: 0.5rem;
@@ -117,6 +116,10 @@
       &.color--critical,
       &.color--warning,
       &.color--info {
+        padding: 0;
+      }
+      &--lineage {
+        border: none;
         padding: 0;
       }
     }

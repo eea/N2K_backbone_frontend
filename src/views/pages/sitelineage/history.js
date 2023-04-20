@@ -31,9 +31,8 @@ const Sitelineage = () => {
   const [country, setCountry] = useState(defaultCountry);
   const [siteCode, setSiteCode] = useState();
   const [siteCodes, setSiteCodes] = useState([]);
-  const [siteLineage, setSiteLineage] = useState({antecessor: [], successors: ["AT2208000","AT2209000"]});
   const [siteData, setSiteData] = useState({});
-  const [testTableData, setTestTableData] = useState({});
+  const [tableData, setTableData] = useState({});
   const [searchList, setSearchList] = useState({});
   const [selectOption, setSelectOption] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -41,6 +40,295 @@ const Sitelineage = () => {
   const [disabledSearchBtn, setDisabledSearchBtn] = useState(true);
   const turnstoneRef = useRef();
   let dl = new(DataLoader);
+
+  let testData = [
+    {
+      "SiteCode": "AT1101112",
+      "Release": "2019-2020",
+      "Predecessors": {
+        "SiteCode": null,
+        "Release": null,
+      },
+      "Successors": {
+        "SiteCode": "AT1101112",
+        "Release": "2020-2021",
+      },
+    },
+    {
+      "SiteCode": "AT1101112",
+      "Release": "2020-2021",
+      "Predecessors": {
+        "SiteCode": "AT1101112",
+        "Release": "2019-2020",
+      },
+      "Successors": {
+        "SiteCode": "AT2208000,AT2209000",
+        "Release": "2021-2022",
+      },
+    },
+    {
+      "SiteCode": "AT2208000",
+      "Release": "2021-2022",
+      "Predecessors": {
+        "SiteCode": "AT1101112",
+        "Release": "2020-2021",
+      },
+      "Successors": {
+        "SiteCode": null,
+        "Release": null,
+      },
+    },
+    {
+      "SiteCode": "AT2209000",
+      "Release": "2021-2022",
+      "Predecessors": {
+        "SiteCode": "AT1101112",
+        "Release": "2020-2021"
+      },
+      "Successors": {
+        "SiteCode": null,
+        "Release": null
+      },
+    },
+  ]
+  let tableData1 = [
+    {
+      "SiteCode": "AT1101112",
+      "Release": "2019-2020",
+      "Predecessors": {
+        "SiteCode": null,
+        "Release": null,
+      },
+      "Successors": {
+        "SiteCode": "AT1101112",
+        "Release": "2020-2021",
+      },
+    },
+    {
+      "SiteCode": "AT1101112",
+      "Release": "2020-2021",
+      "Predecessors": {
+        "SiteCode": "AT1101112",
+        "Release": "2019-2020",
+      },
+      "Successors": {
+        "SiteCode": "AT2208000",
+        "Release": "2021-2022",
+      },
+    },
+    {
+      "SiteCode": "AT2208000",
+      "Release": "2021-2022",
+      "Predecessors": {
+        "SiteCode": "AT1101112",
+        "Release": "2020-2021",
+      },
+      "Successors": {
+        "SiteCode": "AT2208000",
+        "Release": "2022-2023",
+      },
+    },
+    {
+      "SiteCode": "AT2208000",
+      "Release": "2022-2023",
+      "Predecessors": {
+        "SiteCode": "AT2208000",
+        "Release": "2021-2022"
+      },
+      "Successors": {
+        "SiteCode": null,
+        "Release": null
+      },
+    },
+  ]
+  let tableData2 = [
+    {
+      "SiteCode": "AT1101112",
+      "Release": "2019-2020",
+      "Predecessors": {
+        "SiteCode": null,
+        "Release": null,
+      },
+      "Successors": {
+        "SiteCode": "AT1101112",
+        "Release": "2020-2021",
+      },
+    },
+    {
+      "SiteCode": "AT1101112",
+      "Release": "2020-2021",
+      "Predecessors": {
+        "SiteCode": "AT1101112",
+        "Release": "2019-2020",
+      },
+      "Successors": {
+        "SiteCode": "AT2209000",
+        "Release": "2021-2022",
+      },
+    },
+    {
+      "SiteCode": "AT2209000",
+      "Release": "2021-2022",
+      "Predecessors": {
+        "SiteCode": "AT1101112",
+        "Release": "2020-2021"
+      },
+      "Successors": {
+        "SiteCode": null,
+        "Release": null
+      },
+    },
+  ]
+  let merge1 = [
+    {
+      "SiteCode": "AT1101112",
+      "Release": "2019-2020",
+      "Predecessors": {
+        "SiteCode": null,
+        "Release": null,
+      },
+      "Successors": {
+        "SiteCode": "AT1101112",
+        "Release": "2020-2021",
+      },
+    },
+    {
+      "SiteCode": "AT1101112",
+      "Release": "2020-2021",
+      "Predecessors": {
+        "SiteCode": "AT1101112",
+        "Release": "2019-2020",
+      },
+      "Successors": {
+        "SiteCode": "AT1101112",
+        "Release": "2021-2022",
+      },
+    },
+    {
+      "SiteCode": "AT2208000",
+      "Release": "2020-2021",
+      "Predecessors": {
+        "SiteCode": null,
+        "Release": null,
+      },
+      "Successors": {
+        "SiteCode": "AT1101112",
+        "Release": "2021-2022",
+      },
+    },
+    {
+      "SiteCode": "AT1101112",
+      "Release": "2021-2022",
+      "Predecessors": {
+        "SiteCode": "AT1101112,AT2208000",
+        "Release": "2020-2021"
+      },
+      "Successors": {
+        "SiteCode": null,
+        "Release": null
+      },
+    },
+  ]
+  let merge2 = [
+    {
+      "SiteCode": "AT1101112",
+      "Release": "2019-2020",
+      "Predecessors": {
+        "SiteCode": null,
+        "Release": null,
+      },
+      "Successors": {
+        "SiteCode": "AT1101112",
+        "Release": "2020-2021",
+      },
+    },
+    {
+      "SiteCode": "AT1101112",
+      "Release": "2020-2021",
+      "Predecessors": {
+        "SiteCode": "AT1101112",
+        "Release": "2019-2020",
+      },
+      "Successors": {
+        "SiteCode": "AT2208000",
+        "Release": "2021-2022",
+      },
+    },
+    {
+      "SiteCode": "AT2208000",
+      "Release": "2020-2021",
+      "Predecessors": {
+        "SiteCode": null,
+        "Release": null,
+      },
+      "Successors": {
+        "SiteCode": "AT2208000",
+        "Release": "2021-2022",
+      },
+    },
+    {
+      "SiteCode": "AT2208000",
+      "Release": "2021-2022",
+      "Predecessors": {
+        "SiteCode": "AT1101112,AT2208000",
+        "Release": "2020-2021"
+      },
+      "Successors": {
+        "SiteCode": null,
+        "Release": null
+      },
+    },
+  ]
+  let merge3 = [
+    {
+      "SiteCode": "AT1101112",
+      "Release": "2019-2020",
+      "Predecessors": {
+        "SiteCode": null,
+        "Release": null,
+      },
+      "Successors": {
+        "SiteCode": "AT1101112",
+        "Release": "2020-2021",
+      },
+    },
+    {
+      "SiteCode": "AT1101112",
+      "Release": "2020-2021",
+      "Predecessors": {
+        "SiteCode": "AT1101112",
+        "Release": "2019-2020",
+      },
+      "Successors": {
+        "SiteCode": "AT2209000",
+        "Release": "2021-2022",
+      },
+    },
+    {
+      "SiteCode": "AT2208000",
+      "Release": "2020-2021",
+      "Predecessors": {
+        "SiteCode": null,
+        "Release": null,
+      },
+      "Successors": {
+        "SiteCode": "AT2209000",
+        "Release": "2021-2022",
+      },
+    },
+    {
+      "SiteCode": "AT2209000",
+      "Release": "2021-2022",
+      "Predecessors": {
+        "SiteCode": "AT1101112,AT2208000",
+        "Release": "2020-2021"
+      },
+      "Successors": {
+        "SiteCode": null,
+        "Release": null
+      },
+    },
+  ]
 
   if(countries.length === 0 && !loadingCountries){
     setLoadingCountries(true);
@@ -107,80 +395,36 @@ const Sitelineage = () => {
 
   let loadData = () => {
     if (!isLoading){
+      let promises = [];
       setIsLoading(true);
-      dl.fetch(ConfigData.SITEDETAIL_GET+"?siteCode="+siteCode)
-      .then(response => response.json())
-      .then(data => {
-        if(data?.Success) {
-          if(data.Data.SiteCode === siteCode) {
-            setIsLoading(false);
-            setSiteData(data.Data);
-            let testData = [
-              {
-                "SiteCode": siteCode,
-                "Version": "2019-2020",
-                "Antecessors": {
-                  "SiteCode": null,
-                  "Version": null,
-                },
-                "Successors": {
-                  "SiteCode": siteCode,
-                  "Version": "2020-2021",
-                },
-              },
-              {
-                "SiteCode": siteCode,
-                "Version": "2020-2021",
-                "Antecessors": {
-                  "SiteCode": siteCode,
-                  "Version": "2019-2020",
-                },
-                "Successors": {
-                  "SiteCode": "AT2208000, AT2209000",
-                  "Version": "2020-2021",
-                },
-              },
-              {
-                "SiteCode": "AT2208000",
-                "Version": "2021-2022",
-                "Antecessors": {
-                  "SiteCode": siteCode,
-                  "Version": "2020-2021",
-                },
-                "Successors": {
-                  "SiteCode": "AT2208000",
-                  "Version": "2022-2023",
-                },
-              },
-              {
-                "SiteCode": "AT2208000",
-                "Version": "2022-2023",
-                "Antecessors": {
-                  "SiteCode": "AT2208000",
-                  "Version": "2021-2022"
-                },
-                "Successors": {
-                  "SiteCode": null,
-                  "Version": null
-                },
-              },
-              {
-                "SiteCode": "AT2209000",
-                "Version": "2021-2022",
-                "Antecessors": {
-                  "SiteCode": siteCode,
-                  "Version": "2020-2021"
-                },
-                "Successors": {
-                  "SiteCode": null,
-                  "Version": null
-                },
-              },
-            ]
-            setTestTableData(testData);
+      promises.push(dl.fetch(ConfigData.SITEDETAIL_GET+"?siteCode="+siteCode)
+        .then(response => response.json())
+        .then(data => {
+          if (data?.Success) {
+            if(data.Data.SiteCode === siteCode) {
+              setSiteData(data.Data);
+            }
           }
-        }
-      });
+        })
+      );
+      promises.push(dl.fetch(ConfigData.LINEAGE_GET_HISTORY+"?siteCode="+siteCode)
+        .then(response => response.json())
+        .then(data => {
+          if (data?.Success) {
+            if(siteCode === 'AT2208000') {
+              setTableData(tableData1);
+            }
+            else if(siteCode === 'AT2209000') {
+              setTableData(tableData2);
+            }
+            else {
+              setTableData(data.Data);
+            }
+            console.log(selectOption)
+          }
+        })
+      );
+      Promise.all(promises).then(d => setIsLoading(false));
     }
   }
 
@@ -195,7 +439,7 @@ const Sitelineage = () => {
           <b className="me-2">{siteCode}</b> | <span className="ms-2">{countryName}</span>
         </div>
         <div className="mb-2">Release Date: 20/02/2020</div>
-        <div>
+        <div className="mb-2">
           Area: {siteData.Area} ha
         </div>
         <CButton color="primary">Review Lineage</CButton>
@@ -204,20 +448,11 @@ const Sitelineage = () => {
   }
 
   let reloadCard = (e) => {
-    let site = e.currentTarget.innerText;
     if(e.currentTarget.classList.contains("basic-node")){
-      if(site === 'AT2208000') {
-        setSiteLineage({antecessor: siteCode, successors:[]});
-        setSiteCode(e.currentTarget.innerText);
-      }
-      else if(site === 'AT2209000') {
-        setSiteLineage({antecessor: siteCode, successors:[]});
-        setSiteCode(e.currentTarget.innerText);
-      }
-      else {
-        setSiteLineage({antecessor: "", successors:["AT2208000", "AT2209000"]});
-        setSiteCode(e.currentTarget.innerText);
-      }
+      let code = e.currentTarget.dataset.id;
+      setSiteCode(code);
+      setSiteData({});
+      clearSearch();
     }
   }
 
@@ -233,6 +468,7 @@ const Sitelineage = () => {
         },
         className: "green-edge",
         focusable: false,
+        type: 'straight',
       },
       yellow: {
         style: {stroke: "#FED100"},
@@ -242,306 +478,84 @@ const Sitelineage = () => {
         },
         className: "yellow-edge",
         focusable: false,
+        type: 'straight',
       }
     }
-    if(siteCode === 'AT2208000') {
-      nodes = [
-        {
-          id: '0a',
-          sourcePosition: 'right',
-          position: { x: 0, y: -50 },
-          data: { label: siteCode },
-          type: 'input',
-          className: "active-node",
-          selectable: false,
-        },
-        {
-          id: '0b',
-          sourcePosition: 'right',
-          position: { x: 0, y: 0 },
-          data: { label: siteLineage.antecessor },
-          type: 'input',
-          className: "basic-node",
-          selectable: false,
-        },
-        {
-          id: '1',
-          position: { x: 150, y: 0 },
-          sourcePosition: 'right',
-          targetPosition: 'left',
-          data: { label: '2019-2020' },
-          className: 'color-node yellow-node',
-          selectable: false,
-        },
-        {
-          id: '2',
-          sourcePosition: 'right',
-          targetPosition: 'left',
-          position: { x: 300, y: 0 },
-          data: { label: '2020-2021' },
-          className: 'color-node yellow-node',
-          selectable: false,
-        },
-        {
-          id: '3a',
-          sourcePosition: 'right',
-          targetPosition: 'left',
-          position: { x: 450, y: -50 },
-          data: { label: '2021-2022' },
-          className: 'color-node green-node',
-          selectable: false,
-        },
-        {
-          id: '4a',
-          sourcePosition: 'right',
-          targetPosition: 'left',
-          position: { x: 450, y: -50 },
-          data: { label: "2022-2023" },
-          className: 'color-node green-node',
-          selectable: false,
-        },
-      ];
-      edges = [
-        {
-          id: '0a-1',
-          source: '0a',
-          target: '3a',
-          style: {strokeDasharray: 4},
-          focusable: false,
-        },
-        {
-          id: '0b-1',
-          source: '0b',
-          target: '1',
-          style: {strokeDasharray: 4},
-          focusable: false,
-        },
-        {
-          id: '1-2',
-          source: '1',
-          target: '2',
-          ...edgeStyles.yellow,
-        },
-        {
-          id: '2-3a',
-          source: '2',
-          target: '3a',
-          type: 'straight',
-          ...edgeStyles.green,
-        },
-        {
-          id: '3a-4a',
-          source: '3a',
-          target: '4a',
-          type: 'straight',
-          ...edgeStyles.green,
-        },
-      ];
-    }
-    else if(siteCode === 'AT2209000') {
-      nodes = [
-        {
-          id: '0b',
-          sourcePosition: 'right',
-          position: { x: 0, y: 0 },
-          data: { label: siteLineage.antecessor },
-          type: 'input',
-          className: "basic-node",
-          selectable: false,
-        },
-        {
-          id: '0c',
-          sourcePosition: 'right',
-          position: { x: 0, y: 50 },
-          data: { label: siteCode },
-          type: 'input',
-          className: "active-node",
-          selectable: false,
-        },
-        {
-          id: '1',
-          position: { x: 150, y: 0 },
-          sourcePosition: 'right',
-          targetPosition: 'left',
-          data: { label: '2019-2020' },
-          className: 'color-node yellow-node',
-          selectable: false,
-        },
-        {
-          id: '2',
-          sourcePosition: 'right',
-          targetPosition: 'left',
-          position: { x: 300, y: 0 },
-          data: { label: '2020-2021' },
-          className: 'color-node yellow-node',
-          selectable: false,
-        },
 
-        {
-          id: '3b',
-          sourcePosition: 'right',
-          targetPosition: 'left',
-          position: { x: 450, y: 50 },
-          data: { label: '2021-2022' },
-          className: 'color-node green-node',
-          selectable: false,
+    nodes = [];
+    edges = [];
+    let x = 0;
+    let y = 0;
+    for(let i in tableData) {
+      let index = tableData.length - 1 - i;
+      let code = tableData[index].SiteCode;
+      let release = tableData[index].Release;
+      if(nodes.length !== 0) {
+        if(nodes.some(a=>a.code===code)) {
+          y = nodes.find(a=> a.code === code).position.y
         }
-      ];
-      edges = [
-        {
-          id: '0b-1',
-          source: '0b',
-          target: '1',
-          style: {strokeDasharray: 4},
-          focusable: false,
-        },
-        {
-          id: '0c-1',
-          source: '0c',
-          target: '3b',
-          style: {strokeDasharray: 4},
-          focusable: false,
-        },
-        {
-          id: '1-2',
-          source: '1',
-          target: '2',
-          ...edgeStyles.yellow,
-        },
-        {
-          id: '2-3b',
-          source: '2',
-          target: '3b',
-          type: 'straight',
-          ...edgeStyles.green,
-        },
-      ];
+        else {
+          y = Math.min(...nodes.map(a=>a.position.y)) - 50;
+        }
+        if(nodes.some(a=>a.release===release)) {
+          x = nodes.find(a=> a.release === release).position.x;
+        }
+        else {
+          x = Math.min(...nodes.map(a=>a.position.x)) - 150;
+        }
+      }
+      let node = {
+        id: code+"-"+release,
+        position: { x: x, y: y },
+        sourcePosition: 'right',
+        targetPosition: 'left',
+        data: { label: release },
+        className: 'color-node '+(code === siteCode ? "green-node" : "yellow-node"),
+        selectable: false,
+        release: release,
+        code: code,
+      }
+      nodes.push(node);
+
+      let predecessors = tableData[index].Predecessors.SiteCode?.split(",");
+      let edge;
+      for(let p in predecessors) {
+        let predCode = predecessors[p]
+        let predRelease = tableData[index].Predecessors.Release;
+          edge = {
+            id: code+"-"+release+"-"+predCode+"-"+predRelease,
+            source: predCode+"-"+predRelease,
+            target: code+"-"+release,
+            ...(code === siteCode ? edgeStyles.green : edgeStyles.yellow)
+          }
+        edges.push(edge);
+      }
     }
-    else {
-      nodes = [
-        {
-          id: '0a',
-          sourcePosition: 'right',
-          position: { x: 0, y: -50 },
-          data: { label: siteLineage.successors[0] },
-          type: 'input',
-          className: "basic-node",
-          selectable: false,
-        },
-        {
-          id: '0b',
-          sourcePosition: 'right',
-          position: { x: 0, y: 0 },
-          data: { label: siteCode },
-          type: 'input',
-          className: "active-node",
-          selectable: false,
-        },
-        {
-          id: '0c',
-          sourcePosition: 'right',
-          position: { x: 0, y: 50 },
-          data: { label: siteLineage.successors[1] },
-          type: 'input',
-          className: "basic-node",
-          selectable: false,
-        },
-        {
-          id: '1',
-          position: { x: 150, y: 0 },
-          sourcePosition: 'right',
-          targetPosition: 'left',
-          data: { label: '2019-2020' },
-          className: 'color-node green-node',
-          selectable: false,
-        },
-        {
-          id: '2',
-          sourcePosition: 'right',
-          targetPosition: 'left',
-          position: { x: 300, y: 0 },
-          data: { label: '2020-2021' },
-          className: 'color-node green-node',
-          selectable: false,
-        },
-        {
-          id: '3a',
-          sourcePosition: 'right',
-          targetPosition: 'left',
-          position: { x: 450, y: -50 },
-          data: { label: '2021-2022' },
-          className: 'color-node yellow-node',
-          selectable: false,
-        },
-        {
-          id: '3b',
-          sourcePosition: 'right',
-          targetPosition: 'left',
-          position: { x: 450, y: 50 },
-          data: { label: "2021-2022" },
-          className: 'color-node yellow-node',
-          selectable: false,
-        },
-        {
-          id: '4a',
-          sourcePosition: 'right',
-          targetPosition: 'left',
-          position: { x: 600, y: -50 },
-          data: { label: "2022-2023" },
-          className: 'color-node yellow-node',
-          selectable: false,
-        },
-      ];
-      edges = [
-        {
-          id: '0a-1',
-          source: '0a',
-          target: '3a',
-          style: {strokeDasharray: 4},
-          focusable: false,
-        },
-        {
-          id: '0b-1',
-          source: '0b',
-          target: '1',
-          style: {strokeDasharray: 4},
-          focusable: false,
-        },
-        {
-          id: '0c-1',
-          source: '0c',
-          target: '3b',
-          style: {strokeDasharray: 4},
-          focusable: false,
-        },
-        {
-          id: '1-2',
-          source: '1',
-          target: '2',
-          ...edgeStyles.green,
-        },
-        {
-          id: '2-3a',
-          source: '2',
-          target: '3a',
-          type: 'straight',
-          ...edgeStyles.yellow,
-        },
-        { 
-          id: '2-3b',
-          source: '2',
-          target: '3b',
-          type: 'straight',
-          ...edgeStyles.yellow,
-        },
-        {
-          id: '3a-4a',
-          source: '3a',
-          target: '4a',
-          type: 'straight',
-          ...edgeStyles.yellow,
-        },
-      ];
+
+    let chartSiteCodes = Array.from(new Set(tableData.map(({ SiteCode }) => SiteCode)));
+    x = Math.min(...nodes.map(a=>a.position.x)) - 150;
+    for(let j in chartSiteCodes) {
+      let code = chartSiteCodes[j];
+      y = nodes.find(a=> a.code === code).position.y
+      let node = {
+        id: code,
+        sourcePosition: 'right',
+        position: { x: x, y:  y},
+        data: { label: code },
+        type: 'input',
+        className: code === siteCode ? "active-node" : "basic-node",
+        selectable: false,
+      }
+      nodes.push(node);
+
+      let edge = {
+        id: code+"-0",
+        source: code,
+        target: code+"-"+nodes.reverse().find(a=>a.code===code).release,
+        style: {strokeDasharray: 4},
+        focusable: false,
+      }
+      edges.push(edge);
     }
     return (
       <CCol xs={12} md={6} lg={8} xl={9} className="lineage-container-right">
@@ -578,7 +592,6 @@ const Sitelineage = () => {
 
   let selectSite = () => {
     setSiteCode(selectOption.SiteCode);
-    setSiteLineage({antecessor: "", successors:["AT2208000", "AT2209000"]});
     setSiteData({});
   } 
 
@@ -604,13 +617,13 @@ const Sitelineage = () => {
             <li className="nav-item">
               <a className="nav-link" href="/#/sitelineage/overview">
                 <i className="fa-solid fa-bookmark"></i>
-                Changes Overview
+                Lineage Overview
               </a>
             </li>
             <li className="nav-item">
               <a className="nav-link" href="/#/sitelineage/management">
                 <i className="fa-solid fa-bookmark"></i>
-                Changes Management
+                Lineage Management
               </a>
             </li>
             <li className="nav-item">
@@ -644,6 +657,7 @@ const Sitelineage = () => {
                     Item={item}
                     typeahead={false}
                     disabled={isLoading}
+                    value={selectOption}
                   />
                   {Object.keys(selectOption).length !== 0 &&
                     <span className="btn-icon" onClick={()=>clearSearch()}>
@@ -674,7 +688,7 @@ const Sitelineage = () => {
                 <>
                   {loadCard()}
                   {loadChart()}
-                  <TableLineage data={testTableData} siteCode={siteCode}/>
+                  <TableLineage data={tableData} siteCode={siteCode}/>
                 </>
               }
             </CRow>
