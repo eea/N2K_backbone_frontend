@@ -205,7 +205,7 @@ const confStatus = ConfigData.HARVESTING_STATUS;
           accessor: 'Predecessors',
           Cell: ({ row }) => {
             let tags = [];
-            if(props.siteCode !== row.values.SiteCode) {
+            if(row.values.SiteCode !== row.values.Predecessors.SiteCode) {
               let values =  row.values.Predecessors.SiteCode?.split(",");
               for(let i in values) {
                 tags.push(<span className="badge badge--lineage basic" key={"pred_"+row+values[i]}>{values[i]}</span>);
@@ -220,13 +220,18 @@ const confStatus = ConfigData.HARVESTING_STATUS;
           accessor: 'Successors',
           Cell: ({ row }) => {
             let tags = [];
-            
-            if(props.siteCode === row.values.SiteCode && row.values.SiteCode !== row.values.Successors.SiteCode) {
+            if(row.values.SiteCode !== row.values.Successors.SiteCode) {
               let values = row.values.Successors.SiteCode?.split(",");
               for(let i in values) {
                 tags.push(<span className="badge badge--lineage basic" key={"suc_"+row+values[i]}>{values[i]}</span>);
               }
             }
+            // if(props.siteCode !== row.values.SiteCode && row.values.SiteCode !== row.values.Successors.SiteCode) {
+            //   let values = row.values.Successors.SiteCode?.split(",");
+            //   for(let i in values) {
+            //     tags.push(<span className="badge badge--lineage basic" key={"suc_"+row+values[i]}>{values[i]}</span>);
+            //   }
+            // }
             return tags;
           },
           filter: customFilter,
