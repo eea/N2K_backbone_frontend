@@ -361,6 +361,9 @@ const Sitechanges = () => {
   }
 
   let changeStatus = (tabNum) => {
+    if(tabNum !== 2 && filterEdited) {
+      changeFilterEdited(false)
+    }
     setActiveTab(tabNum);
     setIsTabChanged(true);
   }
