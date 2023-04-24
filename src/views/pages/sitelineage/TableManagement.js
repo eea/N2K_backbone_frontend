@@ -252,48 +252,39 @@ testData = Array(20).fill(testData).flat();
     }
 
     let setBackToPending = (change, refresh)=>{
-      // return props.setBackToPending({"SiteCode":change.SiteCode,"VersionId":change.Version}, refresh)
-      // .then(data => {
-      //   if(data?.ok){
-      //     if(refresh) {
-      //       forceRefreshData();
-      //     }
-      //   }
-      //   return data;
-      // });
-      if(refresh) {
-        forceRefreshData();
-      }
+      return props.setBackToPending({"ChangeId":change.id}, refresh)
+      .then(data => {
+        if(data?.ok){
+          if(refresh) {
+            forceRefreshData();
+          }
+        }
+        return data;
+      });
     }
 
     let acceptChanges = (change, refresh)=>{
-      // return props.accept({"SiteCode":change.SiteCode,"VersionId":change.Version}, refresh)
-      // .then(data => {
-      //     if(data?.ok){
-      //       if(refresh) {
-      //         forceRefreshData();
-      //       }
-      //     }
-      //     return data;
-      // });
-      if(refresh) {
-        forceRefreshData();
-      }
+      return props.accept({"ChangeId":change.id}, refresh)
+      .then(data => {
+          if(data?.ok){
+            if(refresh) {
+              forceRefreshData();
+            }
+          }
+          return data;
+      });
     }
 
     let rejectChanges = (change, refresh)=>{
-      // return props.reject({"SiteCode":change.SiteCode,"VersionId":change.Version}, refresh)
-      // .then(data => {
-      //   if(data?.ok){
-      //     if(refresh) {
-      //       forceRefreshData();
-      //     }
-      //   }
-      //   return data;
-      // });
-      if(refresh) {
-        forceRefreshData();
-      }
+      return props.reject({"ChangeId":change.id}, refresh)
+      .then(data => {
+        if(data?.ok){
+          if(refresh) {
+            forceRefreshData();
+          }
+        }
+        return data;
+      });
     }
 
     const customFilter = (rows, columnIds, filterValue) => {
@@ -452,12 +443,16 @@ testData = Array(20).fill(testData).flat();
           promises.push(getSiteCodes());
           setLevelCountry({level:props.level,country:props.country});
         }
-        let url = ConfigData.SITECHANGES_GET;
-        url += 'country='+ props.country;
-        url += '&status='+props.status;
-        url += '&level='+props.level;
-        url += '&page='+(currentPage+1);
-        url += '&limit='+currentSize;
+        let url = ConfigData.LINEAGE_GET_CHANGES;
+        url += 'country=' + props.country;
+        url += '&status=' + props.status;
+        url += '&page=' + (currentPage+1);
+        url += '&limit=' + currentSize;
+        url += '&creation=' + props.typeFilter.includes("creation");
+        url += '&deletion=' + props.typeFilter.includes("deletion");
+        url += '&split=' + props.typeFilter.includes("split");
+        url += '&merge=' + props.typeFilter.includes("merge");
+        url += '&recode=' + props.typeFilter.includes("recode");
         promises.push(
           dl.fetch(url)
           .then(response => response.json())

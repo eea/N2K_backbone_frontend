@@ -8,6 +8,7 @@ import TableManagement from './TableManagement';
 import Turnstone from 'turnstone';
 
 import {
+  CAlert,
   CCol,
   CContainer,
   CRow,
@@ -44,6 +45,8 @@ const Sitelineage = () => {
   const [searchList, setSearchList] = useState({});
   const [activeTab, setActiveTab] = useState(1);
   const [disabledBtn, setDisabledBtn] = useState(true);
+  const [error, setError] = useState("");
+  const [modalError, setModalError] = useState("");
   const [showModal, setShowModal] = useState(false);
   const turnstoneRef = useRef();
   let dl = new(DataLoader);
@@ -124,91 +127,86 @@ const Sitelineage = () => {
     // setIsTabChanged(true);
   }
 
-  let setBackToPending = (changes, refresh)=>{
-    // setBacking(true);
-    // setUpdatingData(true);
-    // let rBody = !Array.isArray(changes)?[changes]:changes
+  let postRequest = (url,body)=>{
+    const options = {
+      method: 'POST',
+      headers: {
+      'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    };
+    return dl.fetch(url, options)
+  }
 
-    // return postRequest(ConfigData.MOVE_TO_PENDING, rBody)
-    // .then(data => {
-    //     if(data?.ok){
-    //       setUpdatingData(false);
-    //       setBacking(false);
-    //       let response = readResponse(data, "Back To Pending");
-    //       if(refresh){
-    //         forceRefreshData();
-    //         setForceRefresh(forceRefresh+1);
-    //       }
-    //       return response;
-    //     } else showErrorMessage("Back To Pending");
-    //     setBacking(false);
-    // }).catch(e => {
-    //   showErrorMessage("Back To Pending");
-    //   console.error(e)
-    // });
-    if(refresh){
-      forceRefreshData();
-      setForceRefresh(forceRefresh+1);
+  let showErrorMessage = (target, message)  => {
+    if (target === "modal") {
+      setModalError(message)
+      setTimeout(() => {
+        setModalError("")
+      }, ConfigData.MessageTimeout);
+    } else if (target === "management") {
+      setError(message);
+      setTimeout(() => {
+        setError("")
+      }, ConfigData.MessageTimeout);
     }
-    return response;
+  }
+
+  let setBackToPending = (changes, refresh)=>{
+    let rBody = !Array.isArray(changes)?[changes]:changes
+
+    return postRequest(ConfigData.LINEAGE_MOVE_TO_PENDING, rBody)
+    .then(data => {
+        if(data?.ok){
+          let response = readResponse(data, "Back To Pending");
+          if(refresh){
+            forceRefreshData();
+            setForceRefresh(forceRefresh+1);
+          }
+          return response;
+        } else throw "Back To Pending";
+    }).catch(e => {
+        let target = showModal ? "modal" : "management";
+        showErrorMessage(target, "An error occurred while performing action: " + e);
+    });
   }
 
   let acceptChanges = (changes, refresh)=>{
-    // setAccepting(true);
-    // setUpdatingData(true);
-    // let rBody = !Array.isArray(changes)?[changes]:changes
+    let rBody = !Array.isArray(changes)?[changes]:changes
 
-    // return postRequest(ConfigData.ACCEPT_CHANGES, rBody)
-    // .then(data => {
-    //     if(data.ok){
-    //       setUpdatingData(false);
-    //       setAccepting(false);
-    //       let response = readResponse(data, "Accept Changes");
-    //       if(refresh){
-    //         forceRefreshData();
-    //         setForceRefresh(forceRefresh+1);
-    //       }
-    //       return response;
-    //     } else showErrorMessage("Accept Changes");
-    //     setAccepting(false);
-    // }).catch(e => {
-    //   showErrorMessage("Accept Changes");
-    //   console.error(e);
-    // });
-    if(refresh){
-      forceRefreshData();
-      setForceRefresh(forceRefresh+1);
-    }
-    return response;
+    return postRequest(ConfigData.LINEAGE_ACCEPT_CHANGES, rBody)
+    .then(data => {
+        if(data.ok){
+          let response = readResponse(data, "Accept Changes");
+          if(refresh){
+            forceRefreshData();
+            setForceRefresh(forceRefresh+1);
+          }
+          return response;
+        } else showErrorMessage("Accept Changes");
+    }).catch(e => {
+        let target = showModal ? "modal" : "management";
+        showErrorMessage(target, "An error occurred while performing action: " + e);
+    });
   }
 
   let rejectChanges = (changes, refresh)=>{
-    // setRejecting(true);
-    // setUpdatingData(true);
-    // let rBody = !Array.isArray(changes)?[changes]:changes
+    let rBody = !Array.isArray(changes)?[changes]:changes
 
-    // return postRequest(ConfigData.REJECT_CHANGES, rBody)
-    // .then(data => {
-    //     if(data.ok){
-    //       setUpdatingData(false);
-    //       setRejecting(false);
-    //       let response = readResponse(data, "Reject Changes");
-    //       if(refresh){
-    //         forceRefreshData();
-    //         setForceRefresh(forceRefresh+1);
-    //       }
-    //       return response;
-    //     } else showErrorMessage("Reject Changes");
-    //     setRejecting(false);
-    // }).catch(e => {
-    //   showErrorMessage("Reject Changes");
-    //   console.error(e);
-    // });
-    if(refresh){
-      forceRefreshData();
-      setForceRefresh(forceRefresh+1);
-    }
-    return response;
+    return postRequest(ConfigData.LINEAGE_REJECT_CHANGES, rBody)
+    .then(data => {
+        if(data.ok){
+          let response = readResponse(data, "Reject Changes");
+          if(refresh){
+            forceRefreshData();
+            setForceRefresh(forceRefresh+1);
+          }
+          return response;
+        } else showErrorMessage("Reject Changes");
+    }).catch(e => {
+        let target = showModal ? "modal" : "management";
+        showErrorMessage(target, "An error occurred while performing action: " + e);
+    });
   }
 
   const [modalValues, setModalValues] = useState({
@@ -350,6 +348,9 @@ const Sitelineage = () => {
                   <CButton color="primary" onClick={()=>updateModalValues("Export Lineage", "This will export lineage", "Continue", ()=>exportLineage(), "Cancel", ()=>{})} disabled={isLoading || Object.keys(siteCodes).length < 3}>Export</CButton>
                 </div>
               </div>
+              <div>
+                <CAlert color='danger' visible={error.length > 0}>{error}</CAlert>
+              </div>
               <div className="d-flex flex-start align-items-center p-3 card-lineage-type">
                 <div className="me-5">
                   <h2 className="card-lineage-type-title">Type</h2>
@@ -470,7 +471,7 @@ const Sitelineage = () => {
                       <TableManagement
                         status="pending" 
                         country = {country}
-                        level = {"Info"}
+                        typeFilter = {types}
                         getRefresh={()=>getRefreshSitechanges("pending")} 
                         setRefresh={setRefreshSitechanges}
                         accept={acceptChanges}
@@ -480,6 +481,7 @@ const Sitelineage = () => {
                         setSitecodes = {setCodes}
                         setShowModal={()=>showModalSitechanges()}
                         showModal={showModal}
+                        errorMessage = {modalError}
                         closeModal={closeModal}
                       />
                     </CTabPane>
@@ -487,7 +489,7 @@ const Sitelineage = () => {
                       <TableManagement
                         status="accepted" 
                         country = {country}
-                        level = {"Info"}
+                        typeFilter = {types}
                         getRefresh={()=>getRefreshSitechanges("accepted")} 
                         setRefresh={setRefreshSitechanges}
                         accept={acceptChanges}
@@ -497,6 +499,7 @@ const Sitelineage = () => {
                         setSitecodes = {setCodes}
                         setShowModal={()=>showModalSitechanges()}
                         showModal={showModal}
+                        errorMessage = {modalError}
                         closeModal={closeModal}
                     />
                     </CTabPane>
@@ -504,7 +507,7 @@ const Sitelineage = () => {
                       <TableManagement
                         status="rejected" 
                         country = {country}
-                        level = {"Info"}
+                        typeFilter = {types}
                         getRefresh={()=>getRefreshSitechanges("rejected")} 
                         setRefresh={setRefreshSitechanges}
                         accept={acceptChanges}
@@ -514,6 +517,7 @@ const Sitelineage = () => {
                         setSitecodes = {setCodes}
                         setShowModal={()=>showModalSitechanges()}
                         showModal={showModal}
+                        errorMessage = {modalError}
                         closeModal={closeModal}
                       />
                     </CTabPane>

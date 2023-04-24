@@ -244,8 +244,8 @@ export class ModalLineage extends Component {
             <CCloseButton onClick={() => this.closeModal()} />
           </CModalHeader>
           <CModalBody>
-            { this.state.generalError !== "" &&
-              <CAlert color="danger">{this.state.generalError}</CAlert>
+            { this.props.errorMessage !== "" &&
+              <CAlert color="danger">{this.props.errorMessage}</CAlert>
             }
             <CNav variant="tabs" role="tablist">
               <CNavItem>
