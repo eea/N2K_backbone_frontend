@@ -411,16 +411,12 @@ const Sitelineage = () => {
         .then(response => response.json())
         .then(data => {
           if (data?.Success) {
-            if(siteCode === 'AT2208000') {
-              setTableData(tableData1);
-            }
-            else if(siteCode === 'AT2209000') {
-              setTableData(tableData2);
+            if(data.Data.length === 0) {
+              setTableData("nodata");
             }
             else {
               setTableData(data.Data);
             }
-            console.log(selectOption)
           }
         })
       );
@@ -481,82 +477,93 @@ const Sitelineage = () => {
         type: 'straight',
       }
     }
-
-    nodes = [];
-    edges = [];
-    let x = 0;
-    let y = 0;
-    for(let i in tableData) {
-      let index = tableData.length - 1 - i;
-      let code = tableData[index].SiteCode;
-      let release = tableData[index].Release;
-      if(nodes.length !== 0) {
-        if(nodes.some(a=>a.code===code)) {
-          y = nodes.find(a=> a.code === code).position.y
-        }
-        else {
-          y = Math.min(...nodes.map(a=>a.position.y)) - 50;
-        }
-        if(nodes.some(a=>a.release===release)) {
-          x = nodes.find(a=> a.release === release).position.x;
-        }
-        else {
-          x = Math.min(...nodes.map(a=>a.position.x)) - 150;
-        }
-      }
+    if(tableData === "nodata") {
       let node = {
-        id: code+"-"+release,
-        position: { x: x, y: y },
+        id: "noData",
         sourcePosition: 'right',
-        targetPosition: 'left',
-        data: { label: release },
-        className: 'color-node '+(code === siteCode ? "green-node" : "yellow-node"),
+        position: { x: 0, y:  0},
+        data: { label: "No Data" },
+        type: 'input',
+        className: "disabled-node",
         selectable: false,
-        release: release,
-        code: code,
       }
       nodes.push(node);
-
-      let predecessors = tableData[index].Predecessors.SiteCode?.split(",");
-      let edge;
-      for(let p in predecessors) {
-        let predCode = predecessors[p]
-        let predRelease = tableData[index].Predecessors.Release;
-          edge = {
-            id: code+"-"+release+"-"+predCode+"-"+predRelease,
-            source: predCode+"-"+predRelease,
-            target: code+"-"+release,
-            ...(code === siteCode ? edgeStyles.green : edgeStyles.yellow)
+    }
+    else {
+      let x = 0;
+      let y = 0;
+      for(let i in tableData) {
+        let index = tableData.length - 1 - i;
+        let code = tableData[index].SiteCode;
+        let release = tableData[index].Release;
+        if(nodes.length !== 0) {
+          if(nodes.some(a=>a.code===code)) {
+            y = nodes.find(a=> a.code === code).position.y
           }
+          else {
+            y = Math.min(...nodes.map(a=>a.position.y)) - 50;
+          }
+          if(nodes.some(a=>a.release===release)) {
+            x = nodes.find(a=> a.release === release).position.x;
+          }
+          else {
+            x = Math.min(...nodes.map(a=>a.position.x)) - 150;
+          }
+        }
+        let node = {
+          id: code+"-"+release,
+          position: { x: x, y: y },
+          sourcePosition: 'right',
+          targetPosition: 'left',
+          data: { label: release },
+          className: 'color-node '+(code === siteCode ? "green-node" : "yellow-node"),
+          selectable: false,
+          release: release,
+          code: code,
+        }
+        nodes.push(node);
+
+        let predecessors = tableData[index].Predecessors.SiteCode?.split(",");
+        let edge;
+        for(let p in predecessors) {
+          let predCode = predecessors[p]
+          let predRelease = tableData[index].Predecessors.Release;
+            edge = {
+              id: code+"-"+release+"-"+predCode+"-"+predRelease,
+              source: predCode+"-"+predRelease,
+              target: code+"-"+release,
+              ...(code === siteCode ? edgeStyles.green : edgeStyles.yellow)
+            }
+          edges.push(edge);
+        }
+      }
+
+      let chartSiteCodes = Array.from(new Set(tableData.map(({ SiteCode }) => SiteCode)));
+      x = Math.min(...nodes.map(a=>a.position.x)) - 150;
+      for(let j in chartSiteCodes) {
+        let code = chartSiteCodes[j];
+        y = nodes.find(a=> a.code === code).position.y
+        let node = {
+          id: code,
+          sourcePosition: 'right',
+          position: { x: x, y:  y},
+          data: { label: code },
+          type: 'input',
+          className: code === siteCode ? "active-node" : "basic-node",
+          selectable: false,
+        }
+        nodes.push(node);
+
+        let edge = {
+          id: code+"-0",
+          source: code,
+          target: code+"-"+nodes.reverse().find(a=>a.code===code).release,
+          style: {strokeDasharray: 4},
+          focusable: false,
+        }
         edges.push(edge);
       }
-    }
-
-    let chartSiteCodes = Array.from(new Set(tableData.map(({ SiteCode }) => SiteCode)));
-    x = Math.min(...nodes.map(a=>a.position.x)) - 150;
-    for(let j in chartSiteCodes) {
-      let code = chartSiteCodes[j];
-      y = nodes.find(a=> a.code === code).position.y
-      let node = {
-        id: code,
-        sourcePosition: 'right',
-        position: { x: x, y:  y},
-        data: { label: code },
-        type: 'input',
-        className: code === siteCode ? "active-node" : "basic-node",
-        selectable: false,
-      }
-      nodes.push(node);
-
-      let edge = {
-        id: code+"-0",
-        source: code,
-        target: code+"-"+nodes.reverse().find(a=>a.code===code).release,
-        style: {strokeDasharray: 4},
-        focusable: false,
-      }
-      edges.push(edge);
-    }
+    }   
     return (
       <CCol xs={12} md={6} lg={8} xl={9} className="lineage-container-right">
         <div className="chart-container" style={{height:"300px"}}>
@@ -688,7 +695,9 @@ const Sitelineage = () => {
                 <>
                   {loadCard()}
                   {loadChart()}
-                  <TableLineage data={tableData} siteCode={siteCode}/>
+                  {tableData !== "nodata" &&
+                    <TableLineage data={tableData} siteCode={siteCode}/>
+                  }
                 </>
               }
             </CRow>

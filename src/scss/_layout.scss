@@ -215,7 +215,7 @@ table .badge--lineage {
     width: auto;
     font-weight: bold;
     cursor: pointer;
-    &.basic-node {
+    &.basic-node, &.disabled-node {
       border-color: $gray-300;
       color: $gray-300;
     }
