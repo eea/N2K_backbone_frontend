@@ -162,7 +162,7 @@ import ConfigData from '../../../config.json';
           }
         },
         {
-          Header: 'Length (m)',
+          Header: 'Length (km)',
           accessor: 'Length',
           Cell: ({ row, cell }) => {
             return cell.value?.Target === undefined ? cell.value : cell.value?.Target;
