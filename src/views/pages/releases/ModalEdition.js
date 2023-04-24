@@ -805,7 +805,7 @@ export class ModalEdition extends Component {
           }
           {field === "Length" &&
             <>
-              <label>{label} (m)</label>
+              <label>{label} (km)</label>
               <CFormInput
                 id={id}
                 name={name}
