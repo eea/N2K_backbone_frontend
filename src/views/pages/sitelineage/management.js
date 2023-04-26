@@ -24,7 +24,7 @@ import {
   CTabPane,
 } from '@coreui/react'
 
-let refreshSitechanges={"proposed":false,"consolidated":false,"rejected":false}, 
+let refreshSitechanges={"proposed":false,"consolidated":false}, 
   getRefreshSitechanges=(state)=>refreshSitechanges[state], 
   setRefreshSitechanges=(state,v)=>refreshSitechanges[state] = v;
 
@@ -184,25 +184,6 @@ const Sitelineage = () => {
           }
           return response;
         } else showErrorMessage("Consolidate Changes");
-    }).catch(e => {
-        let target = showModal ? "modal" : "management";
-        showErrorMessage(target, "An error occurred while performing action: " + e);
-    });
-  }
-
-  let rejectChanges = (changes, refresh)=>{
-    let rBody = !Array.isArray(changes)?[changes]:changes
-
-    return postRequest(ConfigData.LINEAGE_REJECT_CHANGES, rBody)
-    .then(data => {
-        if(data.ok){
-          let response = readResponse(data, "Reject Changes");
-          if(refresh){
-            forceRefreshData();
-            setForceRefresh(forceRefresh+1);
-          }
-          return response;
-        } else showErrorMessage("Reject Changes");
     }).catch(e => {
         let target = showModal ? "modal" : "management";
         showErrorMessage(target, "An error occurred while performing action: " + e);
@@ -456,15 +437,6 @@ const Sitelineage = () => {
                           Consolidated <span className="badge status--accepted">{Object.keys(siteCodes).length === 3 && siteCodes.consolidated?.length}</span>
                         </CNavLink>
                       </CNavItem>
-                      <CNavItem>
-                        <CNavLink
-                          href="javascript:void(0);"
-                          active={activeTab === 3}
-                          onClick={() => {changeStatus(3);}}
-                        >
-                          Rejected <span className="badge status--rejected">{Object.keys(siteCodes).length === 3 && siteCodes.rejected?.length}</span>
-                        </CNavLink>
-                      </CNavItem>
                     </CNav>
                     <CTabContent>
                     <CTabPane role="tabpanel" aria-labelledby="pending-tab" visible={activeTab === 1}>
@@ -475,7 +447,6 @@ const Sitelineage = () => {
                         getRefresh={()=>getRefreshSitechanges("proposed")} 
                         setRefresh={setRefreshSitechanges}
                         consolidate={consolidateChanges}
-                        reject={rejectChanges}
                         setBackToProposed={setBackToProposed}
                         updateModalValues={updateModalValues}
                         setSitecodes = {setCodes}
@@ -493,7 +464,6 @@ const Sitelineage = () => {
                         getRefresh={()=>getRefreshSitechanges("consolidated")} 
                         setRefresh={setRefreshSitechanges}
                         consolidate={consolidateChanges}
-                        reject={rejectChanges}
                         setBackToProposed={setBackToProposed}
                         updateModalValues={updateModalValues}
                         setSitecodes = {setCodes}
@@ -502,24 +472,6 @@ const Sitelineage = () => {
                         errorMessage = {modalError}
                         closeModal={closeModal}
                     />
-                    </CTabPane>
-                    <CTabPane role="tabpanel" aria-labelledby="rejected-tab" visible={activeTab === 3}>
-                      <TableManagement
-                        status="rejected" 
-                        country = {country}
-                        typeFilter = {types}
-                        getRefresh={()=>getRefreshSitechanges("rejected")} 
-                        setRefresh={setRefreshSitechanges}
-                        consolidate={consolidateChanges}
-                        reject={rejectChanges}
-                        setBackToProposed={setBackToProposed}
-                        updateModalValues={updateModalValues}
-                        setSitecodes = {setCodes}
-                        setShowModal={()=>showModalSitechanges()}
-                        showModal={showModal}
-                        errorMessage = {modalError}
-                        closeModal={closeModal}
-                      />
                     </CTabPane>
                   </CTabContent>
                 </CCol>

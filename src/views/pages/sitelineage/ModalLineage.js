@@ -283,7 +283,6 @@ export class ModalLineage extends Component {
           </CModalBody>
           <CModalFooter>
             <div className="d-flex w-100 justify-content-between">
-              {data.Status === 'Proposed' && <CButton disabled={this.changingStatus} color="secondary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(() => this.rejectChangesModal(true), true) : this.rejectChangesModal()}>Reject Changes</CButton>}
               {data.Status === 'Proposed' && <CButton disabled={this.changingStatus} color="primary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(() => this.consolidateChangesModal(true), true) : this.consolidateChangesModal()}>Consolidate Changes</CButton>}
               {data.Status !== 'Proposed' && this.state.activeKey !== 3 && <CButton disabled={this.changingStatus} color="primary" className="ms-auto" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(() => this.backToProposedModal(true), true) : this.backToProposedModal()}>Back to Proposed</CButton>}
             </div>
@@ -326,7 +325,7 @@ export class ModalLineage extends Component {
   loadData() {
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)) {
       this.isLoadingData = true;
-      this.dl.fetch(ConfigData.LINEAGE_GET_CHANGES + "?siteCode=" + this.props.item)
+      this.dl.fetch(ConfigData.LINEAGE_GET_CHANGES_SITE + "?siteCode=" + this.props.item)
       .then(response => {
           if (response.status === 200)
             return response.json();
@@ -337,8 +336,6 @@ export class ModalLineage extends Component {
         if (!data.Success)
           this.setState({ errorLoading: true, loading: false });
         else
-          if(this.isSiteDeleted())
-            this.setState({ fields: "noData" })
           this.setState({ data: data.Data, loading: false, activeKey: this.props.activeKey ? this.props.activeKey : this.state.activeKey })
       });
     }
@@ -364,25 +361,6 @@ export class ModalLineage extends Component {
           this.changingStatus = false;
           this.setState({ data: {}, fields: {}, loading: true, siteTypeValue: "", siteRegionValue: "" });
         } else { this.showErrorMessage("general", "Error consolidating changes") }
-      });
-  }
-
-  rejectChangesModal(clean) {
-    this.changingStatus = true;
-    if (clean) {
-      this.cleanUnsavedChanges();
-    }
-    this.resetLoading();
-    this.props.updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", () => this.rejectChanges(), "Cancel", () => { this.changingStatus = false });
-  }
-
-  rejectChanges() {
-    this.props.reject()
-      .then(data => {
-        if (data?.Success) {
-          this.changingStatus = false;
-          this.setState({ data: {}, fields: {}, loading: true, siteTypeValue: "", siteRegionValue: "" });
-        } else { this.showErrorMessage("general", "Error rejecting changes") }
       });
   }
 

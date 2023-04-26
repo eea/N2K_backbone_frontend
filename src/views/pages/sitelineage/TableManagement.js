@@ -399,10 +399,6 @@ testData = Array(20).fill(testData).flat();
           return {
             backProposed: ()=>props.updateModalValues("Back to Proposed", "This will set the lineage changes back to Proposed", "Continue", ()=>setBackToProposed(row.original, true), "Cancel", ()=>{}),
           }
-        case 'rejected':
-          return {
-            backProposed: ()=>props.updateModalValues("Back to Proposed", "This will set the lineage changes back to Proposed", "Continue", ()=>setBackToProposed(row.original, true), "Cancel", ()=>{}),
-          }
         default:
           return {}
       }
