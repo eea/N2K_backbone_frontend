@@ -24,7 +24,7 @@ import {
   CTabPane,
 } from '@coreui/react'
 
-let refreshSitechanges={"pending":false,"accepted":false,"rejected":false}, 
+let refreshSitechanges={"proposed":false,"consolidated":false,"rejected":false}, 
   getRefreshSitechanges=(state)=>refreshSitechanges[state], 
   setRefreshSitechanges=(state,v)=>refreshSitechanges[state] = v;
 
@@ -152,38 +152,38 @@ const Sitelineage = () => {
     }
   }
 
-  let setBackToPending = (changes, refresh)=>{
+  let setBackToProposed = (changes, refresh)=>{
     let rBody = !Array.isArray(changes)?[changes]:changes
 
     return postRequest(ConfigData.LINEAGE_MOVE_TO_PENDING, rBody)
     .then(data => {
         if(data?.ok){
-          let response = readResponse(data, "Back To Pending");
+          let response = readResponse(data, "Back To Proposed");
           if(refresh){
             forceRefreshData();
             setForceRefresh(forceRefresh+1);
           }
           return response;
-        } else throw "Back To Pending";
+        } else throw "Back To Proposed";
     }).catch(e => {
         let target = showModal ? "modal" : "management";
         showErrorMessage(target, "An error occurred while performing action: " + e);
     });
   }
 
-  let acceptChanges = (changes, refresh)=>{
+  let consolidateChanges = (changes, refresh)=>{
     let rBody = !Array.isArray(changes)?[changes]:changes
 
     return postRequest(ConfigData.LINEAGE_ACCEPT_CHANGES, rBody)
     .then(data => {
         if(data.ok){
-          let response = readResponse(data, "Accept Changes");
+          let response = readResponse(data, "Consolidate Changes");
           if(refresh){
             forceRefreshData();
             setForceRefresh(forceRefresh+1);
           }
           return response;
-        } else showErrorMessage("Accept Changes");
+        } else showErrorMessage("Consolidate Changes");
     }).catch(e => {
         let target = showModal ? "modal" : "management";
         showErrorMessage(target, "An error occurred while performing action: " + e);
@@ -444,7 +444,7 @@ const Sitelineage = () => {
                           active={activeTab === 1}
                           onClick={() => {changeStatus(1);}}
                         >
-                          Pending <span className="badge status--pending">{Object.keys(siteCodes).length === 3 && siteCodes.pending?.length}</span>
+                          Proposed <span className="badge status--pending">{Object.keys(siteCodes).length === 3 && siteCodes.proposed?.length}</span>
                         </CNavLink>
                       </CNavItem>
                       <CNavItem>
@@ -453,7 +453,7 @@ const Sitelineage = () => {
                           active={activeTab === 2}
                           onClick={() => {changeStatus(2);}}
                         >
-                          Accepted <span className="badge status--accepted">{Object.keys(siteCodes).length === 3 && siteCodes.accepted?.length}</span>
+                          Consolidated <span className="badge status--accepted">{Object.keys(siteCodes).length === 3 && siteCodes.consolidated?.length}</span>
                         </CNavLink>
                       </CNavItem>
                       <CNavItem>
@@ -469,14 +469,14 @@ const Sitelineage = () => {
                     <CTabContent>
                     <CTabPane role="tabpanel" aria-labelledby="pending-tab" visible={activeTab === 1}>
                       <TableManagement
-                        status="pending" 
+                        status="proposed" 
                         country = {country}
                         typeFilter = {types}
-                        getRefresh={()=>getRefreshSitechanges("pending")} 
+                        getRefresh={()=>getRefreshSitechanges("proposed")} 
                         setRefresh={setRefreshSitechanges}
-                        accept={acceptChanges}
+                        consolidate={consolidateChanges}
                         reject={rejectChanges}
-                        setBackToPending={setBackToPending}
+                        setBackToProposed={setBackToProposed}
                         updateModalValues={updateModalValues}
                         setSitecodes = {setCodes}
                         setShowModal={()=>showModalSitechanges()}
@@ -487,14 +487,14 @@ const Sitelineage = () => {
                     </CTabPane>
                     <CTabPane role="tabpanel" aria-labelledby="accepted-tab" visible={activeTab === 2}>
                       <TableManagement
-                        status="accepted" 
+                        status="consolidated" 
                         country = {country}
                         typeFilter = {types}
-                        getRefresh={()=>getRefreshSitechanges("accepted")} 
+                        getRefresh={()=>getRefreshSitechanges("consolidated")} 
                         setRefresh={setRefreshSitechanges}
-                        accept={acceptChanges}
+                        consolidate={consolidateChanges}
                         reject={rejectChanges}
-                        setBackToPending={setBackToPending}
+                        setBackToProposed={setBackToProposed}
                         updateModalValues={updateModalValues}
                         setSitecodes = {setCodes}
                         setShowModal={()=>showModalSitechanges()}
@@ -510,9 +510,9 @@ const Sitelineage = () => {
                         typeFilter = {types}
                         getRefresh={()=>getRefreshSitechanges("rejected")} 
                         setRefresh={setRefreshSitechanges}
-                        accept={acceptChanges}
+                        consolidate={consolidateChanges}
                         reject={rejectChanges}
-                        setBackToPending={setBackToPending}
+                        setBackToProposed={setBackToProposed}
                         updateModalValues={updateModalValues}
                         setSitecodes = {setCodes}
                         setShowModal={()=>showModalSitechanges()}

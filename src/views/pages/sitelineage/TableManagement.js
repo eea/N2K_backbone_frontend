@@ -55,9 +55,9 @@ testData = Array(20).fill(testData).flat();
           <i className="fa-solid fa-ellipsis"></i>
         </CDropdownToggle>
         <CDropdownMenu>
-          {props.actions.accept && <CDropdownItem role={'button'} onClick={() => props.actions.accept()}>Accept changes</CDropdownItem>}
+          {props.actions.consolidate && <CDropdownItem role={'button'} onClick={() => props.actions.consolidate()}>Consolidate changes</CDropdownItem>}
           {props.actions.reject && <CDropdownItem role={'button'} onClick={() => props.actions.reject()}>Reject changes</CDropdownItem>}
-          {props.actions.backPending && <CDropdownItem role={'button'} onClick={() => props.actions.backPending()}>Back to Pending</CDropdownItem>}
+          {props.actions.backProposed && <CDropdownItem role={'button'} onClick={() => props.actions.backProposed()}>Back to Proposed</CDropdownItem>}
         </CDropdownMenu>
       </CDropdown>
     )
@@ -244,15 +244,8 @@ testData = Array(20).fill(testData).flat();
       props.closeModal();
     }
 
-    let setBackToPendingWithVersion = (version) => {
-      let newModalItem = modalItem;
-      newModalItem.Version = version;
-      setModalItem({...newModalItem});
-      return setBackToPending(modalItem);
-    }
-
-    let setBackToPending = (change, refresh)=>{
-      return props.setBackToPending({"ChangeId":change.id}, refresh)
+    let setBackToProposed = (change, refresh)=>{
+      return props.setBackToProposed({"ChangeId":change.id}, refresh)
       .then(data => {
         if(data?.ok){
           if(refresh) {
@@ -263,8 +256,8 @@ testData = Array(20).fill(testData).flat();
       });
     }
 
-    let acceptChanges = (change, refresh)=>{
-      return props.accept({"ChangeId":change.id}, refresh)
+    let consolidateChanges = (change, refresh)=>{
+      return props.consolidate(change, refresh)
       .then(data => {
           if(data?.ok){
             if(refresh) {
@@ -397,18 +390,18 @@ testData = Array(20).fill(testData).flat();
     
     let getContextActions = (row)=>{
       switch(props.status){
-        case 'pending':
+        case 'proposed':
           return {
-            accept: ()=>props.updateModalValues("Accept Changes", "This will accept lineage changes", "Continue", ()=>acceptChanges(row.original, true), "Cancel", ()=>{}),
+            consolidate: ()=>props.updateModalValues("Consolidate Changes", "This will consolidate lineage changes", "Continue", ()=>consolidateChanges(row.original, true), "Cancel", ()=>{}),
             reject: ()=>props.updateModalValues("Reject Changes", "This will reject lineage changes", "Continue", ()=>rejectChanges(row.original, true), "Cancel", ()=>{}),
           }
-        case 'accepted':
+        case 'consolidated':
           return {
-            backPending: ()=>props.updateModalValues("Back to Pending", "This will set the lineage changes back to Pending", "Continue", ()=>setBackToPending(row.original, true), "Cancel", ()=>{}),
+            backProposed: ()=>props.updateModalValues("Back to Proposed", "This will set the lineage changes back to Proposed", "Continue", ()=>setBackToProposed(row.original, true), "Cancel", ()=>{}),
           }
         case 'rejected':
           return {
-            backPending: ()=>props.updateModalValues("Back to Pending", "This will set the lineage changes back to Pending", "Continue", ()=>setBackToPending(row.original, true), "Cancel", ()=>{}),
+            backProposed: ()=>props.updateModalValues("Back to Proposed", "This will set the lineage changes back to Proposed", "Continue", ()=>setBackToProposed(row.original, true), "Cancel", ()=>{}),
           }
         default:
           return {}
@@ -506,9 +499,9 @@ testData = Array(20).fill(testData).flat();
           <ModalLineage
             visible = {modalVisible}
             close = {closeModal}
-            accept={()=>acceptChanges(modalItem)}
+            consolidate={()=>consolidateChanges(modalItem)}
             reject={()=>rejectChanges(modalItem)}
-            backToPending={(version) => setBackToPendingWithVersion(version)}
+            backToProposed={() => setBackToProposed(modalItem)}
             status={props.status}
             level={props.level}
             item={modalItem.SiteCode}

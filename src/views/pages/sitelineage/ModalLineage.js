@@ -165,7 +165,7 @@ export class ModalLineage extends Component {
       <CTabPane role="tabpanel" aria-labelledby="home-tab" visible={this.state.activeKey === 1}>
         <CRow className="p-3">
           <CCol xs="auto">
-            
+            a
           </CCol>
         </CRow>
       </CTabPane>
@@ -195,6 +195,15 @@ export class ModalLineage extends Component {
   }
 
   getBody() {
+    let data = [
+      {
+        "ChangeId": 0,
+        "Type": "",
+        "Predecessors": [],
+        "Successors": []
+      }
+    ]
+
     let body = Object.fromEntries(new FormData(document.querySelector("form")));
     return body;
   }
@@ -274,9 +283,9 @@ export class ModalLineage extends Component {
           </CModalBody>
           <CModalFooter>
             <div className="d-flex w-100 justify-content-between">
-              {data.Status === 'Pending' && <CButton disabled={this.changingStatus} color="secondary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(() => this.rejectChangesModal(true), true) : this.rejectChangesModal()}>Reject Changes</CButton>}
-              {data.Status === 'Pending' && <CButton disabled={this.changingStatus} color="primary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(() => this.acceptChangesModal(true), true) : this.acceptChangesModal()}>Accept Changes</CButton>}
-              {data.Status !== 'Pending' && this.state.activeKey !== 3 && <CButton disabled={this.changingStatus} color="primary" className="ms-auto" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(() => this.backToPendingModal(true), true) : this.backToPendingModal()}>Back to Pending</CButton>}
+              {data.Status === 'Proposed' && <CButton disabled={this.changingStatus} color="secondary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(() => this.rejectChangesModal(true), true) : this.rejectChangesModal()}>Reject Changes</CButton>}
+              {data.Status === 'Proposed' && <CButton disabled={this.changingStatus} color="primary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(() => this.consolidateChangesModal(true), true) : this.consolidateChangesModal()}>Consolidate Changes</CButton>}
+              {data.Status !== 'Proposed' && this.state.activeKey !== 3 && <CButton disabled={this.changingStatus} color="primary" className="ms-auto" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(() => this.backToProposedModal(true), true) : this.backToProposedModal()}>Back to Proposed</CButton>}
             </div>
           </CModalFooter>
         </>
@@ -339,22 +348,22 @@ export class ModalLineage extends Component {
     this.isLoadingData = false;
   }
 
-  acceptChangesModal(clean) {
+  consolidateChangesModal(clean) {
     this.changingStatus = true;
     if (clean) {
       this.cleanUnsavedChanges();
     }
     this.resetLoading();
-    this.props.updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", () => this.acceptChanges(), "Cancel", () => { this.changingStatus = false });
+    this.props.updateModalValues("Consolidate Changes", "This will consolidate all the site changes", "Continue", () => this.consolidateChanges(), "Cancel", () => { this.changingStatus = false });
   }
 
-  acceptChanges() {
-    this.props.accept()
+  consolidateChanges() {
+    this.props.consolidate()
       .then((data) => {
         if (data?.Success) {
           this.changingStatus = false;
           this.setState({ data: {}, fields: {}, loading: true, siteTypeValue: "", siteRegionValue: "" });
-        } else { this.showErrorMessage("general", "Error accepting changes") }
+        } else { this.showErrorMessage("general", "Error consolidating changes") }
       });
   }
 
@@ -377,13 +386,13 @@ export class ModalLineage extends Component {
       });
   }
 
-  backToPendingModal(clean) {
+  backToProposedModal(clean) {
     this.changingStatus = true;
     if (clean) {
       this.cleanUnsavedChanges();
     }
     this.resetLoading();
-    this.props.updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", () => this.setBackToPending(), "Cancel", () => { this.changingStatus = false });
+    this.props.updateModalValues("Back to Proposed", "This will set the changes back to Proposed", "Continue", () => this.setBackToProposed(), "Cancel", () => { this.changingStatus = false });
   }
 
   getCurrentVersion() {
@@ -401,26 +410,26 @@ export class ModalLineage extends Component {
         .reduce((result, next) => result || next, false);
   }
 
-  setBackToPending() {
+  setBackToProposed() {
     let controlResult = (data) => {
       if (data?.Success) {
         this.changingStatus = false;
         this.versionChanged = true;
         this.currentVersion = data.Data[0].VersionId;
         this.setState({ data: {}, fields: {}, loading: true, siteTypeValue: "", siteRegionValue: "" });
-      } else { this.showErrorMessage("general", "Error setting changes back to pending") }
+      } else { this.showErrorMessage("general", "Error setting changes back to proposed") }
     }
 
-    if(this.state.data.Status === "Accepted" && !this.isSiteDeleted())
+    if(this.state.data.Status === "Consolidated" && !this.isSiteDeleted())
       this.getCurrentVersion()
         .then(version => { 
-          this.props.backToPending(version)
+          this.props.backToProposed(version)
           .then((data) => {
             controlResult(data);
           })
         });
     else
-      this.props.backToPending(this.props.version)
+      this.props.backToProposed(this.props.version)
         .then((data) => {
           controlResult(data);
         })
