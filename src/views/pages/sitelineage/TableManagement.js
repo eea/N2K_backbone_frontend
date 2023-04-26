@@ -433,10 +433,10 @@ testData = Array(20).fill(testData).flat();
           setLevelCountry({level:props.level,country:props.country});
         }
         let url = ConfigData.LINEAGE_GET_CHANGES;
-        url += 'country=' + props.country;
-        url += '&status=' + props.status;
+        url += '?country=' + props.country;
+        url += '&status=' + "Consolidated";
         url += '&page=' + (currentPage+1);
-        url += '&limit=' + currentSize;
+        url += '&pageLimit=' + currentSize;
         url += '&creation=' + props.typeFilter.includes("creation");
         url += '&deletion=' + props.typeFilter.includes("deletion");
         url += '&split=' + props.typeFilter.includes("split");
