@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react'
-import { useTable, usePagination, useFilters,useGlobalFilter, useRowSelect, useAsyncDebounce, useSortBy, useExpanded } from 'react-table'
+import { useTable, usePagination, useFilters,useGlobalFilter, useAsyncDebounce, useSortBy, useExpanded } from 'react-table'
 import {matchSorter} from 'match-sorter'
 import ConfigData from '../../../config.json';
 import {
@@ -14,16 +14,6 @@ import {
 } from '@coreui/react'
 import { ModalLineage } from './ModalLineage';
 import {DataLoader} from '../../../components/DataLoader';
-
-let testData = [
-  {SiteCode:"AT2173000", SiteName:"Althofener Moor", Type:"Creation", Reference:"", Reported:"AT2173000"},
-  {SiteCode:"AT2111000", SiteName:"Völkermarkter Stausee", Type:"Deletion", Reference:"AT2111000", Reported:""},
-  {SiteCode:"AT1127119", SiteName:"Burgenländische Leithaauen", Type:"Split", Reference:"AT1127119", Reported:"AT2208000,AT2209000"},
-  {SiteCode:"AT1119622", SiteName:"Auwiesen Zickenbachtal", Type:"Merge", Reference:"AT1119620,AT1119621", Reported:"AT1119622"},
-  {SiteCode:"AT1102112", SiteName:"Zurndorfer Eichenwald und Hutweide", Type:"Recode", Reference:"AT1102112", Reported:"AT1102113"},
-]
-testData = Array(20).fill(testData).flat();
-
 
   function DefaultColumnFilter({
     column: { filterValue, preFilteredRows, setFilter },
@@ -56,7 +46,6 @@ testData = Array(20).fill(testData).flat();
         </CDropdownToggle>
         <CDropdownMenu>
           {props.actions.consolidate && <CDropdownItem role={'button'} onClick={() => props.actions.consolidate()}>Consolidate changes</CDropdownItem>}
-          {props.actions.reject && <CDropdownItem role={'button'} onClick={() => props.actions.reject()}>Reject changes</CDropdownItem>}
           {props.actions.backProposed && <CDropdownItem role={'button'} onClick={() => props.actions.backProposed()}>Back to Proposed</CDropdownItem>}
         </CDropdownMenu>
       </CDropdown>
@@ -115,21 +104,8 @@ testData = Array(20).fill(testData).flat();
       useSortBy,
       useExpanded,
       usePagination,
-      useRowSelect,
     )  
   
-    // clear selection when tab is changed
-    useEffect(() => {
-      if(isTabChanged) {
-        setIsTabChanged(false);
-        toggleAllRowsSelected(false);
-      }
-    }, [isTabChanged]);
-
-    let countSitesOnPage = () => {
-      return page.filter(row => !row.id.includes(".")).length;
-    }
-
     // Render the UI for your table
     return (
       <>
@@ -208,12 +184,13 @@ testData = Array(20).fill(testData).flat();
   function TableManagement(props) {
     const [modalItem, setModalItem] = useState({});
     const [modalVisible, setModalVisible] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoaded, setIsLoaded] = useState(false);
     const [changesData, setChangesData] = useState({});
     const [siteCodes, setSitecodes] = useState([]);
     const [currentPage, setCurrentPage] = useState(0);
     const [currentSize, setCurrentSize] = useState(30);
     const [levelCountry, setLevelCountry] = useState({});
+    const [changesCount, setChangesCount] = useState([]);
 
     let dl = new(DataLoader);
 
@@ -226,6 +203,7 @@ testData = Array(20).fill(testData).flat();
     }
 
     let showModal = (data) => {
+      console.log(data)
       if ((Object.keys(modalItem).length === 0) &&
       (data.status === props.status)
       ) {
@@ -265,18 +243,6 @@ testData = Array(20).fill(testData).flat();
             }
           }
           return data;
-      });
-    }
-
-    let rejectChanges = (change, refresh)=>{
-      return props.reject({"ChangeId":change.id}, refresh)
-      .then(data => {
-        if(data?.ok){
-          if(refresh) {
-            forceRefreshData();
-          }
-        }
-        return data;
       });
     }
 
@@ -393,7 +359,6 @@ testData = Array(20).fill(testData).flat();
         case 'proposed':
           return {
             consolidate: ()=>props.updateModalValues("Consolidate Changes", "This will consolidate lineage changes", "Continue", ()=>consolidateChanges(row.original, true), "Cancel", ()=>{}),
-            reject: ()=>props.updateModalValues("Reject Changes", "This will reject lineage changes", "Continue", ()=>rejectChanges(row.original, true), "Cancel", ()=>{}),
           }
         case 'consolidated':
           return {
@@ -404,44 +369,33 @@ testData = Array(20).fill(testData).flat();
       }
     }
 
-    let getSiteCodes= ()=>{
-      let url = ConfigData.SITECODES_GET;
-      url += 'country='+props.country;
-      url += '&status='+props.status;
-      url += '&level='+props.level;
-      return dl.fetch(url)
-      .then(response => response.json())
-      .then(data => {
-        if(data?.Success) {
-          if(Object.keys(data.Data).length!==0) {
-            data.Data = testData;
-          }
-          props.setSitecodes(props.status,data.Data);
-          setSitecodes(data.Data);
-        }
-      });
-    }
-  
     let loadData= ()=>{
-      if(props.getRefresh()||(!isLoading && changesData!=="nodata" && Object.keys(changesData).length===0)){
+      if(props.getRefresh()||(!isLoaded && changesData!=="nodata" && Object.keys(changesData).length===0)){
         let promises=[];
-        setIsLoading(true);
         
         if(props.getRefresh()||(levelCountry==={})||(levelCountry.level!==props.level)||(levelCountry.country!==props.country)){
           props.setRefresh(props.status,false);  //For the referred status, data is updated
-          promises.push(getSiteCodes());
           setLevelCountry({level:props.level,country:props.country});
         }
         let url = ConfigData.LINEAGE_GET_CHANGES;
         url += '?country=' + props.country;
-        url += '&status=' + "Consolidated";
+        url += '&status=' + props.status;
         url += '&page=' + (currentPage+1);
         url += '&pageLimit=' + currentSize;
-        url += '&creation=' + props.typeFilter.includes("creation");
-        url += '&deletion=' + props.typeFilter.includes("deletion");
-        url += '&split=' + props.typeFilter.includes("split");
-        url += '&merge=' + props.typeFilter.includes("merge");
-        url += '&recode=' + props.typeFilter.includes("recode");
+        url += '&creation=' + true
+        url += '&deletion=' + true
+        url += '&split=' + true
+        url += '&merge=' + true
+        url += '&recode=' + true
+        // url += '?country=' + props.country;
+        // url += '&status=' + "Consolidated";
+        // url += '&page=' + (currentPage+1);
+        // url += '&pageLimit=' + currentSize;
+        // url += '&creation=' + props.typeFilter.includes("creation");
+        // url += '&deletion=' + props.typeFilter.includes("deletion");
+        // url += '&split=' + props.typeFilter.includes("split");
+        // url += '&merge=' + props.typeFilter.includes("merge");
+        // url += '&recode=' + props.typeFilter.includes("recode");
         promises.push(
           dl.fetch(url)
           .then(response => response.json())
@@ -450,13 +404,12 @@ testData = Array(20).fill(testData).flat();
               if(Object.keys(data.Data).length===0)
                 setChangesData("nodata");
               else {
-                data.Data = testData;
                 setChangesData(data.Data);
               }
             }
           })
         )
-        Promise.all(promises).then(v=>setIsLoading(false));
+        Promise.all(promises).then(v=>setIsLoaded(true));
       }
     }
     
@@ -465,14 +418,14 @@ testData = Array(20).fill(testData).flat();
         setChangesData("nodata");
         setSitecodes([]);
         props.setSitecodes({});
-        setIsLoading(false);
+        setIsLoaded(false);
       }
       //return(<></>);
     } else {
       loadData();
     }
 
-    if(isLoading)
+    if(!isLoaded)
       return (<div className="loading-container"><em>Loading...</em></div>)
     else
       if(changesData==="nodata")
@@ -496,7 +449,6 @@ testData = Array(20).fill(testData).flat();
             visible = {modalVisible}
             close = {closeModal}
             consolidate={()=>consolidateChanges(modalItem)}
-            reject={()=>rejectChanges(modalItem)}
             backToProposed={() => setBackToProposed(modalItem)}
             status={props.status}
             level={props.level}

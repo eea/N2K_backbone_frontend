@@ -45,6 +45,7 @@ const Sitelineage = () => {
   const [searchList, setSearchList] = useState({});
   const [activeTab, setActiveTab] = useState(1);
   const [disabledBtn, setDisabledBtn] = useState(true);
+  const [changesCount, setChangesCount] = useState([]);
   const [error, setError] = useState("");
   const [modalError, setModalError] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -278,6 +279,7 @@ const Sitelineage = () => {
     setIsLoading(true);
     setSitecodes({});
     setSearchList({});
+    setChangesCount([]);
     for(let i in refreshSitechanges)
       setRefreshSitechanges(i,true)
     setIsLoading(false);
@@ -285,6 +287,29 @@ const Sitelineage = () => {
 
   if(countries.length === 0){
     loadCountries();
+  }
+
+  let getChangesCount = () => {
+    let url = ConfigData.LINEAGE_GET_CHANGES_COUNT;
+    url += '?country=' + country;
+    url += '&creation=' + true
+    url += '&deletion=' + true
+    url += '&split=' + true
+    url += '&merge=' + true
+    url += '&recode=' + true
+    return dl.fetch(url)
+    .then(response => response.json())
+    .then(data => {
+      if(data?.Success) {
+        console.log(data.Data)
+        console.log(isLoading)
+        setChangesCount([data.Data.Proposed, data.Data.Consolidated])
+      }
+    });
+  }
+  
+  if(changesCount.length === 0) {
+    getChangesCount();
   }
 
   let exportLineage = () => {
@@ -408,7 +433,7 @@ const Sitelineage = () => {
                 <CCol sm={12} md={6} lg={6} className="mb-4">
                   <div className="select--right">
                     <CFormLabel htmlFor="exampleFormControlInput1" className='form-label form-label-reporting col-md-4 col-form-label'>Country </CFormLabel>
-                      <CFormSelect aria-label="Default select example" className='form-select-reporting' disabled={Object.keys(siteCodes).length < 3} value={country} onChange={(e)=>changeCountry(e.target.value)}>
+                      <CFormSelect aria-label="Default select example" className='form-select-reporting' value={country} onChange={(e)=>changeCountry(e.target.value)}>
                       {
                         countries.map((e)=><option value={e.code} key={e.code}>{e.name}</option>)
                       }
@@ -425,7 +450,7 @@ const Sitelineage = () => {
                           active={activeTab === 1}
                           onClick={() => {changeStatus(1);}}
                         >
-                          Proposed <span className="badge status--pending">{Object.keys(siteCodes).length === 3 && siteCodes.proposed?.length}</span>
+                          Proposed <span className="badge status--pending">{changesCount[0]}</span>
                         </CNavLink>
                       </CNavItem>
                       <CNavItem>
@@ -434,7 +459,7 @@ const Sitelineage = () => {
                           active={activeTab === 2}
                           onClick={() => {changeStatus(2);}}
                         >
-                          Consolidated <span className="badge status--accepted">{Object.keys(siteCodes).length === 3 && siteCodes.consolidated?.length}</span>
+                          Consolidated <span className="badge status--accepted">{changesCount[1]}</span>
                         </CNavLink>
                       </CNavItem>
                     </CNav>

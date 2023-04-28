@@ -325,7 +325,7 @@ export class ModalLineage extends Component {
   loadData() {
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)) {
       this.isLoadingData = true;
-      this.dl.fetch(ConfigData.LINEAGE_GET_CHANGES_SITE + "?siteCode=" + this.props.item)
+      this.dl.fetch(ConfigData.LINEAGE_GET_CHANGES_SITECODE + "?siteCode=" + this.props.item)
       .then(response => {
           if (response.status === 200)
             return response.json();

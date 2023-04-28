@@ -45,6 +45,7 @@
   "LINEAGE_GET_HISTORY": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteLineage/GetSiteLineage",
   "LINEAGE_GET_CHANGES": "https://localhost:7073/api/SiteLineage/GetChanges",
   "LINEAGE_GET_CHANGES_SITECODE": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteLineage/GetLineageChanges",
+  "LINEAGE_GET_CHANGES_COUNT": "https://localhost:7073/api/SiteLineage/GetCodesCount",
   "LINEAGE_MOVE_TO_PENDING": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteLineage/SetChangesBackToPending",
   "LINEAGE_ACCEPT_CHANGES": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteLineage/AcceptChanges",
   "LINEAGE_REJECT_CHANGES": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteLineage/RejectChanges",
