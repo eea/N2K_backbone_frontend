@@ -301,8 +301,6 @@ const Sitelineage = () => {
     .then(response => response.json())
     .then(data => {
       if(data?.Success) {
-        console.log(data.Data)
-        console.log(isLoading)
         setChangesCount([data.Data.Proposed, data.Data.Consolidated])
       }
     });

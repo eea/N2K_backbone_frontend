@@ -203,7 +203,6 @@ import {DataLoader} from '../../../components/DataLoader';
     }
 
     let showModal = (data) => {
-      console.log(data)
       if ((Object.keys(modalItem).length === 0) &&
       (data.status === props.status)
       ) {
@@ -356,11 +355,11 @@ import {DataLoader} from '../../../components/DataLoader';
     
     let getContextActions = (row)=>{
       switch(props.status){
-        case 'proposed':
+        case 'Proposed':
           return {
             consolidate: ()=>props.updateModalValues("Consolidate Changes", "This will consolidate lineage changes", "Continue", ()=>consolidateChanges(row.original, true), "Cancel", ()=>{}),
           }
-        case 'consolidated':
+        case 'Consolidated':
           return {
             backProposed: ()=>props.updateModalValues("Back to Proposed", "This will set the lineage changes back to Proposed", "Continue", ()=>setBackToProposed(row.original, true), "Cancel", ()=>{}),
           }
@@ -451,9 +450,10 @@ import {DataLoader} from '../../../components/DataLoader';
             consolidate={()=>consolidateChanges(modalItem)}
             backToProposed={() => setBackToProposed(modalItem)}
             status={props.status}
-            level={props.level}
-            item={modalItem.SiteCode}
-            version={modalItem.Version}
+            item={modalItem.ChangeId}
+            type={modalItem.Type}
+            reference={modalItem.Reference}
+            reported={modalItem.reported}
             updateModalValues = {props.updateModalValues}
             activeKey={modalItem.ActiveKey}
           />

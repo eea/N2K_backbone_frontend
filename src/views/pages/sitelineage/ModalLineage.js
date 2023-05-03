@@ -26,6 +26,7 @@ import {
   CAlert,
   CForm,
   CFormInput,
+  CFormSelect,
   CSpinner,
 } from '@coreui/react'
 
@@ -49,7 +50,8 @@ export class ModalLineage extends Component {
       activeKey: 1,
       loading: true,
       data: {},
-      levels: [this.props.level ? this.props.level : "Critical"],
+      predecessors: [],
+      successors: [],
       updateOnClose: false,
       errorLoading: false,
       generalError: "",
@@ -92,7 +94,6 @@ export class ModalLineage extends Component {
   close() {
     this.setActiveKey(1);
     this.setState({
-      levels: [this.props.level ? this.props.level : "Critical"],
       data: {},
       loading: true,
     });
@@ -111,41 +112,18 @@ export class ModalLineage extends Component {
     }
   }
 
-  filteredValuesTable(changes) {
-    let informedFields = [];
-    changes.map(c => {
-      for(let key in c) {
-        if(key === "Fields")
-          informedFields.push(key)
-        else
-          if(c[key] != null)
-            informedFields.push(key)
-      }
-    })
-    let filteredChanges = changes.map(c => {
-      for(let key in c) {
-        if(!informedFields.includes(key))
-          delete c[key]
-      }
-      return c
-    })
-    return filteredChanges;
-  }
-
   renderValuesTable(changes) {
-    changes = this.filteredValuesTable(changes);
-    let heads = Object.keys(changes[0]).filter(v => v !== "ChangeId" && v !== "Fields");
-    let fields = Object.keys(changes[0]["Fields"]);
-    let titles = heads.concat(fields).map(v => { return (<CTableHeaderCell scope="col" key={v}> {v} </CTableHeaderCell>) });
-    let rows = [];
-    for (let i in changes) {
-      let values = heads.map(v => changes[i][v]).concat(fields.map(v => changes[i]["Fields"][v]));
+    if(!Array.isArray(changes))
+      changes = [changes]
+    let heads = Object.keys(changes[0]);
+    let titles = heads.map(k => { return (<CTableHeaderCell scope="col" key={k}> {k} </CTableHeaderCell>) });
+    let rows = []; 
+    for(let i in changes)
       rows.push(
-        <CTableRow key={"row_" + i}>
-          {values.map((v, j) => { return (<CTableDataCell key={v + "_" + j}> {v} </CTableDataCell>) })}
+        <CTableRow key={"row_info"}>
+          {Object.entries(changes[0]).map(([k,v]) => { return (<CTableDataCell key={k + "_" + v}> {v} </CTableDataCell>) })}
         </CTableRow>
       )
-    }
     return (
       <CTable>
         <CTableHead>
@@ -159,13 +137,82 @@ export class ModalLineage extends Component {
       </CTable>
     )
   }
+  
+  predecessorList(addNew) {
+  }
+  
+  successorList(addNew) {
+  }
+  
+  addSite(placement) {
+    if(placement === "Predecessor")
+      this.predecessorList(true);
+    else if(placement === "Successor")
+      this.successorList(true); 
+  }
+  
+  lineageEditor() {
+    return(
+      <>
+      <CRow className="p-3">
+        <CCol key={"changes_editor_label_sitecode"} className="mb-4">
+          SiteCode
+        </CCol>
+        <CCol key={"changes_editor_label_type"} className="mb-4">
+          Type
+        </CCol>
+        <CCol key={"changes_editor_label_predecessor"} className="mb-4">
+          Predecessor 
+        </CCol>
+        <CCol key={"changes_editor_label_successors"} className="mb-4">
+          Successors
+        </CCol>
+      </CRow>
+
+      <CRow className="p-3">
+        <CCol key={"changes_editor_label_sitecode"} className="mb-4">
+          <CFormInput type="text" disabled value={this.state.data.SiteCode} />
+        </CCol>
+        <CCol key={"changes_editor_label_type"} className="mb-4">
+          <CFormSelect value={["Creation","Deletion","Split","Merge","Recode"].indexOf(this.props.type)}>
+            <option value="0">Creation</option>
+            <option value="1">Deletion</option>
+            <option value="2">Split</option>
+            <option value="3">Merge</option>
+            <option value="4">Recode</option>
+          </CFormSelect>
+        </CCol>
+        <CCol key={"changes_editor_label_predecessor"} className="mb-4">
+          {this.predecessorList(false)}
+          <CButton color="link" className="ms-auto" onClick={() => this.addSite("Predecessor")}>
+            Add site
+          </CButton>
+        </CCol>
+        <CCol key={"changes_editor_label_successors"} className="mb-4">
+          {this.successorList(false)}
+          <CButton color="link" className="ms-auto" onClick={() => this.addSite("Successor")}>
+            Add site
+          </CButton>
+        </CCol>
+      </CRow>
+      </>
+    )
+  }
 
   renderChanges() {
     return (
       <CTabPane role="tabpanel" aria-labelledby="home-tab" visible={this.state.activeKey === 1}>
+        {this.lineageEditor()}
         <CRow className="p-3">
-          <CCol xs="auto">
-            a
+          <CCol key={"changes_tabular"} className="mb-4">
+            <label>Tabular Changes</label>
+            {this.renderValuesTable(this.state.data)}
+          </CCol>
+        </CRow>
+        <CRow className="p-3">
+          <CCol key={"changes_successors"} className="mb-4">
+            <label>Successors</label>
+            {this.renderValuesTable(this.state.data)}
           </CCol>
         </CRow>
       </CTabPane>
@@ -325,7 +372,7 @@ export class ModalLineage extends Component {
   loadData() {
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)) {
       this.isLoadingData = true;
-      this.dl.fetch(ConfigData.LINEAGE_GET_CHANGES_SITECODE + "?siteCode=" + this.props.item)
+      this.dl.fetch(ConfigData.LINEAGE_GET_CHANGES_DETAIL+ "?ChangeId=" + this.props.item)
       .then(response => {
           if (response.status === 200)
             return response.json();
