@@ -38,10 +38,10 @@ const Sitelineage = () => {
   const [countries, setCountries] = useState([]);
   const [country, setCountry] = useState(defaultCountry);
   const [isLoading, setIsLoading] = useState(false);
+  const [forceRefresh, setForceRefresh] = useState(0);
   const [types, setTypes] = useState(['Creation', 'Deletion', 'Split', 'Merge', 'Recode']);
   const [disabledSearchBtn, setDisabledSearchBtn] = useState(true);
   const [selectOption, setSelectOption] = useState({});
-  const [siteCodes, setSitecodes] = useState({});
   const [searchList, setSearchList] = useState({});
   const [activeTab, setActiveTab] = useState(1);
   const [disabledBtn, setDisabledBtn] = useState(true);
@@ -51,30 +51,6 @@ const Sitelineage = () => {
   const [showModal, setShowModal] = useState(false);
   const turnstoneRef = useRef();
   let dl = new(DataLoader);
-
-  let setCodes = (status,data) => {
-    if(data) {
-      let codes = siteCodes;
-      codes[status] = data;
-      setSitecodes(codes);
-      setSearchList(getSitesList());
-      setIsLoading(false);
-    }
-    else if (country){
-      setIsLoading(false);
-    }
-  }
-
-  let getSitesList = () =>{
-    return Object.keys(siteCodes).map( v=>{
-        return {
-          name: v,
-          data: siteCodes[v].map?siteCodes[v].map(x=>({"search":x.SiteCode+" - "+x.SiteName,"status":v,...x})):[],
-          searchType: "contains",
-        }
-      }
-    )
-  }
 
   let loadCountries = () => {
     dl.fetch(ConfigData.COUNTRIES_WITH_DATA)
@@ -89,7 +65,6 @@ const Sitelineage = () => {
         countriesList = [{name:"",code:""}, ...countriesList];
         setCountries(countriesList);
         if(country === ""){
-          setCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code);
           changeCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code)
         }
         if(countriesList[0]?.code === "") {
@@ -101,12 +76,12 @@ const Sitelineage = () => {
 
   let changeCountry = (country) => {
     setCountry(country)
-    setSitecodes({});
     setSearchList({});
     turnstoneRef.current?.clear();
     turnstoneRef.current?.blur();
     if(country !== "") {
       forceRefreshData();
+      setForceRefresh(forceRefresh+1);
     }
   }
 
@@ -277,7 +252,6 @@ const Sitelineage = () => {
 
   let forceRefreshData = () => {
     setIsLoading(true);
-    setSitecodes({});
     setSearchList({});
     setChangesCount([]);
     for(let i in refreshSitechanges)
@@ -292,11 +266,11 @@ const Sitelineage = () => {
   let getChangesCount = () => {
     let url = ConfigData.LINEAGE_GET_CHANGES_COUNT;
     url += '?country=' + country;
-    url += '&creation=' + true
-    url += '&deletion=' + true
-    url += '&split=' + true
-    url += '&merge=' + true
-    url += '&recode=' + true
+    url += '&creation=' + types.includes("Creation");
+    url += '&deletion=' + types.includes("Deletion");
+    url += '&split=' + types.includes("Split");
+    url += '&merge=' + types.includes("Merge");
+    url += '&recode=' + types.includes("Recode");
     return dl.fetch(url)
     .then(response => response.json())
     .then(data => {
@@ -349,7 +323,7 @@ const Sitelineage = () => {
                   <h1 className="h1">Lineage Management</h1>
                 </div>
                 <div>
-                  <CButton color="primary" onClick={()=>updateModalValues("Export Lineage", "This will export lineage", "Continue", ()=>exportLineage(), "Cancel", ()=>{})} disabled={isLoading || Object.keys(siteCodes).length < 3}>Export</CButton>
+                  <CButton color="primary" onClick={()=>updateModalValues("Export Lineage", "This will export lineage", "Continue", ()=>exportLineage(), "Cancel", ()=>{})} disabled={isLoading}>Export</CButton>
                 </div>
               </div>
               <div>
@@ -362,36 +336,36 @@ const Sitelineage = () => {
                 <div>
                   <ul className="btn--list">
                     <li>
-                      <div className="checkbox" disabled={Object.keys(siteCodes).length < 3}>
-                        <input type="checkbox" className="input-checkbox" id="lineage_check_creation" checked={types.includes("Creation")} onClick={()=>changeTypes("Creation")} readOnly/>
+                      <div className="checkbox" disabled={isLoading}>
+                        <input type="checkbox" className="input-checkbox" id="lineage_check_creation" checked={types.includes("Creation")} onClick={()=>changeTypes("Creation")} />
                         <label htmlFor="lineage_check_creation" className="input-label badge badge--lineage creation">Creation
                         </label>
                       </div>
                     </li>
                     <li>
-                      <div className="checkbox" disabled={Object.keys(siteCodes).length < 3}>
-                        <input type="checkbox" className="input-checkbox" id="lineage_check_deletion" checked={types.includes("Deletion")} onClick={()=>changeTypes("Deletion")} readOnly/>
+                      <div className="checkbox" disabled={isLoading}>
+                        <input type="checkbox" className="input-checkbox" id="lineage_check_deletion" checked={types.includes("Deletion")} onClick={()=>changeTypes("Deletion")} />
                         <label htmlFor="lineage_check_deletion" className="input-label badge badge--lineage deletion">Deletion
                         </label>
                       </div>
                     </li>
                     <li>
-                      <div className="checkbox" disabled={Object.keys(siteCodes).length < 3}>
-                        <input type="checkbox" className="input-checkbox" id="lineage_check_split" checked={types.includes("Split")} onClick={()=>changeTypes("Split")} readOnly/>
+                      <div className="checkbox" disabled={isLoading}>
+                        <input type="checkbox" className="input-checkbox" id="lineage_check_split" checked={types.includes("Split")} onClick={()=>changeTypes("Split")} />
                         <label htmlFor="lineage_check_split" className="input-label badge badge--lineage split">Split
                         </label>
                       </div>
                     </li>
                     <li>
-                      <div className="checkbox" disabled={Object.keys(siteCodes).length < 3}>
-                        <input type="checkbox" className="input-checkbox" id="lineage_check_merge" checked={types.includes("Merge")} onClick={()=>changeTypes("Merge")} readOnly/>
-                        <label htmlFor="merge" className="input-label badge badge--lineage merge">Merge
+                      <div className="checkbox" disabled={isLoading}>
+                        <input type="checkbox" className="input-checkbox" id="lineage_check_merge" checked={types.includes("Merge")} onClick={()=>changeTypes("Merge")} />
+                        <label htmlFor="lineage_check_merge" className="input-label badge badge--lineage merge">Merge
                         </label>
                       </div>
                     </li>
                     <li>
-                      <div className="checkbox" disabled={Object.keys(siteCodes).length < 3}>
-                        <input type="checkbox" className="input-checkbox" id="lineage_check_recode" checked={types.includes("Recode")} onClick={()=>changeTypes("Recode")} readOnly/>
+                      <div className="checkbox" disabled={isLoading}>
+                        <input type="checkbox" className="input-checkbox" id="lineage_check_recode" checked={types.includes("Recode")} onClick={()=>changeTypes("Recode")} />
                         <label htmlFor="lineage_check_recode" className="input-label badge badge--lineage recode">Recode
                         </label>
                       </div>
@@ -415,7 +389,7 @@ const Sitelineage = () => {
                       Item={item}
                       GroupName={group}
                       typeahead={false}
-                      disabled={Object.keys(siteCodes).length < 3}
+                      disabled={isLoading}
                     />
                     {Object.keys(selectOption).length !== 0 &&
                       <span className="btn-icon" onClick={()=>clearSearch()}>
@@ -472,7 +446,6 @@ const Sitelineage = () => {
                         consolidate={consolidateChanges}
                         setBackToProposed={setBackToProposed}
                         updateModalValues={updateModalValues}
-                        setSitecodes = {setCodes}
                         setShowModal={()=>showModalSitechanges()}
                         showModal={showModal}
                         errorMessage = {modalError}
@@ -489,7 +462,6 @@ const Sitelineage = () => {
                         consolidate={consolidateChanges}
                         setBackToProposed={setBackToProposed}
                         updateModalValues={updateModalValues}
-                        setSitecodes = {setCodes}
                         setShowModal={()=>showModalSitechanges()}
                         showModal={showModal}
                         errorMessage = {modalError}

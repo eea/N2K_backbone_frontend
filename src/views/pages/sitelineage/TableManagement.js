@@ -52,7 +52,7 @@ import {DataLoader} from '../../../components/DataLoader';
     )
   }
 
-  function Table({ columns, data, siteCodes, currentPage, currentSize, loadPage, status, updateModalValues, isTabChanged, setIsTabChanged }) {
+  function Table({ columns, data, currentPage, currentSize, loadPage, status, updateModalValues, isTabChanged, setIsTabChanged }) {
 
     const filterTypes = React.useMemo(
         () => ({
@@ -186,7 +186,6 @@ import {DataLoader} from '../../../components/DataLoader';
     const [modalVisible, setModalVisible] = useState(false);
     const [isLoaded, setIsLoaded] = useState(false);
     const [changesData, setChangesData] = useState({});
-    const [siteCodes, setSitecodes] = useState([]);
     const [currentPage, setCurrentPage] = useState(0);
     const [currentSize, setCurrentSize] = useState(30);
     const [levelCountry, setLevelCountry] = useState({});
@@ -194,7 +193,10 @@ import {DataLoader} from '../../../components/DataLoader';
 
     let dl = new(DataLoader);
 
-    let forceRefreshData = ()=> setChangesData({});
+    let forceRefreshData = ()=> {
+      setIsLoaded(false);
+      setChangesData({});
+    };
 
     let loadPage = (page,size) =>{
       setCurrentPage(page);
@@ -234,7 +236,7 @@ import {DataLoader} from '../../../components/DataLoader';
     }
 
     let consolidateChanges = (change, refresh)=>{
-      return props.consolidate(change, refresh)
+      return props.consolidate([change], refresh)
       .then(data => {
           if(data?.ok){
             if(refresh) {
@@ -381,20 +383,11 @@ import {DataLoader} from '../../../components/DataLoader';
         url += '&status=' + props.status;
         url += '&page=' + (currentPage+1);
         url += '&pageLimit=' + currentSize;
-        url += '&creation=' + true
-        url += '&deletion=' + true
-        url += '&split=' + true
-        url += '&merge=' + true
-        url += '&recode=' + true
-        // url += '?country=' + props.country;
-        // url += '&status=' + "Consolidated";
-        // url += '&page=' + (currentPage+1);
-        // url += '&pageLimit=' + currentSize;
-        // url += '&creation=' + props.typeFilter.includes("creation");
-        // url += '&deletion=' + props.typeFilter.includes("deletion");
-        // url += '&split=' + props.typeFilter.includes("split");
-        // url += '&merge=' + props.typeFilter.includes("merge");
-        // url += '&recode=' + props.typeFilter.includes("recode");
+        url += '&creation=' + props.typeFilter.includes("Creation");
+        url += '&deletion=' + props.typeFilter.includes("Deletion");
+        url += '&split=' + props.typeFilter.includes("Split");
+        url += '&merge=' + props.typeFilter.includes("Merge");
+        url += '&recode=' + props.typeFilter.includes("Recode");
         promises.push(
           dl.fetch(url)
           .then(response => response.json())
@@ -415,8 +408,6 @@ import {DataLoader} from '../../../components/DataLoader';
     if(!props.country) {
       if(changesData !== "nodata") {
         setChangesData("nodata");
-        setSitecodes([]);
-        props.setSitecodes({});
         setIsLoaded(false);
       }
       //return(<></>);
@@ -435,7 +426,6 @@ import {DataLoader} from '../../../components/DataLoader';
           <Table 
             columns={columns} 
             data={changesData} 
-            siteCodes={siteCodes} 
             currentPage={currentPage}
             currentSize={currentSize} 
             loadPage = {loadPage}
@@ -447,13 +437,14 @@ import {DataLoader} from '../../../components/DataLoader';
           <ModalLineage
             visible = {modalVisible}
             close = {closeModal}
-            consolidate={()=>consolidateChanges(modalItem)}
+            consolidate={(change)=>consolidateChanges(change)}
             backToProposed={() => setBackToProposed(modalItem)}
             status={props.status}
             item={modalItem.ChangeId}
             type={modalItem.Type}
             reference={modalItem.Reference}
             reported={modalItem.reported}
+            errorMessage={props.errorMessage}
             updateModalValues = {props.updateModalValues}
             activeKey={modalItem.ActiveKey}
           />

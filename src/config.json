@@ -47,7 +47,6 @@
   "LINEAGE_GET_CHANGES_DETAIL": "https://localhost:7073/api/SiteLineage/GetLineageChangesInfo",
   "LINEAGE_GET_CHANGES_COUNT": "https://localhost:7073/api/SiteLineage/GetCodesCount",
   "LINEAGE_GET_PREDECESSORS": "https://localhost:7073/api/SiteLineage/GetPredecessorsInfo",
-  "LINEAGE_GET_SUCCESSORS": "https://localhost:7073/api/SiteLineage/GetSuccessorsInfo",
   "LINEAGE_MOVE_TO_PROPOSED": "https://localhost:7073/api/SiteLineage/SetChangesBackToProposed",
   "LINEAGE_CONSOLIDATE_CHANGES": "https://localhost:7073/api/SiteLineage/ConsolidateChanges",
   "THEME_COLORS": {
