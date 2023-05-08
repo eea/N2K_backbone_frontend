@@ -125,7 +125,7 @@ class MapViewer extends React.Component {
             res =>{
                 for(let i in res.features){
                     let feat = res.features[i];
-                    this.view.extent = feat.geometry.extent;
+                    this.view.extent = feat.geometry?.extent;
                     let polylineSymbol = {
                                              type: "simple-line",  // autocasts as SimpleLineSymbol()
                                              color: "#000015",

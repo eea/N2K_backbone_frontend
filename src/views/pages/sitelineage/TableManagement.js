@@ -444,6 +444,7 @@ import {DataLoader} from '../../../components/DataLoader';
             type={modalItem.Type}
             reference={modalItem.Reference}
             reported={modalItem.reported}
+            country={props.country}
             errorMessage={props.errorMessage}
             updateModalValues = {props.updateModalValues}
             activeKey={modalItem.ActiveKey}
