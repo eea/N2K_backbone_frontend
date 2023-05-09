@@ -50,15 +50,6 @@ export class EULogin {
         return (Date.now() < expDate);
     }
 
-    static isValidToken(token) {
-        try {
-            JSON.parse(token);
-        } catch (e) {
-            return false;
-        }
-        return true;
-    }
-
     static userIsLoaded(){
         if (document.location.href.includes("localhost")) return true;
         return EULogin.isTokenInForce();
