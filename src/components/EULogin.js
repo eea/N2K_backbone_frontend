@@ -24,15 +24,35 @@ export class EULogin {
     }
 
     static tokenDecode(token){
-        return JSON.parse(
+        if (!token) return;
+        let tkJSON = false;
+        try {
+            tkJSON = JSON.parse(
                 decodeURIComponent(window.atob(token.split('.')[1].replace('-', '+').replace('_', '/')).split('')
                 .map(c => `%${('00' + c.charCodeAt(0).toString(16)).slice(-2)}`).join(''))
             );
+        } catch (e) {
+            return false;
+        }
+        return tkJSON;
+    }
+
+    static isTokenInForce(){
+        let token = localStorage.getItem("token");
+        if(!token) return false;
+        let expDate = EULogin.tokenDecode(token).exp*1000;
+        if (expDate < Date.now()){
+            if(localStorage.getItem("code")) localStorage.removeItem("code");
+            if(localStorage.getItem("codeVerifier")) localStorage.removeItem("codeVerifier");
+            if(localStorage.getItem("loginUrl")) localStorage.removeItem("loginUrl");
+            if(localStorage.getItem("token")) localStorage.removeItem("token")
+        } 
+        return (Date.now() < expDate);
     }
 
     static userIsLoaded(){
         if (document.location.href.includes("localhost")) return true;
-        return localStorage.getItem("token")?true:false;
+        return EULogin.isTokenInForce();
     }
 
     getQuery() {
@@ -101,7 +121,8 @@ export class EULogin {
         .then(response => response.json())
         .then((a) => {
             if(a?.Success) {
-                localStorage.setItem("token",a.Data);
+                if(EULogin.tokenDecode(a.Data))
+                    localStorage.setItem("token",a.Data);
             } else { throw(a.Message) }
         })
         .catch(e=>console.log(e));
