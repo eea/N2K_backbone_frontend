@@ -46,6 +46,7 @@ const Sitelineage = () => {
   const [activeTab, setActiveTab] = useState(1);
   const [disabledBtn, setDisabledBtn] = useState(true);
   const [changesCount, setChangesCount] = useState([]);
+  const [isLoadingCount, setIsLoadingCount] = useState(false);
   const [error, setError] = useState("");
   const [modalError, setModalError] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -257,6 +258,7 @@ const Sitelineage = () => {
     for(let i in refreshSitechanges)
       setRefreshSitechanges(i,true)
     setIsLoading(false);
+    setIsLoadingCount(false);
   }
 
   if(countries.length === 0){
@@ -264,6 +266,7 @@ const Sitelineage = () => {
   }
 
   let getChangesCount = () => {
+    setIsLoadingCount(true);
     let url = ConfigData.LINEAGE_GET_CHANGES_COUNT;
     url += '?country=' + country;
     url += '&creation=' + types.includes("Creation");
@@ -280,7 +283,7 @@ const Sitelineage = () => {
     });
   }
   
-  if(changesCount.length === 0) {
+  if(country && changesCount.length === 0 && !isLoadingCount) {
     getChangesCount();
   }
 
