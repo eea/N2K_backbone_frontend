@@ -183,7 +183,8 @@ export class ModalLineage extends Component {
   }
   
   predecessorList() {
-    return this.state.predecessors?.split(',').map((s) => 
+    let predecessors = this.state.predecessors?.split(',');
+    return predecessors.map((s) => 
       <div key={s}>
         <CCol>
           <CFormSelect value="0" disabled>
@@ -191,8 +192,10 @@ export class ModalLineage extends Component {
           </CFormSelect>
         </CCol>
         <CCol
-          hidden={this.state.type === "Creation" && this.state.predecessors?.length <= 1
-            || this.state.type === "Merge" && this.state.predecessors?.length <= 2
+          hidden={this.state.type === "Creation" && predecessors?.length <= 1
+            || this.state.type === "Merge" && predecessors?.length <= 2
+            || this.state.type === "Split" && predecessors?.length <= 1
+            || this.state.type === "Recode"
             || this.state.type === "Deletion"}>
           <CButton color="link" className="btn-icon" onClick={() => this.deleteSite(s)}>
             <i className="fa-regular fa-trash-can"></i> 
@@ -240,7 +243,9 @@ export class ModalLineage extends Component {
           {this.state.newPredecessor &&
               this.addPredecessor()
           }
-          <CButton color="link" className="ms-auto" hidden={this.state.type === "Deletion"}
+          <CButton color="link" className="ms-auto" 
+            hidden={this.state.type === "Deletion"
+              || this.state.type === "Creation"}
             onClick={() => this.setState({ newPredecessor: true })}>
             Add site
           </CButton>
@@ -367,8 +372,8 @@ export class ModalLineage extends Component {
           </CModalBody>
           <CModalFooter>
             <div className="d-flex w-100 justify-content-between">
-              {this.props.status === 'proposed' && <CButton disabled={this.changingStatus} color="primary" onClick={() => this.consolidateChangesModal(true)}>Consolidate Changes</CButton>}
-              {this.props.status !== 'proposed' && <CButton disabled={this.changingStatus} color="primary" onClick={() => this.backToProposedModal(true)}>Back to Proposed</CButton>}
+              {this.props.status === 'proposed' && <CButton disabled={this.changingStatus} color="primary" onClick={() => this.consolidateChangesModal()}>Consolidate Changes</CButton>}
+              {this.props.status !== 'proposed' && <CButton disabled={this.changingStatus} color="primary" onClick={() => this.backToProposedModal()}>Back to Proposed</CButton>}
             </div>
           </CModalFooter>
         </>
@@ -475,7 +480,7 @@ export class ModalLineage extends Component {
     this.isLoadingReferenceData = false;
   }
 
-  consolidateChangesModal(clean) {
+  consolidateChangesModal() {
     this.changingStatus = true;
     this.resetLoading();
     this.props.updateModalValues("Consolidate Changes", "This will consolidate all the site changes", "Continue", () => this.consolidateChanges(), "Cancel", () => { this.changingStatus = false });

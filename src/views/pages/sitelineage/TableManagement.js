@@ -188,8 +188,7 @@ import {DataLoader} from '../../../components/DataLoader';
     const [changesData, setChangesData] = useState({});
     const [currentPage, setCurrentPage] = useState(0);
     const [currentSize, setCurrentSize] = useState(30);
-    const [levelCountry, setLevelCountry] = useState({});
-    const [changesCount, setChangesCount] = useState([]);
+    const [country, setCountry] = useState("");
 
     let dl = new(DataLoader);
 
@@ -374,9 +373,10 @@ import {DataLoader} from '../../../components/DataLoader';
       if(props.getRefresh()||(!isLoaded && changesData!=="nodata" && Object.keys(changesData).length===0)){
         let promises=[];
         
-        if(props.getRefresh()||(levelCountry==={})||(levelCountry.level!==props.level)||(levelCountry.country!==props.country)){
+        if(props.getRefresh()||(country === {})||(country !== props.country)){
           props.setRefresh(props.status,false);  //For the referred status, data is updated
-          setLevelCountry({level:props.level,country:props.country});
+          setCountry(props.country);
+          forceRefreshData();
         }
         let url = ConfigData.LINEAGE_GET_CHANGES;
         url += '?country=' + props.country;
