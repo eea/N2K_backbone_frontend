@@ -18,7 +18,7 @@ class MapViewer extends React.Component {
             if(!document.querySelectorAll(".esri-layer-list__item")[0].querySelector(".esri-layer-list__item-label .legend-color")){
                 document.querySelectorAll(".esri-layer-list__item")[0].querySelector(".esri-layer-list__item-label").insertAdjacentHTML( 'beforeend', "<span class='legend-color legend-color-0'></span>" );
             }
-            if(!document.querySelectorAll(".esri-layer-list__item")[1].querySelector(".esri-layer-list__item-label .legend-color")){
+            if(document.querySelectorAll(".esri-layer-list__item")[1]&&!document.querySelectorAll(".esri-layer-list__item")[1]?.querySelector(".esri-layer-list__item-label .legend-color")){
                 document.querySelectorAll(".esri-layer-list__item")[1].querySelector(".esri-layer-list__item-label").insertAdjacentHTML( 'beforeend', "<span class='legend-color legend-color-1'></span>" );
             }
         }
@@ -125,7 +125,7 @@ class MapViewer extends React.Component {
             res =>{
                 for(let i in res.features){
                     let feat = res.features[i];
-                    this.view.extent = feat.geometry.extent;
+                    this.view.extent = feat?.geometry?.extent;
                     let polylineSymbol = {
                                              type: "simple-line",  // autocasts as SimpleLineSymbol()
                                              color: "#000015",
