@@ -24,7 +24,7 @@ import {
   CTabPane,
 } from '@coreui/react'
 
-let refreshSitechanges={"proposed":false,"consolidated":false}, 
+let refreshSitechanges={"Proposed":false,"Consolidated":false}, 
   getRefreshSitechanges=(state)=>refreshSitechanges[state], 
   setRefreshSitechanges=(state,v)=>refreshSitechanges[state] = v;
 
@@ -115,6 +115,24 @@ const Sitelineage = () => {
     return dl.fetch(url, options)
   }
 
+  const readResponse = (data, errorMessage) => {
+    let reader = data.body.getReader();
+    let txt = "";
+    let readData = (data) => {
+      if (data.done)
+        return JSON.parse(txt);
+      else {
+        txt += new TextDecoder().decode(data.value);
+        return reader.read().then(readData);
+      }
+    }
+    return reader.read().then(readData).then((data) => {
+      if(!data.Success)
+        showErrorMessage(errorMessage)
+      return data;
+    });
+  }
+
   let showErrorMessage = (target, message)  => {
     if (target === "modal") {
       setModalError(message)
@@ -132,7 +150,7 @@ const Sitelineage = () => {
   let setBackToProposed = (changes, refresh)=>{
     let rBody = !Array.isArray(changes)?[changes]:changes
 
-    return postRequest(ConfigData.LINEAGE_MOVE_TO_PENDING, rBody)
+    return postRequest(ConfigData.LINEAGE_MOVE_TO_PROPOSED, rBody)
     .then(data => {
         if(data?.ok){
           let response = readResponse(data, "Back To Proposed");
@@ -235,7 +253,7 @@ const Sitelineage = () => {
     )
   }
 
-  let showModalSitechanges = (data) => {
+  let showModalLineagechanges = (data) => {
     if (data) {
       setShowModal(data);
     }
@@ -400,7 +418,7 @@ const Sitelineage = () => {
                       </span>
                     }
                   </div>
-                  <CButton disabled={disabledSearchBtn} onClick={()=>showModalSitechanges(selectOption)}>
+                  <CButton disabled={disabledSearchBtn} onClick={()=>showModalLineagechanges(selectOption)}>
                     <i className="fa-solid fa-magnifying-glass"></i>
                   </CButton>
                   <></>
@@ -441,15 +459,15 @@ const Sitelineage = () => {
                     <CTabContent>
                     <CTabPane role="tabpanel" aria-labelledby="pending-tab" visible={activeTab === 1}>
                       <TableManagement
-                        status="proposed" 
+                        status="Proposed" 
                         country = {country}
                         typeFilter = {types}
-                        getRefresh={()=>getRefreshSitechanges("proposed")} 
+                        getRefresh={()=>getRefreshSitechanges("Proposed")} 
                         setRefresh={setRefreshSitechanges}
                         consolidate={consolidateChanges}
                         setBackToProposed={setBackToProposed}
                         updateModalValues={updateModalValues}
-                        setShowModal={()=>showModalSitechanges()}
+                        setShowModal={()=>showModalLineagechanges()}
                         showModal={showModal}
                         errorMessage = {modalError}
                         closeModal={closeModal}
@@ -457,15 +475,15 @@ const Sitelineage = () => {
                     </CTabPane>
                     <CTabPane role="tabpanel" aria-labelledby="accepted-tab" visible={activeTab === 2}>
                       <TableManagement
-                        status="consolidated" 
+                        status="Consolidated" 
                         country = {country}
                         typeFilter = {types}
-                        getRefresh={()=>getRefreshSitechanges("consolidated")} 
+                        getRefresh={()=>getRefreshSitechanges("Consolidated")} 
                         setRefresh={setRefreshSitechanges}
                         consolidate={consolidateChanges}
                         setBackToProposed={setBackToProposed}
                         updateModalValues={updateModalValues}
-                        setShowModal={()=>showModalSitechanges()}
+                        setShowModal={()=>showModalLineagechanges()}
                         showModal={showModal}
                         errorMessage = {modalError}
                         closeModal={closeModal}

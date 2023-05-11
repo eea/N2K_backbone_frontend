@@ -223,7 +223,7 @@ import {DataLoader} from '../../../components/DataLoader';
     }
 
     let setBackToProposed = (change, refresh)=>{
-      return props.setBackToProposed({"ChangeId":change.id}, refresh)
+      return props.setBackToProposed([change.ChangeId], refresh)
       .then(data => {
         if(data?.ok){
           if(refresh) {
@@ -235,6 +235,7 @@ import {DataLoader} from '../../../components/DataLoader';
     }
 
     let consolidateChanges = (change, refresh)=>{
+      console.log([change])
       return props.consolidate([change], refresh)
       .then(data => {
           if(data?.ok){
@@ -437,8 +438,8 @@ import {DataLoader} from '../../../components/DataLoader';
           <ModalLineage
             visible = {modalVisible}
             close = {closeModal}
-            consolidate={(change)=>consolidateChanges(change)}
-            backToProposed={() => setBackToProposed(modalItem)}
+            consolidate={(change)=>consolidateChanges(change, true)}
+            backToProposed={() => setBackToProposed(modalItem, true)}
             status={props.status}
             item={modalItem.ChangeId}
             type={modalItem.Type}

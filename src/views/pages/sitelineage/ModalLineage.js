@@ -55,6 +55,7 @@ export class ModalLineage extends Component {
       loading: true,
       data: {},
       type: this.props.type,
+      status: this.props.status,
       predecessorData: {},
       predecessors: this.props.reference,
       newPredecessor: false,
@@ -160,15 +161,17 @@ export class ModalLineage extends Component {
       return (
         <div>
           <CCol>
-            <CFormSelect className="add-predecessor">
+            <CFormSelect className={"add-predecessor"}>
               {this.state.referenceSites?.filter(r => !this.state.predecessors?.split(',').includes(r)).map(s => <option value={s}>{s}</option>)}
             </CFormSelect>
           </CCol>
           <CCol>
-            <CButton color="link" className="btn-icon" onClick={() => this.setState({ predecessors: this.state.predecessors + ',' + getNewSite(), newPredecessor: false })}>
+            <CButton color="link" className="btn-icon"
+              onClick={() => this.setState({ predecessors: this.state.predecessors + ',' + getNewSite(), newPredecessor: false })}>
               <i className="fa-solid fa-floppy-disk"></i>
             </CButton>
-            <CButton color="link" className="btn-icon" onClick={() => this.setState({ newPredecessor: false })}>
+            <CButton color="link" className="btn-icon"
+              onClick={() => this.setState({ newPredecessor: false })}>
               <i className="fa-regular fa-trash-can"></i>
             </CButton>
           </CCol>
@@ -182,13 +185,19 @@ export class ModalLineage extends Component {
       )
   }
   
+  setSelectedPredecessors(options) {
+    this.setState(() => ({ predecessors: Object.values(options).map(s => s.value).join(',') }));
+  }
+  
   predecessorList() {
     let predecessors = this.state.predecessors?.split(',');
     return predecessors.map((s) => 
       <div key={s}>
         <CCol>
-          <CFormSelect value="0" disabled>
-            <option value="0">{s}</option>
+          <CFormSelect className="option-select" defaultValue={s} disabled={this.state.status === "Consolidated"}
+            onChange={() => this.setSelectedPredecessors(document.querySelectorAll(".option-select"))}>
+            <option className="predecessor-option color--primary" value={s}>{s}</option>
+            {this.state.referenceSites?.filter(r => !this.state.predecessors?.split(',').includes(r)).map(t => <option className="predecessor-option" value={t}>{t}</option>)}
           </CFormSelect>
         </CCol>
         <CCol
@@ -196,9 +205,10 @@ export class ModalLineage extends Component {
             || this.state.type === "Merge" && predecessors?.length <= 2
             || this.state.type === "Split" && predecessors?.length <= 1
             || this.state.type === "Recode"
-            || this.state.type === "Deletion"}>
+            || this.state.type === "Deletion"
+          }>
           <CButton color="link" className="btn-icon" onClick={() => this.deleteSite(s)}>
-            <i className="fa-regular fa-trash-can"></i> 
+            <i className="fa-regular fa-trash-can"></i>
           </CButton>
         </CCol>
       </div>
@@ -227,10 +237,11 @@ export class ModalLineage extends Component {
 
       <CRow className="p-3">
         <CCol key={"changes_editor_label_sitecode"} className="mb-4">
-          <CFormInput type="text" disabled={this.state.type !== "Recode"} value={this.state.data.SiteCode} />
+          <CFormInput type="text" disabled={this.state.type !== "Recode" || this.state.status === "Consolidated"} value={this.state.data.SiteCode} />
         </CCol>
         <CCol key={"changes_editor_label_type"} className="mb-4">
-          <CFormSelect defaultValue={this.typeList.indexOf(this.state.type)} onChange={(e) => {this.setState({ type: this.typeList[Number(e.target.value)] }); console.log(this.state.type)}} >
+          <CFormSelect defaultValue={this.typeList.indexOf(this.state.type)} disabled={this.state.status === "Consolidated"}
+            onChange={(e) => this.setState({ type: this.typeList[Number(e.target.value)] })} >
             <option value="0">Creation</option>
             <option value="1">Deletion</option>
             <option value="2">Split</option>
@@ -245,7 +256,8 @@ export class ModalLineage extends Component {
           }
           <CButton color="link" className="ms-auto" 
             hidden={this.state.type === "Deletion"
-              || this.state.type === "Creation"}
+              || this.state.type === "Creation"
+              || this.state.status === "Consolidated"}
             onClick={() => this.setState({ newPredecessor: true })}>
             Add site
           </CButton>
@@ -275,7 +287,7 @@ export class ModalLineage extends Component {
             </CCol>
           </CRow>
         }
-        {this.state.type !== "Creation" && this.state.predecessorData.length == 0 &&
+        {this.state.predecessorData.length == 0 &&
           <CRow className="p-3">
             <em>No predecessor data</em>
           </CRow>
@@ -372,8 +384,8 @@ export class ModalLineage extends Component {
           </CModalBody>
           <CModalFooter>
             <div className="d-flex w-100 justify-content-between">
-              {this.props.status === 'proposed' && <CButton disabled={this.changingStatus} color="primary" onClick={() => this.consolidateChangesModal()}>Consolidate Changes</CButton>}
-              {this.props.status !== 'proposed' && <CButton disabled={this.changingStatus} color="primary" onClick={() => this.backToProposedModal()}>Back to Proposed</CButton>}
+              {this.state.status === 'Proposed' && <CButton disabled={this.changingStatus} color="primary" onClick={() => this.consolidateChangesModal()}>Consolidate Changes</CButton>}
+              {this.state.status === 'Consolidated' && <CButton disabled={this.changingStatus} color="primary" onClick={() => this.backToProposedModal()}>Back to Proposed</CButton>}
             </div>
           </CModalFooter>
         </>
@@ -431,7 +443,7 @@ export class ModalLineage extends Component {
         if (!data.Success)
           this.setState({ errorLoading: true, loading: false });
         else
-          this.setState({ data: data.Data, type: this.props.type, predecessors: this.props.reference, loading: false, activeKey: this.props.activeKey ? this.props.activeKey : this.state.activeKey })
+          this.setState({ data: data.Data, status: data.Data.Status, type: this.props.type, loading: false, activeKey: this.props.activeKey ? this.props.activeKey : this.state.activeKey })
       });
     }
   }
@@ -450,7 +462,7 @@ export class ModalLineage extends Component {
         if (!data.Success)
           this.errorLoadingPredecessor = true;
         else
-          this.setState({ predecessorData: data.Data })
+          this.setState({ predecessors: data.Data.map(s => s.SiteCode).join(','), predecessorData: data.Data })
       });
     }
   }
@@ -482,67 +494,38 @@ export class ModalLineage extends Component {
 
   consolidateChangesModal() {
     this.changingStatus = true;
-    this.resetLoading();
-    this.props.updateModalValues("Consolidate Changes", "This will consolidate all the site changes", "Continue", () => this.consolidateChanges(), "Cancel", () => { this.changingStatus = false });
+    this.props.updateModalValues("Consolidate Changes", "This will consolidate all the site changes",
+      "Continue", () => this.consolidateChanges(),
+      "Cancel", () => { this.changingStatus = false })
+    .then(this.resetLoading());
   }
 
   consolidateChanges() {
-    this.props.consolidate(this.getBody())
+    this.props.consolidate(this.getBody(), true)
       .then((data) => {
         if (data?.Success) {
           this.changingStatus = false;
           this.setState({ data: {}, fields: {}, loading: true, siteTypeValue: "", siteRegionValue: "" });
-        } //else { this.showErrorMessage("general", "Error consolidating changes") }
+        }
       });
   }
 
-  backToProposedModal(clean) {
+  backToProposedModal() {
     this.changingStatus = true;
-    if (clean) {
-      this.cleanUnsavedChanges();
-    }
-    this.resetLoading();
-    this.props.updateModalValues("Back to Proposed", "This will set the changes back to Proposed", "Continue", () => this.setBackToProposed(), "Cancel", () => { this.changingStatus = false });
-  }
-
-  getCurrentVersion() {
-    return this.dl.fetch(ConfigData.SITEDETAIL_GET + "?siteCode=" + this.props.item)
-      .then(response => response.json())
-      .then(data => {
-        if(data?.Success)
-          return data.Data.Version;
-      })
-  }
-
-  isSiteDeleted() {
-    return this.state.data.Critical?.SiteInfo.ChangesByCategory
-        .map(c => c.ChangeType === "Site Deleted")
-        .reduce((result, next) => result || next, false);
+    this.props.updateModalValues("Back to Proposed", "This will set the changes back to Proposed",
+      "Continue", () => this.setBackToProposed(),
+      "Cancel", () => { this.changingStatus = false })
+    .then(this.resetLoading());
   }
 
   setBackToProposed() {
-    let controlResult = (data) => {
-      if (data?.Success) {
-        this.changingStatus = false;
-        this.versionChanged = true;
-        this.currentVersion = data.Data[0].VersionId;
-        this.setState({ data: {}, fields: {}, loading: true, siteTypeValue: "", siteRegionValue: "" });
-      } else { this.showErrorMessage("general", "Error setting changes back to proposed") }
-    }
-
-    if(this.state.data.Status === "Consolidated" && !this.isSiteDeleted())
-      this.getCurrentVersion()
-        .then(version => { 
-          this.props.backToProposed(version)
-          .then((data) => {
-            controlResult(data);
-          })
-        });
-    else
-      this.props.backToProposed(this.props.version)
-        .then((data) => {
-          controlResult(data);
-        })
+      this.props.backToProposed()
+      .then((data) => {
+        if (data?.Success) {
+          this.changingStatus = false;
+          this.setState({ data: {}, fields: {}, loading: true, siteTypeValue: "", siteRegionValue: "" });
+        }
+      });
   }
 
   sendRequest(url, method, body, path) {
