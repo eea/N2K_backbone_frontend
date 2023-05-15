@@ -42,7 +42,7 @@ const Sitelineage = () => {
   const [types, setTypes] = useState(['Creation', 'Deletion', 'Split', 'Merge', 'Recode']);
   const [disabledSearchBtn, setDisabledSearchBtn] = useState(true);
   const [selectOption, setSelectOption] = useState({});
-  const [searchList, setSearchList] = useState({});
+  const [searchList, setSearchList] = useState([]);
   const [activeTab, setActiveTab] = useState(1);
   const [disabledBtn, setDisabledBtn] = useState(true);
   const [changesCount, setChangesCount] = useState([]);
@@ -75,9 +75,38 @@ const Sitelineage = () => {
     });
   }
 
+  let loadSiteList = (country) => {
+    let siteList = [];
+    let statuses = ["Proposed","Consolidated"];
+    for(let i in statuses) {
+      dl.fetch(ConfigData.LINEAGE_GET_CHANGES
+        + '?country=' + "TE"
+        + '&status=' + statuses[i]
+        + '&page=' + 1
+        + '&pageLimit=' + 0
+        + '&creation=' + types.includes("Creation")
+        + '&deletion=' + types.includes("Deletion")
+        + '&split=' + types.includes("Split")
+        + '&merge=' + types.includes("Merge")
+        + '&recode=' + types.includes("Recode")
+      )
+      .then(response => response.json())
+      .then(data => {
+        if(data?.Success) {
+            siteList.push({
+                name: statuses[i],
+                data: data.Data.map(element => ({"search": element["SiteCode"] + " - " + element["SiteName"], status: statuses[i], Name: element["SiteName"]})),
+                searchType: "contains"
+              })
+          }});
+    }
+    console.log(siteList)
+    return siteList;
+  }
+
   let changeCountry = (country) => {
     setCountry(country)
-    setSearchList({});
+    setSearchList(loadSiteList(country));
     turnstoneRef.current?.clear();
     turnstoneRef.current?.blur();
     if(country !== "") {

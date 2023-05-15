@@ -191,7 +191,7 @@ export class ModalLineage extends Component {
   
   predecessorList() {
     let predecessors = this.state.predecessors?.split(',');
-    return predecessors.map((s) => 
+    return predecessors?.map((s) => 
       <div key={s}>
         <CCol>
           <CFormSelect className="option-select" defaultValue={s} disabled={this.state.status === "Consolidated"}
