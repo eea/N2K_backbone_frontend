@@ -42,7 +42,8 @@ const Sitelineage = () => {
   const [types, setTypes] = useState(['Creation', 'Deletion', 'Split', 'Merge', 'Recode']);
   const [disabledSearchBtn, setDisabledSearchBtn] = useState(true);
   const [selectOption, setSelectOption] = useState({});
-  const [searchList, setSearchList] = useState([]);
+  const [searchList, setSearchList] = useState({});
+  const [siteCodes, setSitecodes] = useState({});
   const [activeTab, setActiveTab] = useState(1);
   const [disabledBtn, setDisabledBtn] = useState(true);
   const [changesCount, setChangesCount] = useState([]);
@@ -75,38 +76,47 @@ const Sitelineage = () => {
     });
   }
 
-  let loadSiteList = (country) => {
-    let siteList = [];
-    let statuses = ["Proposed","Consolidated"];
-    for(let i in statuses) {
-      dl.fetch(ConfigData.LINEAGE_GET_CHANGES
-        + '?country=' + "TE"
-        + '&status=' + statuses[i]
-        + '&page=' + 1
-        + '&pageLimit=' + 0
-        + '&creation=' + types.includes("Creation")
-        + '&deletion=' + types.includes("Deletion")
-        + '&split=' + types.includes("Split")
-        + '&merge=' + types.includes("Merge")
-        + '&recode=' + types.includes("Recode")
-      )
-      .then(response => response.json())
-      .then(data => {
-        if(data?.Success) {
-            siteList.push({
-                name: statuses[i],
-                data: data.Data.map(element => ({"search": element["SiteCode"] + " - " + element["SiteName"], status: statuses[i], Name: element["SiteName"]})),
-                searchType: "contains"
-              })
-          }});
+  let getSiteList = () => {
+    // let statuses = ["proposed","consolidated"];
+    // let siteList = [];
+    // for(let i in statuses)
+    //   siteList.push({
+    //       name: statuses[i],
+    //       data: data.map(element => ({"search": element["SiteCode"] + " - " + element["SiteName"], status: statuses[i], Name: element["SiteName"]})),
+    //       searchType: "contains"
+    //     })
+    // return siteList
+    // let a = Object.keys(siteCodes).map( v=>{
+    //     return {
+    //       name: v,
+    //       data: siteCodes[v].map?siteCodes[v].map(x=>({"search":x.SiteCode+" - "+x.Name,"status":v,...x})):[],
+    //       searchType: "contains",
+    //     }
+    //   }
+    // )
+    // return a;
+  }
+
+  let setCodes = (data) => {
+    if(data) {
+      let codes = siteCodes;
+      if(data.name === "Proposed")
+        codes[0] = data;
+      if(data.name === "Consolidated")
+        codes[1] = data;
+      setSitecodes(codes);
+      setSearchList([siteCodes[0], siteCodes[1]]);
+      setIsLoading(false);
     }
-    console.log(siteList)
-    return siteList;
+    else if (country){
+      setIsLoading(false);
+    }
   }
 
   let changeCountry = (country) => {
-    setCountry(country)
-    setSearchList(loadSiteList(country));
+    setCountry(country);
+    setSitecodes({});
+    setSearchList({});
     turnstoneRef.current?.clear();
     turnstoneRef.current?.blur();
     if(country !== "") {
@@ -266,8 +276,8 @@ const Sitelineage = () => {
   const item = (props) => {
     return (
       <div className="search--option">
-        <div></div>
-        <div>{props.item.SiteName}<span className={"badge badge--lineage "+props.item.Type.toLowerCase()+" ms-2"}>{props.item.Type}</span></div>
+        {/* <div><span className={"badge status--" + props.item.status.toLowerCase()}>{props.item.status}</span></div> */}
+        <div>{props.item.Name}<span className={"badge badge--lineage "+props.item.Type.toLowerCase()+" ms-2"}>{props.item.Type}</span></div>
         <div className="search--suboption">{props.item.SiteCode}</div>
 
       </div>
@@ -497,6 +507,7 @@ const Sitelineage = () => {
                         setBackToProposed={setBackToProposed}
                         updateModalValues={updateModalValues}
                         setShowModal={()=>showModalLineagechanges()}
+                        setSitecodes={setCodes}
                         showModal={showModal}
                         errorMessage = {modalError}
                         closeModal={closeModal}
@@ -513,6 +524,7 @@ const Sitelineage = () => {
                         setBackToProposed={setBackToProposed}
                         updateModalValues={updateModalValues}
                         setShowModal={()=>showModalLineagechanges()}
+                        setSitecodes={setCodes}
                         showModal={showModal}
                         errorMessage = {modalError}
                         closeModal={closeModal}

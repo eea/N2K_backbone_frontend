@@ -371,6 +371,17 @@ import {DataLoader} from '../../../components/DataLoader';
     }
 
     let loadData= ()=>{
+      let passData = (data) => {
+        props.setSitecodes({
+          name: props.status,
+          data: data ? data.map(x => (
+            {"search":x.SiteCode+" - "+x.SiteName,
+              "Name":x.SiteName,"SiteCode":x.SiteCode,
+              "status":props.status,"Type":x.Type,...x}))
+            : [],
+          searchType: "contains"
+        });
+      }
       if(props.getRefresh()||(!isLoaded && changesData!=="nodata" && Object.keys(changesData).length===0)){
         let promises=[];
         
@@ -394,15 +405,17 @@ import {DataLoader} from '../../../components/DataLoader';
           .then(response => response.json())
           .then(data => {
             if(data?.Success) {
-              if(Object.keys(data.Data).length===0)
+              if(Object.keys(data.Data).length===0) {
                 setChangesData("nodata");
-              else {
+              } else {
                 setChangesData(data.Data);
+                return data.Data;
               }
             }
           })
+          .then(data => passData(data))
         )
-        Promise.all(promises).then(v=>setIsLoaded(true));
+        Promise.all(promises).then(v=>{setIsLoaded(true); props.setSitecodes(props.status, changesData == "nodata" ? {} : changesData)});
       }
     }
     
