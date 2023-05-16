@@ -225,21 +225,21 @@ export class ModalLineage extends Component {
       <>
       <CRow className="p-3">
         <CCol key={"changes_editor_label_sitecode"} className="mb-4">
-          SiteCode
+          <b>SiteCode</b>
         </CCol>
         <CCol key={"changes_editor_label_type"} className="mb-4">
-          Type
+          <b>Type</b>
         </CCol>
         <CCol key={"changes_editor_label_predecessor"} className="mb-4">
-          Predecessor 
+          <b>Predecessor</b>
         </CCol>
       </CRow>
 
-      <CRow className="p-3">
-        <CCol key={"changes_editor_label_sitecode"} className="mb-4">
+      <CRow>
+        <CCol key={"changes_editor_label_sitecode"}>
           <CFormInput type="text" disabled={this.state.type !== "Recode" || this.state.status === "Consolidated"} value={this.state.data.SiteCode} />
         </CCol>
-        <CCol key={"changes_editor_label_type"} className="mb-4">
+        <CCol key={"changes_editor_label_type"}>
           <CFormSelect defaultValue={this.typeList.indexOf(this.state.type)} disabled={this.state.status === "Consolidated"}
             onChange={(e) => this.setState({ type: this.typeList[Number(e.target.value)] })} >
             <option value="0">Creation</option>
@@ -249,7 +249,7 @@ export class ModalLineage extends Component {
             <option value="4">Recode</option>
           </CFormSelect>
         </CCol>
-        <CCol key={"changes_editor_label_predecessor"} className="mb-4">
+        <CCol key={"changes_editor_label_predecessor"}>
           {this.predecessorList()}
           {this.state.newPredecessor &&
               this.addPredecessor()
@@ -282,14 +282,16 @@ export class ModalLineage extends Component {
         {this.state.type !== "Creation" && this.state.predecessorData.length >= 1 &&
           <CRow className="p-3">
             <CCol key={"changes_predecessors"} className="mb-4">
-              <label>Predecessors</label>
+              <b>Predecessors</b>
               {this.renderValuesTable(this.state.predecessorData)}
             </CCol>
           </CRow>
         }
         {this.state.predecessorData.length == 0 &&
           <CRow className="p-3">
-            <em>No predecessor data</em>
+            <CCol className="mb-4">
+              <em>No predecessor data</em>
+            </CCol>
           </CRow>
         }
       </CTabPane>
