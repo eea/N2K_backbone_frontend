@@ -136,7 +136,13 @@ export class ModalLineage extends Component {
     for(let i in changes)
       rows.push(
         <CTableRow key={"row_info"}>
-          {Object.entries(changes[0]).map(([k,v]) => { return (<CTableDataCell key={k + "_" + v}> {v} </CTableDataCell>) })}
+          {Object.entries(changes[i]).map(([k,v]) => {
+            if(k == "SiteType")
+              return (<CTableDataCell key={k + "_" + v}> {["SPA","SCI","SPA/SCI"][['A','B','C'].indexOf(v)]} </CTableDataCell>) 
+            else
+              return (<CTableDataCell key={k + "_" + v}> {v} </CTableDataCell>) 
+            })
+          }
         </CTableRow>
       )
     return (
@@ -274,7 +280,7 @@ export class ModalLineage extends Component {
         {this.state.type !== "Deletion" &&
           <CRow className="p-3">
             <CCol key={"changes_tabular"} className="mb-4">
-              <label>Tabular Changes</label>
+              <b>Tabular Changes</b>
               {this.renderValuesTable(this.state.data)}
             </CCol>
           </CRow>
