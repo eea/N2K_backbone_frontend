@@ -1,22 +1,28 @@
 import React, { lazy, useState, useRef } from 'react'
+import { CAlert } from '@coreui/react';
 import { AppFooter, AppHeader } from '../../../components/index'
 import ConfigData from '../../../config.json';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import Turnstone from 'turnstone';
+import {DataLoader} from '../../../components/DataLoader';
 
 import {
   CButton,
   CCol,
   CContainer,
   CRow,
+  CSidebar,
+  CSidebarNav,
   CCard,
   CFormLabel,
   CFormSelect,
   CPagination,
   CPaginationItem,
+  CTooltip,
 } from '@coreui/react'
 
 import { ModalEdition } from './ModalEdition';
+import { ConfirmationModal } from './components/ConfirmationModal';
 
 const defaultCountry = () => {
   const searchParams = new URLSearchParams(window.location.href.split('?')[1]);
@@ -24,13 +30,15 @@ const defaultCountry = () => {
   return parmCountry ? parmCountry : ConfigData.DEFAULT_COUNTRY ? ConfigData.DEFAULT_COUNTRY : "";
 }
 
-const Siteedition = () => {
+const Releases = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalItem, setModalItem] = useState({});
   const [siteCodes, setSitecodes] = useState([]);
+  const [errorLoading, setErrorLoading] = useState(false);
   const [searchList, setSearchList] = useState({});
   const [selectOption, setSelectOption] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingCountries, setLoadingCountries] = useState(false);
   const [disabledSearchBtn, setDisabledSearchBtn] = useState(true);
   const [countries, setCountries] = useState([]);
   const [country, setCountry] = useState(defaultCountry);
@@ -49,39 +57,57 @@ const Siteedition = () => {
       }));
     }
   });
+  let dl = new(DataLoader);
 
-  if(countries.length === 0){
-    fetch(ConfigData.COUNTRIES_WITH_DATA)
+  if(countries.length === 0 && !loadingCountries){
+    setLoadingCountries(true);
+    dl.fetch(ConfigData.GET_CLOSED_COUNTRIES)
     .then(response => response.json())
     .then(data => {
-      let countriesList = [];
-      for(let i in data.Data){
-        countriesList.push({name:data.Data[i].Country,code:data.Data[i].Code});
-      }
-      setCountries(countriesList);
+      if(data?.Success) {
+        let countriesList = [];
+        for(let i in data.Data){
+          countriesList.push({name:data.Data[i].Country,code:data.Data[i].Code});
+        }
+        countriesList.sort((a, b) => a.name.localeCompare(b.name));
+        countriesList = [{name:"",code:""}, ...countriesList];
+        setCountries(countriesList);
+        if(country === ""){
+          setCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code);
+          changeCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code)
+        }
+      } else { setErrorLoading(true) }
+      setLoadingCountries(false);
     });
   }
 
   let changeCountry = (country) => {
-    setCountry(country)
+    setCountry(country);
+    setSearchList({});
+    turnstoneRef.current?.clear();
+    turnstoneRef.current?.blur();
     forceRefreshData();
   }
 
   if(bioRegions.length === 0){
-    fetch(ConfigData.BIOREGIONS_GET)
+    dl.fetch(ConfigData.BIOREGIONS_GET)
     .then(response => response.json())
     .then(data => {
-      let regionsList = data.Data;
-      setBioRegions(regionsList);
+      if(data?.Success) {
+        let regionsList = data.Data;
+        setBioRegions(regionsList);
+      }
     });
   }
 
   if(siteTypes.length === 0){
-    fetch(ConfigData.SITETYPES_GET)
+    dl.fetch(ConfigData.SITETYPES_GET)
     .then(response => response.json())
     .then(data => {
-      let typesList = data.Data;
-      setSiteTypes(typesList);
+      if(data?.Success) {
+        let typesList = data.Data;
+        setSiteTypes(typesList);
+      }
     });
   }
 
@@ -104,12 +130,10 @@ const Siteedition = () => {
     setModalItem(data);
   }
 
-  let closeModal = (refresh) => {
+  let closeModal = () => {
     setModalVisible(false);
     setModalItem({});
-    if(refresh) {
-      forceRefreshData();
-    }
+    forceRefreshData();
   }
 
   let forceRefreshData = () => setSitecodes([]);
@@ -140,25 +164,28 @@ const Siteedition = () => {
   }
 
   let loadData = () => {
-    if(!isLoading && siteCodes!=="nodata" && siteCodes.length === 0){
+    if(siteCodes.length !==0) return;
+    if(country !=="" && !isLoading && siteCodes!=="nodata" && siteCodes.length === 0 && !errorLoading){
       setIsLoading(true);
-      fetch(ConfigData.SITEEDITION_GET+"country="+country+"?reference=true")
+      dl.fetch(ConfigData.SITEEDITION_NON_PENDING_GET+"country="+country)
       .then(response =>response.json())
       .then(data => {
-        if(Object.keys(data.Data).length === 0){
-          setSitecodes("nodata");
-        }
-        else {
-          setSitecodes(data.Data);
-          setSearchList(getSitesList(data.Data));
-          setPageCount(Math.ceil(data.Data.length / Number(pageSize)));
-        }
+        if(data?.Success) {
+          if(Object.keys(data.Data).length === 0){
+            setSitecodes("nodata");
+          }
+          else {
+            setSitecodes(data.Data);
+            setSearchList(getSitesList(data.Data));
+            setPageCount(Math.ceil(data.Data.length / Number(pageSize)));
+          }
+        } else { setErrorLoading(true) }
         setIsLoading(false);
       });
     }
   }
 
-  function updateModalValues(title, text, primaryButtonText, primaryButtonFunction, secondaryButtonText, secondaryButtonFunction) {
+  function updateModalValues(title, text, primaryButtonText, primaryButtonFunction, secondaryButtonText, secondaryButtonFunction, keepOpen) {
     setModalValues({
       visibility: true,
       title: title,
@@ -177,22 +204,9 @@ const Siteedition = () => {
         }
         : ''
       ),
+      message: false,
+      keepOpen: keepOpen ? true : false,
     });
-  }
-
-  let modalProps = {
-    showAlert(text) {
-      setAlertValues({
-        visibility: true,
-        text: text
-      });
-    },
-    showHarvestModal(values) {
-      updateModalValues("Harvest Envelopes", "This will harvest this envelope", "Continue", () => harvestHandler(values), "Cancel", () => modalProps.close);
-    },
-    showDiscardModal(values) {
-      updateModalValues("Discard Envelopes", "This will discard this envelope", "Continue", () => discardHandler(values), "Cancel", () => modalProps.close);
-    }
   }
 
   let loadCards = () => {
@@ -204,6 +218,8 @@ const Siteedition = () => {
         let siteName = sites[i].Name;
         let siteCode = sites[i].SiteCode;
         let version = sites[i].Version;
+        let date = sites[i].EditedDate;
+        let user = sites[i].EditedBy;
         cards.push(
           <CCol xs={12} md={6} lg={4} xl={3} key={"card_"+i}>
             <CCard className="search-card">
@@ -217,6 +233,16 @@ const Siteedition = () => {
                 <CButton color="link" className="btn-link--dark" onClick={()=>openModal({SiteCode:siteCode, Version:version})}>
                   Edit
                 </CButton>
+                {date && user &&
+                <CTooltip 
+                  content={"Edited"
+                    + (date && " on " + date.slice(0,10).split('-').reverse().join('/'))
+                    + (user && " by " + user)}>
+                  <div className="btn-icon btn-hover btn-editinfo">
+                    <i className="fa-solid fa-pen-to-square"></i>
+                  </div>
+                </CTooltip>
+              }
               </div>
             </CCard>
           </CCol>
@@ -234,8 +260,37 @@ const Siteedition = () => {
 
   return (
     <div className="container--main min-vh-100">
-      <AppHeader page="siteedition"/>
+      <AppHeader page="releases"/>
       <div className="content--wrapper">
+      <CSidebar className="sidebar--light">
+          <CSidebarNav>
+            <li className="nav-title">Releases</li>
+            <li className="nav-item">
+              <a className="nav-link" href="/#/releases/management">
+                <i className="fa-solid fa-bookmark"></i>
+                Release Management
+              </a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link" href="/#/releases/comparer">
+                <i className="fa-solid fa-bookmark"></i>
+                Release Comparer
+              </a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link" href="/#/releases/unionlists">
+                <i className="fa-solid fa-bookmark"></i>
+                Union Lists
+              </a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link active" href="/#/releases/siteedition">
+                <i className="fa-solid fa-bookmark"></i>
+                Site Edition
+              </a>
+            </li>
+          </CSidebarNav>
+        </CSidebar>
         <div className="main-content">
           <CContainer fluid>
             <div className="d-flex justify-content-between py-3">
@@ -250,6 +305,7 @@ const Siteedition = () => {
                     id="siteedition_search"
                     className="form-control"
                     listbox = {searchList}
+                    listboxIsImmutable = {false}
                     placeholder="Search sites by site name or site code"
                     noItemsMessage="Site not found"
                     styles={{input:"form-control", listbox:"search--results", groupHeading:"search--group", noItemsMessage:"search--option"}}
@@ -257,6 +313,7 @@ const Siteedition = () => {
                     ref={turnstoneRef}
                     Item={item}
                     typeahead={false}
+                    disabled={isLoading}
                   />
                   {Object.keys(selectOption).length !== 0 &&
                     <span className="btn-icon" onClick={()=>clearSearch()}>
@@ -268,7 +325,7 @@ const Siteedition = () => {
                   <i className="fa-solid fa-magnifying-glass"></i>
                 </CButton>
               </CCol>
-              <CCol className="mb-4">
+              <CCol md={12} lg={6} xl={3} className="mb-4">
                   <div className="select--right">
                     <CFormLabel className="form-label form-label-reporting col-md-4 col-form-label">Country </CFormLabel>
                     <CFormSelect aria-label="Default select example" className='form-select-reporting' disabled={isLoading} value={country} onChange={(e)=>changeCountry(e.target.value)}>
@@ -280,11 +337,15 @@ const Siteedition = () => {
                 </CCol>
             </CRow>
             <CRow className="grid">
-              {isLoading ?
+              {(errorLoading && !isLoading) &&
+                <CAlert color="danger">Error loading data</CAlert>
+              }
+              {(!errorLoading && isLoading) ?
                 <div className="loading-container"><em>Loading...</em></div>
               : (siteCodes === "nodata" ?
                 <div className="nodata-container"><em>No Data</em></div>
-                : <>
+                : siteCodes.length > 0 &&
+                  <>
                     {loadCards()}
                     <CPagination className="mt-3">
                       <CPaginationItem onClick={() => setPageIndex(1)} disabled={pageIndex===1}>
@@ -335,14 +396,15 @@ const Siteedition = () => {
             close = {closeModal}
             item={modalItem.SiteCode}
             version={modalItem.Version}
-            updateModalValues = {() => updateModalValues()}
+            updateModalValues={updateModalValues}
             regions={bioRegions}
             types={siteTypes}
           />
+          <ConfirmationModal modalValues={modalValues}/>
         </div>
       </div>
     </div>
   )
 }
 
-export default Siteedition
+export default Releases

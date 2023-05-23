@@ -47,9 +47,9 @@
       color: $white;
     }
   }
-  &--pending {
-    border-color: $gray-700;
-    color: $gray-700;
+  &--pending, &--dataloaded {
+    border-color: $gray-500;
+    color: $gray-500;
   }
   &--preharvested {
     border-color: $blue;
@@ -67,6 +67,62 @@
     border-color: $success-base;
     color: $success-base;
   }
+  &.status {
+    &--pending {
+      background-color: $pending;
+      color: $black;
+      border: none;
+    }
+    &--accepted {
+      background-color: $accepted;
+      color: $black;
+      border: none;
+    }
+    &--rejected {
+      background-color: $rejected;
+      color: $black;
+      border: none;
+    }
+  }
+  &--lineage {
+    &.basic {
+      color: $black;
+      border-color: $black;
+    }
+    &.green {
+      color: $black;
+      border-color: #4FC1C5;
+      background-color: #CAF1EE;
+    }
+    &.yellow {
+      color: $black;
+      border-color: #FED100;
+      background-color: #FFF1B3;
+    }
+    &:not(:last-of-type) {
+      margin-right: 0.5rem;
+    }
+    &.recode {
+      border-color: $gray-500;
+      color: $gray-500;
+    }
+    &.split {
+      border-color: $blue;
+      color: $blue;
+    }
+    &.merge {
+      border-color: $primary-base;
+      color: $primary-base;
+    }
+    &.deletion {
+      border-color: $danger-base;
+      color: $danger-base;
+    }
+    &.creation {
+      border-color: $success-base;
+      color: $success-base;
+    }
+  }
   &--light {
     background: $gray-100;
     color: $gray-900;
@@ -75,19 +131,18 @@
     font-weight: normal;
     padding: 0.35em 1em;
   }
-  &-fill {
-    &--warning {
+  &--fill {
+    &.warning {
       background: $warning-base;
       color: $black;
     }
-    &--danger {
+    &.danger {
       color: $danger-base;
       color: $black;
     }
-    &--default {
+    &.default {
       background: $primary-25;
       color: $black;
-      border: solid 1px $gray-100;
     }
   }
   &--rounded {

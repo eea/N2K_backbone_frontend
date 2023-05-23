@@ -3,6 +3,7 @@ import { AppFooter, AppHeader } from '../../../components/index'
 import TableEnvelops from './TableEnvelops';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import {ReactComponent as ReactLogo} from './../../../assets/images/harvesting.svg';
+import {DataLoader} from '../../../components/DataLoader';
 
 import {
   CButton,
@@ -25,10 +26,15 @@ let refreshEnvelopes=false,
 
 const Harvesting = () => {
   const [disabledBtn, setDisabledBtn] = useState(true);
-  const [updatingData, setUpdatingData] = useState(false);
+  const [updatingData, setUpdatingData] = useState({
+    updating: false,
+    harvesting: false,
+    discarding: false
+  });
   const [alertValues, setAlertValues] = useState({
     visible: false,
-    text: ''
+    text: '',
+    color: 'primary'
   });
   const [modalValues, setModalValues] = useState({
     visibility: false,
@@ -39,6 +45,7 @@ const Harvesting = () => {
       }));
     }
   });
+  let dl = new(DataLoader);
   let selectedCodes = [],
   setSelectedCodes = (v) => {
     if(document.querySelectorAll('input[sitecode]:checked').length !== 0 && v.length === 0) return;
@@ -82,11 +89,20 @@ const Harvesting = () => {
   }
 
   const showMessage = (text) => {
-    setAlertValues({visible:true, text:text});
-    setTimeout(() => {
-      setAlertValues({visible:false, text:''});
-    }, 4000);
+    setAlertValues({visible:true, text:text, color:'primary'});
+    messageTimeOut();
   };
+
+  const showErrorMessage = (text) => {
+    setAlertValues({visible:true, text:text, color:'danger'})
+    messageTimeOut();
+  }
+
+  const messageTimeOut = () => {
+    setTimeout(() => {
+      setAlertValues({visible:false, text:'', color:'primary'});
+    }, ConfigData.MessageTimeout);
+  }
 
   const sendRequest = (url,method,body,path) => {
     const options = {
@@ -96,7 +112,7 @@ const Harvesting = () => {
       },
       body: path ? body : JSON.stringify(body),
     };
-    return fetch(url, options)
+    return dl.fetch(url, options)
   }
 
   async function harvestHandler(values) {
@@ -109,7 +125,7 @@ const Harvesting = () => {
         sendRequest(ConfigData.HARVESTING_CHANGE_STATUS+"?country="+code.country+"&version="+code.version+"&toStatus=Harvested","POST","")
         .then(response => response.json())
         .then(data => {
-          if(!data.Success) {
+          if(!data?.Success) {
             errors.push(data.Message);
             console.log("Error: " + data.Message);
           }
@@ -120,12 +136,20 @@ const Harvesting = () => {
           showMessage("Envelope successfully harvested");
           setRefreshEnvelopes(true);
         } else {
-          showMessage("Something went wrong");
+          showErrorMessage("Something went wrong");
         }
-        setUpdatingData(false);
+        setUpdatingData(state => ({
+          ...state,
+          updating: false,
+          harvesting: false,
+        }));
       });
     }
-    setUpdatingData(true);
+    setUpdatingData(state => ({
+      ...state,
+      updating: true,
+      harvesting: true,
+    }));
   }
 
   async function discardHandler(values) {
@@ -138,7 +162,7 @@ const Harvesting = () => {
         sendRequest(ConfigData.HARVESTING_CHANGE_STATUS+"?country="+code.country+"&version="+code.version+"&toStatus=Discarded","POST","")
         .then(response => response.json())
         .then(data => {
-          if(!data.Success) {
+          if(!data?.Success) {
             errors.push(data.Message);
             console.log("Error: " + data.Message);
           }
@@ -149,12 +173,20 @@ const Harvesting = () => {
           showMessage("Envelope successfully discarded");
           setRefreshEnvelopes(true);
         } else {
-          showMessage("Something went wrong");
+          showErrorMessage("Something went wrong");
         }
-        setUpdatingData(false);
+        setUpdatingData(state => ({
+          ...state,
+          updating: false,
+          discarding: false,
+        }));
       });
     }
-    setUpdatingData(true);
+    setUpdatingData(state => ({
+      ...state,
+      updating: true,
+      discarding: true,
+    }));
   }
 
   return (
@@ -204,8 +236,18 @@ const Harvesting = () => {
               </div>
               <div>
                 <ul className="btn--list">
-                  <li><CButton color="secondary" disabled={disabledBtn} onClick={() => modalProps.showDiscardModal(selectedCodes)}>Discard</CButton></li>
-                  <li><CButton color="primary" disabled={disabledBtn} onClick={() => modalProps.showHarvestModal(selectedCodes)}>Harvest</CButton></li>
+                  <li>
+                    <CButton color="secondary" disabled={disabledBtn || updatingData.updating} onClick={() => modalProps.showDiscardModal(selectedCodes)}>
+                      {updatingData.discarding && <CSpinner size="sm"/>}
+                      {updatingData.discarding ? " Discarding" : "Discard"}
+                    </CButton>
+                  </li>
+                  <li>
+                    <CButton color="primary" disabled={disabledBtn || updatingData.updating} onClick={() => modalProps.showHarvestModal(selectedCodes)}>
+                      {updatingData.harvesting && <CSpinner size="sm"/>}
+                      {updatingData.harvesting ? " Harvesting" : "Harvest"}
+                    </CButton>
+                  </li>
                 </ul>
               </div>
             </div>
@@ -214,19 +256,15 @@ const Harvesting = () => {
             </div>
             <CRow>
               <CCol md={12} lg={12}>
-                {updatingData &&
-                  <div className="text-center">
-                    <CSpinner size="sm"/>
-                  </div>
-                }
-                <CAlert color="primary" dismissible visible={alertValues.visible} onClose={() => setAlertValues({visible:false})}>{alertValues.text}</CAlert>
+                <CAlert color={alertValues.color} dismissible visible={alertValues.visible} onClose={() => setAlertValues({visible:false})}>{alertValues.text}</CAlert>
                 <TableEnvelops
                   getRefresh={()=>getRefreshEnvelopes()}
                   setRefresh={setRefreshEnvelopes}
                   setSelected={setSelectedCodes}
                   modalProps={modalProps}
                   tableType="ready"
-                  status="PreHarvested"/>
+                  status="PreHarvested"
+                />
                 <ConfirmationModal modalValues={modalValues}/>
               </CCol>
             </CRow>

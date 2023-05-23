@@ -8,7 +8,7 @@ const DefaultLayout = () => {
       <div className="wrapper d-flex flex-column min-vh-100 bg-white">
         <AppHeader />
         <AppContent />
-        <AppFooter />
+        {/* <AppFooter /> */}
       </div>
     </div>
   )

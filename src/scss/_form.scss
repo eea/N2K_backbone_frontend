@@ -46,11 +46,15 @@
   line-height: 1.5;
   justify-content: end;
   width: 100%;
+  select {
+    line-height: 1.5rem;
+  }
 }
 .search--input {
   position: relative;
   width: 100%;
   margin-right: 0.5rem;
+  z-index: 5;
   .btn-icon {
     position: absolute;
     top: 0;
@@ -208,7 +212,9 @@
     display: inline-block;
     position: relative;
     padding: 0px 0px 0px 2rem;
+    margin: 0;
     font-size: 0.875rem;
+    font-weight: normal;
     line-height: normal;
     cursor: pointer;
     -webkit-transition: $transition-base;
@@ -275,5 +281,24 @@ form {
   }
   .form-control:disabled {
     background: #e5e5e580;
+  }
+}
+
+.invalidField {
+  border-color: $danger-base !important;
+}
+
+.form-control:disabled {
+  background: #e5e5e580;
+}
+
+.original-field {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  i {
+    margin-right: 0.5rem;
+  }
+  span {
+    font-style: italic;
   }
 }

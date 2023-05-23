@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { AppFooter, AppHeader } from '../../../components/index'
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import ConfigData from '../../../config.json';
 
 import {
   CCol,
@@ -66,7 +67,8 @@ const Reports = () => {
                   scrolling="no"
                   width="100%"
                   height={height}
-                  src="https://tableau-public.discomap.eea.europa.eu/views/Barometer/Barometerstatistics?:embed=y&:showVizHome=no&:host_url=https%3A%2F%2Ftableau-public.discomap.eea.europa.eu%2F&:embed_code_version=3&:tabs=yes&:toolbar=yes&:showAppBanner=false&:display_count=no&iframeSizedToWindow=true&:loadOrderID=0">
+                  src={ConfigData.TABLEAU_CHANGES + "?:showAppBanner=false&:display_count=n&:showVizHome=n&:origin=viz_share_link&:embed=y&:host_url=https://tableau-public.discomap.eea.europa.eu/"}
+                >
                 </iframe>
               </CCol>
             </CRow>

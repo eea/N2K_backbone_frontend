@@ -2,13 +2,17 @@ import { useState, useEffect } from 'react';
 import ConfigData from '../../../config.json';
 import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
+import {DataLoader} from '../../../components/DataLoader';
+import { CAlert } from '@coreui/react';
 
 const SiteGraph = () => {
     const [changesCountriesData, setChangesCountriesData] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [errorsLoading, setErrorsLoading] = useState(false);
     const [sitesPendingData, setSitesPendingData] = useState([]);
     const [sitesAcceptedData, setSitesAcceptedData] = useState([]);
     const [sitesRejectedData, setSitesRejectedData] = useState([]);
+    let dl = new(DataLoader);
     
     useEffect(() => {
         loadData();
@@ -17,25 +21,34 @@ const SiteGraph = () => {
     const loadData = (() => {
         let promises = [];
         setIsLoading(true);
-        promises.push(fetch(ConfigData.GET_SITE_COUNT)
+        promises.push(dl.fetch(ConfigData.GET_SITE_COUNT)
             .then(response => response.json())
             .then(data => {
-                setChangesCountriesData(data.Data);
+                if(data?.Success) {
+                    data.Data.sort((a, b) => a.Country.localeCompare(b.Country));
+                    setChangesCountriesData(data.Data);
+                } else { setErrorsLoading(true) }
             }));
-        promises.push(fetch(ConfigData.GET_SITE_LEVEL + '?status=Pending')
+        promises.push(dl.fetch(ConfigData.GET_SITE_LEVEL + '?status=Pending')
             .then(response => response.json())
             .then(data => {
-                setSitesPendingData(data.Data);
+                if(data?.Success) {
+                    setSitesPendingData(data.Data);
+                } else { setErrorsLoading(true) }
             }));
-        promises.push(fetch(ConfigData.GET_SITE_LEVEL + '?status=Accepted')
+        promises.push(dl.fetch(ConfigData.GET_SITE_LEVEL + '?status=Accepted')
             .then(response => response.json())
             .then(data => {
-                setSitesAcceptedData(data.Data);
+                if(data?.Success) {
+                    setSitesAcceptedData(data.Data);
+                }
             }));
-        promises.push(fetch(ConfigData.GET_SITE_LEVEL + '?status=Rejected')
+        promises.push(dl.fetch(ConfigData.GET_SITE_LEVEL + '?status=Rejected')
             .then(response => response.json())
             .then(data => {
-                setSitesRejectedData(data.Data);
+                if(data?.Success) {
+                    setSitesRejectedData(data.Data);
+                }
             }));
         Promise.all(promises).then(d => setIsLoading(false));
     })
@@ -51,9 +64,9 @@ const SiteGraph = () => {
         chngRejected.push(data[i].NumRejected);
     }
     seriesData = [
-        { name: 'Pending', index: 1, data: chngPending, color: '#033166' },
-        { name: 'Accepted', index: 2, data: chngAccepted, color: '#22a4fb' },
-        { name: 'Rejected', index: 3, data: chngRejected, color: '#e3f2fd' }
+        { name: 'Pending', index: 1, data: chngPending, color: ConfigData.Colors.Grey },
+        { name: 'Accepted', index: 2, data: chngAccepted, color: ConfigData.Colors.Green },
+        { name: 'Rejected', index: 3, data: chngRejected, color: ConfigData.Colors.Red }
     ];
 
     countryList = changesCountriesData.map((e) => e.Country);
@@ -62,21 +75,14 @@ const SiteGraph = () => {
         return data.map((c) => ({
             name: c.Country,
             code: c.Code,
-            num: c.ModifiedSites,
+            numModified: c.ModifiedSites,
+            numAffected: c.AffectedSites,
             level: c.Level
         }))
     }
     
     function findData(data, country) {
         return getSites(data).filter((c) => c.name == country);
-    }
-
-    function sumTotal(total, current) {
-        return total + current;
-    }
-    
-    function sumSites(data) {
-        return data.map((d) => d.num).reduce(sumTotal, 0);
     }
 
     function getNumSites(country, desiredStatus) {
@@ -86,7 +92,7 @@ const SiteGraph = () => {
             case "Accepted": siteData = findData(sitesAcceptedData, country); break;
             case "Rejected": siteData = findData(sitesRejectedData, country); break;
         }
-        if(siteData[0]) return sumSites(siteData);
+        if(siteData[0]) return siteData[0].numAffected;
         return 0;
     }
 
@@ -117,16 +123,14 @@ const SiteGraph = () => {
                     'Affected sites: ' + '<b>' + getNumSites(this.x, this.series.name) + '</b>';
             }
         },
-        tooltip: {
-            formatter: function () {
-                return '<b>' + this.x + '</b><br/>' +
-                    this.series.name + ' changes: ' + '<b>' + this.y + '</b>' + '<br/>' +
-                    'Affected sites: ' + '<b>' + getNumSites(this.x, this.series.name) + '</b>';
-            }
-        },
         plotOptions: {
             series: {
-                stacking: 'percent'
+                stacking: 'percent',
+                states: {
+                    hover: {
+                      enabled: false,
+                    },
+                },
             }
         },
         accessibility: {
@@ -139,12 +143,21 @@ const SiteGraph = () => {
         return (
             <em className="loading-container">Loading...</em>
         )
+    else if(errorsLoading)
+        return (
+            <div><CAlert color="danger">Error loading graph data</CAlert></div>
+        )
     else
         return (
-            <HighchartsReact
-                highcharts={Highcharts}
-                options={options}
-            />
+            <>
+                {changesCountriesData.length === 0 ?
+                    <div className="nodata-container"><em>No Data</em></div> :
+                    <HighchartsReact
+                        highcharts={Highcharts}
+                        options={options}
+                    />
+                }
+            </>
         );
 }
 
