@@ -49,6 +49,18 @@ const Reports = () => {
                 Changes
               </a>
             </li>
+            <li className="nav-item">
+              <a className="nav-link" href="/#/reports/releases">
+                <i className="fa-solid fa-bookmark"></i>
+                Releases dates
+              </a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link" href="/#/reports/sites">
+                <i className="fa-solid fa-bookmark"></i>
+                Releases sites details
+              </a>
+            </li>
           </CSidebarNav>
         </CSidebar>
         <div className="main-content">
