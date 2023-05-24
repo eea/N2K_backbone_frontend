@@ -31,7 +31,7 @@ const Reports = () => {
         <CSidebar className="sidebar--light">
           <CSidebarNav>
             <li className="nav-title">Reports</li>
-            <li className="nav-item">
+            {/* <li className="nav-item">
               <a className="nav-link" href="/#/reports/added">
                 <i className="fa-solid fa-bookmark"></i>
                 Sites Added
@@ -48,7 +48,7 @@ const Reports = () => {
                 <i className="fa-solid fa-bookmark"></i>
                 Changes
               </a>
-            </li>
+            </li> */}
             <li className="nav-item">
               <a className="nav-link active" href="/#/reports/releases">
                 <i className="fa-solid fa-bookmark"></i>
@@ -58,7 +58,7 @@ const Reports = () => {
             <li className="nav-item">
               <a className="nav-link" href="/#/reports/sites">
                 <i className="fa-solid fa-bookmark"></i>
-                Releases sites details
+                Reference sites details
               </a>
             </li>
           </CSidebarNav>

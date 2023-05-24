@@ -31,7 +31,7 @@ const Reports = () => {
         <CSidebar className="sidebar--light">
           <CSidebarNav>
             <li className="nav-title">Reports</li>
-            <li className="nav-item">
+            {/* <li className="nav-item">
               <a className="nav-link" href="/#/reports/added">
                 <i className="fa-solid fa-bookmark"></i>
                 Sites Added
@@ -48,7 +48,7 @@ const Reports = () => {
                 <i className="fa-solid fa-bookmark"></i>
                 Changes
               </a>
-            </li>
+            </li> */}
             <li className="nav-item">
               <a className="nav-link" href="/#/reports/releases">
                 <i className="fa-solid fa-bookmark"></i>
@@ -58,7 +58,7 @@ const Reports = () => {
             <li className="nav-item">
               <a className="nav-link active" href="/#/reports/sites">
                 <i className="fa-solid fa-bookmark"></i>
-                Releases sites details
+                Reference sites details
               </a>
             </li>
           </CSidebarNav>
@@ -67,7 +67,7 @@ const Reports = () => {
           <CContainer fluid>
             <div className="d-flex justify-content-between py-3">
               <div className="page-title">
-                <h1 className="h1">Releases sites details</h1>
+                <h1 className="h1">Reference sites details</h1>
               </div>
             </div>
             <CRow>
