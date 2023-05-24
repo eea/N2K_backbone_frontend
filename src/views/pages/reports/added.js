@@ -58,7 +58,7 @@ const Reports = () => {
             <li className="nav-item">
               <a className="nav-link" href="/#/reports/sites">
                 <i className="fa-solid fa-bookmark"></i>
-                Releases sites details
+                Reference sites details
               </a>
             </li>
           </CSidebarNav>
