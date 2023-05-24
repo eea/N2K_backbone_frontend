@@ -18,7 +18,7 @@ const Reports = () => {
     let height = window.innerHeight - document.querySelector(".header").offsetHeight - document.querySelector(".page-title").offsetHeight - 64;
     setHeight(height);
   }
-  
+
   useEffect(() => {
     resizeIframe();
     window.addEventListener('resize', resizeIframe)
@@ -44,7 +44,7 @@ const Reports = () => {
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link active" href="/#/reports/changes">
+              <a className="nav-link" href="/#/reports/changes">
                 <i className="fa-solid fa-bookmark"></i>
                 Changes
               </a>
@@ -56,7 +56,7 @@ const Reports = () => {
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="/#/reports/sites">
+              <a className="nav-link active" href="/#/reports/sites">
                 <i className="fa-solid fa-bookmark"></i>
                 Releases sites details
               </a>
@@ -67,7 +67,7 @@ const Reports = () => {
           <CContainer fluid>
             <div className="d-flex justify-content-between py-3">
               <div className="page-title">
-                <h1 className="h1">Changes</h1>
+                <h1 className="h1">Releases sites details</h1>
               </div>
             </div>
             <CRow>
@@ -79,7 +79,7 @@ const Reports = () => {
                   scrolling="no"
                   width="100%"
                   height={height}
-                  src={ConfigData.TABLEAU_CHANGES + "?:showAppBanner=false&:display_count=n&:showVizHome=n&:origin=viz_share_link&:embed=y&:host_url=https://tableau-public.discomap.eea.europa.eu/"}
+                  src={ConfigData.TABLEAU_SITES + "?:showAppBanner=false&:display_count=n&:showVizHome=n&:origin=viz_share_link&:embed=y&:host_url=https://tableau-public.discomap.eea.europa.eu/"}
                 >
                 </iframe>
               </CCol>
