@@ -31,7 +31,7 @@ import mockupMap from './../../../assets/images/sdf_urdaibai.png'
       "Type": "A",
       "SiteCode": "ES0000144",
       "SiteName": "Urdaibaiko Itsasadarra / Ría de Urdaibai",
-      "FirstComplDate": "2000-07",
+      "FirstCompletionDate": "2000-07",
       "UpdateDate": "2021-10",
       "Respondent": {
         "Name/Organisation": "Dirección de Patrimonio Natural y Cambio Climático. Gobierno Vasco",
@@ -51,7 +51,7 @@ import mockupMap from './../../../assets/images/sdf_urdaibai.png'
         "NUTSLevel": "ES21",
         "Name": "País Vasco"
       },
-      "BioRegions":
+      "BiogeographicalRegions":
         [{"Atlantic":56.2},{"Marine Atlantic":43.98}]
     },
     "EcologicalInformation": {
@@ -207,25 +207,6 @@ const SDFVisualization = () => {
     );
   }
   
-  const showTabContent = (activeKey) => {
-    switch(activeKey) {
-      case 1:
-        return renderIdentification(activeKey, data.SiteIdentification);
-      case 2:
-        return renderLocation(activeKey, data.SiteLocation);
-      case 3:
-        return renderEcological(activeKey, data.EcologicalInformation);
-      case 4:
-        return renderDescription(activeKey, data.SiteDescription);
-      case 5:
-        return renderProtectionStatus(activeKey, data.SiteProtectionStatus);
-      case 6:
-        return renderManagement(activeKey, data.SiteManagement);
-      case 7:
-        return renderMapSite(activeKey, data.MapOfTheSite);
-    }
-  }
-
   return (
     <div className="container--main min-vh-100">
       <AppHeader page="sdf"/>
@@ -236,7 +217,7 @@ const SDFVisualization = () => {
               {showTabs()}
             </CRow>
             <CTabContent>
-              {showTabContent(activeKey)}
+              {renderTab(activeKey, data)}
             </CTabContent>
           </CContainer>
         {!isLoaded && <em className="loading-container">Loading...</em>}
@@ -244,16 +225,51 @@ const SDFVisualization = () => {
   );
 }
 
-const renderIdentification = (activekey, data) => {
+const transformData = (activekey, data) => {
+  switch(activekey) {
+    case 1:
+      return data.SiteIdentification;
+    case 2:
+      let result = data.SiteLocation;
+      return Object.keys(result)
+        .map(key =>  {
+          if(key === "MarineArea"
+            || key === "BiogeographicalRegion")
+          return result["%" + key] = result[key]
+          return result[key]
+      });
+    case 3:
+    case 4:
+    case 5:
+    case 6:
+    case 7:
+  }
+}
+
+const getPropertyName = (property) => {
+  if(property.toLowerCase().includes("area"))
+    property.concat(" [ha]")
+  if(property.toLowerCase().includes("marinearea"))
+    property.concat(" [%]")
+  let result = property.split(/(?=[A-Z])/).join(' ').toLowerCase()
+  return result[0].toUpperCase() + result.slice(1);
+}
+
+const renderTab = (activekey, data) => {
   // TODO make this into a general renderer and transform the data
   // passed to it instead of the view
+  let tabTitles = 
+    [ "Site Identification", "Site Location",
+      "Ecological Information", "Site Description",
+      "Site Protection Status", "Site Management", "Map of the Site" ];
+  let mData = transformData(activekey, data);
   return (
     <CTabPane role="tabpanel" aria-labelledby="home-tab" visible>
       <CCol className="p-4">
-        <CRow><b>{activekey}.Site Identification</b></CRow>
-        {Object.entries(data).map((e,i) => 
+        <CRow><b>{activekey}.{tabTitles[activekey+1]}</b></CRow>
+        {Object.entries(mData).map((e,i) => 
         <>
-          <CRow><b>{activekey + '.' + (i+1) + ' ' + e[0]}</b></CRow>
+          <CRow><b>{activekey + '.' + (i+1) + ' ' + getPropertyName(e[0])}</b></CRow>
           {typeof e[1] === 'object' ?
             <div className="form-control">
               {Object.entries(e[1]).map(ee => <p><b>{ee[0]}</b>: {ee[1]}</p>)}
@@ -262,66 +278,6 @@ const renderIdentification = (activekey, data) => {
           }
         </>
         )}
-      </CCol>
-    </CTabPane>
-  );
-}
-
-const renderLocation = (activekey, data) => {
-  return (
-    <CTabPane role="tabpanel" aria-labelledby="home-tab" visible>
-      <CCol className="p-3">
-        <b>2.Site Location</b>
-      </CCol>
-    </CTabPane>
-  );
-}
-
-const renderEcological = (activekey, data) => {
-  return (
-    <CTabPane role="tabpanel" aria-labelledby="home-tab" visible>
-      <CCol className="p-3">
-        <b>3.Ecological Information</b>
-      </CCol>
-    </CTabPane>
-  );
-}
-
-const renderDescription = (activekey, data) => {
-  return (
-    <CTabPane role="tabpanel" aria-labelledby="home-tab" visible>
-      <CCol className="p-3">
-        <b>4.Site Description</b>
-      </CCol>
-    </CTabPane>
-  );
-}
-
-const renderProtectionStatus = (activekey, data) => {
-  return (
-    <CTabPane role="tabpanel" aria-labelledby="home-tab" visible>
-      <CCol className="p-3">
-        <b>5.Site Protection Status</b>
-      </CCol>
-    </CTabPane>
-  );
-}
-
-const renderManagement = (activekey, data) => {
-  return (
-    <CTabPane role="tabpanel" aria-labelledby="home-tab" visible>
-      <CCol className="p-3">
-        <b>6.Site Management</b>
-      </CCol>
-    </CTabPane>
-  );
-}
-
-const renderMapSite = (activekey, data) => {
-  return (
-    <CTabPane role="tabpanel" aria-labelledby="home-tab" visible>
-      <CCol className="p-3">
-        <b>7.Map of the Site</b>
       </CCol>
     </CTabPane>
   );
