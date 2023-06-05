@@ -126,6 +126,10 @@ export class ModalLineage extends Component {
   }
 
   renderValuesTable(changes) {
+    if(changes === "noData")
+      return (
+        <div className="nodata-container"><em>No Data</em></div>
+      );
     if(!Array.isArray(changes))
       changes = [changes]
     if(changes.length === 0)
@@ -213,7 +217,8 @@ export class ModalLineage extends Component {
             || this.state.type === "Recode"
             || this.state.type === "Deletion"
           }>
-          <CButton color="link" className="btn-icon" onClick={() => this.deleteSite(s)}>
+          <CButton color="link" className="btn-icon" hidden={this.state.status === "Consolidated"}
+            onClick={() => this.deleteSite(s)}>
             <i className="fa-regular fa-trash-can"></i>
           </CButton>
         </CCol>
@@ -243,7 +248,7 @@ export class ModalLineage extends Component {
 
       <CRow>
         <CCol key={"changes_editor_label_sitecode"}>
-          <CFormInput type="text" disabled={this.state.type !== "Recode" || this.state.status === "Consolidated"} value={this.state.data.SiteCode} />
+          <CFormInput type="text" disabled={this.state.type !== "Recode" || this.state.status === "Consolidated"} value={this.state.data.SiteCode ?? this.props.code} />
         </CCol>
         <CCol key={"changes_editor_label_type"}>
           <CFormSelect defaultValue={this.typeList.indexOf(this.state.type)} disabled={this.state.status === "Consolidated"}
@@ -355,7 +360,7 @@ export class ModalLineage extends Component {
         <>
           <CModalHeader closeButton={false}>
             <CModalTitle>
-              {data.SiteCode} - {data.SiteName}
+              {data.SiteCode ?? this.props.code} - {data.SiteName ??  this.props.name}
               <span className="mx-2"></span>
               <span className="badge badge--fill default">Release date: 20/12/2021</span>
             </CModalTitle>
@@ -451,7 +456,7 @@ export class ModalLineage extends Component {
         if (!data.Success)
           this.setState({ errorLoading: true, loading: false });
         else
-          this.setState({ data: data.Data, status: data.Data.Status, type: this.props.type, loading: false, activeKey: this.props.activeKey ? this.props.activeKey : this.state.activeKey })
+          this.setState({ data: data.Data ?? "noData", status: data.Data?.Status ?? this.props.status, type: this.props.type, loading: false, activeKey: this.props.activeKey ?? this.state.activeKey })
       });
     }
   }

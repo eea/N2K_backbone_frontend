@@ -221,6 +221,14 @@ import {DataLoader} from '../../../components/DataLoader';
       setModalItem({});
       props.closeModal();
     }
+    
+    let getRowData = (data) => {
+      return {
+        ChangeId: data.ChangeId,
+        Predecessors: data.Reference,
+        Type: data.Type
+      }
+    }
 
     let setBackToProposed = (change, refresh)=>{
       return props.setBackToProposed([change.ChangeId], refresh)
@@ -359,11 +367,11 @@ import {DataLoader} from '../../../components/DataLoader';
       switch(props.status){
         case 'Proposed':
           return {
-            consolidate: ()=>props.updateModalValues("Consolidate Changes", "This will consolidate lineage changes", "Continue", ()=>consolidateChanges(row.original, true), "Cancel", ()=>{}),
+            consolidate: ()=>props.updateModalValues("Consolidate Changes", "This will consolidate lineage changes", "Continue", ()=>consolidateChanges(getRowData(row.original), true), "Cancel", ()=>{}),
           }
         case 'Consolidated':
           return {
-            backProposed: ()=>props.updateModalValues("Back to Proposed", "This will set the lineage changes back to Proposed", "Continue", ()=>setBackToProposed(row.original, true), "Cancel", ()=>{}),
+            backProposed: ()=>props.updateModalValues("Back to Proposed", "This will set the lineage changes back to Proposed", "Continue", ()=>setBackToProposed(getRowData(row.original), true), "Cancel", ()=>{}),
           }
         default:
           return {}
@@ -455,6 +463,8 @@ import {DataLoader} from '../../../components/DataLoader';
             backToProposed={() => setBackToProposed(modalItem, true)}
             status={props.status}
             item={modalItem.ChangeId}
+            code={modalItem.SiteCode}
+            name={modalItem.SiteName}
             type={modalItem.Type}
             reference={modalItem.Reference}
             reported={modalItem.reported}
