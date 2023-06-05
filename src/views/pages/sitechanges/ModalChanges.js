@@ -888,7 +888,10 @@ export class ModalChanges extends Component {
           }
           {!this.state.errorLoading &&
             <CRow >
-              <MapViewer siteCode={this.props.item} version={this.props.version} />
+              <MapViewer  siteCode={this.props.item} 
+                          version={this.props.version} 
+                          latestRelease={ConfigData.LATEST_RELEASE} 
+                          reportedSpatial={ConfigData.REPORTED_SPATIAL}/>
             </CRow>
           }
         </CTabPane>
