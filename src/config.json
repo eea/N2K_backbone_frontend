@@ -44,6 +44,9 @@
   "LINEAGE_GET_SITES": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteChanges/GetNonPendingSiteCodes/",
   "LINEAGE_GET_HISTORY": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteLineage/GetSiteLineage",
   "LINEAGE_GET_CHANGES": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteDetails/GetReferenceEditInfo",
+  "REPORTED_SPATIAL": "https://bio.discomap.eea.europa.eu/arcgis/rest/services/N2K_Backbone/N2KBackbone/MapServer/0",
+  "LATEST_RELEASE": "https://bio.discomap.eea.europa.eu/arcgis/rest/services/N2K_Backbone/N2KBackbone/MapServer/1",
+
   "THEME_COLORS": {
     "PRIMARY": "#007bff",
     "SECONDARY": "#fc3"

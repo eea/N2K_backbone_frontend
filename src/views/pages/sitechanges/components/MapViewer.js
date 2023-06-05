@@ -32,32 +32,35 @@ class MapViewer extends React.Component {
           ).then(([Map, MapView, Zoom, _GeoJSONLayer, LayerList, FeatureLayer, MapImageLayer]) => {
             GeoJSONLayer = _GeoJSONLayer;
 
-            //let mapRel = new MapImageLayer({ url: "https://trial.discomap.eea.europa.eu/arcgis/rest/services/N2kBackbone/Map/MapServer", visible: false });
+            let layers=[];
 
-            let lastRelease = new FeatureLayer({
-                url: "https://trial.discomap.eea.europa.eu/arcgis/rest/services/N2kBackbone/Map/MapServer/1",
-                id: 1,
-                popupEnabled: true,
-                title: "Last Release",
-                opacity: 0.5,
-                renderer: {
-                    type: "simple",
-                    symbol: {
-                        type: "simple-fill",
-                        color: "#4fc1c5",
-                        style: "solid",
-                        outline: {
-                            width: 1,
-                            color: "#444444"
-                        }
-                    },
-                }
-              });
+            if(this.props.latestRelease){
+                let lastRelease = new FeatureLayer({
+                    url: this.props.latestRelease,
+                    id: 1,
+                    popupEnabled: true,
+                    title: "Last Release",
+                    opacity: 0.5,
+                    renderer: {
+                        type: "simple",
+                        symbol: {
+                            type: "simple-fill",
+                            color: "#4fc1c5",
+                            style: "solid",
+                            outline: {
+                                width: 1,
+                                color: "#444444"
+                            }
+                        },
+                    }
+                });
+                layers.push(lastRelease);
+            }
 
             let reportedSpatial = new FeatureLayer({
-                url: "https://trial.discomap.eea.europa.eu/arcgis/rest/services/N2kBackbone/Map/MapServer/0",
+                url: this.props.reportedSpatial,
                 id: 0,
-                popupEnabled: true,
+                popupEnabled: this.props.latestRelease,
                 title: "Reported Geometries",
                 opacity: 0.5,
                 renderer: {
@@ -73,21 +76,14 @@ class MapViewer extends React.Component {
                     },
                 }
             });
-
-            /*reportedSpatial.featureEffect = new FeatureEffect({
-                filter: new FeatureFilter({
-                  where: "SiteCode = '" + this.props.siteCode + "'"
-                }),
-                excludedEffect: "grayscale(100%) opacity(30%)"
-              });*/
+            layers.push(reportedSpatial);
 
             this.map = new Map({
               basemap: "satellite",
-              layers: [lastRelease,reportedSpatial]
+              layers: layers
             });
 
-            
-            this.view = new MapView({
+            let mapFeats = {
                 container: this.mapDiv,
                 map: this.map,
                 center: [0,40],
@@ -95,18 +91,66 @@ class MapViewer extends React.Component {
                 ui: {
                     components: ["attribution"]
                 }
-            });
+            }
+            if(!this.props.latestRelease){
+                mapFeats["navigation"] = {
+                    mouseWheelZoomEnabled: false,
+                    browserTouchPanEnabled: false
+                  }
+            }
+          
+            this.view = new MapView(mapFeats);
 
+            //Code to disable all events if required
+            this.view.when(()=>{
+                if(!this.props.latestRelease){
+                    let stopEvtPropagation= (event) =>{
+                                                        event.stopPropagation();
+                                                        }
+        
+                  // exlude the zoom widget from the default UI
+                  this.view.ui.components = ["attribution"];
+        
+                  // disable mouse wheel scroll zooming on the view
+                  this.view.on("mouse-wheel", stopEvtPropagation);
+        
+                  // disable zooming via double-click on the view
+                  this.view.on("double-click", stopEvtPropagation);
+        
+                  // disable zooming out via double-click + Control on the view
+                  this.view.on("double-click", ["Control"], stopEvtPropagation);
+        
+                  // disables pinch-zoom and panning on the view
+                  this.view.on("drag", stopEvtPropagation);
+        
+                  // disable the view's zoom box to prevent the Shift + drag
+                  // and Shift + Control + drag zoom gestures.
+                  this.view.on("drag", ["Shift"], stopEvtPropagation);
+                  this.view.on("drag", ["Shift", "Control"], stopEvtPropagation);
+        
+                  // prevents zooming with the + and - keys
+                  this.view.on("key-down", (event) => {
+                    const prohibitedKeys = ["+", "-", "Shift", "_", "=", "ArrowUp", "ArrowDown", "ArrowRight", "ArrowLeft"];
+                    const keyPressed = event.key;
+                    if (prohibitedKeys.indexOf(keyPressed) !== -1) {
+                      event.stopPropagation();
+                    }
+                  });
+                }
+            });
+            
             this.setState({});
-            this.zoom = new Zoom({
-                view: this.view
-            });
-            this.view.ui.add(this.zoom, {
-                position: "top-right"
-            });
+            if(this.props.latestRelease){
+                this.zoom = new Zoom({
+                    view: this.view
+                });
+                this.view.ui.add(this.zoom, {
+                    position: "top-right"
+                });
 
-            let layerList = new LayerList({view: this.view});
-            this.view.ui.add(layerList,{position: "top-left"});
+                let layerList = new LayerList({view: this.view});
+                this.view.ui.add(layerList,{position: "top-left"});
+            } 
 
             this.view.popup.visibleElements={closeButton:false};
             this.view.popup.dockOptions={buttonEnabled: false};
