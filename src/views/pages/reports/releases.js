@@ -31,8 +31,8 @@ const Reports = () => {
         <CSidebar className="sidebar--light">
           <CSidebarNav>
             <li className="nav-title">Reports</li>
-            <li className="nav-item">
-              <a className="nav-link active" href="/#/reports/added">
+            {/* <li className="nav-item">
+              <a className="nav-link" href="/#/reports/added">
                 <i className="fa-solid fa-bookmark"></i>
                 Sites Added
               </a>
@@ -48,9 +48,9 @@ const Reports = () => {
                 <i className="fa-solid fa-bookmark"></i>
                 Changes
               </a>
-            </li>
+            </li> */}
             <li className="nav-item">
-              <a className="nav-link" href="/#/reports/releases">
+              <a className="nav-link active" href="/#/reports/releases">
                 <i className="fa-solid fa-bookmark"></i>
                 Releases dates
               </a>
@@ -67,7 +67,7 @@ const Reports = () => {
           <CContainer fluid>
             <div className="d-flex justify-content-between py-3">
               <div className="page-title">
-                <h1 className="h1">Sites Added</h1>
+                <h1 className="h1">Releases dates</h1>
               </div>
             </div>
             <CRow>
@@ -79,7 +79,7 @@ const Reports = () => {
                   scrolling="no"
                   width="100%"
                   height={height}
-                  src={ConfigData.TABLEAU_CHANGES + "?:showAppBanner=false&:display_count=n&:showVizHome=n&:origin=viz_share_link&:embed=y&:host_url=https://tableau-public.discomap.eea.europa.eu/"}
+                  src={ConfigData.TABLEAU_RELEASES + "?:showAppBanner=false&:display_count=n&:showVizHome=n&:origin=viz_share_link&:embed=y&:host_url=https://tableau-public.discomap.eea.europa.eu/"}
                 >
                 </iframe>
               </CCol>
