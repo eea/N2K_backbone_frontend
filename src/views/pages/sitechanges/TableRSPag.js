@@ -476,6 +476,24 @@ const IndeterminateCheckbox = React.forwardRef(
           accessor: 'ChangeType',
         },
         {
+          Header: () => null,
+          accessor: "Recoded",
+          Cell: ({ row }) => {
+            // if(siteCodes.filter(v => v.SiteCode === "ROSAC0003").length > 0)
+            if(siteCodes.map(v => v.SiteCode).includes(row.values.SiteCode))
+              return (
+                <CTooltip
+                  content="Site Recode"
+                  placement="top"
+                >
+                  <i className="fa-solid fa-repeat"/>
+                </CTooltip>
+              )
+            else
+              return ({});
+          }
+        },
+        {
           Header: () => null,          
           accessor: 'Justification',          
           Cell: ({row}) => (<>
