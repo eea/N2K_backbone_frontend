@@ -479,8 +479,8 @@ const IndeterminateCheckbox = React.forwardRef(
           Header: () => null,
           accessor: "Recoded",
           Cell: ({ row }) => {
-            // if(siteCodes.filter(v => v.SiteCode === "ROSAC0003").length > 0)
-            if(siteCodes.map(v => v.SiteCode).includes(row.values.SiteCode))
+            console.log(siteCodes.filter(v => v.SiteCode === row.values.SiteCode && v.Recoded))
+            if(siteCodes.filter(v => v.SiteCode === row.values.SiteCode && v.Recoded).length > 0)
               return (
                 <CTooltip
                   content="Site Recode"
@@ -490,7 +490,7 @@ const IndeterminateCheckbox = React.forwardRef(
                 </CTooltip>
               )
             else
-              return ({});
+              return (null);
           }
         },
         {
