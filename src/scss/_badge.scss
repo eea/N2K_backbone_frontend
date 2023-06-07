@@ -83,6 +83,16 @@
       color: $black;
       border: none;
     }
+    &--proposed {
+      background-color: $pending;
+      color: $black;
+      border: none;
+    }
+    &--consolidated {
+      background-color: $accepted;
+      color: $black;
+      border: none;
+    }
   }
   &--lineage {
     &.basic {
