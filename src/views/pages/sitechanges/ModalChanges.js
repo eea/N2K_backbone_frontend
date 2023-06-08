@@ -504,7 +504,8 @@ export class ModalChanges extends Component {
                 </div>
                 <div>
                   {changes[i][j].ChangeType === "Site Recoded" &&
-                    <CButton color="link" className="btn-link--dark text-nowrap" onClick={() => {}}>
+                    <CButton color="link" className="btn-link--dark text-nowrap"
+                    onClick={() => {this.closeModal(); this.showModalLineage(this.props.country, 0, changes[i][j].SiteCode)}}>
                       Review Lineage
                     </CButton>
                   }
@@ -1728,5 +1729,8 @@ export class ModalChanges extends Component {
       body: path ? body : JSON.stringify(body),
     };
     return this.dl.fetch(url, options)
+  }
+  
+  showModalLineage(country, changeId, siteCode) {
   }
 }
