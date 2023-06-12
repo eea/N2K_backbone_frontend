@@ -182,7 +182,7 @@ import {DataLoader} from '../../../components/DataLoader';
   }
   
   function TableManagement(props) {
-    const [modalItem, setModalItem] = useState({});
+    const [modalItem, setModalItem] = useState(props.site !== "" ? getSite() : {});
     const [modalVisible, setModalVisible] = useState(false);
     const [isLoaded, setIsLoaded] = useState(false);
     const [changesData, setChangesData] = useState({});
@@ -191,6 +191,15 @@ import {DataLoader} from '../../../components/DataLoader';
     const [country, setCountry] = useState("");
 
     let dl = new(DataLoader);
+    
+    let getSite = () => {
+      if(changesData.length > 0) {
+        const site = changesData.filter(v => v.SiteCode === props.site)[0];
+        if(site)
+          showModal(site);
+      }
+      return {};
+    }
 
     let forceRefreshData = ()=> {
       setIsLoaded(false);

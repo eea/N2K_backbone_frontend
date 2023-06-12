@@ -34,9 +34,16 @@ const defaultCountry = () => {
   return parmCountry ? parmCountry : ConfigData.DEFAULT_COUNTRY ? ConfigData.DEFAULT_COUNTRY : "";
 } 
 
+const openSite = () => {
+  const searchParams = new URLSearchParams(window.location.href.split('?')[1]);
+  const siteCode = searchParams.get('siteCode');
+  return siteCode ?? "";
+}
+
 const Sitelineage = () => {
   const [countries, setCountries] = useState([]);
   const [country, setCountry] = useState(defaultCountry);
+  const [site, setSite] = useState(openSite);
   const [isLoading, setIsLoading] = useState(false);
   const [forceRefresh, setForceRefresh] = useState(0);
   const [types, setTypes] = useState(['Creation', 'Deletion', 'Split', 'Merge', 'Recode']);
@@ -510,6 +517,7 @@ const Sitelineage = () => {
                         setSitecodes={setCodes}
                         showModal={showModal}
                         errorMessage = {modalError}
+                        site={site}
                         closeModal={closeModal}
                       />
                     </CTabPane>
@@ -527,6 +535,7 @@ const Sitelineage = () => {
                         setSitecodes={setCodes}
                         showModal={showModal}
                         errorMessage = {modalError}
+                        site={site}
                         closeModal={closeModal}
                     />
                     </CTabPane>
