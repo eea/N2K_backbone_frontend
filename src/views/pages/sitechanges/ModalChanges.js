@@ -505,7 +505,7 @@ export class ModalChanges extends Component {
                 <div>
                   {changes[i][j].ChangeType === "Site Recoded" &&
                     <CButton color="link" className="btn-link--dark text-nowrap"
-                    onClick={() => {this.closeModal(); this.showModalLineage(this.props.country, 0, changes[i][j].SiteCode)}}>
+                    onClick={() => {this.showModalLineage()}}>
                       Review Lineage
                     </CButton>
                   }
@@ -1732,5 +1732,6 @@ export class ModalChanges extends Component {
   }
   
   showModalLineage(country, changeId, siteCode) {
+    console.warn("Not implemented!")
   }
 }
