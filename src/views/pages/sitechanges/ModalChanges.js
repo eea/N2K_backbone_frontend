@@ -502,9 +502,18 @@ export class ModalChanges extends Component {
                   <span className={"badge badge--" + level.toLocaleLowerCase() + " me-2"}>{level}</span>
                   <span className="me-3"> {title}</span>
                 </div>
-                <CButton color="link" className="btn-link--dark text-nowrap" onClick={() => this.toggleDetail(changes[i][j].ChangeCategory + title)}>
-                  {(this.state.showDetail === changes[i][j].ChangeCategory + title) ? "Hide detail" : "View detail"}
-                </CButton>
+                <div>
+                  {changes[i][j].ChangeType === "Site Recoded" &&
+                    <CButton color="link" className="btn-link--dark text-nowrap"
+                    onClick={() => {this.showModalLineage()}}>
+                      Review Lineage
+                    </CButton>
+                  }
+                  <span>|</span>
+                  <CButton color="link" className="btn-link--dark text-nowrap" onClick={() => this.toggleDetail(changes[i][j].ChangeCategory + title)}>
+                    {(this.state.showDetail === changes[i][j].ChangeCategory + title) ? "Hide detail" : "View detail"}
+                  </CButton>
+                </div>
               </div>
               <CCollapse visible={this.state.showDetail === changes[i][j].ChangeCategory + title}>
                 <CCard>
@@ -1720,5 +1729,9 @@ export class ModalChanges extends Component {
       body: path ? body : JSON.stringify(body),
     };
     return this.dl.fetch(url, options)
+  }
+  
+  showModalLineage(country, changeId, siteCode) {
+    console.warn("Not implemented!")
   }
 }
