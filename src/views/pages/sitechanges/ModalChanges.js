@@ -504,12 +504,14 @@ export class ModalChanges extends Component {
                 </div>
                 <div>
                   {changes[i][j].ChangeType === "Site Recoded" &&
+                  <>
                     <CButton color="link" className="btn-link--dark text-nowrap"
                     onClick={() => {this.showModalLineage()}}>
                       Review Lineage
                     </CButton>
+                    <span>|</span>
+                  </>
                   }
-                  <span>|</span>
                   <CButton color="link" className="btn-link--dark text-nowrap" onClick={() => this.toggleDetail(changes[i][j].ChangeCategory + title)}>
                     {(this.state.showDetail === changes[i][j].ChangeCategory + title) ? "Hide detail" : "View detail"}
                   </CButton>
