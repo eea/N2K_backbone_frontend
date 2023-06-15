@@ -31,34 +31,22 @@ const Reports = () => {
         <CSidebar className="sidebar--light">
           <CSidebarNav>
             <li className="nav-title">Reports</li>
-            {/* <li className="nav-item">
-              <a className="nav-link" href="/#/reports/added">
-                <i className="fa-solid fa-bookmark"></i>
-                Sites Added
-              </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link" href="/#/reports/deleted">
-                <i className="fa-solid fa-bookmark"></i>
-                Sites Deleted
-              </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link" href="/#/reports/changes">
-                <i className="fa-solid fa-bookmark"></i>
-                Changes
-              </a>
-            </li> */}
             <li className="nav-item">
               <a className="nav-link" href="/#/reports/releases">
                 <i className="fa-solid fa-bookmark"></i>
-                Releases dates
+                Releases Dates
               </a>
             </li>
             <li className="nav-item">
               <a className="nav-link active" href="/#/reports/sites">
                 <i className="fa-solid fa-bookmark"></i>
-                Reference sites details
+                Reference Sites Details
+              </a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link" href="/#/reports/status">
+                <i className="fa-solid fa-bookmark"></i>
+                Site Status
               </a>
             </li>
           </CSidebarNav>
@@ -67,7 +55,7 @@ const Reports = () => {
           <CContainer fluid>
             <div className="d-flex justify-content-between py-3">
               <div className="page-title">
-                <h1 className="h1">Reference sites details</h1>
+                <h1 className="h1">Reference Sites Details</h1>
               </div>
             </div>
             <CRow>
