@@ -52,6 +52,7 @@
   "TABLEAU_CHANGES": "https://tableau-public.discomap.eea.europa.eu/views/N2K_Backbone_ChangesReport/ChangesReport",
   "TABLEAU_RELEASES": "https://tableau-public.discomap.eea.europa.eu/views/N2K_Backbone_Releases/Releases",
   "TABLEAU_SITES": "https://tableau-public.discomap.eea.europa.eu/views/N2K_Backbone_Sites/Sites",
+  "TABLEAU_STATUS": "https://tableau-public.discomap.eea.europa.eu/views/N2K_Backbone_Status/Status",
   "ACCEPTED_DOCUMENT_FORMATS": ".pdf, .doc, .docx, .xls, .xlsx, .txt, .tif, .json, .kml, .gml, .xml, .zip, .7z",
   "HARVESTING_STATUS": {
     "Pending": "Incoming",
