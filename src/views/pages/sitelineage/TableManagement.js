@@ -182,7 +182,7 @@ import {DataLoader} from '../../../components/DataLoader';
   }
   
   function TableManagement(props) {
-    const [modalItem, setModalItem] = useState(props.site !== "" ? getSite() : {});
+    const [modalItem, setModalItem] = useState({});
     const [modalVisible, setModalVisible] = useState(false);
     const [isLoaded, setIsLoaded] = useState(false);
     const [changesData, setChangesData] = useState({});
@@ -191,16 +191,25 @@ import {DataLoader} from '../../../components/DataLoader';
     const [country, setCountry] = useState("");
 
     let dl = new(DataLoader);
-    
+
     let getSite = () => {
       if(changesData.length > 0) {
         const site = changesData.filter(v => v.SiteCode === props.site)[0];
-        if(site)
-          showModal(site);
+        if(site) {
+          props.setSite("");
+          return site;
+        }
       }
       return {};
     }
 
+    useEffect(() =>{
+      if(props.site !== "" && Array.isArray(changesData)) {
+        const data = getSite();
+        showModal(data)
+      }
+    }, [changesData]);
+    
     let forceRefreshData = ()=> {
       setIsLoaded(false);
       setChangesData({});
@@ -213,8 +222,7 @@ import {DataLoader} from '../../../components/DataLoader';
     }
 
     let showModal = (data) => {
-      if ((Object.keys(modalItem).length === 0) &&
-      (data.status === props.status)
+      if ((Object.keys(modalItem).length === 0)
       ) {
         openModal(data);
       }
@@ -252,7 +260,6 @@ import {DataLoader} from '../../../components/DataLoader';
     }
 
     let consolidateChanges = (change, refresh)=>{
-      console.log([change])
       return props.consolidate([change], refresh)
       .then(data => {
           if(data?.ok){

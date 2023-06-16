@@ -505,9 +505,9 @@ export class ModalChanges extends Component {
                 <div>
                   {changes[i][j].ChangeType === "Site Recoded" &&
                   <>
-                    <a color="link" href={"/#/sitelineage/management?country=" + this.props.country + "&siteCode=" + this.props.item} className="btn-link--dark text-nowrap">
+                    <CButton color="link" href={"/#/sitelineage/management?country=" + this.props.country + "&siteCode=" + this.props.item} className="btn-link--dark text-nowrap">
                       Review Lineage 
-                    </a>
+                    </CButton>
                     <span>|</span>
                   </>
                   }
