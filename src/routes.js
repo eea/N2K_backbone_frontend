@@ -8,9 +8,9 @@ const HarvestingReadProgress = React.lazy(() => import('./views/pages/harvesting
 const HarvestingReadPocessed = React.lazy(() => import('./views/pages/harvesting/processed'))
 const HarvestingReadAll = React.lazy(() => import('./views/pages/harvesting/all'))
 const SiteChanges = React.lazy(() => import('./views/pages/sitechanges/sitechanges'))
-const ReportsAdded = React.lazy(() => import('./views/pages/reports/added'))
-const ReportsDeleted = React.lazy(() => import('./views/pages/reports/deleted'))
-const ReportsChanges = React.lazy(() => import('./views/pages/reports/changes'))
+const ReportsReleases = React.lazy(() => import('./views/pages/reports/releases'))
+const ReportsSites = React.lazy(() => import('./views/pages/reports/sites'))
+const ReportsStatus = React.lazy(() => import('./views/pages/reports/status'))
 const ReleasesManagement = React.lazy(() => import('./views/pages/releases/management'))
 const ReleasesComparer = React.lazy(() => import('./views/pages/releases/comparer'))
 const UnionLists = React.lazy(() => import('./views/pages/releases/unionlists'))
@@ -32,9 +32,9 @@ const routes = [
   { path: '/harvesting/processed', exact: true, name: 'Harvesting', component: HarvestingReadPocessed },
   { path: '/harvesting/all', exact: true, name: 'Harvesting', component: HarvestingReadAll },
   { path: '/sitechanges', exact: true, name: 'Sitechanges', component: SiteChanges },
-  { path: '/reports/added', exact: true, name: 'Reports', component: ReportsAdded },
-  { path: '/reports/deleted', exact: true, name: 'Reports', component: ReportsDeleted },
-  { path: '/reports/changes', exact: true, name: 'Reports', component: ReportsChanges },
+  { path: '/reports/releases', exact: true, name: 'Reports', component: ReportsReleases },
+  { path: '/reports/sites', exact: true, name: 'Reports', component: ReportsSites },
+  { path: '/reports/status', exact: true, name: 'Reports', component: ReportsStatus },
   { path: '/releases/management', exact: true, name: 'Releases', component: ReleasesManagement },
   { path: '/releases/comparer', exact: true, name: 'Releases', component: ReleasesComparer },
   { path: '/releases/unionlists', exact: true, name: 'Releases', component: UnionLists },

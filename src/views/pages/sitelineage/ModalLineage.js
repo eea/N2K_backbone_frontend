@@ -26,6 +26,7 @@ import {
   CAlert,
   CForm,
   CFormInput,
+  CFormSelect,
   CSpinner,
 } from '@coreui/react'
 
@@ -39,17 +40,26 @@ export class ModalLineage extends Component {
     this.dl = new (DataLoader);
 
     this.isLoadingData = false;
+    this.isLoadingPredecessorData = false;
+    this.isLoadingReferenceData = false;
 
     this.changingStatus = false;
 
     this.versionChanged = false;
     this.currentVersion = props.version;
+    
+    this.typeList = ["Creation","Deletion","Split","Merge","Recode"];
 
     this.state = {
       activeKey: 1,
       loading: true,
       data: {},
-      levels: [this.props.level ? this.props.level : "Critical"],
+      type: this.props.type,
+      status: this.props.status,
+      predecessorData: {},
+      predecessors: this.props.reference,
+      newPredecessor: false,
+      referenceSites: [],
       updateOnClose: false,
       errorLoading: false,
       generalError: "",
@@ -92,10 +102,14 @@ export class ModalLineage extends Component {
   close() {
     this.setActiveKey(1);
     this.setState({
-      levels: [this.props.level ? this.props.level : "Critical"],
       data: {},
+      type: "",
+      predecessorData: {},
+      predecessors: [],
+      newPredecessor: false,
       loading: true,
     });
+    this.resetLoading();
     this.props.close();
   }
 
@@ -111,41 +125,30 @@ export class ModalLineage extends Component {
     }
   }
 
-  filteredValuesTable(changes) {
-    let informedFields = [];
-    changes.map(c => {
-      for(let key in c) {
-        if(key === "Fields")
-          informedFields.push(key)
-        else
-          if(c[key] != null)
-            informedFields.push(key)
-      }
-    })
-    let filteredChanges = changes.map(c => {
-      for(let key in c) {
-        if(!informedFields.includes(key))
-          delete c[key]
-      }
-      return c
-    })
-    return filteredChanges;
-  }
-
   renderValuesTable(changes) {
-    changes = this.filteredValuesTable(changes);
-    let heads = Object.keys(changes[0]).filter(v => v !== "ChangeId" && v !== "Fields");
-    let fields = Object.keys(changes[0]["Fields"]);
-    let titles = heads.concat(fields).map(v => { return (<CTableHeaderCell scope="col" key={v}> {v} </CTableHeaderCell>) });
-    let rows = [];
-    for (let i in changes) {
-      let values = heads.map(v => changes[i][v]).concat(fields.map(v => changes[i]["Fields"][v]));
+    if(changes === "noData")
+      return (
+        <div className="nodata-container"><em>No Data</em></div>
+      );
+    if(!Array.isArray(changes))
+      changes = [changes]
+    if(changes.length === 0)
+      return;
+    let heads = Object.keys(changes[0]);
+    let titles = heads.map(k => { return (<CTableHeaderCell scope="col" key={k}> {k} </CTableHeaderCell>) });
+    let rows = []; 
+    for(let i in changes)
       rows.push(
-        <CTableRow key={"row_" + i}>
-          {values.map((v, j) => { return (<CTableDataCell key={v + "_" + j}> {v} </CTableDataCell>) })}
+        <CTableRow key={"row_info"}>
+          {Object.entries(changes[i]).map(([k,v]) => {
+            if(k == "SiteType")
+              return (<CTableDataCell key={k + "_" + v}> {["SPA","SCI","SPA/SCI"][['A','B','C'].indexOf(v)]} </CTableDataCell>) 
+            else
+              return (<CTableDataCell key={k + "_" + v}> {v} </CTableDataCell>) 
+            })
+          }
         </CTableRow>
       )
-    }
     return (
       <CTable>
         <CTableHead>
@@ -159,15 +162,149 @@ export class ModalLineage extends Component {
       </CTable>
     )
   }
+  
+  addPredecessor() {
+    const getNewSite = () => {
+      return document.querySelector(".add-predecessor").value;
+    }
+    if(this.state.referenceSites.length !== this.state.predecessors?.split(',').length)
+      return (
+        <div>
+          <CCol>
+            <CFormSelect className={"add-predecessor"}>
+              {this.state.referenceSites?.filter(r => !this.state.predecessors?.split(',').includes(r)).map(s => <option value={s}>{s}</option>)}
+            </CFormSelect>
+          </CCol>
+          <CCol>
+            <CButton color="link" className="btn-icon"
+              onClick={() => this.setState({ predecessors: this.state.predecessors + ',' + getNewSite(), newPredecessor: false })}>
+              <i className="fa-solid fa-floppy-disk"></i>
+            </CButton>
+            <CButton color="link" className="btn-icon"
+              onClick={() => this.setState({ newPredecessor: false })}>
+              <i className="fa-regular fa-trash-can"></i>
+            </CButton>
+          </CCol>
+        </div>
+      );
+    else
+      return (
+        <div>
+          <em>No data</em>
+        </div>
+      )
+  }
+  
+  setSelectedPredecessors(options) {
+    this.setState(() => ({ predecessors: Object.values(options).map(s => s.value).join(',') }));
+  }
+  
+  predecessorList() {
+    let predecessors = this.state.predecessors?.split(',');
+    return predecessors?.map((s) => 
+      <div key={s}>
+        <CCol>
+          <CFormSelect className="option-select" defaultValue={s} disabled={this.state.status === "Consolidated"}
+            onChange={() => this.setSelectedPredecessors(document.querySelectorAll(".option-select"))}>
+            <option className="predecessor-option color--primary" value={s}>{s}</option>
+            {this.state.referenceSites?.filter(r => !this.state.predecessors?.split(',').includes(r)).map(t => <option className="predecessor-option" value={t}>{t}</option>)}
+          </CFormSelect>
+        </CCol>
+        <CCol
+          hidden={this.state.type === "Creation" && predecessors?.length <= 1
+            || this.state.type === "Merge" && predecessors?.length <= 2
+            || this.state.type === "Split" && predecessors?.length <= 1
+            || this.state.type === "Recode"
+            || this.state.type === "Deletion"
+          }>
+          <CButton color="link" className="btn-icon" hidden={this.state.status === "Consolidated"}
+            onClick={() => this.deleteSite(s)}>
+            <i className="fa-regular fa-trash-can"></i>
+          </CButton>
+        </CCol>
+      </div>
+    );
+  }
+  
+  deleteSite(e) {
+    let newList = this.state.predecessors?.split(',').filter(s => s !== e).join();
+    this.setState({ predecessors: newList })
+  }
+  
+  lineageEditor() {
+    return(
+      <>
+      <CRow className="p-3">
+        <CCol key={"changes_editor_label_sitecode"} className="mb-4">
+          <b>SiteCode</b>
+        </CCol>
+        <CCol key={"changes_editor_label_type"} className="mb-4">
+          <b>Type</b>
+        </CCol>
+        <CCol key={"changes_editor_label_predecessor"} className="mb-4">
+          <b>Predecessor</b>
+        </CCol>
+      </CRow>
+
+      <CRow>
+        <CCol key={"changes_editor_label_sitecode"}>
+          <CFormInput type="text" disabled={this.state.type !== "Recode" || this.state.status === "Consolidated"} value={this.state.data.SiteCode ?? this.props.code} />
+        </CCol>
+        <CCol key={"changes_editor_label_type"}>
+          <CFormSelect defaultValue={this.typeList.indexOf(this.state.type)} disabled={this.state.status === "Consolidated"}
+            onChange={(e) => this.setState({ type: this.typeList[Number(e.target.value)] })} >
+            <option value="0">Creation</option>
+            <option value="1">Deletion</option>
+            <option value="2">Split</option>
+            <option value="3">Merge</option>
+            <option value="4">Recode</option>
+          </CFormSelect>
+        </CCol>
+        <CCol key={"changes_editor_label_predecessor"}>
+          {this.predecessorList()}
+          {this.state.newPredecessor &&
+              this.addPredecessor()
+          }
+          <CButton color="link" className="ms-auto" 
+            hidden={this.state.type === "Deletion"
+              || this.state.type === "Creation"
+              || this.state.status === "Consolidated"}
+            onClick={() => this.setState({ newPredecessor: true })}>
+            Add site
+          </CButton>
+        </CCol>
+      </CRow>
+      </>
+    )
+  }
 
   renderChanges() {
     return (
       <CTabPane role="tabpanel" aria-labelledby="home-tab" visible={this.state.activeKey === 1}>
-        <CRow className="p-3">
-          <CCol xs="auto">
-            
-          </CCol>
-        </CRow>
+        {this.lineageEditor()}
+        {this.state.type !== "Deletion" &&
+          <CRow className="p-3">
+            <CCol key={"changes_tabular"} className="mb-4">
+              <b>Tabular Changes</b>
+              {this.renderValuesTable(this.state.data)}
+            </CCol>
+          </CRow>
+        }
+        {this.state.type !== "Creation" && this.state.predecessorData.length >= 1 &&
+          <CRow className="p-3">
+            <CCol key={"changes_predecessors"} className="mb-4">
+              <b>Predecessors</b>
+              {this.renderValuesTable(this.state.predecessorData)}
+            </CCol>
+          </CRow>
+        }
+        {this.state.predecessorData.length == 0 &&
+          <CRow className="p-3">
+            <CCol className="mb-4">
+              <em>No predecessor data</em>
+            </CCol>
+          </CRow>
+        }
       </CTabPane>
     )
   }
@@ -185,38 +322,24 @@ export class ModalLineage extends Component {
           {this.state.errorLoading &&
             <CAlert color="danger">Error loading data</CAlert>
           }
-          {!this.state.errorLoading &&
+          {/* {!this.state.errorLoading &&
             <CRow >
               <MapViewer siteCode={this.props.item} version={this.props.version} />
             </CRow>
-          }
+          } */}
         </CTabPane>
     )
   }
 
   getBody() {
-    let body = Object.fromEntries(new FormData(document.querySelector("form")));
-    return body;
-  }
+    let data = 
+      {
+        "ChangeId": this.props.item,
+        "Type": this.state.type,
+        "Predecessors": this.state.predecessors
+      }
 
-  saveChangesModal() {
-    let body = this.getBody();
-    if (this.fieldValidator()) {
-      this.props.updateModalValues("Save changes", "This will save the site changes", "Continue", () => this.saveChanges(body), "Cancel", () => { });
-    }
-  }
-
-  saveChanges(body) {
-    this.sendRequest(ConfigData.SITEDETAIL_SAVE, "POST", body)
-      .then((data) => {
-        if(data?.ok) {
-          this.setState({ fields: body, fieldChanged: false, updatingData: false });
-        }
-        else {
-          this.showErrorMessage("fields", "Something went wrong");
-        }
-      });
-    this.setState({ updatingData: true });
+    return data;
   }
 
   renderModal() {
@@ -237,15 +360,15 @@ export class ModalLineage extends Component {
         <>
           <CModalHeader closeButton={false}>
             <CModalTitle>
-              {data.SiteCode} - {data.SiteName}
+              {data.SiteCode ?? this.props.code} - {data.SiteName ??  this.props.name}
               <span className="mx-2"></span>
               <span className="badge badge--fill default">Release date: 20/12/2021</span>
             </CModalTitle>
             <CCloseButton onClick={() => this.closeModal()} />
           </CModalHeader>
           <CModalBody>
-            { this.state.generalError !== "" &&
-              <CAlert color="danger">{this.state.generalError}</CAlert>
+            {this.props.errorMessage?.length !== 0 &&
+              <CAlert color="danger">{this.props.errorMessage}</CAlert>
             }
             <CNav variant="tabs" role="tablist">
               <CNavItem>
@@ -274,9 +397,8 @@ export class ModalLineage extends Component {
           </CModalBody>
           <CModalFooter>
             <div className="d-flex w-100 justify-content-between">
-              {data.Status === 'Pending' && <CButton disabled={this.changingStatus} color="secondary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(() => this.rejectChangesModal(true), true) : this.rejectChangesModal()}>Reject Changes</CButton>}
-              {data.Status === 'Pending' && <CButton disabled={this.changingStatus} color="primary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(() => this.acceptChangesModal(true), true) : this.acceptChangesModal()}>Accept Changes</CButton>}
-              {data.Status !== 'Pending' && this.state.activeKey !== 3 && <CButton disabled={this.changingStatus} color="primary" className="ms-auto" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(() => this.backToPendingModal(true), true) : this.backToPendingModal()}>Back to Pending</CButton>}
+              {this.state.status === 'Proposed' && <CButton disabled={this.changingStatus} color="primary" onClick={() => this.consolidateChangesModal()}>Consolidate Changes</CButton>}
+              {this.state.status === 'Consolidated' && <CButton disabled={this.changingStatus} color="primary" onClick={() => this.backToProposedModal()}>Back to Proposed</CButton>}
             </div>
           </CModalFooter>
         </>
@@ -286,6 +408,12 @@ export class ModalLineage extends Component {
   renderData() {
     if (!this.isLoadingData) {
       this.loadData();
+    }
+    if (!this.isLoadingPredecessorData) {
+      this.loadPredecessorData();
+    }
+    if (!this.isLoadingReferenceData) {
+      this.loadReferenceData();
     }
 
     let contents = this.state.loading ?
@@ -317,7 +445,7 @@ export class ModalLineage extends Component {
   loadData() {
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)) {
       this.isLoadingData = true;
-      this.dl.fetch(ConfigData.LINEAGE_GET_CHANGES + "?siteCode=" + this.props.item)
+      this.dl.fetch(ConfigData.LINEAGE_GET_CHANGES_DETAIL + "?ChangeId=" + this.props.item)
       .then(response => {
           if (response.status === 200)
             return response.json();
@@ -328,102 +456,89 @@ export class ModalLineage extends Component {
         if (!data.Success)
           this.setState({ errorLoading: true, loading: false });
         else
-          if(this.isSiteDeleted())
-            this.setState({ fields: "noData" })
-          this.setState({ data: data.Data, loading: false, activeKey: this.props.activeKey ? this.props.activeKey : this.state.activeKey })
+          this.setState({ data: data.Data ?? "noData", status: data.Data?.Status ?? this.props.status, type: this.props.type, loading: false, activeKey: this.props.activeKey ?? this.state.activeKey })
+      });
+    }
+  }
+  
+  loadPredecessorData() {
+    if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)) {
+      this.isLoadingPredecessorData = true;
+      this.dl.fetch(ConfigData.LINEAGE_GET_PREDECESSORS + "?ChangeId=" + this.props.item)
+      .then(response => {
+          if (response.status === 200)
+            return response.json();
+          else
+            return this.setState({ errorLoading: true, loading: false });
+      })
+      .then(data => {
+        if (!data.Success)
+          this.errorLoadingPredecessor = true;
+        else
+          this.setState({ predecessors: data.Data.map(s => s.SiteCode).join(','), predecessorData: data.Data })
+      });
+    }
+  }
+  
+  loadReferenceData() {
+    if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)) {
+      this.isLoadingReferenceData = true;
+      this.dl.fetch(ConfigData.LINEAGE_GET_REFERENCE_SITES+ "?country=" + this.props.country)
+      .then(response => {
+          if (response.status === 200)
+            return response.json();
+          else
+            return this.setState({ errorLoading: true, loading: false });
+      })
+      .then(data => {
+        if (!data.Success)
+          this.errorLoadingReference = true;
+        else
+          this.setState({ referenceSites: data.Data })
       });
     }
   }
 
   resetLoading() {
     this.isLoadingData = false;
+    this.isLoadingPredecessorData = false;
+    this.isLoadingReferenceData = false;
   }
 
-  acceptChangesModal(clean) {
+  consolidateChangesModal() {
     this.changingStatus = true;
-    if (clean) {
-      this.cleanUnsavedChanges();
-    }
-    this.resetLoading();
-    this.props.updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", () => this.acceptChanges(), "Cancel", () => { this.changingStatus = false });
+    this.props.updateModalValues("Consolidate Changes", "This will consolidate all the site changes",
+      "Continue", () => this.consolidateChanges(),
+      "Cancel", () => { this.changingStatus = false })
+    .then(this.resetLoading());
   }
 
-  acceptChanges() {
-    this.props.accept()
+  consolidateChanges() {
+    this.props.consolidate(this.getBody(), true)
       .then((data) => {
         if (data?.Success) {
           this.changingStatus = false;
           this.setState({ data: {}, fields: {}, loading: true, siteTypeValue: "", siteRegionValue: "" });
-        } else { this.showErrorMessage("general", "Error accepting changes") }
+        }
       });
   }
 
-  rejectChangesModal(clean) {
+  backToProposedModal() {
     this.changingStatus = true;
-    if (clean) {
-      this.cleanUnsavedChanges();
-    }
-    this.resetLoading();
-    this.props.updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", () => this.rejectChanges(), "Cancel", () => { this.changingStatus = false });
+    this.props.updateModalValues("Back to Proposed", "This will set the changes back to Proposed",
+      "Continue", () => this.setBackToProposed(),
+      "Cancel", () => { this.changingStatus = false })
+    .then(this.resetLoading());
   }
 
-  rejectChanges() {
-    this.props.reject()
-      .then(data => {
+  setBackToProposed() {
+      this.props.backToProposed()
+      .then((data) => {
         if (data?.Success) {
           this.changingStatus = false;
           this.setState({ data: {}, fields: {}, loading: true, siteTypeValue: "", siteRegionValue: "" });
-        } else { this.showErrorMessage("general", "Error rejecting changes") }
+        }
       });
-  }
-
-  backToPendingModal(clean) {
-    this.changingStatus = true;
-    if (clean) {
-      this.cleanUnsavedChanges();
-    }
-    this.resetLoading();
-    this.props.updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", () => this.setBackToPending(), "Cancel", () => { this.changingStatus = false });
-  }
-
-  getCurrentVersion() {
-    return this.dl.fetch(ConfigData.SITEDETAIL_GET + "?siteCode=" + this.props.item)
-      .then(response => response.json())
-      .then(data => {
-        if(data?.Success)
-          return data.Data.Version;
-      })
-  }
-
-  isSiteDeleted() {
-    return this.state.data.Critical?.SiteInfo.ChangesByCategory
-        .map(c => c.ChangeType === "Site Deleted")
-        .reduce((result, next) => result || next, false);
-  }
-
-  setBackToPending() {
-    let controlResult = (data) => {
-      if (data?.Success) {
-        this.changingStatus = false;
-        this.versionChanged = true;
-        this.currentVersion = data.Data[0].VersionId;
-        this.setState({ data: {}, fields: {}, loading: true, siteTypeValue: "", siteRegionValue: "" });
-      } else { this.showErrorMessage("general", "Error setting changes back to pending") }
-    }
-
-    if(this.state.data.Status === "Accepted" && !this.isSiteDeleted())
-      this.getCurrentVersion()
-        .then(version => { 
-          this.props.backToPending(version)
-          .then((data) => {
-            controlResult(data);
-          })
-        });
-    else
-      this.props.backToPending(this.props.version)
-        .then((data) => {
-          controlResult(data);
-        })
   }
 
   sendRequest(url, method, body, path) {

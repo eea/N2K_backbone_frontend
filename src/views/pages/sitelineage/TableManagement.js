@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react'
-import { useTable, usePagination, useFilters,useGlobalFilter, useRowSelect, useAsyncDebounce, useSortBy, useExpanded } from 'react-table'
+import { useTable, usePagination, useFilters,useGlobalFilter, useAsyncDebounce, useSortBy, useExpanded } from 'react-table'
 import {matchSorter} from 'match-sorter'
 import ConfigData from '../../../config.json';
 import {
@@ -14,16 +14,6 @@ import {
 } from '@coreui/react'
 import { ModalLineage } from './ModalLineage';
 import {DataLoader} from '../../../components/DataLoader';
-
-let testData = [
-  {SiteCode:"AT2173000", SiteName:"Althofener Moor", Type:"Creation", Reference:"", Reported:"AT2173000"},
-  {SiteCode:"AT2111000", SiteName:"Völkermarkter Stausee", Type:"Deletion", Reference:"AT2111000", Reported:""},
-  {SiteCode:"AT1127119", SiteName:"Burgenländische Leithaauen", Type:"Split", Reference:"AT1127119", Reported:"AT2208000,AT2209000"},
-  {SiteCode:"AT1119622", SiteName:"Auwiesen Zickenbachtal", Type:"Merge", Reference:"AT1119620,AT1119621", Reported:"AT1119622"},
-  {SiteCode:"AT1102112", SiteName:"Zurndorfer Eichenwald und Hutweide", Type:"Recode", Reference:"AT1102112", Reported:"AT1102113"},
-]
-testData = Array(20).fill(testData).flat();
-
 
   function DefaultColumnFilter({
     column: { filterValue, preFilteredRows, setFilter },
@@ -55,15 +45,14 @@ testData = Array(20).fill(testData).flat();
           <i className="fa-solid fa-ellipsis"></i>
         </CDropdownToggle>
         <CDropdownMenu>
-          {props.actions.accept && <CDropdownItem role={'button'} onClick={() => props.actions.accept()}>Accept changes</CDropdownItem>}
-          {props.actions.reject && <CDropdownItem role={'button'} onClick={() => props.actions.reject()}>Reject changes</CDropdownItem>}
-          {props.actions.backPending && <CDropdownItem role={'button'} onClick={() => props.actions.backPending()}>Back to Pending</CDropdownItem>}
+          {props.actions.consolidate && <CDropdownItem role={'button'} onClick={() => props.actions.consolidate()}>Consolidate changes</CDropdownItem>}
+          {props.actions.backProposed && <CDropdownItem role={'button'} onClick={() => props.actions.backProposed()}>Back to Proposed</CDropdownItem>}
         </CDropdownMenu>
       </CDropdown>
     )
   }
 
-  function Table({ columns, data, siteCodes, currentPage, currentSize, loadPage, status, updateModalValues, isTabChanged, setIsTabChanged }) {
+  function Table({ columns, data, currentPage, currentSize, loadPage, status, updateModalValues, isTabChanged, setIsTabChanged }) {
 
     const filterTypes = React.useMemo(
         () => ({
@@ -115,21 +104,8 @@ testData = Array(20).fill(testData).flat();
       useSortBy,
       useExpanded,
       usePagination,
-      useRowSelect,
     )  
   
-    // clear selection when tab is changed
-    useEffect(() => {
-      if(isTabChanged) {
-        setIsTabChanged(false);
-        toggleAllRowsSelected(false);
-      }
-    }, [isTabChanged]);
-
-    let countSitesOnPage = () => {
-      return page.filter(row => !row.id.includes(".")).length;
-    }
-
     // Render the UI for your table
     return (
       <>
@@ -208,16 +184,36 @@ testData = Array(20).fill(testData).flat();
   function TableManagement(props) {
     const [modalItem, setModalItem] = useState({});
     const [modalVisible, setModalVisible] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoaded, setIsLoaded] = useState(false);
     const [changesData, setChangesData] = useState({});
-    const [siteCodes, setSitecodes] = useState([]);
     const [currentPage, setCurrentPage] = useState(0);
     const [currentSize, setCurrentSize] = useState(30);
-    const [levelCountry, setLevelCountry] = useState({});
+    const [country, setCountry] = useState("");
 
     let dl = new(DataLoader);
 
-    let forceRefreshData = ()=> setChangesData({});
+    let getSite = () => {
+      if(changesData.length > 0) {
+        const site = changesData.filter(v => v.SiteCode === props.site)[0];
+        if(site) {
+          props.setSite("");
+          return site;
+        }
+      }
+      return {};
+    }
+
+    useEffect(() =>{
+      if(props.site !== "" && Array.isArray(changesData)) {
+        const data = getSite();
+        showModal(data)
+      }
+    }, [changesData]);
+    
+    let forceRefreshData = ()=> {
+      setIsLoaded(false);
+      setChangesData({});
+    };
 
     let loadPage = (page,size) =>{
       setCurrentPage(page);
@@ -226,8 +222,7 @@ testData = Array(20).fill(testData).flat();
     }
 
     let showModal = (data) => {
-      if ((Object.keys(modalItem).length === 0) &&
-      (data.status === props.status)
+      if ((Object.keys(modalItem).length === 0)
       ) {
         openModal(data);
       }
@@ -243,57 +238,37 @@ testData = Array(20).fill(testData).flat();
       setModalItem({});
       props.closeModal();
     }
-
-    let setBackToPendingWithVersion = (version) => {
-      let newModalItem = modalItem;
-      newModalItem.Version = version;
-      setModalItem({...newModalItem});
-      return setBackToPending(modalItem);
-    }
-
-    let setBackToPending = (change, refresh)=>{
-      // return props.setBackToPending({"SiteCode":change.SiteCode,"VersionId":change.Version}, refresh)
-      // .then(data => {
-      //   if(data?.ok){
-      //     if(refresh) {
-      //       forceRefreshData();
-      //     }
-      //   }
-      //   return data;
-      // });
-      if(refresh) {
-        forceRefreshData();
+    
+    let getRowData = (data) => {
+      return {
+        ChangeId: data.ChangeId,
+        Predecessors: data.Reference,
+        Type: data.Type
       }
     }
 
-    let acceptChanges = (change, refresh)=>{
-      // return props.accept({"SiteCode":change.SiteCode,"VersionId":change.Version}, refresh)
-      // .then(data => {
-      //     if(data?.ok){
-      //       if(refresh) {
-      //         forceRefreshData();
-      //       }
-      //     }
-      //     return data;
-      // });
-      if(refresh) {
-        forceRefreshData();
-      }
+    let setBackToProposed = (change, refresh)=>{
+      return props.setBackToProposed([change.ChangeId], refresh)
+      .then(data => {
+        if(data?.ok){
+          if(refresh) {
+            forceRefreshData();
+          }
+        }
+        return data;
+      });
     }
 
-    let rejectChanges = (change, refresh)=>{
-      // return props.reject({"SiteCode":change.SiteCode,"VersionId":change.Version}, refresh)
-      // .then(data => {
-      //   if(data?.ok){
-      //     if(refresh) {
-      //       forceRefreshData();
-      //     }
-      //   }
-      //   return data;
-      // });
-      if(refresh) {
-        forceRefreshData();
-      }
+    let consolidateChanges = (change, refresh)=>{
+      return props.consolidate([change], refresh)
+      .then(data => {
+          if(data?.ok){
+            if(refresh) {
+              forceRefreshData();
+            }
+          }
+          return data;
+      });
     }
 
     const customFilter = (rows, columnIds, filterValue) => {
@@ -406,89 +381,79 @@ testData = Array(20).fill(testData).flat();
     
     let getContextActions = (row)=>{
       switch(props.status){
-        case 'pending':
+        case 'Proposed':
           return {
-            accept: ()=>props.updateModalValues("Accept Changes", "This will accept lineage changes", "Continue", ()=>acceptChanges(row.original, true), "Cancel", ()=>{}),
-            reject: ()=>props.updateModalValues("Reject Changes", "This will reject lineage changes", "Continue", ()=>rejectChanges(row.original, true), "Cancel", ()=>{}),
+            consolidate: ()=>props.updateModalValues("Consolidate Changes", "This will consolidate lineage changes", "Continue", ()=>consolidateChanges(getRowData(row.original), true), "Cancel", ()=>{}),
           }
-        case 'accepted':
+        case 'Consolidated':
           return {
-            backPending: ()=>props.updateModalValues("Back to Pending", "This will set the lineage changes back to Pending", "Continue", ()=>setBackToPending(row.original, true), "Cancel", ()=>{}),
-          }
-        case 'rejected':
-          return {
-            backPending: ()=>props.updateModalValues("Back to Pending", "This will set the lineage changes back to Pending", "Continue", ()=>setBackToPending(row.original, true), "Cancel", ()=>{}),
+            backProposed: ()=>props.updateModalValues("Back to Proposed", "This will set the lineage changes back to Proposed", "Continue", ()=>setBackToProposed(getRowData(row.original), true), "Cancel", ()=>{}),
           }
         default:
           return {}
       }
     }
 
-    let getSiteCodes= ()=>{
-      let url = ConfigData.SITECODES_GET;
-      url += 'country='+props.country;
-      url += '&status='+props.status;
-      url += '&level='+props.level;
-      return dl.fetch(url)
-      .then(response => response.json())
-      .then(data => {
-        if(data?.Success) {
-          if(Object.keys(data.Data).length!==0) {
-            data.Data = testData;
-          }
-          props.setSitecodes(props.status,data.Data);
-          setSitecodes(data.Data);
-        }
-      });
-    }
-  
     let loadData= ()=>{
-      if(props.getRefresh()||(!isLoading && changesData!=="nodata" && Object.keys(changesData).length===0)){
+      let passData = (data) => {
+        props.setSitecodes({
+          name: props.status,
+          data: data ? data.map(x => (
+            {"search":x.SiteCode+" - "+x.SiteName,
+              "Name":x.SiteName,"SiteCode":x.SiteCode,
+              "status":props.status,"Type":x.Type,...x}))
+            : [],
+          searchType: "contains"
+        });
+      }
+      if(props.getRefresh()||(!isLoaded && changesData!=="nodata" && Object.keys(changesData).length===0)){
         let promises=[];
-        setIsLoading(true);
         
-        if(props.getRefresh()||(levelCountry==={})||(levelCountry.level!==props.level)||(levelCountry.country!==props.country)){
+        if(props.getRefresh()||(country === {})||(country !== props.country)){
           props.setRefresh(props.status,false);  //For the referred status, data is updated
-          promises.push(getSiteCodes());
-          setLevelCountry({level:props.level,country:props.country});
+          setCountry(props.country);
+          forceRefreshData();
         }
-        let url = ConfigData.SITECHANGES_GET;
-        url += 'country='+ props.country;
-        url += '&status='+props.status;
-        url += '&level='+props.level;
-        url += '&page='+(currentPage+1);
-        url += '&limit='+currentSize;
+        let url = ConfigData.LINEAGE_GET_CHANGES;
+        url += '?country=' + props.country;
+        url += '&status=' + props.status;
+        url += '&page=' + (currentPage+1);
+        url += '&pageLimit=' + currentSize;
+        url += '&creation=' + props.typeFilter.includes("Creation");
+        url += '&deletion=' + props.typeFilter.includes("Deletion");
+        url += '&split=' + props.typeFilter.includes("Split");
+        url += '&merge=' + props.typeFilter.includes("Merge");
+        url += '&recode=' + props.typeFilter.includes("Recode");
         promises.push(
           dl.fetch(url)
           .then(response => response.json())
           .then(data => {
             if(data?.Success) {
-              if(Object.keys(data.Data).length===0)
+              if(Object.keys(data.Data).length===0) {
                 setChangesData("nodata");
-              else {
-                data.Data = testData;
+              } else {
                 setChangesData(data.Data);
+                return data.Data;
               }
             }
           })
+          .then(data => passData(data))
         )
-        Promise.all(promises).then(v=>setIsLoading(false));
+        Promise.all(promises).then(v=>{setIsLoaded(true); props.setSitecodes(props.status, changesData == "nodata" ? {} : changesData)});
       }
     }
     
     if(!props.country) {
       if(changesData !== "nodata") {
         setChangesData("nodata");
-        setSitecodes([]);
-        props.setSitecodes({});
-        setIsLoading(false);
+        setIsLoaded(false);
       }
       //return(<></>);
     } else {
       loadData();
     }
 
-    if(isLoading)
+    if(!isLoaded)
       return (<div className="loading-container"><em>Loading...</em></div>)
     else
       if(changesData==="nodata")
@@ -499,7 +464,6 @@ testData = Array(20).fill(testData).flat();
           <Table 
             columns={columns} 
             data={changesData} 
-            siteCodes={siteCodes} 
             currentPage={currentPage}
             currentSize={currentSize} 
             loadPage = {loadPage}
@@ -511,13 +475,17 @@ testData = Array(20).fill(testData).flat();
           <ModalLineage
             visible = {modalVisible}
             close = {closeModal}
-            accept={()=>acceptChanges(modalItem)}
-            reject={()=>rejectChanges(modalItem)}
-            backToPending={(version) => setBackToPendingWithVersion(version)}
+            consolidate={(change)=>consolidateChanges(change, true)}
+            backToProposed={() => setBackToProposed(modalItem, true)}
             status={props.status}
-            level={props.level}
-            item={modalItem.SiteCode}
-            version={modalItem.Version}
+            item={modalItem.ChangeId}
+            code={modalItem.SiteCode}
+            name={modalItem.SiteName}
+            type={modalItem.Type}
+            reference={modalItem.Reference}
+            reported={modalItem.reported}
+            country={props.country}
+            errorMessage={props.errorMessage}
             updateModalValues = {props.updateModalValues}
             activeKey={modalItem.ActiveKey}
           />

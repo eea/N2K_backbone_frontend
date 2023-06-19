@@ -502,9 +502,19 @@ export class ModalChanges extends Component {
                   <span className={"badge badge--" + level.toLocaleLowerCase() + " me-2"}>{level}</span>
                   <span className="me-3"> {title}</span>
                 </div>
-                <CButton color="link" className="btn-link--dark text-nowrap" onClick={() => this.toggleDetail(changes[i][j].ChangeCategory + title)}>
-                  {(this.state.showDetail === changes[i][j].ChangeCategory + title) ? "Hide detail" : "View detail"}
-                </CButton>
+                <div>
+                  {changes[i][j].ChangeType === "Site Recoded" &&
+                  <>
+                    <CButton color="link" href={"/#/sitelineage/management?country=" + this.props.country + "&siteCode=" + this.props.item} className="btn-link--dark text-nowrap">
+                      Review Lineage 
+                    </CButton>
+                    <span>|</span>
+                  </>
+                  }
+                  <CButton color="link" className="btn-link--dark text-nowrap" onClick={() => this.toggleDetail(changes[i][j].ChangeCategory + title)}>
+                    {(this.state.showDetail === changes[i][j].ChangeCategory + title) ? "Hide detail" : "View detail"}
+                  </CButton>
+                </div>
               </div>
               <CCollapse visible={this.state.showDetail === changes[i][j].ChangeCategory + title}>
                 <CCard>
@@ -888,7 +898,10 @@ export class ModalChanges extends Component {
           }
           {!this.state.errorLoading &&
             <CRow >
-              <MapViewer siteCode={this.props.item} version={this.props.version} />
+              <MapViewer  siteCode={this.props.item} 
+                          version={this.props.version} 
+                          latestRelease={ConfigData.LATEST_RELEASE} 
+                          reportedSpatial={ConfigData.REPORTED_SPATIAL}/>
             </CRow>
           }
         </CTabPane>
@@ -1717,5 +1730,11 @@ export class ModalChanges extends Component {
       body: path ? body : JSON.stringify(body),
     };
     return this.dl.fetch(url, options)
+  }
+  
+  showModalLineage(country, siteCode, change) {
+    console.warn("Not implemented!")
+    console.log(country)
+    console.log(change)
   }
 }

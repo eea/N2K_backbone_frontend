@@ -32,33 +32,21 @@ const Reports = () => {
           <CSidebarNav>
             <li className="nav-title">Reports</li>
             <li className="nav-item">
-              <a className="nav-link active" href="/#/reports/added">
+              <a className="nav-link active" href="/#/reports/releases">
                 <i className="fa-solid fa-bookmark"></i>
-                Sites Added
-              </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link" href="/#/reports/deleted">
-                <i className="fa-solid fa-bookmark"></i>
-                Sites Deleted
-              </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link" href="/#/reports/changes">
-                <i className="fa-solid fa-bookmark"></i>
-                Changes
-              </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link" href="/#/reports/releases">
-                <i className="fa-solid fa-bookmark"></i>
-                Releases dates
+                Releases Dates
               </a>
             </li>
             <li className="nav-item">
               <a className="nav-link" href="/#/reports/sites">
                 <i className="fa-solid fa-bookmark"></i>
-                Reference sites details
+                Reference Sites Details
+              </a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link" href="/#/reports/status">
+                <i className="fa-solid fa-bookmark"></i>
+                Site Status
               </a>
             </li>
           </CSidebarNav>
@@ -67,7 +55,7 @@ const Reports = () => {
           <CContainer fluid>
             <div className="d-flex justify-content-between py-3">
               <div className="page-title">
-                <h1 className="h1">Sites Added</h1>
+                <h1 className="h1">Releases Dates</h1>
               </div>
             </div>
             <CRow>
@@ -79,7 +67,7 @@ const Reports = () => {
                   scrolling="no"
                   width="100%"
                   height={height}
-                  src={ConfigData.TABLEAU_CHANGES + "?:showAppBanner=false&:display_count=n&:showVizHome=n&:origin=viz_share_link&:embed=y&:host_url=https://tableau-public.discomap.eea.europa.eu/"}
+                  src={ConfigData.TABLEAU_RELEASES + "?:showAppBanner=false&:display_count=n&:showVizHome=n&:origin=viz_share_link&:embed=y&:host_url=https://tableau-public.discomap.eea.europa.eu/"}
                 >
                 </iframe>
               </CCol>

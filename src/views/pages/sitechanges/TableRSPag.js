@@ -476,6 +476,23 @@ const IndeterminateCheckbox = React.forwardRef(
           accessor: 'ChangeType',
         },
         {
+          Header: () => null,
+          accessor: "Recoded",
+          Cell: ({ row }) => {
+            if(row.values.Recoded)
+              return (
+                <CTooltip
+                  content="Site Recode"
+                  placement="top"
+                >
+                  <i className="fa-solid fa-repeat"/>
+                </CTooltip>
+              )
+            else
+              return (null);
+          }
+        },
+        {
           Header: () => null,          
           accessor: 'Justification',          
           Cell: ({row}) => (<>
@@ -672,6 +689,7 @@ const IndeterminateCheckbox = React.forwardRef(
             level={props.level}
             item={modalItem.SiteCode}
             version={modalItem.Version}
+            country={props.country}
             updateModalValues = {props.updateModalValues}
             justificationRequired={modalItem.JustificationRequired}
             justificationProvided={modalItem.JustificationProvided}
