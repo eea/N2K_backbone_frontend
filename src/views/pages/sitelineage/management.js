@@ -31,12 +31,21 @@ let refreshSitechanges={"Proposed":false,"Consolidated":false},
 const defaultCountry = () => {
   const searchParams = new URLSearchParams(window.location.href.split('?')[1]);
   const parmCountry = searchParams.get('country');
+  //TODO remove parameters
   return parmCountry ? parmCountry : ConfigData.DEFAULT_COUNTRY ? ConfigData.DEFAULT_COUNTRY : "";
 } 
+
+const openSite = () => {
+  const searchParams = new URLSearchParams(window.location.href.split('?')[1]);
+  const siteCode = searchParams.get('siteCode');
+  //TODO remove parameters
+  return siteCode ?? "";
+}
 
 const Sitelineage = () => {
   const [countries, setCountries] = useState([]);
   const [country, setCountry] = useState(defaultCountry);
+  const [site, setSite] = useState(openSite);
   const [isLoading, setIsLoading] = useState(false);
   const [forceRefresh, setForceRefresh] = useState(0);
   const [types, setTypes] = useState(['Creation', 'Deletion', 'Split', 'Merge', 'Recode']);
@@ -506,10 +515,12 @@ const Sitelineage = () => {
                         consolidate={consolidateChanges}
                         setBackToProposed={setBackToProposed}
                         updateModalValues={updateModalValues}
-                        setShowModal={()=>showModalLineagechanges()}
+                        setShowModal={showModalLineagechanges}
                         setSitecodes={setCodes}
                         showModal={showModal}
                         errorMessage = {modalError}
+                        site={site}
+                        setSite={setSite}
                         closeModal={closeModal}
                       />
                     </CTabPane>
@@ -523,10 +534,12 @@ const Sitelineage = () => {
                         consolidate={consolidateChanges}
                         setBackToProposed={setBackToProposed}
                         updateModalValues={updateModalValues}
-                        setShowModal={()=>showModalLineagechanges()}
+                        setShowModal={showModalLineagechanges}
                         setSitecodes={setCodes}
                         showModal={showModal}
                         errorMessage = {modalError}
+                        site={site}
+                        setSite={setSite}
                         closeModal={closeModal}
                     />
                     </CTabPane>
