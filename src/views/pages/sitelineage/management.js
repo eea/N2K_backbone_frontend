@@ -196,7 +196,7 @@ const Sitelineage = () => {
   }
 
   let consolidateChanges = (changes, refresh)=>{
-    return postRequest(ConfigData.LINEAGE_CONSOLIDATE_CHANGES, changes)
+    return postRequest(ConfigData.LINEAGE_SAVE_CHANGES, changes)
     .then(data => {
         if(data.ok){
           let response = readResponse(data, "Consolidate Changes");
