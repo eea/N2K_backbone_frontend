@@ -195,29 +195,8 @@ const Sitelineage = () => {
     }
   }
 
-  let setBackToProposed = (changes, refresh)=>{
-    let rBody = !Array.isArray(changes)?[changes]:changes
-
-    return postRequest(ConfigData.LINEAGE_MOVE_TO_PROPOSED, rBody)
-    .then(data => {
-        if(data?.ok){
-          let response = readResponse(data, "Back To Proposed");
-          if(refresh){
-            forceRefreshData();
-            setForceRefresh(forceRefresh+1);
-          }
-          return response;
-        } else throw "Back To Proposed";
-    }).catch(e => {
-        let target = showModal ? "modal" : "management";
-        showErrorMessage(target, "An error occurred while performing action: " + e);
-    });
-  }
-
   let consolidateChanges = (changes, refresh)=>{
-    let rBody = !Array.isArray(changes)?[changes]:changes
-
-    return postRequest(ConfigData.LINEAGE_CONSOLIDATE_CHANGES, rBody)
+    return postRequest(ConfigData.LINEAGE_CONSOLIDATE_CHANGES, changes)
     .then(data => {
         if(data.ok){
           let response = readResponse(data, "Consolidate Changes");
@@ -513,7 +492,6 @@ const Sitelineage = () => {
                         getRefresh={()=>getRefreshSitechanges("Proposed")} 
                         setRefresh={setRefreshSitechanges}
                         consolidate={consolidateChanges}
-                        setBackToProposed={setBackToProposed}
                         updateModalValues={updateModalValues}
                         setShowModal={showModalLineagechanges}
                         setSitecodes={setCodes}
@@ -532,7 +510,6 @@ const Sitelineage = () => {
                         getRefresh={()=>getRefreshSitechanges("Consolidated")} 
                         setRefresh={setRefreshSitechanges}
                         consolidate={consolidateChanges}
-                        setBackToProposed={setBackToProposed}
                         updateModalValues={updateModalValues}
                         setShowModal={showModalLineagechanges}
                         setSitecodes={setCodes}

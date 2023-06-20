@@ -248,7 +248,7 @@ export class ModalLineage extends Component {
 
       <CRow>
         <CCol key={"changes_editor_label_sitecode"}>
-          <CFormInput type="text" disabled={this.state.type !== "Recode" || this.state.status === "Consolidated"} value={this.state.data.SiteCode ?? this.props.code} />
+          <CFormInput type="text" disabled={this.state.type !== "Recode" || this.state.status === "Consolidated"} defaultValue={this.state.data.SiteCode ?? this.props.code} />
         </CCol>
         <CCol key={"changes_editor_label_type"}>
           <CFormSelect defaultValue={this.typeList.indexOf(this.state.type)} disabled={this.state.status === "Consolidated"}
@@ -332,14 +332,23 @@ export class ModalLineage extends Component {
   }
 
   getBody() {
-    let data = 
+    return (
       {
         "ChangeId": this.props.item,
         "Type": this.state.type,
         "Predecessors": this.state.predecessors
       }
+    )
+  }
 
-    return data;
+  checkChanges() {
+    console.log(this.props.type + ' - ' + this.state.type)
+    console.log(this.props.reference + ' - ' + this.state.predecessors)
+    console.log(this.props.code + ' - ' + this.state.data.SiteCode)
+    return (
+      this.props.type == this.state.type
+      && this.props.reference == this.state.predecessors
+    )
   }
 
   renderModal() {
@@ -396,9 +405,8 @@ export class ModalLineage extends Component {
             </CTabContent>
           </CModalBody>
           <CModalFooter>
-            <div className="d-flex w-100 justify-content-between">
-              {this.state.status === 'Proposed' && <CButton disabled={this.changingStatus} color="primary" onClick={() => this.consolidateChangesModal()}>Consolidate Changes</CButton>}
-              {this.state.status === 'Consolidated' && <CButton disabled={this.changingStatus} color="primary" onClick={() => this.backToProposedModal()}>Back to Proposed</CButton>}
+            <div className="ms-auto">
+              {this.state.status === 'Proposed' && <CButton disabled={this.checkChanges() || this.changingStatus} color="primary" onClick={() => this.saveChangesModal()}>Save Changes</CButton>}
             </div>
           </CModalFooter>
         </>
@@ -428,7 +436,12 @@ export class ModalLineage extends Component {
   }
 
   closeModal() {
-    this.close();
+    if(!this.checkChanges())
+      this.props.updateModalValues("Lineage Edition", "There are unsaved changes, do you want to continue?",
+        "Continue", () => this.close(),
+        "Cancel", () => { })
+    else
+      this.close();
   }
 
   render() {
@@ -505,15 +518,15 @@ export class ModalLineage extends Component {
     this.isLoadingReferenceData = false;
   }
 
-  consolidateChangesModal() {
+  saveChangesModal() {
     this.changingStatus = true;
-    this.props.updateModalValues("Consolidate Changes", "This will consolidate all the site changes",
-      "Continue", () => this.consolidateChanges(),
+    this.props.updateModalValues("Save Changes", "This will save all the lineage changes",
+      "Continue", () => this.saveChanges(),
       "Cancel", () => { this.changingStatus = false })
     .then(this.resetLoading());
   }
 
-  consolidateChanges() {
+  saveChanges() {
     this.props.consolidate(this.getBody(), true)
       .then((data) => {
         if (data?.Success) {
@@ -523,32 +536,5 @@ export class ModalLineage extends Component {
       });
   }
 
-  backToProposedModal() {
-    this.changingStatus = true;
-    this.props.updateModalValues("Back to Proposed", "This will set the changes back to Proposed",
-      "Continue", () => this.setBackToProposed(),
-      "Cancel", () => { this.changingStatus = false })
-    .then(this.resetLoading());
-  }
-
-  setBackToProposed() {
-      this.props.backToProposed()
-      .then((data) => {
-        if (data?.Success) {
-          this.changingStatus = false;
-          this.setState({ data: {}, fields: {}, loading: true, siteTypeValue: "", siteRegionValue: "" });
-        }
-      });
-  }
-
-  sendRequest(url, method, body, path) {
-    const options = {
-      method: method,
-      headers: {
-        'Content-Type': path ? 'multipart/form-data' : 'application/json',
-      },
-      body: path ? body : JSON.stringify(body),
-    };
-    return this.dl.fetch(url, options)
-  }
 }
+

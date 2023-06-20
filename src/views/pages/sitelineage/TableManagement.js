@@ -46,7 +46,6 @@ import {DataLoader} from '../../../components/DataLoader';
         </CDropdownToggle>
         <CDropdownMenu>
           {props.actions.consolidate && <CDropdownItem role={'button'} onClick={() => props.actions.consolidate()}>Consolidate changes</CDropdownItem>}
-          {props.actions.backProposed && <CDropdownItem role={'button'} onClick={() => props.actions.backProposed()}>Back to Proposed</CDropdownItem>}
         </CDropdownMenu>
       </CDropdown>
     )
@@ -247,20 +246,8 @@ import {DataLoader} from '../../../components/DataLoader';
       }
     }
 
-    let setBackToProposed = (change, refresh)=>{
-      return props.setBackToProposed([change.ChangeId], refresh)
-      .then(data => {
-        if(data?.ok){
-          if(refresh) {
-            forceRefreshData();
-          }
-        }
-        return data;
-      });
-    }
-
     let consolidateChanges = (change, refresh)=>{
-      return props.consolidate([change], refresh)
+      return props.consolidate(change, refresh)
       .then(data => {
           if(data?.ok){
             if(refresh) {
@@ -385,10 +372,6 @@ import {DataLoader} from '../../../components/DataLoader';
           return {
             consolidate: ()=>props.updateModalValues("Consolidate Changes", "This will consolidate lineage changes", "Continue", ()=>consolidateChanges(getRowData(row.original), true), "Cancel", ()=>{}),
           }
-        case 'Consolidated':
-          return {
-            backProposed: ()=>props.updateModalValues("Back to Proposed", "This will set the lineage changes back to Proposed", "Continue", ()=>setBackToProposed(getRowData(row.original), true), "Cancel", ()=>{}),
-          }
         default:
           return {}
       }
@@ -476,7 +459,6 @@ import {DataLoader} from '../../../components/DataLoader';
             visible = {modalVisible}
             close = {closeModal}
             consolidate={(change)=>consolidateChanges(change, true)}
-            backToProposed={() => setBackToProposed(modalItem, true)}
             status={props.status}
             item={modalItem.ChangeId}
             code={modalItem.SiteCode}
