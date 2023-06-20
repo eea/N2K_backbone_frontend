@@ -331,6 +331,24 @@ const IndeterminateCheckbox = React.forwardRef(
 
     let forceRefreshData = ()=> setChangesData({});
 
+    let getSite = () => {
+      if(changesData.length > 0) {
+        const site = changesData.filter(v => v.SiteCode === props.site)[0];
+        if(site) {
+          props.setSite("");
+          return site;
+        }
+      }
+      return {};
+    }
+
+    useEffect(() => {
+      if(props.site !== "" && Array.isArray(changesData)) {
+        const data = getSite();
+        showModal(data);
+      }
+    }, [changesData])
+
     let loadPage = (page,size) =>{
       setCurrentPage(page);
       setCurrentSize(size);
@@ -338,19 +356,19 @@ const IndeterminateCheckbox = React.forwardRef(
     }
 
     let showModal = (data) => {
-      if ((Object.keys(modalItem).length === 0) &&
-      (data.status === props.status)
-      ) {
+      console.log("TableRSPag :: showModal")
+      if(Object.keys(modalItem).length === 0)
         openModal(data);
-      }
     }
 
     let openModal = (data, activeKey)=>{
+      console.log("TableRSPag :: openModal")
       setModalItem({...data, ActiveKey: activeKey});
       setModalVisible(true);
     }
   
     let closeModal = ()=>{
+      console.log("TableRSPag :: closeModal")
       setModalVisible(false);
       setModalItem({});
       props.closeModal();

@@ -51,6 +51,7 @@ import MapViewer from './components/MapViewer'
 import { DataLoader } from '../../../components/DataLoader';
 export class ModalChanges extends Component {
   constructor(props) {
+    console.log("ModalChanges :: constructor")
     super(props);
     this.dl = new (DataLoader);
 
@@ -1732,9 +1733,5 @@ export class ModalChanges extends Component {
     return this.dl.fetch(url, options)
   }
   
-  showModalLineage(country, siteCode, change) {
-    console.warn("Not implemented!")
-    console.log(country)
-    console.log(change)
-  }
 }
+

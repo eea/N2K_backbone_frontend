@@ -40,6 +40,12 @@ let refreshSitechanges={"pending":false,"accepted":false,"rejected":false},
     return parmCountry ? parmCountry : ConfigData.DEFAULT_COUNTRY ? ConfigData.DEFAULT_COUNTRY : "";
   }  
 
+  const openSite = () => {
+    const searchParams = new URLSearchParams(window.location.href.split('?')[1]);
+    const siteCode = searchParams.get('siteCode');
+    return siteCode ?? "";
+  }
+
 const Sitechanges = () => {
 
   let dl = new(DataLoader);
@@ -54,6 +60,7 @@ const Sitechanges = () => {
   const [filterEdited, setFilterEdited] = useState(false)
   const [disabledBtn, setDisabledBtn] = useState(true);
   const [disabledSearchBtn, setDisabledSearchBtn] = useState(true);
+  const [site, setSite] = useState(openSite())
   const [siteCodes, setSitecodes] = useState({});
   const [searchList, setSearchList] = useState({});
   const [selectOption, setSelectOption] = useState({});
@@ -622,6 +629,8 @@ const Sitechanges = () => {
                         showModal={showModal}
                         isTabChanged={isTabChanged}
                         setIsTabChanged={setIsTabChanged}
+                        site={site}
+                        setSite={setSite}
                         closeModal={closeModal}
                       />
                     </CTabPane>
@@ -643,6 +652,8 @@ const Sitechanges = () => {
                         showModal={showModal}
                         isTabChanged={isTabChanged}
                         setIsTabChanged={setIsTabChanged}
+                        site={site}
+                        setSite={setSite}
                         closeModal={closeModal}
                       />
                     </CTabPane>
@@ -664,6 +675,8 @@ const Sitechanges = () => {
                         showModal={showModal}
                         isTabChanged={isTabChanged}
                         setIsTabChanged={setIsTabChanged}
+                        site={site}
+                        setSite={setSite}
                         closeModal={closeModal}
                       />
                     </CTabPane>

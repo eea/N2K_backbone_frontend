@@ -204,7 +204,7 @@ import {DataLoader} from '../../../components/DataLoader';
     }
 
     useEffect(() =>{
-      if(props.site !== "" && Array.isArray(changesData)) {
+      if(props.site !== "" && Array.isArray(changesData) && !modalVisible) {
         const data = getSite();
         showModal(data)
       }
@@ -222,6 +222,7 @@ import {DataLoader} from '../../../components/DataLoader';
     }
 
     let showModal = (data) => {
+      console.log("TableManagement :: showModal")
       if ((Object.keys(modalItem).length === 0)
       ) {
         openModal(data);

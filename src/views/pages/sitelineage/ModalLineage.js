@@ -36,6 +36,7 @@ import MapViewer from './components/MapViewer'
 import { DataLoader } from '../../../components/DataLoader';
 export class ModalLineage extends Component {
   constructor(props) {
+    console.log("ModalLineage :: constructor")
     super(props);
     this.dl = new (DataLoader);
 
@@ -389,6 +390,9 @@ export class ModalLineage extends Component {
                   Spatial Changes
                 </CNavLink>
               </CNavItem>
+              <CButton color="link" className="ms-auto" href={"/#/sitechanges?country=" + this.props.country + "&siteCode=" + this.state.data.SiteCode}>
+                <span>Review site CHANGES</span>
+              </CButton>
             </CNav>
             <CTabContent>
               {this.renderChanges()}
