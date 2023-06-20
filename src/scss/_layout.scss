@@ -246,3 +246,61 @@ table .badge--lineage {
 .page-image {
   height: 10rem;
 }
+
+.sdf-map {
+  pointer-events: none;
+  #mapDiv {
+    height: 300px !important;
+    .esri-attribution {
+      display: none;
+    }
+  }
+}
+
+.sdf-header {
+  display: flex;
+  flex-direction: column;
+  padding: 2rem;
+  border: none;
+  background: #033166;
+  color: #fff;
+  font-size: 1.25rem;
+  gap: 1.5rem;
+  .sdf-title {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: space-between;
+    h1 {
+      color: white;
+      margin-bottom: 0;
+      font-size: 1.75rem;
+    }
+  }
+  .sdf-indicators {
+    row-gap: 0.5rem;
+    b {
+      font-size: 1.5rem;
+    }
+  }
+}
+.sdf-row {
+  margin-bottom: 1rem;
+  &-title {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+  }
+  &-field {
+    border: solid 1px $gray-100;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.25rem;
+    ~ .sdf-row-field {
+      margin-top: 0.5rem;
+    }
+  }
+}
+
+@media print {
+  * {
+      print-color-adjust: exact; 
+  }
+}

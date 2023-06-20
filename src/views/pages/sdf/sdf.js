@@ -1,3 +1,4 @@
+import ConfigData from '../../../config.json';
 import React, { useState } from 'react'
 import { AppHeader } from '../../../components/index'
 import {
@@ -14,12 +15,13 @@ import {
 } from '@coreui/react'
 
 import mockupMap from './../../../assets/images/sdf_urdaibai.png'
+import MapViewer from './components/MapViewer'
 
   const jsonData = {
    "SiteInfo": {
       "SiteName": "Urdaibaiko Itsasadarra / Ría de Urdaibai",
       "Country": "Spain",
-      "Directive": "Birds Directive",
+      "Directive": "A",
       "SiteCode": "ES0000144",
       "Area": 3242,
       "Est": 2000,
@@ -38,6 +40,18 @@ import mockupMap from './../../../assets/images/sdf_urdaibai.png'
         "Address": "Dirección",
         "Email": "biodiversidad@euskadi.eus"
       },
+      "SiteDesignation": [
+        {
+          "DateSPA": "2000-11",
+          "ReferenceSPA": "DECRETO 358/2013, de 4 de junio, por el que se designan Zonas Especiales de Conservación 4 lugares de importancia comunitaria del ámbito de Urdaibai y San Juan de Gaztelugatxe y se aprueban las medidas de conservación de dichas ZEC y de la ZEPA Ría de Urdaibai: http://www.lehendakaritza.ejgv.euskadi.eus/r48-bopv2/es/bopv2/datos/2013/12/1305570a.pdf"
+        },
+        {
+          "ProposedSCI": "2004-05",
+          "ConfirmedSCI": "2004-05",
+          "DesignatedSCI": "2004-05",
+          "ReferenceSPA": "http://www.likumi.lv/doc.php?id=22697"
+        }
+      ]
     },
     "SiteLocation": {
       "SiteCentre": {
@@ -91,48 +105,65 @@ const SDFVisualization = () => {
   const [activeKey, setActiveKey] = useState(1);
 
   const showMap = () => {
-    return (<div><i src={mockupMap} /></div>)
+    //return (<div className='map'><i src={mockupMap} /></div>)
+    return (
+      <div className='sdf-map'>
+        <MapViewer  
+          siteCode={"ROSAC0007"} 
+          version={0}
+          reportedSpatial={"https://bio.discomap.eea.europa.eu/arcgis/rest/services/N2K_Backbone/N2KBackbone/MapServer/0"}
+        />
+      </div>
+    )
   }
   
   const showMainData = () => {
     return (
-      <div className="header header--custom">
-      <CRow className="p-3">
-        <CCol>
-          <b>{data.SiteInfo.SiteName.toUpperCase()}</b>
-        </CCol>
-        <CCol>
-          <CButton>
-            <i className="fa-light fa-download"></i> Download PDF
-          </CButton>
-        </CCol>
-      </CRow>
-      <CRow className="p-3">
-        <CRow>
-          {data.SiteInfo.Country}
+      <div className="sdf-header header--custom">
+        <CRow className='sdf-title'>
+          <CCol className='col-auto'>
+            <h1>{data.SiteInfo.SiteName.toUpperCase()}</h1>
+          </CCol>
+          <CCol className='col-auto ms-auto'>
+            <CButton color="white" onClick={()=>{window.print()}}>
+              <i className="fa-solid fa-download"></i> Download PDF
+            </CButton>
+          </CCol>
         </CRow>
         <CRow>
-          {data.SiteInfo.Directive}
+          <div>
+            {data.SiteInfo.Country}
+          </div>
+          <div>
+            {ConfigData.SDI.SiteType[data.SiteInfo.Directive]}
+          </div>
         </CRow>
-      </CRow>
-      <CRow className="p-3">
-        <CRow>
-          <CCol><b>{data.SiteInfo.SiteCode}</b></CCol>
-          <CCol><b>{data.SiteInfo.Area} ha</b></CCol>
-          <CCol><b>{data.SiteInfo.Est}</b></CCol>
-          <CCol><b>{data.SiteInfo.MarineArea} %</b></CCol>
-          <CCol><b>{data.SiteInfo.Habitats}</b></CCol>
-          <CCol><b>{data.SiteInfo.Species}</b></CCol>
+        <CRow className="sdf-indicators">
+          <CCol xs={12} md={6} lg={4} xl={2}>
+            <b>{data.SiteInfo.SiteCode}</b>
+            <div>SITE CODE</div>
+          </CCol>
+          <CCol xs={12} md={6} lg={4} xl={2}>
+            <b>{data.SiteInfo.Area} ha</b>
+            <div>AREA</div>
+          </CCol>
+          <CCol xs={12} md={6} lg={4} xl={2}>
+            <b>{data.SiteInfo.Est}</b>
+            <div>SITE ESTABLISHED</div>
+          </CCol>
+          <CCol xs={12} md={6} lg={4} xl={2}>
+            <b>{data.SiteInfo.MarineArea} %</b>
+            <div>MARINE AREA</div>
+          </CCol>
+          <CCol xs={12} md={6} lg={4} xl={2}>
+            <b>{data.SiteInfo.Habitats}</b>
+            <div>HABITATS</div>
+          </CCol>
+          <CCol xs={12} md={6} lg={4} xl={2}>
+            <b>{data.SiteInfo.Species}</b>
+            <div>SPECIES</div>
+          </CCol>
         </CRow>
-        <CRow>
-          <CCol>SITE CODE</CCol>
-          <CCol>AREA</CCol>
-          <CCol>SITE ESTABLISHED</CCol>
-          <CCol>MARINE AREA</CCol>
-          <CCol>HABITATS</CCol>
-          <CCol>SPECIES</CCol>
-        </CRow>
-      </CRow>
       </div>
     );
   }
@@ -230,14 +261,15 @@ const transformData = (activekey, data) => {
     case 1:
       return data.SiteIdentification;
     case 2:
-      let result = data.SiteLocation;
-      return Object.keys(result)
-        .map(key =>  {
-          if(key === "MarineArea"
-            || key === "BiogeographicalRegion")
-          return result["%" + key] = result[key]
-          return result[key]
-      });
+      return data.SiteLocation;
+      // let result = data.SiteLocation;
+      // return Object.keys(result)
+      //   .map(key =>  {
+      //     if(key === "MarineArea"
+      //       || key === "BiogeographicalRegion")
+      //     return result["%" + key] = result[key]
+      //     return result[key]
+      // });
     case 3:
     case 4:
     case 5:
@@ -263,22 +295,27 @@ const renderTab = (activekey, data) => {
       "Ecological Information", "Site Description",
       "Site Protection Status", "Site Management", "Map of the Site" ];
   let mData = transformData(activekey, data);
+
   return (
     <CTabPane role="tabpanel" aria-labelledby="home-tab" visible>
-      <CCol className="p-4">
-        <CRow><b>{activekey}.{tabTitles[activekey+1]}</b></CRow>
+      <CRow className="p-4">
+        <h2>{activekey}.{tabTitles[activekey+1]}</h2>
         {Object.entries(mData).map((e,i) => 
-        <>
-          <CRow><b>{activekey + '.' + (i+1) + ' ' + getPropertyName(e[0])}</b></CRow>
-          {typeof e[1] === 'object' ?
-            <div className="form-control">
-              {Object.entries(e[1]).map(ee => <p><b>{ee[0]}</b>: {ee[1]}</p>)}
-            </div>
-          : <div className="form-control">{e[1]}</div>
-          }
-        </>
+          <CRow className="sdf-row">
+            <CCol>
+              <div className='sdf-row-title'>{activekey + '.' + (i+1) + ' ' + getPropertyName(e[0])}</div>
+              {Array.isArray(e[1]) ? e[1].map((a) => 
+                <div className="sdf-row-field">
+                  {typeof a === 'object' ? Object.entries(a).map(ee => <p><b>{ee[0]}</b>: {ee[1]}</p>) : a[1]}
+                </div>
+              )
+            : <div className="sdf-row-field">
+                {typeof e[1] === 'object' ? Object.entries(e[1]).map(ee => <p><b>{ee[0]}</b>: {ee[1]}</p>) : e[1]}
+              </div>}
+            </CCol>
+          </CRow>
         )}
-      </CCol>
+      </CRow>
     </CTabPane>
   );
 }

@@ -71,6 +71,13 @@
     "Closed": "Completed",
     "Discarded": "Discarded"
   },
+  "SDI": {
+    "SiteType": {
+      "A": "Birds Directive",
+      "B": "Habitats Directive",
+      "C": "Birds and Habitats Directive"
+    }
+  },
   "Colors": {
     "Grey": "#e4e4e4",
     "Green": "#daf5d6",
