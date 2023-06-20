@@ -332,22 +332,14 @@ const IndeterminateCheckbox = React.forwardRef(
     let forceRefreshData = ()=> setChangesData({});
 
     let getSite = () => {
-      if(changesData.length > 0) {
-        const site = changesData.filter(v => v.SiteCode === props.site)[0];
+      if(siteCodes.length > 0) {
+        const site = siteCodes.filter(v => v.SiteCode === props.site)[0];
         if(site) {
-          props.setSite("");
           return site;
         }
       }
       return {};
     }
-
-    useEffect(() => {
-      if(props.site !== "" && Array.isArray(changesData)) {
-        const data = getSite();
-        showModal(data);
-      }
-    }, [changesData])
 
     let loadPage = (page,size) =>{
       setCurrentPage(page);
@@ -356,19 +348,16 @@ const IndeterminateCheckbox = React.forwardRef(
     }
 
     let showModal = (data) => {
-      console.log("TableRSPag :: showModal")
       if(Object.keys(modalItem).length === 0)
         openModal(data);
     }
 
     let openModal = (data, activeKey)=>{
-      console.log("TableRSPag :: openModal")
       setModalItem({...data, ActiveKey: activeKey});
       setModalVisible(true);
     }
   
     let closeModal = ()=>{
-      console.log("TableRSPag :: closeModal")
       setModalVisible(false);
       setModalItem({});
       props.closeModal();
@@ -681,6 +670,13 @@ const IndeterminateCheckbox = React.forwardRef(
       if(changesData==="nodata")
         return (<div className="nodata-container"><em>No Data</em></div>)
       else{
+        if(Array.isArray(changesData)){
+          const data = getSite();
+          if(data.SiteCode){
+            showModal(data);
+          }
+        }
+        
         return (
         <>
           <Table 

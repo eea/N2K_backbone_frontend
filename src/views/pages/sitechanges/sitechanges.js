@@ -46,6 +46,16 @@ let refreshSitechanges={"pending":false,"accepted":false,"rejected":false},
     return siteCode ?? "";
   }
 
+  const cleanSiteParm = () => {
+    const base = window.location.href.split('?')[0];
+    const parms = new URLSearchParams(window.location.href.split('?')[1]);
+    parms.delete("siteCode");
+    if(parms.toString()!==""){
+      location.href = base + '?' + parms.toString();
+      location.reload();
+    }
+  }
+
 const Sitechanges = () => {
 
   let dl = new(DataLoader);
@@ -133,6 +143,9 @@ const Sitechanges = () => {
   };
 
   let closeModal = () => {
+    if(openSite()!==""){
+      cleanSiteParm();
+    } 
     setShowModal(false);
     clearSearch();
     forceRefreshData();
