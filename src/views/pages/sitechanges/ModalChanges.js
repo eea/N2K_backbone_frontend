@@ -51,7 +51,6 @@ import MapViewer from './components/MapViewer'
 import { DataLoader } from '../../../components/DataLoader';
 export class ModalChanges extends Component {
   constructor(props) {
-    console.log("ModalChanges :: constructor")
     super(props);
     this.dl = new (DataLoader);
 

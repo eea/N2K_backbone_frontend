@@ -36,7 +36,6 @@ import MapViewer from './components/MapViewer'
 import { DataLoader } from '../../../components/DataLoader';
 export class ModalLineage extends Component {
   constructor(props) {
-    console.log("ModalLineage :: constructor")
     super(props);
     this.dl = new (DataLoader);
 

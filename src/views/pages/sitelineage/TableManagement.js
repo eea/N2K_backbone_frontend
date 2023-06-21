@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react'
+import React, { useState } from 'react'
 import { useTable, usePagination, useFilters,useGlobalFilter, useAsyncDebounce, useSortBy, useExpanded } from 'react-table'
 import {matchSorter} from 'match-sorter'
 import ConfigData from '../../../config.json';
@@ -187,7 +187,8 @@ import {DataLoader} from '../../../components/DataLoader';
     const [isLoaded, setIsLoaded] = useState(false);
     const [changesData, setChangesData] = useState({});
     const [currentPage, setCurrentPage] = useState(0);
-    const [currentSize, setCurrentSize] = useState(30);
+    // TODO solve pagination issues
+    const [currentSize, setCurrentSize] = useState(0);
     const [country, setCountry] = useState("");
 
     let dl = new(DataLoader);
@@ -203,13 +204,6 @@ import {DataLoader} from '../../../components/DataLoader';
       return {};
     }
 
-    useEffect(() =>{
-      if(props.site !== "" && Array.isArray(changesData) && !modalVisible) {
-        const data = getSite();
-        showModal(data)
-      }
-    }, [changesData]);
-    
     let forceRefreshData = ()=> {
       setIsLoaded(false);
       setChangesData({});
@@ -222,7 +216,6 @@ import {DataLoader} from '../../../components/DataLoader';
     }
 
     let showModal = (data) => {
-      console.log("TableManagement :: showModal")
       if ((Object.keys(modalItem).length === 0)
       ) {
         openModal(data);
@@ -460,6 +453,11 @@ import {DataLoader} from '../../../components/DataLoader';
       if(changesData==="nodata")
         return (<div className="nodata-container"><em>No Data</em></div>)
       else{
+        if(Array.isArray(changesData)) {
+          const data = getSite();
+          if(data.SiteCode)
+            showModal(data);
+        }
         return (
         <>
           <Table 
