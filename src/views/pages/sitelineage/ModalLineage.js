@@ -206,14 +206,14 @@ export class ModalLineage extends Component {
     return predecessors?.map((s) => 
       <div key={s}>
         <CCol>
-          <CFormSelect className="option-select" defaultValue={s} disabled={this.state.status === "Consolidated"}
+          <CFormSelect className="option-select" defaultValue={s} disabled={this.state.status === "Consolidated" || this.state.type === "Creation"}
             onChange={() => this.setSelectedPredecessors(document.querySelectorAll(".option-select"))}>
             <option className="predecessor-option color--primary" value={s}>{s}</option>
-            {this.state.referenceSites?.filter(r => !this.state.predecessors?.split(',').includes(r)).map(t => <option className="predecessor-option" value={t}>{t}</option>)}
+            {this.state.type === "Creation" ? [] : this.state.referenceSites?.filter(r => !this.state.predecessors?.split(',').includes(r)).map(t => <option className="predecessor-option" value={t}>{t}</option>)}
           </CFormSelect>
         </CCol>
         <CCol
-          hidden={this.state.type === "Creation" && predecessors?.length <= 1
+          hidden={this.state.type === "Creation"
             || this.state.type === "Merge" && predecessors?.length <= 2
             || this.state.type === "Split" && predecessors?.length <= 1
             || this.state.type === "Recode"
@@ -244,7 +244,7 @@ export class ModalLineage extends Component {
           <b>Type</b>
         </CCol>
         <CCol key={"changes_editor_label_predecessor"} className="mb-4">
-          <b>Predecessor</b>
+          <b>Predecessors</b>
         </CCol>
       </CRow>
 
@@ -263,7 +263,7 @@ export class ModalLineage extends Component {
           </CFormSelect>
         </CCol>
         <CCol key={"changes_editor_label_predecessor"}>
-          {this.predecessorList()}
+          {this.state.type !== "Creation" ? this.predecessorList() : <em>No predecessors</em>}
           {this.state.newPredecessor &&
               this.addPredecessor()
           }
