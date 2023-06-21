@@ -54,12 +54,12 @@ export class ModalLineage extends Component {
       activeKey: 1,
       loading: true,
       data: {},
-      previousType: this.props.type,
-      type: this.props.type,
+      previousType: "",
+      type: "",
       status: this.props.status,
       predecessorData: {},
-      previousPredecessors: this.props.reference,
-      predecessors: this.props.reference,
+      previousPredecessors: "",
+      predecessors: "",
       newPredecessor: false,
       referenceSites: [],
       updateOnClose: false,
@@ -219,7 +219,7 @@ export class ModalLineage extends Component {
             || this.state.type === "Recode"
             || this.state.type === "Deletion"
           }>
-          <CButton color="link" className="btn-icon" hidden={this.state.status === "Consolidated"}
+          <CButton color="link" className="btn-icon" hidden={this.state.status === "Consolidated" || this.state.predecessors.length === 0}
             onClick={() => this.deleteSite(s)}>
             <i className="fa-regular fa-trash-can"></i>
           </CButton>
@@ -263,10 +263,11 @@ export class ModalLineage extends Component {
           </CFormSelect>
         </CCol>
         <CCol key={"changes_editor_label_predecessor"}>
-          {this.state.type !== "Creation" ? this.predecessorList() : <em>No predecessors</em>}
+          {(this.state.type == "" ? this.props.type : this.state.type) !== "Creation" ? this.predecessorList() : <em>No predecessors</em>}
           {this.state.newPredecessor &&
               this.addPredecessor()
           }
+          {(this.state.type == "" ? this.props.type : this.state.type) !== "Creation" &&
           <CButton color="link" className="ms-auto" 
             hidden={this.state.type === "Deletion"
               || this.state.type === "Creation"
@@ -274,6 +275,7 @@ export class ModalLineage extends Component {
             onClick={() => this.setState({ newPredecessor: true })}>
             Add site
           </CButton>
+          }
         </CCol>
       </CRow>
       </>
@@ -469,7 +471,7 @@ export class ModalLineage extends Component {
           this.setState({ errorLoading: true, loading: false });
         else
           this.setState({ data: data.Data ?? "noData", status: data.Data?.Status ?? this.props.status
-          , previousType: this.props.type, type: this.props.type, loading: false
+          , previousType: this.state.type ?? this.props.type, type: this.state.type ?? this.props.type, loading: false
           , activeKey: this.props.activeKey ?? this.state.activeKey })
       });
     }
