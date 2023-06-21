@@ -338,7 +338,7 @@ export class ModalLineage extends Component {
       {
         "ChangeId": this.props.item,
         "Type": this.state.type,
-        "Predecessors": this.state.predecessors
+        "Predecessors": this.state.type === "Creation" ? "" : this.state.predecessors
       }
     )
   }
