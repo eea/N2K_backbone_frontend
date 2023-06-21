@@ -229,18 +229,6 @@ import {DataLoader} from '../../../components/DataLoader';
       }
     }
 
-    let consolidateChanges = (change, refresh)=>{
-      return props.consolidate(change, refresh)
-      .then(data => {
-          if(data?.ok){
-            if(refresh) {
-              forceRefreshData();
-            }
-          }
-          return data;
-      });
-    }
-
     const customFilter = (rows, columnIds, filterValue) => {
       let result = filterValue.length === 0 ? rows : rows.filter((row) => row.original.SiteCode.toLowerCase().includes(filterValue.toLowerCase()) || row.original.SiteName.toLowerCase().includes(filterValue.toLowerCase()))
       return result;
@@ -422,7 +410,6 @@ import {DataLoader} from '../../../components/DataLoader';
           <ModalLineage
             visible = {modalVisible}
             close = {closeModal}
-            consolidate={(change)=>consolidateChanges(change, true)}
             status={props.status}
             item={modalItem.ChangeId}
             code={modalItem.SiteCode}

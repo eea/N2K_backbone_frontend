@@ -85,27 +85,6 @@ const Sitelineage = () => {
     });
   }
 
-  let getSiteList = () => {
-    // let statuses = ["proposed","consolidated"];
-    // let siteList = [];
-    // for(let i in statuses)
-    //   siteList.push({
-    //       name: statuses[i],
-    //       data: data.map(element => ({"search": element["SiteCode"] + " - " + element["SiteName"], status: statuses[i], Name: element["SiteName"]})),
-    //       searchType: "contains"
-    //     })
-    // return siteList
-    // let a = Object.keys(siteCodes).map( v=>{
-    //     return {
-    //       name: v,
-    //       data: siteCodes[v].map?siteCodes[v].map(x=>({"search":x.SiteCode+" - "+x.Name,"status":v,...x})):[],
-    //       searchType: "contains",
-    //     }
-    //   }
-    // )
-    // return a;
-  }
-
   let setCodes = (data) => {
     if(data) {
       let codes = siteCodes;
@@ -193,23 +172,6 @@ const Sitelineage = () => {
         setError("")
       }, ConfigData.MessageTimeout);
     }
-  }
-
-  let consolidateChanges = (changes, refresh)=>{
-    return postRequest(ConfigData.LINEAGE_SAVE_CHANGES, changes)
-    .then(data => {
-        if(data.ok){
-          let response = readResponse(data, "Consolidate Changes");
-          if(refresh){
-            forceRefreshData();
-            setForceRefresh(forceRefresh+1);
-          }
-          return response;
-        } else showErrorMessage("Consolidate Changes");
-    }).catch(e => {
-        let target = showModal ? "modal" : "management";
-        showErrorMessage(target, "An error occurred while performing action: " + e);
-    });
   }
 
   const [modalValues, setModalValues] = useState({
@@ -491,7 +453,6 @@ const Sitelineage = () => {
                         typeFilter = {types}
                         getRefresh={()=>getRefreshSitechanges("Proposed")} 
                         setRefresh={setRefreshSitechanges}
-                        consolidate={consolidateChanges}
                         updateModalValues={updateModalValues}
                         setShowModal={showModalLineagechanges}
                         setSitecodes={setCodes}
@@ -509,7 +470,6 @@ const Sitelineage = () => {
                         typeFilter = {types}
                         getRefresh={()=>getRefreshSitechanges("Consolidated")} 
                         setRefresh={setRefreshSitechanges}
-                        consolidate={consolidateChanges}
                         updateModalValues={updateModalValues}
                         setShowModal={showModalLineagechanges}
                         setSitecodes={setCodes}

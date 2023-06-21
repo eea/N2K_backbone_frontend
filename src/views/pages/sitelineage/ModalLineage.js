@@ -54,9 +54,11 @@ export class ModalLineage extends Component {
       activeKey: 1,
       loading: true,
       data: {},
+      previousType: this.props.type,
       type: this.props.type,
       status: this.props.status,
       predecessorData: {},
+      previousPredecessors: this.props.reference,
       predecessors: this.props.reference,
       newPredecessor: false,
       referenceSites: [],
@@ -342,12 +344,9 @@ export class ModalLineage extends Component {
   }
 
   checkChanges() {
-    console.log(this.props.type + ' - ' + this.state.type)
-    console.log(this.props.reference + ' - ' + this.state.predecessors)
-    console.log(this.props.code + ' - ' + this.state.data.SiteCode)
     return (
-      this.props.type == this.state.type
-      && this.props.reference == this.state.predecessors
+      this.state.previousType == this.state.type
+      && this.state.previousPredecessors == this.state.predecessors
     )
   }
 
@@ -456,7 +455,7 @@ export class ModalLineage extends Component {
   }
 
   loadData() {
-    if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)) {
+    if (this.isVisible()) {
       this.isLoadingData = true;
       this.dl.fetch(ConfigData.LINEAGE_GET_CHANGES_DETAIL + "?ChangeId=" + this.props.item)
       .then(response => {
@@ -469,13 +468,15 @@ export class ModalLineage extends Component {
         if (!data.Success)
           this.setState({ errorLoading: true, loading: false });
         else
-          this.setState({ data: data.Data ?? "noData", status: data.Data?.Status ?? this.props.status, type: this.props.type, loading: false, activeKey: this.props.activeKey ?? this.state.activeKey })
+          this.setState({ data: data.Data ?? "noData", status: data.Data?.Status ?? this.props.status
+          , previousType: this.props.type, type: this.props.type, loading: false
+          , activeKey: this.props.activeKey ?? this.state.activeKey })
       });
     }
   }
   
   loadPredecessorData() {
-    if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)) {
+    if (this.isVisible()) {
       this.isLoadingPredecessorData = true;
       this.dl.fetch(ConfigData.LINEAGE_GET_PREDECESSORS + "?ChangeId=" + this.props.item)
       .then(response => {
@@ -488,13 +489,14 @@ export class ModalLineage extends Component {
         if (!data.Success)
           this.errorLoadingPredecessor = true;
         else
-          this.setState({ predecessors: data.Data.map(s => s.SiteCode).join(','), predecessorData: data.Data })
+          this.setState({ predecessors: data.Data.map(s => s.SiteCode).join(','), predecessorData: data.Data
+          , previousPredecessors: data.Data.map(s => s.SiteCode).join(',')})
       });
     }
   }
   
   loadReferenceData() {
-    if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)) {
+    if (this.isVisible()) {
       this.isLoadingReferenceData = true;
       this.dl.fetch(ConfigData.LINEAGE_GET_REFERENCE_SITES+ "?country=" + this.props.country)
       .then(response => {
@@ -523,18 +525,29 @@ export class ModalLineage extends Component {
     this.props.updateModalValues("Save Changes", "This will save all the lineage changes",
       "Continue", () => this.saveChanges(),
       "Cancel", () => { this.changingStatus = false })
-    .then(this.resetLoading());
   }
 
   saveChanges() {
-    this.props.consolidate(this.getBody(), true)
+    this.sendRequest(ConfigData.LINEAGE_SAVE_CHANGES, "POST", this.getBody())
       .then((data) => {
-        if (data?.Success) {
+        if (data?.ok) {
           this.changingStatus = false;
-          this.setState({ data: {}, fields: {}, loading: true, siteTypeValue: "", siteRegionValue: "" });
+          this.resetLoading();
+          this.setState({ data: {}, fields: {}, loading: true, previousPredecessors: this.state.predecessors, previousType: this.state.type });
         }
       });
   }
 
+  sendRequest(url, method, body, path) {
+    const options = {
+      method: method,
+      headers: {
+        'Content-Type': path ? 'multipart/form-data' : 'application/json',
+      },
+      body: path ? body : JSON.stringify(body),
+    };
+    return this.dl.fetch(url, options)
+  }
+  
 }
 

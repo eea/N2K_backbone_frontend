@@ -48,7 +48,7 @@
   "LINEAGE_GET_CHANGES_COUNT": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteLineage/GetCodesCount",
   "LINEAGE_GET_PREDECESSORS": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteLineage/GetPredecessorsInfo",
   "LINEAGE_GET_REFERENCE_SITES": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteLineage/GetLineageReferenceSites",
-  "LINEAGE_SAVE_CHANGES": "https://bm-104.bilbomatica.es/api/SiteLineage/SaveEdition",
+  "LINEAGE_SAVE_CHANGES": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteLineage/SaveEdition",
   "REPORTED_SPATIAL": "https://bio.discomap.eea.europa.eu/arcgis/rest/services/N2K_Backbone/N2KBackbone/MapServer/0",
   "LATEST_RELEASE": "https://bio.discomap.eea.europa.eu/arcgis/rest/services/N2K_Backbone/N2KBackbone/MapServer/1",
   "THEME_COLORS": {
