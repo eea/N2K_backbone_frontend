@@ -5,10 +5,6 @@ import ConfigData from '../../../config.json';
 import {
   CPagination,
   CPaginationItem,
-  CDropdown,
-  CDropdownToggle,
-  CDropdownMenu,
-  CDropdownItem,
   CTooltip,
   CButton,
 } from '@coreui/react'
@@ -37,20 +33,6 @@ import {DataLoader} from '../../../components/DataLoader';
   }
   
   fuzzyTextFilterFn.autoRemove = val => !val
-
-  function DropdownLineage(props) {
-    return (
-      <CDropdown>
-        <CDropdownToggle className="btn-more" caret={false} size="sm">
-          <i className="fa-solid fa-ellipsis"></i>
-        </CDropdownToggle>
-        <CDropdownMenu>
-          {props.actions.consolidate && <CDropdownItem role={'button'} onClick={() => props.actions.consolidate()}>Consolidate changes</CDropdownItem>}
-          {props.actions.backProposed && <CDropdownItem role={'button'} onClick={() => props.actions.backProposed()}>Back to Proposed</CDropdownItem>}
-        </CDropdownMenu>
-      </CDropdown>
-    )
-  }
 
   function Table({ columns, data, currentPage, currentSize, loadPage, status, updateModalValues, isTabChanged, setIsTabChanged }) {
 
@@ -241,30 +223,6 @@ import {DataLoader} from '../../../components/DataLoader';
       }
     }
 
-    let setBackToProposed = (change, refresh)=>{
-      return props.setBackToProposed([change.ChangeId], refresh)
-      .then(data => {
-        if(data?.ok){
-          if(refresh) {
-            forceRefreshData();
-          }
-        }
-        return data;
-      });
-    }
-
-    let consolidateChanges = (change, refresh)=>{
-      return props.consolidate([change], refresh)
-      .then(data => {
-          if(data?.ok){
-            if(refresh) {
-              forceRefreshData();
-            }
-          }
-          return data;
-      });
-    }
-
     const customFilter = (rows, columnIds, filterValue) => {
       let result = filterValue.length === 0 ? rows : rows.filter((row) => row.original.SiteCode.toLowerCase().includes(filterValue.toLowerCase()) || row.original.SiteName.toLowerCase().includes(filterValue.toLowerCase()))
       return result;
@@ -361,33 +319,10 @@ import {DataLoader} from '../../../components/DataLoader';
           },
           canFilter: false
         },
-        {
-          Header: () => null, 
-          id: 'dropdownLineage',
-          cellWidth: "48px",
-          Cell: ({ row }) => (
-            <DropdownLineage actions={getContextActions(row)}/>
-          )
-        },
       ],
       []
     )
     
-    let getContextActions = (row)=>{
-      switch(props.status){
-        case 'Proposed':
-          return {
-            consolidate: ()=>props.updateModalValues("Consolidate Changes", "This will consolidate lineage changes", "Continue", ()=>consolidateChanges(getRowData(row.original), true), "Cancel", ()=>{}),
-          }
-        case 'Consolidated':
-          return {
-            backProposed: ()=>props.updateModalValues("Back to Proposed", "This will set the lineage changes back to Proposed", "Continue", ()=>setBackToProposed(getRowData(row.original), true), "Cancel", ()=>{}),
-          }
-        default:
-          return {}
-      }
-    }
-
     let loadData= ()=>{
       let passData = (data) => {
         props.setSitecodes({
@@ -474,8 +409,6 @@ import {DataLoader} from '../../../components/DataLoader';
           <ModalLineage
             visible = {modalVisible}
             close = {closeModal}
-            consolidate={(change)=>consolidateChanges(change, true)}
-            backToProposed={() => setBackToProposed(modalItem, true)}
             status={props.status}
             item={modalItem.ChangeId}
             code={modalItem.SiteCode}
