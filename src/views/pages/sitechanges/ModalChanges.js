@@ -503,7 +503,7 @@ export class ModalChanges extends Component {
                   <span className="me-3"> {title}</span>
                 </div>
                 <div>
-                  {changes[i][j].ChangeType === "Site Recoded" &&
+                  {this.state.data.Status === "Pending" && changes[i][j].ChangeType === "Site Recoded" &&
                   <>
                     <CButton color="link" href={"/#/sitelineage/management?country=" + this.props.country + "&siteCode=" + this.props.item} className="btn-link--dark text-nowrap">
                       Review Lineage 
