@@ -331,6 +331,16 @@ const IndeterminateCheckbox = React.forwardRef(
 
     let forceRefreshData = ()=> setChangesData({});
 
+    let getSite = () => {
+      if(siteCodes.length > 0) {
+        const site = siteCodes.filter(v => v.SiteCode === props.site)[0];
+        if(site) {
+          return site;
+        }
+      }
+      return {};
+    }
+
     let loadPage = (page,size) =>{
       setCurrentPage(page);
       setCurrentSize(size);
@@ -338,11 +348,8 @@ const IndeterminateCheckbox = React.forwardRef(
     }
 
     let showModal = (data) => {
-      if ((Object.keys(modalItem).length === 0) &&
-      (data.status === props.status)
-      ) {
+      if(Object.keys(modalItem).length === 0)
         openModal(data);
-      }
     }
 
     let openModal = (data, activeKey)=>{
@@ -663,6 +670,13 @@ const IndeterminateCheckbox = React.forwardRef(
       if(changesData==="nodata")
         return (<div className="nodata-container"><em>No Data</em></div>)
       else{
+        if(Array.isArray(changesData)){
+          const data = getSite();
+          if(data.SiteCode){
+            showModal(data);
+          }
+        }
+        
         return (
         <>
           <Table 

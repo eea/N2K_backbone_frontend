@@ -389,6 +389,9 @@ export class ModalLineage extends Component {
                   Spatial Changes
                 </CNavLink>
               </CNavItem>
+              <CButton color="link" className="ms-auto" href={"/#/sitechanges?country=" + this.props.country + "&siteCode=" + this.state.data.SiteCode}>
+                <span>Review site CHANGES</span>
+              </CButton>
             </CNav>
             <CTabContent>
               {this.renderChanges()}

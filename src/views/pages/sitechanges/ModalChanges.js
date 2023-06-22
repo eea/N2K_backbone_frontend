@@ -1732,9 +1732,5 @@ export class ModalChanges extends Component {
     return this.dl.fetch(url, options)
   }
   
-  showModalLineage(country, siteCode, change) {
-    console.warn("Not implemented!")
-    console.log(country)
-    console.log(change)
-  }
 }
+

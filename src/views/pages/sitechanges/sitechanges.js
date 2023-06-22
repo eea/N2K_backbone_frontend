@@ -40,6 +40,22 @@ let refreshSitechanges={"pending":false,"accepted":false,"rejected":false},
     return parmCountry ? parmCountry : ConfigData.DEFAULT_COUNTRY ? ConfigData.DEFAULT_COUNTRY : "";
   }  
 
+  const openSite = () => {
+    const searchParams = new URLSearchParams(window.location.href.split('?')[1]);
+    const siteCode = searchParams.get('siteCode');
+    return siteCode ?? "";
+  }
+
+  const cleanSiteParm = () => {
+    const base = window.location.href.split('?')[0];
+    const parms = new URLSearchParams(window.location.href.split('?')[1]);
+    parms.delete("siteCode");
+    if(parms.toString()!==""){
+      location.href = base + '?' + parms.toString();
+      location.reload();
+    }
+  }
+
 const Sitechanges = () => {
 
   let dl = new(DataLoader);
@@ -54,6 +70,7 @@ const Sitechanges = () => {
   const [filterEdited, setFilterEdited] = useState(false)
   const [disabledBtn, setDisabledBtn] = useState(true);
   const [disabledSearchBtn, setDisabledSearchBtn] = useState(true);
+  const [site, setSite] = useState(openSite())
   const [siteCodes, setSitecodes] = useState({});
   const [searchList, setSearchList] = useState({});
   const [selectOption, setSelectOption] = useState({});
@@ -126,6 +143,9 @@ const Sitechanges = () => {
   };
 
   let closeModal = () => {
+    if(openSite()!==""){
+      cleanSiteParm();
+    } 
     setShowModal(false);
     clearSearch();
     forceRefreshData();
@@ -622,6 +642,8 @@ const Sitechanges = () => {
                         showModal={showModal}
                         isTabChanged={isTabChanged}
                         setIsTabChanged={setIsTabChanged}
+                        site={site}
+                        setSite={setSite}
                         closeModal={closeModal}
                       />
                     </CTabPane>
@@ -643,6 +665,8 @@ const Sitechanges = () => {
                         showModal={showModal}
                         isTabChanged={isTabChanged}
                         setIsTabChanged={setIsTabChanged}
+                        site={site}
+                        setSite={setSite}
                         closeModal={closeModal}
                       />
                     </CTabPane>
@@ -664,6 +688,8 @@ const Sitechanges = () => {
                         showModal={showModal}
                         isTabChanged={isTabChanged}
                         setIsTabChanged={setIsTabChanged}
+                        site={site}
+                        setSite={setSite}
                         closeModal={closeModal}
                       />
                     </CTabPane>

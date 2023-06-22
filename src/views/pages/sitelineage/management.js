@@ -31,7 +31,6 @@ let refreshSitechanges={"Proposed":false,"Consolidated":false},
 const defaultCountry = () => {
   const searchParams = new URLSearchParams(window.location.href.split('?')[1]);
   const parmCountry = searchParams.get('country');
-  //TODO remove parameters
   return parmCountry ? parmCountry : ConfigData.DEFAULT_COUNTRY ? ConfigData.DEFAULT_COUNTRY : "";
 } 
 
@@ -40,6 +39,16 @@ const openSite = () => {
   const siteCode = searchParams.get('siteCode');
   //TODO remove parameters
   return siteCode ?? "";
+}
+
+const cleanSiteParm = () => {
+  const base = window.location.href.split('?')[0];
+  const parms = new URLSearchParams(window.location.href.split('?')[1]);
+  parms.delete("siteCode");
+  if(parms.toString()!==""){
+    location.href = base + '?' + parms.toString();
+    location.reload();
+  }
 }
 
 const Sitelineage = () => {
@@ -311,6 +320,8 @@ const Sitelineage = () => {
   }
 
   let closeModal = () => {
+    if(openSite() !== "")
+      cleanSiteParm();
     setShowModal(false);
     clearSearch();
     forceRefreshData();
