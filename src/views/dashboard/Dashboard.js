@@ -88,7 +88,7 @@ const Dashboard = () => {
                 </a>
               </div>
               <div className="col-md-6 col-xl-3">
-                <a href="/#/reports/changes">
+                <a href="/#/reports/status">
                   <CCard className="card-dashboard-new">
                     <CCardBody>
                       <div className="card-icon-new">
