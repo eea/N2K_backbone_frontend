@@ -43,6 +43,7 @@
   "LINEAGE_COUNTRIES": "https://n2kbackboneback-dev.azurewebsites.net/api/Countries/Get",
   "LINEAGE_GET_SITES": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteChanges/GetNonPendingSiteCodes/",
   "LINEAGE_GET_HISTORY": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteLineage/GetSiteLineage",
+  "LINEAGE_GET_OVERVIEW": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteLineage/GetOverview",
   "LINEAGE_GET_CHANGES": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteLineage/GetChanges",
   "LINEAGE_GET_CHANGES_DETAIL": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteLineage/GetLineageChangesInfo",
   "LINEAGE_GET_CHANGES_COUNT": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteLineage/GetCodesCount",

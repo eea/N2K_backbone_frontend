@@ -23,7 +23,7 @@ const Sitelineage = () => {
     if(countries.length !==0) return;
     if(!isLoading && countries!=="nodata" && countries.length === 0){
       setIsLoading(true);
-      dl.fetch(ConfigData.GET_PENDING_LEVEL)
+      dl.fetch(ConfigData.LINEAGE_GET_OVERVIEW)
       .then(response =>response.json())
       .then(data => {
         if(Object.keys(data.Data).length === 0){
@@ -46,17 +46,19 @@ const Sitelineage = () => {
                 <CCard className="country-card">
                   <div className="country-card-header">
                     <div className="country-card-left">
-                      <span className={"card-img--flag cif-" + card.Code.toLowerCase()}></span>
-                      <span className="country-card-title">{card.Country}</span>
+                      <span className={"card-img--flag cif-" + card.CountryCode.toLowerCase()}></span>
+                      <span className="country-card-title">{card.CountryName}</span>
                     </div>
                     <div className="country-card-right">
                         <i className="fa-solid fa-arrow-right"></i>
                     </div>
                   </div>
                   <div className="country-card-body">
-                    <span className="badge badge--lineage split"><b>{card.NumInfo}</b> Split</span>
-                    <span className="badge badge--lineage merge"><b>{card.NumInfo}</b> Merge</span>
-                    <span className="badge badge--lineage recode"><b>{card.NumWarning}</b> Recode</span>
+                    <span className="badge badge--lineage creation"><b>{card.Creation}</b> Creation</span>
+                    <span className="badge badge--lineage deletion"><b>{card.Deletion}</b> Deletion</span>
+                    <span className="badge badge--lineage split"><b>{card.Split}</b> Split</span>
+                    <span className="badge badge--lineage merge"><b>{card.Merge}</b> Merge</span>
+                    <span className="badge badge--lineage recode"><b>{card.Recode}</b> Recode</span>
                   </div>
                 </CCard>
               </a>
