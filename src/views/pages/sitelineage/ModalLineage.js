@@ -105,9 +105,7 @@ export class ModalLineage extends Component {
     this.setActiveKey(1);
     this.setState({
       data: {},
-      type: "",
       predecessorData: {},
-      predecessors: [],
       newPredecessor: false,
       loading: true,
     });
