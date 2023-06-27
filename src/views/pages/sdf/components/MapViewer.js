@@ -13,23 +13,12 @@ class MapViewer extends React.Component {
         this.map=null;
     }
 
-    componentDidUpdate(){
-    //     if(document.querySelectorAll(".esri-layer-list__item").length > 0) {
-    //         if(!document.querySelectorAll(".esri-layer-list__item")[0].querySelector(".esri-layer-list__item-label .legend-color")){
-    //             document.querySelectorAll(".esri-layer-list__item")[0].querySelector(".esri-layer-list__item-label").insertAdjacentHTML( 'beforeend', "<span class='legend-color legend-color-0'></span>" );
-    //         }
-    //         if(document.querySelectorAll(".esri-layer-list__item")[1]&&!document.querySelectorAll(".esri-layer-list__item")[1]?.querySelector(".esri-layer-list__item-label .legend-color")){
-    //             document.querySelectorAll(".esri-layer-list__item")[1].querySelector(".esri-layer-list__item-label").insertAdjacentHTML( 'beforeend', "<span class='legend-color legend-color-1'></span>" );
-    //         }
-    //     }
-    }
-
     componentDidMount(){
         loadModules(
-            ["esri/Map", "esri/views/MapView", "esri/layers/GeoJSONLayer", "esri/widgets/LayerList", "esri/layers/FeatureLayer",
+            ["esri/Map", "esri/views/MapView", "esri/widgets/Zoom", "esri/layers/GeoJSONLayer", "esri/widgets/LayerList", "esri/layers/FeatureLayer",
             "esri/layers/MapImageLayer"],
             { css: true }
-          ).then(([Map, MapView, _GeoJSONLayer, LayerList, FeatureLayer, MapImageLayer]) => {
+          ).then(([Map, MapView, Zoom, _GeoJSONLayer, LayerList, FeatureLayer, MapImageLayer]) => {
             GeoJSONLayer = _GeoJSONLayer;
 
             let layers=[];
@@ -56,67 +45,22 @@ class MapViewer extends React.Component {
             layers.push(reportedSpatial);
 
             this.map = new Map({
-              basemap: "satellite",
-              //layers: layers,
-            //   slider: false
+                basemap: "osm",
+                //layers: layers,
+                slider: false
             });
 
             let mapFeats = {
                 container: this.mapDiv,
                 map: this.map,
-                center: [0,40],
-                zoom: 5,
+                center: [10,50],
+                zoom: 4,
                 ui: {
                     components: ["attribution"]
                 }
             }
-            if(!this.props.latestRelease){
-                mapFeats["navigation"] = {
-                    mouseWheelZoomEnabled: false,
-                    browserTouchPanEnabled: false
-                  }
-            }
           
             this.view = new MapView(mapFeats);
-
-
-            //Code to disable all events if required
-            this.view.when(()=>{
-                if(!this.props.latestRelease){
-                    let stopEvtPropagation= (event) =>{
-                                                        event.stopPropagation();
-                                                        }
-        
-                  // exlude the zoom widget from the default UI
-                  this.view.ui.components = ["attribution"];
-        
-                  // disable mouse wheel scroll zooming on the view
-                  this.view.on("mouse-wheel", stopEvtPropagation);
-        
-                  // disable zooming via double-click on the view
-                  this.view.on("double-click", stopEvtPropagation);
-        
-                  // disable zooming out via double-click + Control on the view
-                  this.view.on("double-click", ["Control"], stopEvtPropagation);
-        
-                  // disables pinch-zoom and panning on the view
-                  this.view.on("drag", stopEvtPropagation);
-        
-                  // disable the view's zoom box to prevent the Shift + drag
-                  // and Shift + Control + drag zoom gestures.
-                  this.view.on("drag", ["Shift"], stopEvtPropagation);
-                  this.view.on("drag", ["Shift", "Control"], stopEvtPropagation);
-        
-                  // prevents zooming with the + and - keys
-                  this.view.on("key-down", (event) => {
-                    const prohibitedKeys = ["+", "-", "Shift", "_", "=", "ArrowUp", "ArrowDown", "ArrowRight", "ArrowLeft"];
-                    const keyPressed = event.key;
-                    if (prohibitedKeys.indexOf(keyPressed) !== -1) {
-                      event.stopPropagation();
-                    }
-                  });
-                }
-            });
             
             this.setState({});
 
@@ -138,6 +82,11 @@ class MapViewer extends React.Component {
                 for(let i in res.features){
                     let feat = res.features[i];
                     this.view.extent = feat?.geometry?.extent;
+                    
+                    // this.view.goTo({
+                    //     extent: feat?.geometry?.extent
+                    // });
+
                     let polylineSymbol = {
                                              type: "simple-line",  // autocasts as SimpleLineSymbol()
                                              color: "#000015",

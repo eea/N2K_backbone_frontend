@@ -72,10 +72,84 @@
     "Discarded": "Discarded"
   },
   "SDI": {
+    "Titles": [
+      "Site Identification",
+      "Site Location",
+      "Ecological Information",
+      "Site Description",
+      "Site Protection Status",
+      "Site Management",
+      "Map of the Site"
+    ],
     "SiteType": {
       "A": "Birds Directive",
       "B": "Habitats Directive",
       "C": "Birds and Habitats Directive"
+    },
+    "HabitatTypes": {
+      "1":"Coastal and halophytic habitats",
+      "2":"Coastal sand dunes and inland dunes",
+      "3":"Freshwater habitats",
+      "4":"Temperate heath and scrub",
+      "5":"Sclerophyllous scrub (matorral)",
+      "6":"Natural and semi-natural grassland formations",
+      "7":"Raised bogs and mires and fens",
+      "8":"Rocky habitats and caves",
+      "9":"Forests"
+    },
+    "Species": {
+      "A": "Amphibians",
+      "B": "Birds",
+      "F": "Fish",
+      "I": "Invertebrates",
+      "M": "Mammals", 
+      "P": "Plants", 
+      "R": "Reptiles"
+    },
+    "HabitatClasses": {
+      "N01": "Marine areas, Sea inlets",
+      "N02": "Tidal rivers, Estuaries, Mud flats, Sand flats, Lagoons (including saltwork basins)",
+      "N03": "Salt marshes, Salt pastures, Salt steppes",
+      "N04": "Coastal sand dunes, Sand beaches, Machair",
+      "N05": "Shingle, Sea cliffs, Islets",
+      "N06": "Inland water bodies (Standing water, Running water)",
+      "N07": "Bogs, Marshes, Water fringed vegetation, Fens",
+      "N08": "Heath, Scrub, Maquis and Garrigue, Phygrana",
+      "N09": "Dry grassland, Steppes",
+      "N10": "Humid grassland, Mesophile grassland",
+      "N11": "Alpine and sub-Alpine grassland",
+      "N12": "Extensive cereal cultures (including Rotation cultures with regular fallowing)",
+      "N13": "Ricefields",
+      "N14": "Improved grassland",
+      "N15": "Other arable land",
+      "N16": "Broad-leaved deciduous woodland",
+      "N17": "Coniferous woodland",
+      "N18": "Evergreen woodland",
+      "N19": "Mixed woodland",
+      "N20": "Artificial forest monoculture (e.g. Plantations of poplar or Exotic trees)",
+      "N21": "Non-forest areas cultivated with woody plants (including Orchards, groves, Vineyards, Dehesas)",
+      "N22": "Inland rocks, Screes, Sands, Permanent Snow and ice",
+      "N23": "Other land (including Towns, Villages, Roads, Waste places, Mines, Industrial sites)",
+      "N24": "Marine and coastal habitats (general)",
+      "N25": "Grassland and scrub habitats (general)",
+      "N26": "Woodland habitats (general)",
+      "N27": "Agricultural habitats (general)"
+    },
+    "Origin": {
+      "i":"Inside",
+      "o":"Outside",
+      "b": "Both"
+    },
+    "Tooltips": {
+      "HabitatTypes": 
+        {
+          "PF": "For the habitat types that can have a non-priority as well as a priority form (6210, 7130, 9430) enter 'X' in the column PF to indicate the priority form.",
+          "NP": "In case that a habitat type no longer exists in the site enter: x (optional)",
+          "Cover [ha]": "Decimal values can be entered",
+          "Cave": "For habitat types 8310, 8330 (caves) enter the number of caves if estimated surface is not available.",
+          "Data Quality": "G = 'Good' (e.g. based on surveys); M = 'Moderate' (e.g. based on partial data with some extrapolation); P = 'Poor' (e.g. rough estimation)"
+        }
+      
     }
   },
   "Colors": {
