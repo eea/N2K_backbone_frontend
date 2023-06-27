@@ -42,7 +42,7 @@ const Sitelineage = () => {
       countries.map((card) => {
         cards.push(
           <CCol key={card.Country + "Card"} xs={12} md={6} lg={4} xl={3}>
-              <a className="country-card-link" href={"/#/sitelineage/management?country=" + card.Code}>
+              <a className="country-card-link" href={"/#/sitelineage/management?country=" + card.CountryCode}>
                 <CCard className="country-card">
                   <div className="country-card-header">
                     <div className="country-card-left">
