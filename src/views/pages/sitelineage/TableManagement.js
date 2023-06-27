@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useTable, usePagination, useFilters,useGlobalFilter, useAsyncDebounce, useSortBy, useExpanded } from 'react-table'
 import {matchSorter} from 'match-sorter'
 import ConfigData from '../../../config.json';
@@ -347,7 +347,7 @@ import {DataLoader} from '../../../components/DataLoader';
         url += '?country=' + props.country;
         url += '&status=' + props.status;
         url += '&page=' + (currentPage+1);
-        url += '&pageLimit=' + currentSize;
+        url += '&pageLimit=' + 0;
         url += '&creation=' + props.typeFilter.includes("Creation");
         url += '&deletion=' + props.typeFilter.includes("Deletion");
         url += '&split=' + props.typeFilter.includes("Split");
@@ -360,8 +360,10 @@ import {DataLoader} from '../../../components/DataLoader';
             if(data?.Success) {
               if(Object.keys(data.Data).length===0) {
                 setChangesData("nodata");
+                setCurrentSize(0);
               } else {
                 setChangesData(data.Data);
+                setCurrentSize(data.Data.length);
                 return data.Data;
               }
             }
@@ -379,7 +381,7 @@ import {DataLoader} from '../../../components/DataLoader';
       }
       //return(<></>);
     } else {
-      loadData();
+      useEffect(() => {loadData()}, [country, props.typeFilter, props.getRefresh()])
     }
 
     if(!isLoaded)
