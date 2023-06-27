@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useTable, usePagination, useFilters,useGlobalFilter, useAsyncDebounce, useSortBy, useExpanded } from 'react-table'
 import {matchSorter} from 'match-sorter'
 import ConfigData from '../../../config.json';
@@ -362,6 +362,7 @@ import {DataLoader} from '../../../components/DataLoader';
                 setChangesData("nodata");
               } else {
                 setChangesData(data.Data);
+                setCurrentSize(data.Data.length);
                 return data.Data;
               }
             }
@@ -379,7 +380,7 @@ import {DataLoader} from '../../../components/DataLoader';
       }
       //return(<></>);
     } else {
-      loadData();
+      useEffect(() => {loadData()}, [props.typeFilter])
     }
 
     if(!isLoaded)
