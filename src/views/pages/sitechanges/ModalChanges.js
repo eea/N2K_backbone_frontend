@@ -1282,7 +1282,7 @@ export class ModalChanges extends Component {
             let value = this.state.fields[field];
             let ref = field.replace('Original', '');
             if (field === "OriginalBioRegion") {
-              if (!value && JSON.stringify(body[ref]) !== JSON.stringify(this.state.fields[ref])) {
+              if (!value && JSON.stringify(body[ref]) !== JSON.stringify(this.state.fields[ref].sort())) {
                 value = this.state.fields[ref];
               }
               else if (value && JSON.stringify(body[ref]) === JSON.stringify(value)) {
