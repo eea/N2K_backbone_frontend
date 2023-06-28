@@ -440,7 +440,7 @@ const SDFVisualization = () => {
             {ConfigData.SDI.SiteType[data.SiteInfo.Directive]}
           </div>
         </CRow>
-        <CRow className="sdf-indicators">
+        <CRow className="sdf-header-items">
           <CCol xs={12} md={6} lg={4} xl={2}>
             <b>{data.SiteInfo.SiteCode}</b>
             <div>SITE CODE</div>
