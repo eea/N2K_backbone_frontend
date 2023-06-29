@@ -1638,7 +1638,6 @@ export class ModalChanges extends Component {
     if (clean) {
       this.cleanUnsavedChanges();
     }
-    this.resetLoading();
     this.props.updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", () => this.acceptChanges(), "Cancel", () => { this.changingStatus = false });
   }
 
@@ -1647,6 +1646,7 @@ export class ModalChanges extends Component {
       .then((data) => {
         if (data?.Success) {
           this.changingStatus = false;
+          this.resetLoading();
           this.setState({ data: {}, fields: {}, loading: true, siteTypeValue: "", siteRegionValue: "" });
         } else { this.showErrorMessage("general", "Error accepting changes") }
       });
@@ -1657,7 +1657,6 @@ export class ModalChanges extends Component {
     if (clean) {
       this.cleanUnsavedChanges();
     }
-    this.resetLoading();
     this.props.updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", () => this.rejectChanges(), "Cancel", () => { this.changingStatus = false });
   }
 
@@ -1666,6 +1665,7 @@ export class ModalChanges extends Component {
       .then(data => {
         if (data?.Success) {
           this.changingStatus = false;
+          this.resetLoading();
           this.setState({ data: {}, fields: {}, loading: true, siteTypeValue: "", siteRegionValue: "" });
         } else { this.showErrorMessage("general", "Error rejecting changes") }
       });
@@ -1676,7 +1676,6 @@ export class ModalChanges extends Component {
     if (clean) {
       this.cleanUnsavedChanges();
     }
-    this.resetLoading();
     this.props.updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", () => this.setBackToPending(), "Cancel", () => { this.changingStatus = false });
   }
 
@@ -1702,6 +1701,7 @@ export class ModalChanges extends Component {
         this.changingStatus = false;
         this.versionChanged = true;
         this.currentVersion = data.Data[0].VersionId;
+        this.resetLoading();
         this.setState({ data: {}, fields: {}, loading: true, siteTypeValue: "", siteRegionValue: "" });
       } else { this.showErrorMessage("general", "Error setting changes back to pending") }
     }
