@@ -91,6 +91,8 @@ export class ModalChanges extends Component {
       errorLoading: false,
       generalError: "",
       fields: {},
+      isDeleted: false,
+      isRecoded: false,
       informedFields: [],
       notValidField: [],
       fieldChanged: false,
@@ -911,7 +913,10 @@ export class ModalChanges extends Component {
   renderFields() {
     return (
       <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 3}>
-        {this.state.fields != "noData" && this.state.data.Status !== "Accepted" ?
+        {this.state.isRecoded && this.state.data.Status === "Accepted" &&
+          <div className="nodata-container"><em>No Data: This site has been deleted</em></div>
+        }
+        {this.state.data.Status !== "Accepted" ?
           <CRow className="p-3">
             <CCol>
               {this.state.data.Status === "Pending" && 
@@ -934,13 +939,10 @@ export class ModalChanges extends Component {
                 <>
                   <CAlert color="danger">Error loading fields data</CAlert>
                 </>
-                : this.createFieldElement()
+                : !this.state.isRecoded && this.createFieldElement()
               }
             </CRow>
           </CForm>
-        }
-        {this.state.fields == "noData" &&
-          <div className="nodata-container"><em>No Data: This site has been deleted</em></div>
         }
       </CTabPane>
     )
@@ -1507,8 +1509,12 @@ export class ModalChanges extends Component {
           this.setState({ errorLoading: true, loading: false });
         else
           if(this.isSiteDeleted())
-            this.setState({ fields: "noData" })
-          this.setState({ data: data.Data, loading: false, justificationRequired: data.Data?.JustificationRequired, justificationProvided: data.Data?.JustificationProvided, activeKey: this.props.activeKey ? this.props.activeKey : this.state.activeKey })
+            this.setState({ fields: "noData", isDeleted: true })
+          this.setState({ data: data.Data, loading: false
+          , justificationRequired: data.Data?.JustificationRequired
+          , justificationProvided: data.Data?.JustificationProvided
+          , activeKey: this.props.activeKey ? this.props.activeKey : this.state.activeKey
+          , isRecoded: this.isSiteRecoded(data.Data) })
       });
     }
   }
@@ -1694,6 +1700,11 @@ export class ModalChanges extends Component {
         .reduce((result, next) => result || next, false);
   }
 
+  isSiteRecoded(data) {
+    return data.Critical?.SiteInfo.ChangesByCategory
+        .map(c => c.ChangeType === "Site Recoded")
+        .reduce((result, next) => result || next, false);
+  }
 
   setBackToPending() {
     let controlResult = (data) => {
