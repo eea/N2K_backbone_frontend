@@ -175,6 +175,8 @@ import {DataLoader} from '../../../components/DataLoader';
 
     let dl = new(DataLoader);
 
+    useEffect(() => {loadData()}, [country, props.typeFilter, props.getRefresh()])
+
     let getSite = () => {
       if(changesData.length > 0) {
         const site = changesData.filter(v => v.SiteCode === props.site)[0];
@@ -379,9 +381,6 @@ import {DataLoader} from '../../../components/DataLoader';
         setChangesData("nodata");
         setIsLoaded(false);
       }
-      //return(<></>);
-    } else {
-      useEffect(() => {loadData()}, [country, props.typeFilter, props.getRefresh()])
     }
 
     if(!isLoaded)
