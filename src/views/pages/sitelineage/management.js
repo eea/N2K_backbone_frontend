@@ -84,7 +84,6 @@ const Sitelineage = () => {
         setCountries(countriesList);
         if(country === ""){
           changeCountry(countriesList[0]?.code)
-          console.log(country)
         }
         if(countriesList[0]) {
           setIsLoading(false);
