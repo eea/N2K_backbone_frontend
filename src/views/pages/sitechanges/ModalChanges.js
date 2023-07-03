@@ -92,7 +92,6 @@ export class ModalChanges extends Component {
       generalError: "",
       fields: {},
       isDeleted: false,
-      isRecoded: false,
       informedFields: [],
       notValidField: [],
       fieldChanged: false,
@@ -1510,8 +1509,7 @@ export class ModalChanges extends Component {
           this.setState({ data: data.Data, loading: false
           , justificationRequired: data.Data?.JustificationRequired
           , justificationProvided: data.Data?.JustificationProvided
-          , activeKey: this.props.activeKey ? this.props.activeKey : this.state.activeKey
-          , isRecoded: this.isSiteRecoded(data.Data) })
+          , activeKey: this.props.activeKey ? this.props.activeKey : this.state.activeKey })
       });
     }
   }
@@ -1694,12 +1692,6 @@ export class ModalChanges extends Component {
   isSiteDeleted() {
     return this.state.data.Critical?.SiteInfo.ChangesByCategory
         .map(c => c.ChangeType === "Site Deleted")
-        .reduce((result, next) => result || next, false);
-  }
-
-  isSiteRecoded(data) {
-    return data.Critical?.SiteInfo.ChangesByCategory
-        .map(c => c.ChangeType === "Site Recoded")
         .reduce((result, next) => result || next, false);
   }
 
