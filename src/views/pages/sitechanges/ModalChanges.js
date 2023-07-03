@@ -939,7 +939,7 @@ export class ModalChanges extends Component {
                 <>
                   <CAlert color="danger">Error loading fields data</CAlert>
                 </>
-                : !this.state.isRecoded && this.createFieldElement()
+                : this.createFieldElement()
               }
             </CRow>
           </CForm>
