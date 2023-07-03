@@ -913,9 +913,6 @@ export class ModalChanges extends Component {
   renderFields() {
     return (
       <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 3}>
-        {this.state.isRecoded && this.state.data.Status === "Accepted" &&
-          <div className="nodata-container"><em>No Data: This site has been deleted</em></div>
-        }
         {this.state.data.Status !== "Accepted" ?
           <CRow className="p-3">
             <CCol>
