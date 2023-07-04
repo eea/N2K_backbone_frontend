@@ -62,6 +62,7 @@ export class ModalLineage extends Component {
       predecessors: null,
       newPredecessor: false,
       referenceSites: [],
+      releaseDate: "",
       updateOnClose: false,
       errorLoading: false,
       generalError: "",
@@ -370,7 +371,7 @@ export class ModalLineage extends Component {
             <CModalTitle>
               {data.SiteCode ?? this.props.code} - {data.SiteName ??  this.props.name}
               <span className="mx-2"></span>
-              <span className="badge badge--fill default">Release date: 20/12/2021</span>
+              <span className="badge badge--fill default">Release date: {this.state.releaseDate}</span>
             </CModalTitle>
             <CCloseButton onClick={() => this.closeModal()} />
           </CModalHeader>
@@ -492,8 +493,10 @@ export class ModalLineage extends Component {
         if (!data.Success)
           this.errorLoadingPredecessor = true;
         else
-          this.setState({ predecessors: data.Data.map(s => s.SiteCode).join(','), predecessorData: data.Data
-          , previousPredecessors: data.Data.map(s => s.SiteCode).join(',')})
+          this.setState({ predecessors: data.Data.map(s => s.SiteCode).join(',')
+          , predecessorData: data.Data
+          , previousPredecessors: data.Data.map(s => s.SiteCode).join(',')
+          , releaseDate: [...new Set(data.Data.map(s => s.ReleaseDate))].join(',') })
       });
     }
   }
