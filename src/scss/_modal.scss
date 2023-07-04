@@ -57,6 +57,9 @@
   }
   &--icons {
     white-space: nowrap;
+    .btn-icon {
+      padding: 0.25rem 0.5rem;
+    }
   }
   &--date {
     font-style: italic;

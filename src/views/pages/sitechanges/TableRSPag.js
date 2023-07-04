@@ -492,7 +492,9 @@ const IndeterminateCheckbox = React.forwardRef(
                   content="Site Recode"
                   placement="top"
                 >
-                  <i className="fa-solid fa-repeat"/>
+                  <div className="btn-icon btn-hover">
+                    <i className="fa-solid fa-repeat"/>
+                  </div>
                 </CTooltip>
               )
             else

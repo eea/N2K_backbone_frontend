@@ -299,7 +299,7 @@ const Releases = () => {
               </div>
             </div>
             <CRow>
-              <CCol md={12} lg={6} xl={9} className="d-flex mb-4">
+              <CCol sm={12} md={6} lg={6} className="d-flex mb-4">
                 <div className="search--input">
                   <Turnstone
                     id="siteedition_search"
@@ -325,12 +325,12 @@ const Releases = () => {
                   <i className="fa-solid fa-magnifying-glass"></i>
                 </CButton>
               </CCol>
-              <CCol md={12} lg={6} xl={3} className="mb-4">
+              <CCol sm={12} md={6} lg={6} className="mb-4">
                   <div className="select--right">
                     <CFormLabel className="form-label form-label-reporting col-md-4 col-form-label">
                       Country
                       <CTooltip content="Only countries with complete envelopes can be edited">
-                        <div className="btn-icon btn-hover ps-2">
+                        <div className="btn-icon btn-hover ms-2">
                           <i className="fa-solid fa-circle-info"></i>
                         </div>
                       </CTooltip>
