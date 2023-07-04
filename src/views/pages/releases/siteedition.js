@@ -327,7 +327,14 @@ const Releases = () => {
               </CCol>
               <CCol md={12} lg={6} xl={3} className="mb-4">
                   <div className="select--right">
-                    <CFormLabel className="form-label form-label-reporting col-md-4 col-form-label">Country </CFormLabel>
+                    <CFormLabel className="form-label form-label-reporting col-md-4 col-form-label">
+                      Country
+                      <CTooltip content="Only countries with complete envelopes can be edited">
+                        <div className="btn-icon btn-hover ps-2">
+                          <i className="fa-solid fa-circle-info"></i>
+                        </div>
+                      </CTooltip>
+                    </CFormLabel>
                     <CFormSelect aria-label="Default select example" className='form-select-reporting' disabled={isLoading} value={country} onChange={(e)=>changeCountry(e.target.value)}>
                       {
                         countries.map((e)=><option value={e.code} key={e.code}>{e.name}</option>)
