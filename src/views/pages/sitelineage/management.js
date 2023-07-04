@@ -37,7 +37,6 @@ const defaultCountry = () => {
 const openSite = () => {
   const searchParams = new URLSearchParams(window.location.href.split('?')[1]);
   const siteCode = searchParams.get('siteCode');
-  //TODO remove parameters
   return siteCode ?? "";
 }
 
@@ -82,12 +81,11 @@ const Sitelineage = () => {
           countriesList.push({name:data.Data[i].Country,code:data.Data[i].Code,version:data.Data[i].Version});
         }
         countriesList.sort((a, b) => a.name.localeCompare(b.name));
-        countriesList = [{name:"",code:""}, ...countriesList];
         setCountries(countriesList);
         if(country === ""){
-          changeCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code)
+          changeCountry(countriesList[0]?.code)
         }
-        if(countriesList[0]?.code === "") {
+        if(countriesList[0]) {
           setIsLoading(false);
         }
       }
@@ -426,9 +424,9 @@ const Sitelineage = () => {
                 <CCol sm={12} md={6} lg={6} className="mb-4">
                   <div className="select--right">
                     <CFormLabel htmlFor="exampleFormControlInput1" className='form-label form-label-reporting col-md-4 col-form-label'>Country </CFormLabel>
-                      <CFormSelect aria-label="Default select example" className='form-select-reporting' value={country} onChange={(e)=>changeCountry(e.target.value)}>
+                      <CFormSelect aria-label="Default select example" className='form-select-reporting' disabled={country == ""} value={country} onChange={(e)=>changeCountry(e.target.value)}>
                       {
-                        countries.map((e)=><option value={e.code} key={e.code}>{e.name}</option>)
+                        countries.length > 0 && countries?.map((e)=><option value={e.code} key={e.code}>{e.name}</option>)
                       }
                     </CFormSelect>
                   </div>
