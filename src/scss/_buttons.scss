@@ -134,6 +134,7 @@
   cursor: pointer;
   &.btn-hover {
     cursor: auto;
+    padding: 0;
   }
   i {
     color: $gray-700;
