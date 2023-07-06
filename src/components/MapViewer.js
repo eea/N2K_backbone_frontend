@@ -81,8 +81,8 @@ class MapViewer extends React.Component {
             }
 
             this.map = new Map({
-              basemap: "satellite",
-              layers: layers
+                basemap: this.props.latestRelease ? "satellite" : "osm",
+                layers: layers
             });
 
             let mapFeats = {
@@ -98,7 +98,7 @@ class MapViewer extends React.Component {
                 mapFeats["navigation"] = {
                     mouseWheelZoomEnabled: false,
                     browserTouchPanEnabled: false
-                  }
+                }
             }
           
             this.view = new MapView(mapFeats);
