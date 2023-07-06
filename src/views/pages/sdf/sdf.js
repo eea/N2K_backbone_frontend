@@ -21,7 +21,7 @@ import {
   CTableRow
 } from '@coreui/react'
 
-import MapViewer from './components/MapViewer'
+import MapViewer from '../../../components/MapViewer'
 
   const jsonData = {
    "SiteInfo": {
@@ -393,7 +393,6 @@ const SDFVisualization = () => {
       <div className='sdf-map'>
         <MapViewer  
           siteCode={"AT1101112"}
-          latestRelease={ConfigData.LATEST_RELEASE} 
           reportedSpatial={ConfigData.REPORTED_SPATIAL}
         />
       </div>

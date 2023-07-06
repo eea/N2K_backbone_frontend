@@ -1,6 +1,6 @@
 import React from 'react';
 import { loadModules } from "esri-loader";
-import {DataLoader} from '../../../../components/DataLoader';
+import {DataLoader} from './DataLoader';
 
 var GeoJSONLayer;
 
@@ -76,7 +76,9 @@ class MapViewer extends React.Component {
                     },
                 }
             });
-            layers.push(reportedSpatial);
+            if(this.props.latestRelease){
+                layers.push(reportedSpatial);
+            }
 
             this.map = new Map({
               basemap: "satellite",
@@ -104,38 +106,38 @@ class MapViewer extends React.Component {
             //Code to disable all events if required
             this.view.when(()=>{
                 if(!this.props.latestRelease){
-                    let stopEvtPropagation= (event) =>{
-                                                        event.stopPropagation();
-                                                        }
-        
-                  // exlude the zoom widget from the default UI
-                  this.view.ui.components = ["attribution"];
-        
-                  // disable mouse wheel scroll zooming on the view
-                  this.view.on("mouse-wheel", stopEvtPropagation);
-        
-                  // disable zooming via double-click on the view
-                  this.view.on("double-click", stopEvtPropagation);
-        
-                  // disable zooming out via double-click + Control on the view
-                  this.view.on("double-click", ["Control"], stopEvtPropagation);
-        
-                  // disables pinch-zoom and panning on the view
-                  this.view.on("drag", stopEvtPropagation);
-        
-                  // disable the view's zoom box to prevent the Shift + drag
-                  // and Shift + Control + drag zoom gestures.
-                  this.view.on("drag", ["Shift"], stopEvtPropagation);
-                  this.view.on("drag", ["Shift", "Control"], stopEvtPropagation);
-        
-                  // prevents zooming with the + and - keys
-                  this.view.on("key-down", (event) => {
-                    const prohibitedKeys = ["+", "-", "Shift", "_", "=", "ArrowUp", "ArrowDown", "ArrowRight", "ArrowLeft"];
-                    const keyPressed = event.key;
-                    if (prohibitedKeys.indexOf(keyPressed) !== -1) {
-                      event.stopPropagation();
+                    let stopEvtPropagation= (event) => {
+                        event.stopPropagation();
                     }
-                  });
+        
+                    // exlude the zoom widget from the default UI
+                    this.view.ui.components = ["attribution"];
+            
+                    // disable mouse wheel scroll zooming on the view
+                    this.view.on("mouse-wheel", stopEvtPropagation);
+            
+                    // disable zooming via double-click on the view
+                    this.view.on("double-click", stopEvtPropagation);
+            
+                    // disable zooming out via double-click + Control on the view
+                    this.view.on("double-click", ["Control"], stopEvtPropagation);
+            
+                    // disables pinch-zoom and panning on the view
+                    this.view.on("drag", stopEvtPropagation);
+            
+                    // disable the view's zoom box to prevent the Shift + drag
+                    // and Shift + Control + drag zoom gestures.
+                    this.view.on("drag", ["Shift"], stopEvtPropagation);
+                    this.view.on("drag", ["Shift", "Control"], stopEvtPropagation);
+            
+                    // prevents zooming with the + and - keys
+                    this.view.on("key-down", (event) => {
+                        const prohibitedKeys = ["+", "-", "Shift", "_", "=", "ArrowUp", "ArrowDown", "ArrowRight", "ArrowLeft"];
+                        const keyPressed = event.key;
+                        if (prohibitedKeys.indexOf(keyPressed) !== -1) {
+                            event.stopPropagation();
+                        }
+                    });
                 }
             });
             
@@ -166,15 +168,30 @@ class MapViewer extends React.Component {
         query.where = "SiteCode = '" + code + "'";
         layer.queryFeatures(query)
         .then(
-            res =>{
+            res => {
                 for(let i in res.features){
                     let feat = res.features[i];
                     this.view.extent = feat?.geometry?.extent;
-                    let polylineSymbol = {
-                                             type: "simple-line",  // autocasts as SimpleLineSymbol()
-                                             color: "#000015",
-                                             width: 2
-                                         };
+                    let polylineSymbol = {};
+
+                    if(this.props.lastRelease) {
+                        polylineSymbol = {
+                            type: "simple-line",  // autocasts as SimpleLineSymbol()
+                            color: "#000015",
+                            width: 2
+                        };
+                    }
+                    else {
+                        polylineSymbol = {
+                            type: "simple-fill",  // autocasts as new SimpleFillSymbol()
+                            color: [ 0, 0, 21, 0.4 ],
+                            style: "solid",
+                            outline: {  // autocasts as new SimpleLineSymbol()
+                              color: "#000015",
+                              width: 2
+                            }
+                        };
+                    }
                     feat.symbol = polylineSymbol;
                     this.view.graphics.add(feat);
                 }
