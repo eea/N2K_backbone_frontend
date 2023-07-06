@@ -62,6 +62,7 @@ export class ModalLineage extends Component {
       predecessors: null,
       newPredecessor: false,
       referenceSites: [],
+      releaseDate: "",
       updateOnClose: false,
       errorLoading: false,
       generalError: "",
@@ -134,7 +135,14 @@ export class ModalLineage extends Component {
       changes = [changes]
     if(changes.length === 0)
       return;
-    let heads = Object.keys(changes[0]);
+    let heads = Object.keys(changes[0]).filter(v => v !== "ReleaseDate").map(v => {
+      if(v === "AreaSDF")
+        return "Area (SDF)"
+      if(v === "AreaGEO")
+        return "Area (geometry)"
+      else
+        return v.replace(/([A-Z])/g, ' $1')
+    });
     let titles = heads.map(k => { return (<CTableHeaderCell scope="col" key={k}> {k} </CTableHeaderCell>) });
     let rows = []; 
     for(let i in changes)
@@ -143,6 +151,8 @@ export class ModalLineage extends Component {
           {Object.entries(changes[i]).map(([k,v]) => {
             if(k == "SiteType")
               return (<CTableDataCell key={k + "_" + v}> {["SPA","SCI","SPA/SCI"][['A','B','C'].indexOf(v)]} </CTableDataCell>) 
+            else if(k == "ReleaseDate")
+              return (<></>)
             else
               return (<CTableDataCell key={k + "_" + v}> {v} </CTableDataCell>) 
             })
@@ -370,7 +380,7 @@ export class ModalLineage extends Component {
             <CModalTitle>
               {data.SiteCode ?? this.props.code} - {data.SiteName ??  this.props.name}
               <span className="mx-2"></span>
-              <span className="badge badge--fill default">Release date: 20/12/2021</span>
+              <span className="badge badge--fill default">Release date: {this.state.releaseDate}</span>
             </CModalTitle>
             <CCloseButton onClick={() => this.closeModal()} />
           </CModalHeader>
@@ -492,8 +502,18 @@ export class ModalLineage extends Component {
         if (!data.Success)
           this.errorLoadingPredecessor = true;
         else
-          this.setState({ predecessors: data.Data.map(s => s.SiteCode).join(','), predecessorData: data.Data
-          , previousPredecessors: data.Data.map(s => s.SiteCode).join(',')})
+          this.setState({ predecessors: data.Data.map(s => s.SiteCode).join(',')
+          , predecessorData: data.Data
+          , previousPredecessors: data.Data.map(s => s.SiteCode).join(',')
+          , releaseDate: [...new Set(data.Data.map(s => 
+            new Date(s.ReleaseDate).toLocaleDateString("en-GB",
+              {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit"
+              }
+            )
+          ))].join(',') })
       });
     }
   }
