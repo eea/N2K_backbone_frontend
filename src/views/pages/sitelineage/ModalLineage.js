@@ -175,15 +175,23 @@ export class ModalLineage extends Component {
   
   addPredecessor() {
     const getNewSite = () => {
-      return document.querySelector(".add-predecessor").value;
+      return document.querySelector(".multi-select__single-value").textContent;
     }
-    if(this.state.referenceSites.length !== this.state.predecessors?.split(',').length)
+    if(this.state.referenceSites.length !== this.state.predecessors?.split(',').length) {
+      let options = this.state.referenceSites?.filter(r => !this.state.predecessors?.split(',').includes(r)).map(v => ({ "value": v, "label": v }));
       return (
         <div>
           <CCol>
-            <CFormSelect className={"add-predecessor"}>
-              {this.state.referenceSites?.filter(r => !this.state.predecessors?.split(',').includes(r)).map(s => <option value={s}>{s}</option>)}
-            </CFormSelect>
+            <Select
+              id="new-select"
+              name="new-select"
+              className="multi-select add-predececssor"
+              classNamePrefix="multi-select"
+              placeholder="Select a site"
+              options={options}
+              isMulti={false}
+              closeMenuOnSelect={true}
+            />
           </CCol>
           <CCol>
             <CButton color="link" className="btn-icon"
@@ -197,6 +205,7 @@ export class ModalLineage extends Component {
           </CCol>
         </div>
       );
+    }
     else
       return (
         <div>
@@ -279,7 +288,8 @@ export class ModalLineage extends Component {
           <CButton color="link" className="ms-auto" 
             hidden={this.state.type === "Deletion"
               || this.state.type === "Creation"
-              || this.state.status === "Consolidated"}
+              || this.state.status === "Consolidated"
+              || this.state.newPredecessor}
             onClick={() => this.setState({ newPredecessor: true })}>
             Add site
           </CButton>
