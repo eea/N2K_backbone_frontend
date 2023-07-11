@@ -136,6 +136,8 @@ export class ModalLineage extends Component {
     if(changes.length === 0)
       return;
     let heads = Object.keys(changes[0]).filter(v => v !== "ReleaseDate").map(v => {
+      if(v === "BioRegion")
+        return "Biogeographical Region"
       if(v === "AreaSDF")
         return "Area (SDF)"
       if(v === "AreaGEO")
@@ -245,18 +247,18 @@ export class ModalLineage extends Component {
     return(
       <>
       <CRow className="p-3">
-        <CCol key={"changes_editor_label_sitecode"} className="mb-4">
-          <b>SiteCode</b>
+        <CCol key={"changes_editor_label_sitecode"}>
+          <b>Site Code</b>
         </CCol>
-        <CCol key={"changes_editor_label_type"} className="mb-4">
+        <CCol key={"changes_editor_label_type"}>
           <b>Type</b>
         </CCol>
-        <CCol key={"changes_editor_label_predecessor"} className="mb-4">
+        <CCol key={"changes_editor_label_predecessor"}>
           <b>Predecessors</b>
         </CCol>
       </CRow>
 
-      <CRow>
+      <CRow className="px-3">
         <CCol key={"changes_editor_label_sitecode"}>
           <CFormInput type="text" disabled={this.state.type !== "Recode" || this.state.status === "Consolidated"} defaultValue={this.state.data.SiteCode ?? this.props.code} />
         </CCol>
@@ -276,7 +278,7 @@ export class ModalLineage extends Component {
               this.addPredecessor()
           }
           {(this.state.type == "" ? this.props.type : this.state.type) !== "Creation" &&
-          <CButton color="link" className="ms-auto" 
+          <CButton color="link" className="ms-auto px-0" 
             hidden={this.state.type === "Deletion"
               || this.state.type === "Creation"
               || this.state.status === "Consolidated"}
@@ -296,7 +298,7 @@ export class ModalLineage extends Component {
         {this.lineageEditor()}
         {this.state.type !== "Deletion" &&
           <CRow className="p-3">
-            <CCol key={"changes_tabular"} className="mb-4">
+            <CCol key={"changes_tabular"}>
               <b>Tabular Changes</b>
               {this.renderValuesTable(this.state.data)}
             </CCol>
@@ -304,7 +306,7 @@ export class ModalLineage extends Component {
         }
         {this.state.type !== "Creation" && this.state.predecessorData.length >= 1 &&
           <CRow className="p-3">
-            <CCol key={"changes_predecessors"} className="mb-4">
+            <CCol key={"changes_predecessors"}>
               <b>Predecessors</b>
               {this.renderValuesTable(this.state.predecessorData)}
             </CCol>
@@ -312,7 +314,7 @@ export class ModalLineage extends Component {
         }
         {this.state.predecessorData.length == 0 &&
           <CRow className="p-3">
-            <CCol className="mb-4">
+            <CCol>
               <em>No predecessor data</em>
             </CCol>
           </CRow>
