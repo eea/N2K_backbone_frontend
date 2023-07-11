@@ -155,28 +155,28 @@ import ConfigData from '../../../config.json';
           }
         },
         {
-          Header: 'Area',
+          Header: 'Area (ha)',
           accessor: 'Area',
           Cell: ({ row, cell }) => {
             return cell.value?.Target === undefined ? cell.value : cell.value?.Target;
           }
         },
         {
-          Header: 'Length',
+          Header: 'Length (km)',
           accessor: 'Length',
           Cell: ({ row, cell }) => {
             return cell.value?.Target === undefined ? cell.value : cell.value?.Target;
           }
         },
         {
-          Header: 'Latitude',
+          Header: 'Latitude (deg)',
           accessor: 'Latitude',
           Cell: ({ row, cell }) => {
             return cell.value?.Target === undefined ? cell.value : cell.value?.Target;
           }
         },
         {
-          Header: 'Longitude',
+          Header: 'Longitude (deg)',
           accessor: 'Longitude',
           Cell: ({ row, cell }) => {
             return cell.value?.Target === undefined ? cell.value : cell.value?.Target;

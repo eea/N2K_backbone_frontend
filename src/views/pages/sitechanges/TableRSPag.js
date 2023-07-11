@@ -167,7 +167,7 @@ const IndeterminateCheckbox = React.forwardRef(
         data,
         defaultColumn,
         filterTypes,
-        initialState: {pageSize: currentSize, pageIndex:currentPage},
+        initialState: {pageSize: currentSize, pageIndex:currentPage, hiddenColumns: ["EditedDate", "EditedBy", "JustificationRequired", "JustificationProvided"]},
         manualPagination:true,
         pageCount: pgCount,
         paginateExpandedRows: false
@@ -217,6 +217,10 @@ const IndeterminateCheckbox = React.forwardRef(
       }
     }, [isTabChanged]);
 
+    let countSitesOnPage = () => {
+      return page.filter(row => !row.id.includes(".")).length;
+    }
+
     // Render the UI for your table
     return (
       <>
@@ -230,7 +234,7 @@ const IndeterminateCheckbox = React.forwardRef(
           </div>
           :
           <div className="message-board">
-            <span className="message-board-text">The <b>{page.length}</b> sites of this page are selected</span>
+            <span className="message-board-text">The <b>{countSitesOnPage()}</b> sites of this page are selected</span>
             <span className="message-board-link" onClick={() =>(setSelectedRows(siteCodes.length), setSelected(siteCodes))}>Select {siteCodes.length} sites</span>
           </div> 
         )
@@ -314,9 +318,6 @@ const IndeterminateCheckbox = React.forwardRef(
   }
   
   function TableRSPag(props) {
-
-    const [events, setEvents] = useState([]);
-    const [isVisible, setIsVisible] = useState(false);
     const [modalItem, setModalItem] = useState({});
     const [modalVisible, setModalVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -325,19 +326,19 @@ const IndeterminateCheckbox = React.forwardRef(
     const [currentPage, setCurrentPage] = useState(0);
     const [currentSize, setCurrentSize] = useState(30);
     const [levelCountry, setLevelCountry] = useState({});
-    const [pageCount, setPageCount] = useState(0);
 
     let dl = new(DataLoader);
 
     let forceRefreshData = ()=> setChangesData({});
-  
-    let toggleVisibility = () => {
-      setIsVisible = !isVisible;
-    }
-  
-    let resetPagination = () =>{
-      setCurrentPage(0);
-      setCurrentSize(30);
+
+    let getSite = () => {
+      if(siteCodes.length > 0) {
+        const site = siteCodes.filter(v => v.SiteCode === props.site)[0];
+        if(site) {
+          return site;
+        }
+      }
+      return {};
     }
 
     let loadPage = (page,size) =>{
@@ -347,71 +348,69 @@ const IndeterminateCheckbox = React.forwardRef(
     }
 
     let showModal = (data) => {
-      if ((Object.keys(modalItem).length === 0) &&
-      (data.status === props.status)
-      ) {
+      if(Object.keys(modalItem).length === 0)
         openModal(data);
-      }
     }
 
-    let openModal = (data)=>{
-      setModalItem(data);
+    let openModal = (data, activeKey)=>{
+      setModalItem({...data, ActiveKey: activeKey});
       setModalVisible(true);
     }
   
-    let closeModal = (refresh)=>{
-      props.setShowModal();
+    let closeModal = ()=>{
       setModalVisible(false);
       setModalItem({});
-      if(refresh) forceRefreshData(); //To force refresh
+      props.closeModal();
     }
 
-    let setBackToPending = (change)=>{
-      return props.setBackToPending({"SiteCode":change.SiteCode,"VersionId":change.Version})
+    let setBackToPendingWithVersion = (version) => {
+      let newModalItem = modalItem;
+      newModalItem.Version = version;
+      setModalItem({...newModalItem});
+      return setBackToPending(modalItem);
+    }
+
+    let setBackToPending = (change, refresh)=>{
+      return props.setBackToPending({"SiteCode":change.SiteCode,"VersionId":change.Version}, refresh)
+        .then(data => {
+          if(data?.ok){
+            if(refresh) {
+              forceRefreshData();
+            }
+          }
+          return data;
+        });
+    }
+
+    let acceptChanges = (change, refresh)=>{
+      return props.accept({"SiteCode":change.SiteCode,"VersionId":change.Version}, refresh)
       .then(data => {
           if(data?.ok){
-            forceRefreshData();
-            //props.setRefresh("pending",false);
-            //props.setRefresh("accepted",true);
-            //props.setRefresh("rejected",true);
+            if(refresh) {
+              forceRefreshData();
+            }
           }
           return data;
       });
     }
 
-    let acceptChanges = (change)=>{
-      return props.accept({"SiteCode":change.SiteCode,"VersionId":change.Version})
-      .then(data => {
-          if(data?.ok){
-            forceRefreshData();
-            props.setRefresh("pending",false);
-            props.setRefresh("accepted",true);
-          }
-          return data;
-      });
-    }
-
-    let rejectChanges = (change)=>{
-      return props.reject({"SiteCode":change.SiteCode,"VersionId":change.Version})
+    let rejectChanges = (change, refresh)=>{
+      return props.reject({"SiteCode":change.SiteCode,"VersionId":change.Version}, refresh)
       .then(data => {
         if(data?.ok){
-          forceRefreshData();
-          props.setRefresh("pending",false);
-          props.setRefresh("rejected",true);
+          if(refresh) {
+            forceRefreshData();
+          }
         }
-        else
-          alert("something went wrong!");
         return data;
-    }).catch(e => {
-          alert("something went wrong!");
-    });   
-    }    
-    
+    });
+    }
+
     let switchMarkChanges = (change) =>{            
       return props.mark({"SiteCode":change.SiteCode,"VersionId":change.Version,"Justification":!change.JustificationRequired})
       .then(data => {
-        if(data?.ok){          
-          forceRefreshData();          
+        if(data?.ok){
+          forceRefreshData();
         }else
           alert("something went wrong!");
         return data;
@@ -419,7 +418,7 @@ const IndeterminateCheckbox = React.forwardRef(
         alert("something went wrong!");
       });    
    }
-
+  
     const columns = React.useMemo(
       () => [
         {
@@ -484,6 +483,25 @@ const IndeterminateCheckbox = React.forwardRef(
           accessor: 'ChangeType',
         },
         {
+          Header: () => null,
+          accessor: "Recoded",
+          Cell: ({ row }) => {
+            if(row.values.Recoded)
+              return (
+                <CTooltip
+                  content="Site Recode"
+                  placement="top"
+                >
+                  <div className="btn-icon btn-hover">
+                    <i className="fa-solid fa-repeat"/>
+                  </div>
+                </CTooltip>
+              )
+            else
+              return (null);
+          }
+        },
+        {
           Header: () => null,          
           accessor: 'Justification',          
           Cell: ({row}) => (<>
@@ -493,40 +511,65 @@ const IndeterminateCheckbox = React.forwardRef(
                 content="Justification Required"
                 placement="top"
               > 
-                <CImage src={justificationrequired} className="ico--md "></CImage> 
+                <div className="btn-icon btn-hover">
+                  <CImage src={justificationrequired} className="ico--md "></CImage>
+                </div>
               </CTooltip>
             : null } </> : null : null } 
             
             {row.values.JustificationProvided ?
-             row.canExpand ? <> {row.values.JustificationRequired && row.values.JustificationProvided ?
-              <CTooltip
-                content="Justification Provided"
-                placement="top">
-                <CImage src={justificationprovided} className="ico--md "></CImage>
-              </CTooltip>
-                : null  } </> : null : null} 
+              row.canExpand ? <> {row.values.JustificationRequired && row.values.JustificationProvided ?
+                <CTooltip
+                  content="Justification Provided"
+                  placement="top"
+                >
+                  <div className="btn-icon btn-hover">
+                    <CImage src={justificationprovided} className="ico--md "></CImage>
+                  </div>
+                </CTooltip>
+              : null } </> : null : null }
             </>)
         },
         {
           Header: () => null,
+          accessor: 'Edition',
+          Cell: ({ row }) => {
+            return (
+              row.values.EditedDate && row.values.EditedBy ? (
+                  <CTooltip 
+                    content={"Edited"
+                      + (row.values.EditedDate && " on " + row.values.EditedDate.slice(0,10).split('-').reverse().join('/'))
+                      + (row.values.EditedBy && " by " + row.values.EditedBy)}>
+                    <div className="btn-icon btn-hover">
+                      <i className="fa-solid fa-pen-to-square"></i>
+                    </div>
+                  </CTooltip>
+              ) : null
+            )
+          }
+        },
+        {
+          Header: () => null,
           accessor: "JustificationRequired",                            
-        },    
+        },
         {
           Header: () => null,
           accessor: "JustificationProvided",         
-        },    
+        },
+        {
+          Header: () => null,
+          accessor: "EditedDate",
+        },
+        {
+          Header: () => null,
+          accessor: "EditedBy",
+        },
         {
           Header: () => null, 
           id: 'dropdownsiteChanges',
           cellWidth: '48px',
           Cell: ({ row }) => {
               const toggleMark = row.values.JustificationRequired ? "Unmark" : "Mark";
-              const contextActions = {
-                review: ()=>openModal(row.original),
-                accept: ()=>props.updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(row.original), "Cancel", ()=>{}),
-                reject: ()=>props.updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(row.original), "Cancel", ()=>{}),
-                mark: ()=>props.updateModalValues(`${toggleMark} Changes`, `This will ${(toggleMark.toLowerCase())} all the site changes`, "Continue", ()=>switchMarkChanges(row.original), "Cancel", ()=>{}),                
-              }
               return row.canExpand ? (
                 <DropdownSiteChanges actions={getContextActions(row, toggleMark)} toggleMark = {toggleMark}/>          
               ) : null
@@ -541,19 +584,20 @@ const IndeterminateCheckbox = React.forwardRef(
         case 'pending':
           return {
             review: ()=>openModal(row.original),
-            accept: ()=>props.updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(row.original), "Cancel", ()=>{}),
-            reject: ()=>props.updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(row.original), "Cancel", ()=>{}),
+            accept: ()=>props.updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(row.original, true), "Cancel", ()=>{}),
+            reject: ()=>props.updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(row.original, true), "Cancel", ()=>{}),
             mark: ()=>props.updateModalValues(`${toggleMark} Changes`, `This will ${toggleMark.toLowerCase()} all the site changes`, "Continue", ()=>switchMarkChanges(row.original), "Cancel", ()=>{}),            
           }
         case 'accepted':
           return {
             review: ()=>openModal(row.original),
-            backPending: ()=>props.updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", ()=>setBackToPending(row.original), "Cancel", ()=>{}),
+            backPending: ()=>props.updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", ()=>setBackToPending(row.original, true), "Cancel", ()=>{}),
+            edition: ()=>openModal(row.original, 3),
           }
         case 'rejected':
           return {
             review: ()=>openModal(row.original),
-            backPending: ()=>props.updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", ()=>setBackToPending(row.original), "Cancel", ()=>{}),
+            backPending: ()=>props.updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", ()=>setBackToPending(row.original, true), "Cancel", ()=>{}),
           }
         default:
           return {}
@@ -565,11 +609,14 @@ const IndeterminateCheckbox = React.forwardRef(
       url += 'country='+props.country;
       url += '&status='+props.status;
       url += '&level='+props.level;
+      url += '&onlyedited='+props.onlyEdited;
       return dl.fetch(url)
       .then(response => response.json())
       .then(data => {
-        props.setSitecodes(props.status,data.Data);
-        setSitecodes(data.Data);
+        if(data?.Success) {
+          props.setSitecodes(props.status,data.Data);
+          setSitecodes(data.Data);
+        }
       });
     }
   
@@ -590,14 +637,17 @@ const IndeterminateCheckbox = React.forwardRef(
         url += '&level='+props.level;
         url += '&page='+(currentPage+1);
         url += '&limit='+currentSize;
+        url += '&onlyedited='+props.onlyEdited;
         promises.push(
           dl.fetch(url)
           .then(response => response.json())
           .then(data => {
-            if(Object.keys(data.Data).length===0)
-              setChangesData("nodata");
-            else
-              setChangesData(data.Data);
+            if(data?.Success) {
+              if(Object.keys(data.Data).length===0)
+                setChangesData("nodata");
+              else
+                setChangesData(data.Data);
+            }
           })
         )
         Promise.all(promises).then(v=>setIsLoading(false));
@@ -621,7 +671,14 @@ const IndeterminateCheckbox = React.forwardRef(
     else
       if(changesData==="nodata")
         return (<div className="nodata-container"><em>No Data</em></div>)
-      else
+      else{
+        if(Array.isArray(changesData)){
+          const data = getSite();
+          if(data.SiteCode){
+            showModal(data);
+          }
+        }
+        
         return (
         <>
           <Table 
@@ -637,21 +694,26 @@ const IndeterminateCheckbox = React.forwardRef(
             setIsTabChanged={props.setIsTabChanged}
           />
           {props.showModal && showModal(props.showModal)}
-          <ModalChanges visible = {modalVisible} 
-                        close = {closeModal} 
-                        accept={()=>acceptChanges(modalItem)} 
-                        reject={()=>rejectChanges(modalItem)} 
-                        backToPending={()=>setBackToPending(modalItem)}
-                        mark={()=>switchMarkChanges(modalItem)}                        
-                        status={props.status}
-                        item={modalItem.SiteCode} 
-                        version={modalItem.Version} 
-                        updateModalValues = {props.updateModalValues}
-                        justificationRequired={modalItem.JustificationRequired}
-                        justificationProvided={modalItem.JustificationProvided}
+          <ModalChanges
+            visible = {modalVisible}
+            close = {closeModal}
+            accept={()=>acceptChanges(modalItem)}
+            reject={()=>rejectChanges(modalItem)}
+            backToPending={(version) => setBackToPendingWithVersion(version)}
+            mark={()=>switchMarkChanges(modalItem)}
+            status={props.status}
+            level={props.level}
+            item={modalItem.SiteCode}
+            version={modalItem.Version}
+            country={props.country}
+            updateModalValues = {props.updateModalValues}
+            justificationRequired={modalItem.JustificationRequired}
+            justificationProvided={modalItem.JustificationProvided}
+            activeKey={modalItem.ActiveKey}
           />
         </>
         )
+      }
   
   }
   

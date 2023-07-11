@@ -1,4 +1,5 @@
 import React, { lazy, useState, useRef } from 'react'
+import { CAlert } from '@coreui/react';
 import { AppFooter, AppHeader } from '../../../components/index'
 import ConfigData from '../../../config.json';
 import '@fortawesome/fontawesome-free/css/all.min.css';
@@ -17,6 +18,7 @@ import {
   CFormSelect,
   CPagination,
   CPaginationItem,
+  CTooltip,
 } from '@coreui/react'
 
 import { ModalEdition } from './ModalEdition';
@@ -32,6 +34,7 @@ const Releases = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalItem, setModalItem] = useState({});
   const [siteCodes, setSitecodes] = useState([]);
+  const [errorLoading, setErrorLoading] = useState(false);
   const [searchList, setSearchList] = useState({});
   const [selectOption, setSelectOption] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -61,17 +64,20 @@ const Releases = () => {
     dl.fetch(ConfigData.GET_CLOSED_COUNTRIES)
     .then(response => response.json())
     .then(data => {
-      setLoadingCountries(false);
-      let countriesList = [];
-      for(let i in data.Data){
-        countriesList.push({name:data.Data[i].Country,code:data.Data[i].Code});
-      }
-      countriesList = [{name:"",code:""}, ...countriesList];
-      setCountries(countriesList);
-      if(country === ""){
+      if(data?.Success) {
+        let countriesList = [];
+        for(let i in data.Data){
+          countriesList.push({name:data.Data[i].Country,code:data.Data[i].Code});
+        }
+        countriesList.sort((a, b) => a.name.localeCompare(b.name));
+        countriesList = [{name:"",code:""}, ...countriesList];
+        setCountries(countriesList);
+        if(country === ""){
           setCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code);
           changeCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code)
-      }
+        }
+      } else { setErrorLoading(true) }
+      setLoadingCountries(false);
     });
   }
 
@@ -87,8 +93,10 @@ const Releases = () => {
     dl.fetch(ConfigData.BIOREGIONS_GET)
     .then(response => response.json())
     .then(data => {
-      let regionsList = data.Data;
-      setBioRegions(regionsList);
+      if(data?.Success) {
+        let regionsList = data.Data;
+        setBioRegions(regionsList);
+      }
     });
   }
 
@@ -96,8 +104,10 @@ const Releases = () => {
     dl.fetch(ConfigData.SITETYPES_GET)
     .then(response => response.json())
     .then(data => {
-      let typesList = data.Data;
-      setSiteTypes(typesList);
+      if(data?.Success) {
+        let typesList = data.Data;
+        setSiteTypes(typesList);
+      }
     });
   }
 
@@ -120,12 +130,10 @@ const Releases = () => {
     setModalItem(data);
   }
 
-  let closeModal = (refresh) => {
+  let closeModal = () => {
     setModalVisible(false);
     setModalItem({});
-    if(refresh) {
-      forceRefreshData();
-    }
+    forceRefreshData();
   }
 
   let forceRefreshData = () => setSitecodes([]);
@@ -157,19 +165,21 @@ const Releases = () => {
 
   let loadData = () => {
     if(siteCodes.length !==0) return;
-    if(country !=="" && !isLoading && siteCodes!=="nodata" && siteCodes.length === 0){
+    if(country !=="" && !isLoading && siteCodes!=="nodata" && siteCodes.length === 0 && !errorLoading){
       setIsLoading(true);
       dl.fetch(ConfigData.SITEEDITION_NON_PENDING_GET+"country="+country)
       .then(response =>response.json())
       .then(data => {
-        if(Object.keys(data.Data).length === 0){
-          setSitecodes("nodata");
-        }
-        else {
-          setSitecodes(data.Data);
-          setSearchList(getSitesList(data.Data));
-          setPageCount(Math.ceil(data.Data.length / Number(pageSize)));
-        }
+        if(data?.Success) {
+          if(Object.keys(data.Data).length === 0){
+            setSitecodes("nodata");
+          }
+          else {
+            setSitecodes(data.Data);
+            setSearchList(getSitesList(data.Data));
+            setPageCount(Math.ceil(data.Data.length / Number(pageSize)));
+          }
+        } else { setErrorLoading(true) }
         setIsLoading(false);
       });
     }
@@ -208,6 +218,8 @@ const Releases = () => {
         let siteName = sites[i].Name;
         let siteCode = sites[i].SiteCode;
         let version = sites[i].Version;
+        let date = sites[i].EditedDate;
+        let user = sites[i].EditedBy;
         cards.push(
           <CCol xs={12} md={6} lg={4} xl={3} key={"card_"+i}>
             <CCard className="search-card">
@@ -221,6 +233,16 @@ const Releases = () => {
                 <CButton color="link" className="btn-link--dark" onClick={()=>openModal({SiteCode:siteCode, Version:version})}>
                   Edit
                 </CButton>
+                {date && user &&
+                <CTooltip 
+                  content={"Edited"
+                    + (date && " on " + date.slice(0,10).split('-').reverse().join('/'))
+                    + (user && " by " + user)}>
+                  <div className="btn-icon btn-hover btn-editinfo">
+                    <i className="fa-solid fa-pen-to-square"></i>
+                  </div>
+                </CTooltip>
+              }
               </div>
             </CCard>
           </CCol>
@@ -277,7 +299,7 @@ const Releases = () => {
               </div>
             </div>
             <CRow>
-              <CCol md={12} lg={6} xl={9} className="d-flex mb-4">
+              <CCol sm={12} md={6} lg={6} className="d-flex mb-4">
                 <div className="search--input">
                   <Turnstone
                     id="siteedition_search"
@@ -291,6 +313,7 @@ const Releases = () => {
                     ref={turnstoneRef}
                     Item={item}
                     typeahead={false}
+                    disabled={isLoading}
                   />
                   {Object.keys(selectOption).length !== 0 &&
                     <span className="btn-icon" onClick={()=>clearSearch()}>
@@ -302,9 +325,16 @@ const Releases = () => {
                   <i className="fa-solid fa-magnifying-glass"></i>
                 </CButton>
               </CCol>
-              <CCol className="mb-4">
+              <CCol sm={12} md={6} lg={6} className="mb-4">
                   <div className="select--right">
-                    <CFormLabel className="form-label form-label-reporting col-md-4 col-form-label">Country </CFormLabel>
+                    <CFormLabel className="form-label form-label-reporting col-md-4 col-form-label">
+                      Country
+                      <CTooltip content="Only countries with complete envelopes can be edited">
+                        <div className="btn-icon btn-hover ms-2">
+                          <i className="fa-solid fa-circle-info"></i>
+                        </div>
+                      </CTooltip>
+                    </CFormLabel>
                     <CFormSelect aria-label="Default select example" className='form-select-reporting' disabled={isLoading} value={country} onChange={(e)=>changeCountry(e.target.value)}>
                       {
                         countries.map((e)=><option value={e.code} key={e.code}>{e.name}</option>)
@@ -314,7 +344,10 @@ const Releases = () => {
                 </CCol>
             </CRow>
             <CRow className="grid">
-              {isLoading ?
+              {(errorLoading && !isLoading) &&
+                <CAlert color="danger">Error loading data</CAlert>
+              }
+              {(!errorLoading && isLoading) ?
                 <div className="loading-container"><em>Loading...</em></div>
               : (siteCodes === "nodata" ?
                 <div className="nodata-container"><em>No Data</em></div>

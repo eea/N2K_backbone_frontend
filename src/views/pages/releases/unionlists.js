@@ -41,12 +41,14 @@ const Releases = () => {
       let bioRegionsData = [];
       if(bioRegions.length === 0) {
         promises.push(
-          dl.fetch(ConfigData.UNIONLISTS_BIOREGIONS)
+          dl.fetch(ConfigData.RELEASES_BIOREGIONS)
           .then(response =>response.json())
           .then(data => {
-            if(Object.keys(data.Data).length > 0){
-              setBioRegions(data.Data);
-              bioRegionsData = data.Data;
+            if(data?.Success) {
+              if(Object.keys(data.Data).length > 0){
+                setBioRegions(data.Data);
+                bioRegionsData = data.Data;
+              }
             }
           })
         );
@@ -56,77 +58,96 @@ const Releases = () => {
           dl.fetch(ConfigData.UNIONLISTS_SUMMARY)
           .then(response =>response.json())
           .then(data => {
-            if(Object.keys(data.Data).length > 0){
-              setBioRegionsSummary(data.Data.BioRegionSummary);
-              setPageResults(data.Count);
-              setActiveBioregions(data.Data.BioRegionSummary.map(a=>a.BioRegion).toString());
+            if(data?.Success) {
+              if(data.Count === 0){
+                setBioRegionsSummary(data.Data.BioRegionSummary);
+                setPageResults(data.Count);
+                setTableData1("nodata");
+                setTableData2("nodata");
+              }
+              else if(Object.keys(data.Data).length > 0){
+                setBioRegionsSummary(data.Data.BioRegionSummary);
+                setPageResults(data.Count);
+                setActiveBioregions(data.Data.BioRegionSummary.filter(a=>a.Count>0).map(a=>a.BioRegion).toString());
+              }
+              setIsLoading(false);
             }
           })
         );
       }
-      if(!tableDataLoading || (tableData1.length === 0 && tableData2.length === 0)) {
+      if (activeBioregions === "nodata") {
+        setTableData1("nodata");
+        setTableData2("nodata");
+      }
+      else if(!tableDataLoading || (tableData1.length === 0 && tableData2.length === 0)) {
+        if(activeBioregions==="") return;
         setTableDataLoading(true);
         promises.push(
           dl.fetch(ConfigData.UNIONLISTS_COMPARER+"?page="+pageNumber+"&limit="+pageSize + (activeBioregions && "&bioregions="+activeBioregions))
           .then(response => response.json())
           .then(data => {
-            if(Object.keys(data.Data).length > 0 && tableData1.length === 0 && tableData2.length === 0) {
-              let bioReg = bioRegions.length === 0 ? bioRegionsData : bioRegions;
-              let dataTable1 = [];
-              let dataTable2 = [];
-              for(let i in data.Data) {
-                let row = data.Data[i];
-                let rowTable1 = {};
-                let rowTable2 = {};
-                Object.keys(row).forEach((key) => {
-                  let value = row[key]?.Source === undefined ? row[key] : row[key]?.Source;
-                  if(key === "BioRegion") {
-                    value = bioReg.find(a=>a.BioRegionShortCode === value).RefBioGeoName;
-                  }
-                  if(row.Changes === "ADDED" && (key === "BioRegion" || key === "Sitecode")) {
-                    value = "";
-                  }
-                  else if(key === "Priority") {
-                    value = value !== null && (value ? "Yes" : "No");
-                  }
-                  rowTable1[key] = value;
-                });
-                dataTable1.push(rowTable1);
-                Object.keys(row).forEach((key) => {
-                  let value;
-                  if((row.Changes === "ADDED" || row.Changes === "DELETED")) {
-                    value = row[key]?.Target === undefined ? row[key] : row[key]?.Target;
+            if(data?.Success) {
+              if(Object.keys(data.Data).length > 0 && tableData1.length === 0 && tableData2.length === 0) {
+                let bioReg = bioRegions.length === 0 ? bioRegionsData : bioRegions;
+                let dataTable1 = [];
+                let dataTable2 = [];
+                for(let i in data.Data) {
+                  let row = data.Data[i];
+                  let rowTable1 = {};
+                  let rowTable2 = {};
+                  Object.keys(row).forEach((key) => {
+                    let value = row[key]?.Source === undefined ? row[key] : row[key]?.Source;
                     if(key === "BioRegion") {
                       value = bioReg.find(a=>a.BioRegionShortCode === value).RefBioGeoName;
                     }
-                    if(row.Changes === "DELETED" && (key === "BioRegion" || key === "Sitecode")) {
+                    if(row.Changes === "ADDED" && (key === "BioRegion" || key === "Sitecode")) {
                       value = "";
                     }
-                  }
-                  else {
-                    if(row[key]?.Change === null) {
+                    else if(key === "Priority") {
+                      value = value !== null && (value ? "Yes" : "No");
+                    }
+                    rowTable1[key] = value;
+                  });
+                  dataTable1.push(rowTable1);
+                  Object.keys(row).forEach((key) => {
+                    let value;
+                    if((row.Changes === "ADDED" || row.Changes === "DELETED")) {
                       value = row[key]?.Target === undefined ? row[key] : row[key]?.Target;
                       if(key === "Priority") {
                         value = value !== null && (value ? "Yes" : "No");
                       }
-                    }
-                    else {
-                      value = row[key];
-                      if(key === "Priority") {
-                        value.Source = value.Source ? "Yes" : "No";
-                        value.Target = value.Target ? "Yes" : "No";
+                      if(key === "BioRegion") {
+                        value = bioReg.find(a=>a.BioRegionShortCode === value).RefBioGeoName;
+                      }
+                      if(row.Changes === "DELETED" && (key === "BioRegion" || key === "Sitecode")) {
+                        value = "";
                       }
                     }
-                    if(key === "BioRegion") {
-                      value = bioReg.find(a=>a.BioRegionShortCode === value).RefBioGeoName;
+                    else {
+                      if(row[key]?.Change === null) {
+                        value = row[key]?.Target === undefined ? row[key] : row[key]?.Target;
+                        if(key === "Priority") {
+                          value = value !== null && (value ? "Yes" : "No");
+                        }
+                      }
+                      else {
+                        value = row[key];
+                        if(key === "Priority") {
+                          value.Source = value.Source ? "Yes" : "No";
+                          value.Target = value.Target ? "Yes" : "No";
+                        }
+                      }
+                      if(key === "BioRegion") {
+                        value = bioReg.find(a=>a.BioRegionShortCode === value).RefBioGeoName;
+                      }
                     }
-                  }
-                  rowTable2[key] = value;
-                });
-                dataTable2.push(rowTable2);
+                    rowTable2[key] = value;
+                  });
+                  dataTable2.push(rowTable2);
+                }
+                setTableData1(dataTable1);
+                setTableData2(dataTable2);
               }
-              setTableData1(dataTable1);
-              setTableData2(dataTable2);
             }
           })
         );
@@ -145,7 +166,7 @@ const Releases = () => {
       let region = bioRegionsSummary[i];
       let regionName = bioRegions.find(a=>a.BioRegionShortCode === region.BioRegion).RefBioGeoName;
       buttons.push(
-        <CButton color="primary" key={region.BioRegion} disabled={region.Count===0} size="sm" onClick={(e)=>filterBioRegion(e)} value={region.BioRegion}>
+        <CButton color={activeBioregions.includes(region.BioRegion) || region.Count === 0 ? "primary" : "secondary"} key={region.BioRegion} disabled={tableDataLoading || region.Count===0} size="sm" onClick={(e)=>filterBioRegion(e)} value={region.BioRegion}>
           {region.Count + " " + regionName}
         </CButton>
       );
@@ -169,18 +190,21 @@ const Releases = () => {
     let results;
     if(activeBioregions.includes(value)) {
       filter = activeBioregions.split(",").filter(a=>a!==value).toString();
-      results = pageResults - bioRegionsSummary.find(a=>a.BioRegion === value).Count
+      results = pageResults - bioRegionsSummary.find(a=>a.BioRegion === value).Count;
+      if(filter === "")
+        filter = "nodata";
     }
     else {
       filter = activeBioregions.split(",").concat(value).toString();
       results = pageResults + bioRegionsSummary.find(a=>a.BioRegion === value).Count;
+      if(activeBioregions.includes("nodata"))
+        filter = filter.split(",").filter(a=>a!=="nodata").toString();
     }
     setPageNumber(1);
     setPageResults(results);
     setActiveBioregions(filter);
     setTableData1([]);
     setTableData2([]);
-    e.currentTarget.classList.toggle("btn-secondary");
   }
 
   let resizeIframe = () => {
@@ -198,19 +222,28 @@ const Releases = () => {
         th.style.width = width + "px";
         th2.style.width = width + "px";
       });
-      tableScroll();
+      tableScroll()
       resizeIframe();
       window.addEventListener('resize', resizeIframe);
     }
   });
 
   let tableScroll = () => {
+    var ignoreScrollEvents = false;
     var s1 = document.querySelectorAll(".unionlist-table")[0];
     var s2 = document.querySelectorAll(".unionlist-table")[1];
     let select_scroll1 = (e) => {
+      var ignore = ignoreScrollEvents
+      ignoreScrollEvents = false
+      if (ignore) return
+      ignoreScrollEvents = true
       s2.scrollLeft = s1.scrollLeft;
     }
     let select_scroll2 = (e) => {
+      var ignore = ignoreScrollEvents
+      ignoreScrollEvents = false
+      if (ignore) return
+      ignoreScrollEvents = true
       s1.scrollLeft = s2.scrollLeft;
     }
     s1.addEventListener('scroll', select_scroll1, false);
@@ -223,8 +256,10 @@ const Releases = () => {
     dl.fetch(ConfigData.UNIONLISTS_DOWNLOAD+"?bioregs="+regions)
       .then(response => response.json())
       .then(data => {
-        window.location = data.Data;
-        setIsDownloading(false);
+        if(data?.Success) {
+          window.location = data.Data;
+          setIsDownloading(false);
+        }
       });
   }
 
@@ -296,7 +331,7 @@ const Releases = () => {
                   <>
                     <CRow>
                       <CCol xs={6}>
-                        <b>Lates release</b>
+                        <b>Latest release</b>
                         <ScrollContainer hideScrollbars={false} className="scroll-container unionlist-table" style={{width: tableWidth}}>
                           {tableData1.length > 0 &&
                             <TableUnionLists data={tableData1} colors={false}/>
@@ -312,55 +347,57 @@ const Releases = () => {
                         </ScrollContainer>
                       </CCol>
                     </CRow>
-                    <div className="table-footer mt-3">
-                      <div className="table-legend">
-                        <div className="table-legend--item">
-                          <span className="table-legend--color" style={{backgroundColor: ConfigData.Colors.Red}}></span>
-                          <span className="table-legend--label">Deleted/Decreased/Priority changed</span>
+                    {pageResults > 0 &&
+                      <div className="table-footer mt-3">
+                        <div className="table-legend">
+                          <div className="table-legend--item">
+                            <span className="table-legend--color" style={{backgroundColor: ConfigData.Colors.Red}}></span>
+                            <span className="table-legend--label">Deleted/Decreased/Priority changed</span>
+                          </div>
+                          <div className="table-legend--item">
+                            <span className="table-legend--color" style={{backgroundColor: ConfigData.Colors.Green}}></span>
+                            <span className="table-legend--label">Added/Increased</span>
+                          </div>
                         </div>
-                        <div className="table-legend--item">
-                          <span className="table-legend--color" style={{backgroundColor: ConfigData.Colors.Green}}></span>
-                          <span className="table-legend--label">Added/Increased</span>
-                        </div>
+                        <CPagination>
+                          <CPaginationItem onClick={() => gotoPage(1, null)} disabled={pageNumber === 1}>
+                            <i className="fa-solid fa-angles-left"></i>
+                          </CPaginationItem>
+                          <CPaginationItem onClick={() => gotoPage(pageNumber-1, null)} disabled={pageNumber === 1}>
+                            <i className="fa-solid fa-angle-left"></i>
+                          </CPaginationItem>
+                          <span>
+                            Page{' '}
+                            <strong>
+                              {pageNumber} of {Math.ceil(pageResults / Number(pageSize))}
+                            </strong>{' '}
+                            ({pageResults === 1 ? pageResults + " result" : pageResults + " results"})
+                          </span>
+                          <CPaginationItem onClick={() => gotoPage(pageNumber+1, null)} disabled={pageNumber === Math.ceil(pageResults / Number(pageSize))}>
+                            <i className="fa-solid fa-angle-right"></i>
+                          </CPaginationItem>
+                          <CPaginationItem onClick={() => gotoPage(Math.ceil(pageResults / Number(pageSize)), null)} disabled={pageNumber === Math.ceil(pageResults / Number(pageSize))}>
+                            <i className="fa-solid fa-angles-right"></i>
+                          </CPaginationItem>
+                          <div className='pagination-rows'>
+                            <label className='form-label'>Rows per page</label>
+                            <select
+                              className='form-select'
+                              value={pageSize}
+                              onChange={e => {
+                                gotoPage(null,Number(e.target.value))
+                              }}
+                            >
+                              {[10, 20, 30, 40, 50].map(pageSize => (
+                                <option key={pageSize} value={pageSize}>
+                                  {pageSize}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        </CPagination>
                       </div>
-                      <CPagination>
-                        <CPaginationItem onClick={() => gotoPage(1, null)} disabled={pageNumber === 1}>
-                          <i className="fa-solid fa-angles-left"></i>
-                        </CPaginationItem>
-                        <CPaginationItem onClick={() => gotoPage(pageNumber-1, null)} disabled={pageNumber === 1}>
-                          <i className="fa-solid fa-angle-left"></i>
-                        </CPaginationItem>
-                        <span>
-                          Page{' '}
-                          <strong>
-                            {pageNumber} of {Math.ceil(pageResults / Number(pageSize))}
-                          </strong>{' '}
-                          ({pageResults === 1 ? pageResults + " result" : pageResults + " results"})
-                        </span>
-                        <CPaginationItem onClick={() => gotoPage(pageNumber+1, null)} disabled={pageNumber === Math.ceil(pageResults / Number(pageSize))}>
-                          <i className="fa-solid fa-angle-right"></i>
-                        </CPaginationItem>
-                        <CPaginationItem onClick={() => gotoPage(Math.ceil(pageResults / Number(pageSize)), null)} disabled={pageNumber === Math.ceil(pageResults / Number(pageSize))}>
-                          <i className="fa-solid fa-angles-right"></i>
-                        </CPaginationItem>
-                        <div className='pagination-rows'>
-                          <label className='form-label'>Rows per page</label>
-                          <select
-                            className='form-select'
-                            value={pageSize}
-                            onChange={e => {
-                              gotoPage(null,Number(e.target.value))
-                            }}
-                          >
-                            {[10, 20, 30, 40, 50].map(pageSize => (
-                              <option key={pageSize} value={pageSize}>
-                                {pageSize}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      </CPagination>
-                    </div>
+                    }
                   </>
                 }
               </>

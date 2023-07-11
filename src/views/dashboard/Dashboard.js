@@ -1,4 +1,5 @@
 import React from 'react'
+import { AppFooter, AppHeader } from './../../../src/components/index'
 
 import {
   CCard,
@@ -25,21 +26,23 @@ import SiteGraph from './components/SiteGraph';
 const Dashboard = () => {
 
   return (
-    <>
-      <CContainer fluid>
-        <div className="dashboard-title">
-          <div hidden className="select--right m-0">
-            <CFormLabel htmlFor="exampleFormControlInput1" className="form-label form-label-reporting col-md-4 col-form-label">Country</CFormLabel>
-              <CFormSelect aria-label="Default select example" className="form-select-reporting">
-                <option>All</option>
-                <option value="1">Austria</option>
-                <option value="2">Belgium</option>
-                <option value="3">Bulgaria</option>
-                <option value="4">...</option>
-              </CFormSelect>
-            </div>
-          <h1 className="h1-main">Dashboard</h1>
-        </div>
+    <div className="container--main min-vh-100">
+      <AppHeader page="dashboard"/>
+      <div className="main-content">
+        <CContainer fluid>
+          <div className="dashboard-title">
+            <div hidden className="select--right m-0">
+              <CFormLabel htmlFor="exampleFormControlInput1" className="form-label form-label-reporting col-md-4 col-form-label">Country</CFormLabel>
+                <CFormSelect aria-label="Default select example" className="form-select-reporting">
+                  <option>All</option>
+                  <option value="1">Austria</option>
+                  <option value="2">Belgium</option>
+                  <option value="3">Bulgaria</option>
+                  <option value="4">...</option>
+                </CFormSelect>
+              </div>
+            <h1 className="h1-main">Dashboard</h1>
+          </div>
           <div className="container-card-dashboard mb-5">
             <CRow className="grid">
               <div className="col-md-6 col-xl-3">
@@ -85,7 +88,7 @@ const Dashboard = () => {
                 </a>
               </div>
               <div className="col-md-6 col-xl-3">
-                <a href="/#/reports/changes">
+                <a href="/#/reports/status">
                   <CCard className="card-dashboard-new">
                     <CCardBody>
                       <div className="card-icon-new">
@@ -111,8 +114,9 @@ const Dashboard = () => {
               <SiteGraph />
             </CRow>
           </div>
-      </CContainer>
-    </>
+        </CContainer>
+      </div>
+    </div>
   )
 }
 

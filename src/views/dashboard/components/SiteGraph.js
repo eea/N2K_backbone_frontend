@@ -3,10 +3,12 @@ import ConfigData from '../../../config.json';
 import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
 import {DataLoader} from '../../../components/DataLoader';
+import { CAlert } from '@coreui/react';
 
 const SiteGraph = () => {
     const [changesCountriesData, setChangesCountriesData] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [errorsLoading, setErrorsLoading] = useState(false);
     const [sitesPendingData, setSitesPendingData] = useState([]);
     const [sitesAcceptedData, setSitesAcceptedData] = useState([]);
     const [sitesRejectedData, setSitesRejectedData] = useState([]);
@@ -22,22 +24,31 @@ const SiteGraph = () => {
         promises.push(dl.fetch(ConfigData.GET_SITE_COUNT)
             .then(response => response.json())
             .then(data => {
-                setChangesCountriesData(data.Data);
+                if(data?.Success) {
+                    data.Data.sort((a, b) => a.Country.localeCompare(b.Country));
+                    setChangesCountriesData(data.Data);
+                } else { setErrorsLoading(true) }
             }));
         promises.push(dl.fetch(ConfigData.GET_SITE_LEVEL + '?status=Pending')
             .then(response => response.json())
             .then(data => {
-                setSitesPendingData(data.Data);
+                if(data?.Success) {
+                    setSitesPendingData(data.Data);
+                } else { setErrorsLoading(true) }
             }));
         promises.push(dl.fetch(ConfigData.GET_SITE_LEVEL + '?status=Accepted')
             .then(response => response.json())
             .then(data => {
-                setSitesAcceptedData(data.Data);
+                if(data?.Success) {
+                    setSitesAcceptedData(data.Data);
+                }
             }));
         promises.push(dl.fetch(ConfigData.GET_SITE_LEVEL + '?status=Rejected')
             .then(response => response.json())
             .then(data => {
-                setSitesRejectedData(data.Data);
+                if(data?.Success) {
+                    setSitesRejectedData(data.Data);
+                }
             }));
         Promise.all(promises).then(d => setIsLoading(false));
     })
@@ -53,9 +64,9 @@ const SiteGraph = () => {
         chngRejected.push(data[i].NumRejected);
     }
     seriesData = [
-        { name: 'Pending', index: 1, data: chngPending, color: '#e4e4e4' },
-        { name: 'Accepted', index: 2, data: chngAccepted, color: '#daf5d6' },
-        { name: 'Rejected', index: 3, data: chngRejected, color: '#f6cbcf' }
+        { name: 'Pending', index: 1, data: chngPending, color: ConfigData.Colors.Grey },
+        { name: 'Accepted', index: 2, data: chngAccepted, color: ConfigData.Colors.Green },
+        { name: 'Rejected', index: 3, data: chngRejected, color: ConfigData.Colors.Red }
     ];
 
     countryList = changesCountriesData.map((e) => e.Country);
@@ -131,6 +142,10 @@ const SiteGraph = () => {
     if(isLoading)
         return (
             <em className="loading-container">Loading...</em>
+        )
+    else if(errorsLoading)
+        return (
+            <div><CAlert color="danger">Error loading graph data</CAlert></div>
         )
     else
         return (
