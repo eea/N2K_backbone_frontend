@@ -178,14 +178,17 @@ export class ModalLineage extends Component {
       return document.querySelector(".multi-select__single-value").textContent;
     }
     if(this.state.referenceSites.length !== this.state.predecessors?.split(',').length) {
-      let options = this.state.referenceSites?.filter(r => !this.state.predecessors?.split(',').includes(r)).map(v => ({ "value": v, "label": v }));
+      let options = this.state.referenceSites?.filter(r => 
+        !this.state.predecessors?.split(',')
+          .includes(r.SiteCode))
+        .map(v => ({ "value": v.SiteCode, "label": v.SiteCode + ' - ' + v.Name }));
       return (
         <div>
           <CCol>
             <Select
               id="new-select"
               name="new-select"
-              className="multi-select add-predececssor"
+              className="multi-select add-predecessor"
               classNamePrefix="multi-select"
               placeholder="Select a site"
               options={options}
@@ -215,19 +218,53 @@ export class ModalLineage extends Component {
   }
   
   setSelectedPredecessors(options) {
-    this.setState(() => ({ predecessors: Object.values(options).map(s => s.value).join(',') }));
+    this.setState(() => ({
+      predecessors: Object.values(options)
+        .map(s => s.textContent.split('-')[0].trim()
+        .replace("option ", ""))
+        .join(',')
+    }));
   }
   
   predecessorList() {
     let predecessors = this.state.predecessors?.split(',');
+    let options = this.state.referenceSites?.filter(r => 
+      !this.state.predecessors?.split(',')
+        .includes(r.SiteCode))
+      .map(v => ({ "value": v.SiteCode, "label": v.SiteCode + ' - ' + v.Name }));
     return predecessors?.map((s) => 
       <div key={s}>
         <CCol>
-          <CFormSelect className="option-select" defaultValue={s} disabled={this.state.status === "Consolidated" || this.state.type === "Creation"}
+          <Select
+            id={"select-" + s}
+            name={"select-" + s}
+            className="multi-select-option"
+            placeholder="Select a site"
+            options={options}
+            defaultValue={() => {
+              let site = this.state.referenceSites?.find(v => v.SiteCode === s);
+              if(site)
+                return {"value": site.SiteCode, "label": site.SiteCode + ' - ' + site.Name}
+              }}
+            isMulti={false}
+            styles={{
+              control: (baseStyles, state) => ({
+                ...baseStyles,
+                width: "23rem",
+              }),
+            }}
+            closeMenuOnSelect={true}
+            disabled={this.state.status === "Consolidated" || this.state.type === "Creation"}
+            onChange={() => this.setSelectedPredecessors(document.querySelectorAll(".multi-select-option"))}
+          />
+          {/* <CFormSelect className="option-select" defaultValue={s} disabled={this.state.status === "Consolidated" || this.state.type === "Creation"}
             onChange={() => this.setSelectedPredecessors(document.querySelectorAll(".option-select"))}>
             <option className="predecessor-option color--primary" value={s}>{s}</option>
-            {this.state.type === "Creation" ? [] : this.state.referenceSites?.filter(r => !this.state.predecessors?.split(',').includes(r)).map(t => <option className="predecessor-option" value={t}>{t}</option>)}
-          </CFormSelect>
+            {this.state.type === "Creation" ?
+              []
+              : this.state.referenceSites?.filter(r => !this.state.predecessors?.split(',').includes(r.SiteCode))
+                .map(t => <option className="predecessor-option" value={t.SiteCode}>{t.SiteCode + ' - ' + t.Name}</option>)}
+          </CFormSelect> */}
         </CCol>
         <CCol
           hidden={this.state.type === "Creation"
@@ -388,7 +425,7 @@ export class ModalLineage extends Component {
         <>
           <CModalHeader closeButton={false}>
             <CModalTitle>
-              {data.SiteCode ?? this.props.code} - {data.SiteName ??  this.props.name}
+              {data.SiteCode ?? this.props.code} - {data.Name ??  this.props.name}
               <span className="mx-2"></span>
               <span className="badge badge--fill default">Release date: {this.state.releaseDate}</span>
             </CModalTitle>
