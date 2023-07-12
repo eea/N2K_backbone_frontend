@@ -76,6 +76,6 @@
     "Red": "#f6cbcf"
   },
   "EULoginServiceUrl": "https://n2kbackbone.eea.europa.eu/n2kbackbone_back/api/",
-  "EULogoutURL": "https://ecas.acceptance.ec.europa.eu/cas/oauth2/logout",
+  "EULogoutURL": "https://ecas.ec.europa.eu/cas/oauth2/logout",
   "MessageTimeout": 5000
 }
