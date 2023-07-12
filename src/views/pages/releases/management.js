@@ -225,15 +225,15 @@ const Releases = () => {
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="/#/releases/unionlists">
-                <i className="fa-solid fa-bookmark"></i>
-                Union Lists
-              </a>
-            </li>
-            <li className="nav-item">
               <a className="nav-link" href="/#/releases/siteedition">
                 <i className="fa-solid fa-bookmark"></i>
                 Site Edition
+              </a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link" href="/#/releases/unionlists">
+                <i className="fa-solid fa-bookmark"></i>
+                Union Lists
               </a>
             </li>
           </CSidebarNav>
