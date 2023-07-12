@@ -296,7 +296,7 @@ class ModalChanges extends Component {
               <div className="d-flex gap-2 align-items-center justify-content-between" key={i+"_"+j}>
                 <div>
                   <span className={"badge badge--"+level.toLocaleLowerCase()+" me-2"}>{level}</span>
-                  <span className="me-3"> {title}</span>
+                  <span className="me-3"> {title +" ("+changes[i][j].ChangedCodesDetail.length+")"}</span>
                 </div>
                 <CButton color="link" className="btn-link--dark text-nowrap" onClick={()=>this.toggleDetail(changes[i][j].ChangeCategory + title)}>
                   {(this.state.showDetail===changes[i][j].ChangeCategory + title) ? "Hide detail" : "View detail"}

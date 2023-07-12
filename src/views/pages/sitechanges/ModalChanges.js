@@ -501,7 +501,7 @@ export class ModalChanges extends Component {
               <div className="d-flex gap-2 align-items-center justify-content-between" key={i + "_" + j}>
                 <div>
                   <span className={"badge badge--" + level.toLocaleLowerCase() + " me-2"}>{level}</span>
-                  <span className="me-3"> {title}</span>
+                  <span className="me-3"> {title + " ("+changes[i][j].ChangedCodesDetail.length+")"}</span>
                 </div>
                 <div>
                   {this.state.data.Status === "Pending" && changes[i][j].ChangeType === "Site Recoded" &&
