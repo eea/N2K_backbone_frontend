@@ -34,6 +34,7 @@ import { ConfirmationModal } from './components/ConfirmationModal';
 import MapViewer from './components/MapViewer'
 
 import { DataLoader } from '../../../components/DataLoader';
+import { dateFormatter } from 'src/components/DateUtils';
 export class ModalLineage extends Component {
   constructor(props) {
     super(props);
@@ -507,15 +508,7 @@ export class ModalLineage extends Component {
           this.setState({ predecessors: data.Data.map(s => s.SiteCode).join(',')
           , predecessorData: data.Data
           , previousPredecessors: data.Data.map(s => s.SiteCode).join(',')
-          , releaseDate: [...new Set(data.Data.map(s => 
-            new Date(s.ReleaseDate).toLocaleDateString("en-GB",
-              {
-                year: "numeric",
-                month: "2-digit",
-                day: "2-digit"
-              }
-            )
-          ))].join(',') })
+          , releaseDate: [...new Set(data.Data.map(s => dateFormatter(s.ReleaseDate)))].join(',') })
       });
     }
   }
