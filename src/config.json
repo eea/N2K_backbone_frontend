@@ -75,7 +75,7 @@
     "Green": "#daf5d6",
     "Red": "#f6cbcf"
   },
-  "EULoginServiceUrl": "http://redneckedswan/n2kbackbone_back/api/",
+  "EULoginServiceUrl": "https://n2kbackboneback-dev.azurewebsites.net/api/",
   "EULogoutURL": "https://ecas.acceptance.ec.europa.eu/cas/oauth2/logout",
   "MessageTimeout": 5000
 }
