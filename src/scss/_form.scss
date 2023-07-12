@@ -283,3 +283,22 @@ form {
     background: #e5e5e580;
   }
 }
+
+.invalidField {
+  border-color: $danger-base !important;
+}
+
+.form-control:disabled {
+  background: #e5e5e580;
+}
+
+.original-field {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  i {
+    margin-right: 0.5rem;
+  }
+  span {
+    font-style: italic;
+  }
+}

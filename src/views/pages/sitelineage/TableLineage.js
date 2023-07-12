@@ -182,8 +182,8 @@ const confStatus = ConfigData.HARVESTING_STATUS;
   function TableLineage(props) {
 
     const customFilter = (rows, columnIds, filterValue) => {
-      let result = filterValue.length === 0 ? rows : rows.filter((row) => row.values[columnIds].Version !== null);
-      result = result.filter((row)=>row.values[columnIds].SiteCode === row.values.SiteCode && row.values[columnIds].Version.includes(filterValue.toUpperCase()) || row.values[columnIds].SiteCode !== row.values.SiteCode && row.values[columnIds].SiteCode.includes(filterValue.toUpperCase()));
+      let result = filterValue.length === 0 ? rows : rows.filter((row) => row.values[columnIds].Release !== null);
+      result = result.filter((row)=>row.values[columnIds].SiteCode === row.values.SiteCode && row.values[columnIds].Release.includes(filterValue.toUpperCase()) || row.values[columnIds].SiteCode !== row.values.SiteCode && row.values[columnIds].SiteCode.includes(filterValue.toUpperCase()));
       return result;
     }
 
@@ -194,30 +194,21 @@ const confStatus = ConfigData.HARVESTING_STATUS;
           accessor: 'SiteCode',
         },
         {
-          Header: 'Version',
-          accessor: 'Version',
+          Header: 'Release',
+          accessor: 'Release',
           Cell: ({ row }) => (
-            <span className={"badge badge--lineage " + (props.siteCode === row.values.SiteCode ? "green":"yellow")}>{row.values.Version}</span>
+            <span className={"badge badge--lineage " + (props.siteCode === row.values.SiteCode ? "green":"yellow")}>{row.values.Release}</span>
           )
         },
         {
-          Header: 'Antecessors',
-          accessor: 'Antecessors',
+          Header: 'Predecessors',
+          accessor: 'Predecessors',
           Cell: ({ row }) => {
-            let values;
             let tags = [];
-            if(props.siteCode === row.values.SiteCode) {
-              values = props.siteCode === row.values.Antecessors.SiteCode ? row.values.Antecessors.Version : row.values.Antecessors.SiteCode;
-              values = values?.split(",");
+            if(row.values.SiteCode !== row.values.Predecessors.SiteCode) {
+              let values =  row.values.Predecessors.SiteCode?.split(",");
               for(let i in values) {
-                tags.push(<span className={"badge badge--lineage " + (props.siteCode === row.values.Antecessors.SiteCode ? "green":"basic")} key={"ant_"+row+values[i]}>{values[i]}</span>);
-              }
-            }
-            else {
-              values = row.values.SiteCode !== row.values.Antecessors.SiteCode ? row.values.Antecessors.SiteCode : row.values.Antecessors.Version;
-              values = values?.split(",");
-              for(let i in values) {
-                tags.push(<span className={"badge badge--lineage " + (row.values.SiteCode !== row.values.Antecessors.SiteCode ? "basic":"yellow")} key={"ant_"+row+values[i]}>{values[i]}</span>);
+                tags.push(<span className="badge badge--lineage basic" key={"pred_"+row+values[i]}>{values[i]}</span>);
               }
             }
             return tags;
@@ -228,22 +219,19 @@ const confStatus = ConfigData.HARVESTING_STATUS;
           Header: 'Successors',
           accessor: 'Successors',
           Cell: ({ row }) => {
-            let values;
             let tags = [];
-            if(props.siteCode === row.values.SiteCode) {
-              values = props.siteCode === row.values.Successors.SiteCode ? row.values.Successors.Version : row.values.Successors.SiteCode;
-              values = values?.split(",");
+            if(row.values.SiteCode !== row.values.Successors.SiteCode) {
+              let values = row.values.Successors.SiteCode?.split(",");
               for(let i in values) {
-                tags.push(<span className={"badge badge--lineage " + (props.siteCode === row.values.Successors.SiteCode ? "green":"basic")} key={"suc_"+row+values[i]}>{values[i]}</span>);
+                tags.push(<span className="badge badge--lineage basic" key={"suc_"+row+values[i]}>{values[i]}</span>);
               }
             }
-            else {
-              values = row.values.SiteCode !== row.values.Successors.SiteCode ? row.values.Successors.SiteCode : row.values.Successors.Version;
-              values = values?.split(",");
-              for(let i in values) {
-                tags.push(<span className={"badge badge--lineage " + (row.values.SiteCode !== row.values.Successors.SiteCode ? "basic":"yellow")} key={"suc_"+row+values[i]}>{values[i]}</span>);
-              }
-            }
+            // if(props.siteCode !== row.values.SiteCode && row.values.SiteCode !== row.values.Successors.SiteCode) {
+            //   let values = row.values.Successors.SiteCode?.split(",");
+            //   for(let i in values) {
+            //     tags.push(<span className="badge badge--lineage basic" key={"suc_"+row+values[i]}>{values[i]}</span>);
+            //   }
+            // }
             return tags;
           },
           filter: customFilter,
@@ -264,10 +252,6 @@ const confStatus = ConfigData.HARVESTING_STATUS;
         <Table
           columns={columns}
           data={props.data}
-          // tableType={props.tableType}
-          // setSelected={props.setSelected}
-          // modalProps={props.modalProps}
-          // status={props.status}
         />
       </>
     )

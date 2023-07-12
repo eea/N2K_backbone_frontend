@@ -35,11 +35,14 @@ export class ConfirmationModal extends Component {
   render() {
     let modal = this.props.modalValues;
     return (
-      <CModal alignment="center" visible={modal.visibility} onClose={()=>this.closeFunction()} className="modal--confirmation">
+      <CModal alignment="center" visible={modal.visibility} backdrop="static" onClose={()=>this.closeFunction()} className="modal--confirmation">
         <CModalHeader onClose={()=>this.closeFunction()}>
           <CModalTitle>{modal.title}</CModalTitle>
         </CModalHeader>
-        <CModalBody>{modal.text}</CModalBody>
+        <CModalBody>
+          {modal.message?.text && <CAlert color={modal.message.type} dismissible={modal.message.canClose} onClose={() =>modal.closeMessage}>{modal.message.text}</CAlert>}
+          {modal.text}
+        </CModalBody>
         <CModalFooter className={modal.secondaryButton ? "justify-content-between" : "justify-content-end"}>
           {modal.secondaryButton &&
             <CButton color="secondary" onClick={() => this.secondaryFunction()}>

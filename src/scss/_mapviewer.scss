@@ -1,0 +1,42 @@
+.esri-view {
+  .esri-widget--button {
+    color: $primary-base;
+  }
+  .esri-component {
+    &.esri-layer-list {
+      box-shadow: none;
+      background: none;
+      padding: 0;
+      margin: 0;
+      .esri-icon-visible, .esri-icon-non-visible {
+        color: $primary-base;
+      }
+    }
+  }
+  .esri-feature {
+    .esri-widget__table tr th {
+      border-right: solid 1px $gray-100;
+      border-bottom: solid 1px $gray-100;
+      background-color: white;
+    }
+    .esri-widget__table tr td {
+      border-bottom: solid 1px $gray-100;
+      background-color: white;
+    }
+    .esri-widget__table tr:last-of-type th, .esri-widget__table tr:last-of-type td {
+      border-bottom: none;
+    }
+  }
+  .legend-color {
+    display: inline-block;
+    height: 1rem;
+    width: 1rem;
+    opacity: 0.5;
+    &.legend-color-0 {
+      background-color: #fed100;
+    }
+    &.legend-color-1 {
+      background-color: #4fc1c5;
+    }
+  }
+}

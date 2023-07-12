@@ -32,21 +32,21 @@ const Reports = () => {
           <CSidebarNav>
             <li className="nav-title">Reports</li>
             <li className="nav-item">
-              <a className="nav-link active" href="/#/reports/added">
+              <a className="nav-link" href="/#/reports/releases">
                 <i className="fa-solid fa-bookmark"></i>
-                Sites Added
+                Releases Dates
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="/#/reports/deleted">
+              <a className="nav-link" href="/#/reports/sites">
                 <i className="fa-solid fa-bookmark"></i>
-                Sites Deleted
+                Reference Sites Details
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="/#/reports/changes">
+              <a className="nav-link active" href="/#/reports/status">
                 <i className="fa-solid fa-bookmark"></i>
-                Changes
+                Site Status
               </a>
             </li>
           </CSidebarNav>
@@ -55,7 +55,7 @@ const Reports = () => {
           <CContainer fluid>
             <div className="d-flex justify-content-between py-3">
               <div className="page-title">
-                <h1 className="h1">Sites Added</h1>
+                <h1 className="h1">Site Status</h1>
               </div>
             </div>
             <CRow>
@@ -67,7 +67,7 @@ const Reports = () => {
                   scrolling="no"
                   width="100%"
                   height={height}
-                  src={ConfigData.TABLEAU_CHANGES + "?:showAppBanner=false&:display_count=n&:showVizHome=n&:origin=viz_share_link&:embed=y&:host_url=https://tableau-public.discomap.eea.europa.eu/"}
+                  src={ConfigData.TABLEAU_STATUS + "?:showAppBanner=false&:display_count=n&:showVizHome=n&:origin=viz_share_link&:embed=y&:host_url=https://tableau-public.discomap.eea.europa.eu/&:refresh=true"}
                 >
                 </iframe>
               </CCol>

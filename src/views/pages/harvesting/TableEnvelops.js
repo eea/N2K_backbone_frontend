@@ -347,13 +347,15 @@ const IndeterminateCheckbox = React.forwardRef(
             dl.fetch(ConfigData.HARVESTING_GET_STATUS+"?status="+status[i])
             .then(response => response.json())
             .then(data => {
-              if(Object.keys(data.Data).length === 0) {
-                if(status.length === 1) {
-                  setEnvelopsData("nodata");
+              if(data?.Success) {
+                if(Object.keys(data.Data).length === 0) {
+                  if(status.length === 1) {
+                    setEnvelopsData("nodata");
+                  }
                 }
-              }
-              else {
-                setEnvelopsData(envelopsData[status[i]]=data.Data);
+                else {
+                  setEnvelopsData(envelopsData[status[i]]=data.Data);
+                }
               }
             })
           )
