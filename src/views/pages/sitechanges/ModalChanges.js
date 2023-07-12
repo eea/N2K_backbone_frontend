@@ -78,7 +78,7 @@ export class ModalChanges extends Component {
       bookmarkUpdate: false,
       comments: [],
       documents: [],
-      showDetail: "",
+      showDetail: [],
       newComment: false,
       newDocument: false,
       justificationRequired: false,
@@ -160,10 +160,10 @@ export class ModalChanges extends Component {
   }
 
   toggleDetail(key) {
-    if (this.state.showDetail === key) {
-      this.setState({ showDetail: "" });
+    if (this.state.showDetail.includes(key)) {
+      this.setState({ showDetail: this.state.showDetail.filter((a) => a !== key) });
     } else {
-      this.setState({ showDetail: key });
+      this.setState({ showDetail: [...this.state.showDetail, key] });
     }
   }
 
@@ -513,11 +513,11 @@ export class ModalChanges extends Component {
                   </>
                   }
                   <CButton color="link" className="btn-link--dark text-nowrap" onClick={() => this.toggleDetail(changes[i][j].ChangeCategory + title)}>
-                    {(this.state.showDetail === changes[i][j].ChangeCategory + title) ? "Hide detail" : "View detail"}
+                    {(this.state.showDetail.includes(changes[i][j].ChangeCategory + title)) ? "Hide detail" : "View detail"}
                   </CButton>
                 </div>
               </div>
-              <CCollapse visible={this.state.showDetail === changes[i][j].ChangeCategory + title}>
+              <CCollapse visible={this.state.showDetail.includes(changes[i][j].ChangeCategory + title)}>
                 <CCard>
                   {this.state.showDetail && this.renderValuesTable(changes[i][j].ChangedCodesDetail)}
                 </CCard>
