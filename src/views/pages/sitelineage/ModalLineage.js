@@ -175,7 +175,7 @@ export class ModalLineage extends Component {
   
   addPredecessor() {
     const getNewSite = () => {
-      return document.querySelector(".multi-select__single-value").textContent;
+      return document.querySelector(".multi-select__single-value").textContent.split('-')[0].trim();
     }
     if(this.state.referenceSites.length !== this.state.predecessors?.split(',').length) {
       let options = this.state.referenceSites?.filter(r => 
@@ -193,6 +193,12 @@ export class ModalLineage extends Component {
               placeholder="Select a site"
               options={options}
               isMulti={false}
+              styles={{
+                control: (baseStyles, state) => ({
+                  ...baseStyles,
+                  width: "23rem",
+                }),
+              }}
               closeMenuOnSelect={true}
             />
           </CCol>
@@ -232,54 +238,48 @@ export class ModalLineage extends Component {
       !this.state.predecessors?.split(',')
         .includes(r.SiteCode))
       .map(v => ({ "value": v.SiteCode, "label": v.SiteCode + ' - ' + v.Name }));
-    return predecessors?.map((s) => 
-      <div key={s}>
-        <CCol>
-          <Select
-            id={"select-" + s}
-            name={"select-" + s}
-            className="multi-select-option"
-            placeholder="Select a site"
-            options={options}
-            defaultValue={() => {
-              let site = this.state.referenceSites?.find(v => v.SiteCode === s);
-              if(site)
-                return {"value": site.SiteCode, "label": site.SiteCode + ' - ' + site.Name}
+    if(predecessors?.length > 0 && options.length > 0)
+      return predecessors?.map((s) => 
+        <div key={s}>
+          <CCol>
+            <Select
+              id={"select-" + s}
+              name={"select-" + s}
+              className="multi-select-option"
+              placeholder="Select a site"
+              options={options}
+              defaultValue={() => {
+                let site = this.state.referenceSites?.find(v => v.SiteCode === s);
+                if(site)
+                  return {"value": site.SiteCode, "label": site.SiteCode + ' - ' + site.Name}
               }}
-            isMulti={false}
-            styles={{
-              control: (baseStyles, state) => ({
-                ...baseStyles,
-                width: "23rem",
-              }),
-            }}
-            closeMenuOnSelect={true}
-            disabled={this.state.status === "Consolidated" || this.state.type === "Creation"}
-            onChange={() => this.setSelectedPredecessors(document.querySelectorAll(".multi-select-option"))}
-          />
-          {/* <CFormSelect className="option-select" defaultValue={s} disabled={this.state.status === "Consolidated" || this.state.type === "Creation"}
-            onChange={() => this.setSelectedPredecessors(document.querySelectorAll(".option-select"))}>
-            <option className="predecessor-option color--primary" value={s}>{s}</option>
-            {this.state.type === "Creation" ?
-              []
-              : this.state.referenceSites?.filter(r => !this.state.predecessors?.split(',').includes(r.SiteCode))
-                .map(t => <option className="predecessor-option" value={t.SiteCode}>{t.SiteCode + ' - ' + t.Name}</option>)}
-          </CFormSelect> */}
-        </CCol>
-        <CCol
-          hidden={this.state.type === "Creation"
-            || this.state.type === "Merge" && predecessors?.length <= 2
-            || this.state.type === "Split" && predecessors?.length <= 1
-            || this.state.type === "Recode"
-            || this.state.type === "Deletion"
-          }>
-          <CButton color="link" className="btn-icon" hidden={this.state.status === "Consolidated" || this.state.predecessors.length === 0}
-            onClick={() => this.deleteSite(s)}>
-            <i className="fa-regular fa-trash-can"></i>
-          </CButton>
-        </CCol>
-      </div>
-    );
+              isMulti={false}
+              styles={{
+                control: (baseStyles, state) => ({
+                  ...baseStyles,
+                  width: "23rem",
+                }),
+              }}
+              closeMenuOnSelect={true}
+              isDisabled={this.state.status === "Consolidated" || this.state.type === "Creation"}
+              onChange={() => this.setSelectedPredecessors(document.querySelectorAll(".multi-select-option"))}
+            />
+          </CCol>
+          <CCol
+            hidden={this.state.type === "Creation"
+              || this.state.type === "Merge" && predecessors?.length <= 2
+              || this.state.type === "Split" && predecessors?.length <= 1
+              || this.state.type === "Recode"
+              || this.state.type === "Deletion"
+            }>
+            <CButton color="link" className="btn-icon"
+              hidden={this.state.status === "Consolidated" || this.state.predecessors.length === 0}
+              onClick={() => this.deleteSite(s)}>
+              <i className="fa-regular fa-trash-can"></i>
+            </CButton>
+          </CCol>
+        </div>
+      );
   }
   
   deleteSite(e) {
