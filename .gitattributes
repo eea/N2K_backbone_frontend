@@ -1,2 +1,2 @@
-#do not merge appsettings.json file (each environment should have different values)
+#do not merge config.json file (each environment should have different values)
 src/config.json merge=keep_config
