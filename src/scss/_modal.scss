@@ -12,16 +12,6 @@
     font-size: 1.2rem;
     color: $primary-base;
   }
-  .sidebar-nav {
-    border-right: solid 1px $gray-100;
-    .nav-item {
-      margin-bottom: 1rem;
-      .nav-link {
-        margin: 0;
-        padding-right: 3rem;
-      }
-    }
-  }
   &--confirmation {
     z-index: 1065;
     & ~ .modal-backdrop {

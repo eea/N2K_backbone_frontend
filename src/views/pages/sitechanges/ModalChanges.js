@@ -501,7 +501,7 @@ export class ModalChanges extends Component {
               <div className="d-flex gap-2 align-items-center justify-content-between" key={i + "_" + j}>
                 <div>
                   <span className={"badge badge--" + level.toLocaleLowerCase() + " me-2"}>{level}</span>
-                  <span className="me-3"> {title + " ("+changes[i][j].ChangedCodesDetail.length+")"}</span>
+                  <span className="me-3"> {title} {(changes[i][j].ChangeCategory === "Species" || changes[i][j].ChangeCategory === "Habitats") && " ("+changes[i][j].ChangedCodesDetail.length+")"}</span>
                 </div>
                 <div>
                   {this.state.data.Status === "Pending" && changes[i][j].ChangeType === "Site Recoded" &&
@@ -614,7 +614,7 @@ export class ModalChanges extends Component {
 
   renderChanges() {
     return (
-      <CTabPane role="tabpanel" aria-labelledby="home-tab" visible={this.state.activeKey === 1}>
+      <CTabPane className="tab-changes" role="tabpanel" aria-labelledby="home-tab" visible={this.state.activeKey === 1}>
         <CRow className="p-3">
           <CCol xs="auto">
             <CSidebarNav className="pe-5">
