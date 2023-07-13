@@ -178,7 +178,7 @@ export class ModalLineage extends Component {
   
   addPredecessor() {
     const getNewSite = () => {
-      return document.querySelector(".multi-select__single-value").textContent.split('-')[0].trim();
+      return document.querySelector(".add-predecessor .multi-select__single-value").textContent.split('-')[0].trim();
     }
     if(this.state.referenceSites.length !== this.state.predecessors?.split(',').length) {
       let options = this.state.referenceSites?.filter(r => 
@@ -187,25 +187,17 @@ export class ModalLineage extends Component {
         .map(v => ({ "value": v.SiteCode, "label": v.SiteCode + ' - ' + v.Name }));
       return (
         <div>
-          <CCol>
-            <Select
-              id="new-select"
-              name="new-select"
-              className="multi-select add-predecessor"
-              classNamePrefix="multi-select"
-              placeholder="Select a site"
-              options={options}
-              isMulti={false}
-              styles={{
-                control: (baseStyles, state) => ({
-                  ...baseStyles,
-                  width: "23rem",
-                }),
-              }}
-              closeMenuOnSelect={true}
-            />
-          </CCol>
-          <CCol>
+          <Select
+            id="new-select"
+            name="new-select"
+            className="multi-select add-predecessor mb-2"
+            classNamePrefix="multi-select"
+            placeholder="Select a site"
+            options={options}
+            isMulti={false}
+            closeMenuOnSelect={true}
+          />
+          <div>
             <CButton color="link" className="btn-icon"
               onClick={() => this.setState({ predecessors: this.state.predecessors + ',' + getNewSite(), newPredecessor: false })}>
               <i className="fa-solid fa-floppy-disk"></i>
@@ -214,7 +206,7 @@ export class ModalLineage extends Component {
               onClick={() => this.setState({ newPredecessor: false })}>
               <i className="fa-regular fa-trash-can"></i>
             </CButton>
-          </CCol>
+          </div>
         </div>
       );
     }
@@ -244,31 +236,24 @@ export class ModalLineage extends Component {
     if(predecessors?.length > 0 && options.length > 0)
       return predecessors?.map((s) => 
         <div key={s}>
-          <CCol>
-            <Select
-              id={"select-" + s}
-              name={"select-" + s}
-              className="multi-select-option"
-              placeholder="Select a site"
-              options={options}
-              defaultValue={() => {
-                let site = this.state.referenceSites?.find(v => v.SiteCode === s);
-                if(site)
-                  return {"value": site.SiteCode, "label": site.SiteCode + ' - ' + site.Name}
-              }}
-              isMulti={false}
-              styles={{
-                control: (baseStyles, state) => ({
-                  ...baseStyles,
-                  width: "23rem",
-                }),
-              }}
-              closeMenuOnSelect={true}
-              isDisabled={this.state.status === "Consolidated" || this.state.type === "Creation"}
-              onChange={() => this.setSelectedPredecessors(document.querySelectorAll(".multi-select-option"))}
-            />
-          </CCol>
-          <CCol
+          <Select
+            id={"select-" + s}
+            name={"select-" + s}
+            className="multi-select multi-select-option mb-2"
+            classNamePrefix="multi-select"
+            placeholder="Select a site"
+            options={options}
+            defaultValue={() => {
+              let site = this.state.referenceSites?.find(v => v.SiteCode === s);
+              if(site)
+                return {"value": site.SiteCode, "label": site.SiteCode + ' - ' + site.Name}
+            }}
+            isMulti={false}
+            closeMenuOnSelect={true}
+            isDisabled={this.state.status === "Consolidated" || this.state.type === "Creation"}
+            onChange={() => this.setSelectedPredecessors(document.querySelectorAll(".multi-select-option"))}
+          />
+          <div
             hidden={this.state.type === "Creation"
               || this.state.type === "Merge" && predecessors?.length <= 2
               || this.state.type === "Split" && predecessors?.length <= 1
@@ -280,7 +265,7 @@ export class ModalLineage extends Component {
               onClick={() => this.deleteSite(s)}>
               <i className="fa-regular fa-trash-can"></i>
             </CButton>
-          </CCol>
+          </div>
         </div>
       );
   }
@@ -325,7 +310,7 @@ export class ModalLineage extends Component {
               this.addPredecessor()
           }
           {(this.state.type == "" ? this.props.type : this.state.type) !== "Creation" &&
-          <CButton color="link" className="ms-auto px-0" 
+          <CButton color="link" className="ms-auto p-0" 
             hidden={this.state.type === "Deletion"
               || this.state.type === "Creation"
               || this.state.status === "Consolidated"
