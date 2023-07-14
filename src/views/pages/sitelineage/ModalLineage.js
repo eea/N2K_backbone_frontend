@@ -140,9 +140,11 @@ export class ModalLineage extends Component {
       if(v === "BioRegion")
         return "Biogeographical Region"
       if(v === "AreaSDF")
-        return "Area (SDF)"
+        return "Area SDF (ha)"
       if(v === "AreaGEO")
-        return "Area (geometry)"
+        return "Area Geometry (ha)"
+      if(v === "Length")
+        return v + " (km)"
       else
         return v.replace(/([A-Z])/g, ' $1')
     });

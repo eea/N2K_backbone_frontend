@@ -306,7 +306,7 @@ class ModalChanges extends Component {
               </div>
               <CCollapse visible={this.state.showDetail.includes(changes[i][j].ChangeCategory+title)}>
                 <CCard>
-                  {this.state.showDetail && this.renderValuesTable(changes[i][j].ChangedCodesDetail)}
+                  {this.state.showDetail && this.renderValuesTable(changes[i][j].ChangedCodesDetail,changes[i][j].ChangeType)}
                 </CCard>
               </CCollapse>
             </div>
@@ -324,20 +324,51 @@ class ModalChanges extends Component {
     )
   }
 
-  renderValuesTable(changes){
-    let heads = Object.keys(changes[0]).filter(v=> v!=="ChangeId" && v!=="Fields");
-    let fields= Object.keys(changes[0]["Fields"]);
-    let titles = heads.concat(fields).map(v => {return(<CTableHeaderCell scope="col" key={v}> {v} </CTableHeaderCell>)});
-    let rows=[];
-    for(let i in changes){
-      let values = heads.map(v=>changes[i][v]).concat(fields.map(v=>changes[i]["Fields"][v]));
+  filteredValuesTable(changes) {
+    let informedFields = [];
+    changes.map(c => {
+      for(let key in c) {
+        if(key === "Fields")
+          informedFields.push(key)
+        else
+          if(c[key] != null)
+            informedFields.push(key)
+      }
+    })
+    let filteredChanges = changes.map(c => {
+      for(let key in c) {
+        if(!informedFields.includes(key))
+          delete c[key]
+      }
+      return c
+    })
+    return filteredChanges;
+  }
+
+  checkTableUnits(type,field) {
+    if(type.toLowerCase().includes("area") || type.toLowerCase().includes("length")) {
+      let unit = type.toLowerCase().includes("area") ? " (ha)" : " (km)"
+      field = (field === "Reference" || field === "Reported") ? field + unit : field;
+    }
+    return field;
+  }
+
+  renderValuesTable(changes,type) {
+    changes = this.filteredValuesTable(changes);
+    let heads = Object.keys(changes[0]).filter(v => v !== "ChangeId" && v !== "Fields");
+    let fields = Object.keys(changes[0]["Fields"]);
+    let titles = heads.concat(fields).map(v => { return (<CTableHeaderCell scope="col" key={v}> {this.checkTableUnits(type,v)} </CTableHeaderCell>) });
+    let rows = [];
+    for (let i in changes) {
+      let values = heads.map(v => changes[i][v]).concat(fields.map(v => changes[i]["Fields"][v]));
+      
       rows.push(
-        <CTableRow key={"row_"+i}>
-          {values.map((v,j)=>{return(<CTableDataCell key={v+"_"+j}> {v} </CTableDataCell>)})}
+        <CTableRow key={"row_" + i}>
+          {values.map((v, j) => { return (<CTableDataCell key={v + "_" + j}> {v} </CTableDataCell>) })}
         </CTableRow>
       )
     }
-    return(
+    return (
       <CTable>
         <CTableHead>
           <CTableRow>

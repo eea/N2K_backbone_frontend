@@ -456,11 +456,19 @@ export class ModalChanges extends Component {
     return filteredChanges;
   }
 
-  renderValuesTable(changes) {
+  checkTableUnits(type,field) {
+    if(type.toLowerCase().includes("area") || type.toLowerCase().includes("length")) {
+      let unit = type.toLowerCase().includes("area") ? " (ha)" : " (km)"
+      field = (field === "Reference" || field === "Reported") ? field + unit : field;
+    }
+    return field;
+  }
+
+  renderValuesTable(changes,type) {
     changes = this.filteredValuesTable(changes);
     let heads = Object.keys(changes[0]).filter(v => v !== "ChangeId" && v !== "Fields");
     let fields = Object.keys(changes[0]["Fields"]);
-    let titles = heads.concat(fields).map(v => { return (<CTableHeaderCell scope="col" key={v}> {v} </CTableHeaderCell>) });
+    let titles = heads.concat(fields).map(v => { return (<CTableHeaderCell scope="col" key={v}> {this.checkTableUnits(type,v)} </CTableHeaderCell>) });
     let rows = [];
     for (let i in changes) {
       let values = heads.map(v => changes[i][v]).concat(fields.map(v => changes[i]["Fields"][v]));
@@ -519,7 +527,7 @@ export class ModalChanges extends Component {
               </div>
               <CCollapse visible={this.state.showDetail.includes(changes[i][j].ChangeCategory + title)}>
                 <CCard>
-                  {this.state.showDetail && this.renderValuesTable(changes[i][j].ChangedCodesDetail)}
+                  {this.state.showDetail && this.renderValuesTable(changes[i][j].ChangedCodesDetail,changes[i][j].ChangeType)}
                 </CCard>
               </CCollapse>
             </div>
