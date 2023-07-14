@@ -166,7 +166,7 @@ class ModalChanges extends Component {
 
   renderChanges(){
     return(
-      <CTabPane role="tabpanel" aria-labelledby="home-tab" visible={this.state.activeKey === 1}>
+      <CTabPane className="tab-changes" role="tabpanel" aria-labelledby="home-tab" visible={this.state.activeKey === 1}>
         <CRow className="p-3">
           <CCol xs="auto">
             <CSidebarNav className="pe-5">
@@ -298,7 +298,7 @@ class ModalChanges extends Component {
               <div className="d-flex gap-2 align-items-center justify-content-between" key={i+"_"+j}>
                 <div>
                   <span className={"badge badge--"+level.toLocaleLowerCase()+" me-2"}>{level}</span>
-                  <span className="me-3"> {title}</span>
+                  <span className="me-3"> {title} {(changes[i][j].ChangeCategory === "Species" || changes[i][j].ChangeCategory === "Habitats") && " ("+changes[i][j].ChangedCodesDetail.length+")"}</span>
                 </div>
                 <CButton color="link" className="btn-link--dark text-nowrap" onClick={()=>this.toggleDetail(changes[i][j].ChangeCategory + title)}>
                   {(this.state.showDetail.includes(changes[i][j].ChangeCategory + title)) ? "Hide detail" : "View detail"}
