@@ -1325,6 +1325,7 @@ export class ModalChanges extends Component {
           <CModalHeader closeButton={false}>
             <CModalTitle>
               {data.SiteCode} - {data.Name}
+              <span className="ms-2 fw-normal">({data.Type})</span>
               {data.Status !== "Pending" &&
                 <>
                   <span className="mx-2"></span>

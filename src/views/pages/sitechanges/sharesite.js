@@ -92,7 +92,9 @@ class ModalChanges extends Component {
       <>
         <div className="d-flex justify-content-between py-3">
           <div className="page-title">
-            <h1 className="h1">{data.SiteCode} - {data.Name}
+            <h1 className="h1">
+              {data.SiteCode} - {data.Name}
+              <span className="ms-2 fw-normal">({data.Type})</span>
               {data.Status !== "Pending" &&
                 <>
                   <span className="mx-2"></span>
