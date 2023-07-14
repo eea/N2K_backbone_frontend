@@ -302,8 +302,16 @@ const IndeterminateCheckbox = React.forwardRef(
     const columns = React.useMemo(
       () => [
         {
-          Header: 'Envelope ID',
-          accessor: 'Id',
+          Header: 'Country',
+          accessor: 'Name',
+        },
+        {
+          Header: 'Submission Date',
+          accessor: 'SubmissionDate',
+          Cell: ({ cell }) => (
+            formatDate(cell.value)
+          ),
+          filter: customFilter,
         },
         {
           Header: 'Status',
@@ -314,10 +322,6 @@ const IndeterminateCheckbox = React.forwardRef(
           filter: customFilter,
         },
         {
-          Header: 'Country',
-          accessor: 'Name',
-        },
-        {
           Header: 'Changes',
           accessor: 'ChangesTotal',
         },
@@ -326,12 +330,8 @@ const IndeterminateCheckbox = React.forwardRef(
           accessor: 'SitesTotal',
         },
         {
-          Header: 'Submission date',
-          accessor: 'SubmissionDate',
-          Cell: ({ cell }) => (
-            formatDate(cell.value)
-          ),
-          filter: customFilter,
+          Header: 'Envelope ID',
+          accessor: 'Id',
         },
       ],
       []
