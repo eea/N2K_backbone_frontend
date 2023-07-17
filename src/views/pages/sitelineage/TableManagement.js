@@ -200,10 +200,9 @@ import {DataLoader} from '../../../components/DataLoader';
     }
 
     let showModal = (data) => {
-      if ((Object.keys(modalItem).length === 0)
-      ) {
-        openModal(data);
-      }
+      if (Object.keys(modalItem).length === 0)
+        if(props.status == data.status)
+          openModal(data);
     }
 
     let openModal = (data, activeKey)=>{
