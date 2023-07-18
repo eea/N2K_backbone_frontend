@@ -581,8 +581,11 @@ const Sitelineage = () => {
     )
   }
 
-  let clearSearch = () => {
+  let clearSearch = (focus) => {
     turnstoneRef.current?.clear();
+    if(!focus) {
+      turnstoneRef.current?.blur();
+    }
     setDisabledSearchBtn(true);
     setSelectOption({});
   }
@@ -649,7 +652,7 @@ const Sitelineage = () => {
               </div>
             </div>
             <CRow>
-              <CCol md={12} lg={6} xl={9} className="d-flex mb-4">
+              <CCol sm={12} md={6} lg={6} className="d-flex mb-4">
                 <div className="search--input">
                   <Turnstone
                     id="sitelineage_search"
@@ -667,7 +670,7 @@ const Sitelineage = () => {
                     value={selectOption}
                   />
                   {Object.keys(selectOption).length !== 0 &&
-                    <span className="btn-icon" onClick={()=>clearSearch()}>
+                    <span className="btn-icon" onClick={()=>clearSearch(true)}>
                       <i className="fa-solid fa-xmark"></i>
                     </span>
                   }
@@ -676,7 +679,7 @@ const Sitelineage = () => {
                   <i className="fa-solid fa-magnifying-glass"></i>
                 </CButton>
               </CCol>
-              <CCol md={12} lg={6} xl={3} className="mb-4">
+              <CCol sm={12} md={6} lg={6} className="mb-4">
                   <div className="select--right">
                     <CFormLabel className="form-label form-label-reporting col-md-4 col-form-label">Country </CFormLabel>
                     <CFormSelect aria-label="Default select example" className='form-select-reporting' disabled={isLoading} value={country} onChange={(e)=>changeCountry(e.target.value)}>
