@@ -36,6 +36,12 @@ const Releases = () => {
   const [downloadError, setDownloadError] = useState(false);
   let dl = new(DataLoader);
 
+  const messageTimeOut = () => {
+    setTimeout(() => {
+      setDownloadError(false);
+    }, ConfigData.MessageTimeout);
+  }
+
   let loadData = () => {
     if(!isLoading && (tableData1.length === 0 && tableData2.length === 0)) {
       let promises = [];
@@ -262,6 +268,7 @@ const Releases = () => {
           window.location = data.Data;
         } else {
           setDownloadError(true);
+          messageTimeOut();
         }
         setIsDownloading(false);
       });
