@@ -304,6 +304,11 @@ const IndeterminateCheckbox = React.forwardRef(
         {
           Header: 'Country',
           accessor: 'Name',
+          Cell: ({ row }) => (
+            <>
+              {row.original.Name} {row.values.Status === "PreHarvested" && row.original.DataLoaded > 0 && <span className="badge badge--dataloaded ms-1">{row.original.DataLoaded} Incoming</span>}
+            </>
+          ),
         },
         {
           Header: 'Submission Date',
