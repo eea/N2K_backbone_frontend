@@ -346,8 +346,11 @@ const Sitechanges = () => {
     });
   }
 
-  let clearSearch = () => {
+  let clearSearch = (focus) => {
     turnstoneRef.current?.clear();
+    if(!focus) {
+      turnstoneRef.current?.blur();
+    }
     setDisabledSearchBtn(true);
     setSelectOption({});
   }
@@ -555,7 +558,7 @@ const Sitechanges = () => {
                       disabled={isLoading}
                     />
                     {Object.keys(selectOption).length !== 0 &&
-                      <span className="btn-icon" onClick={()=>clearSearch()}>
+                      <span className="btn-icon" onClick={()=>clearSearch(true)}>
                         <i className="fa-solid fa-xmark"></i>
                       </span>
                     }
