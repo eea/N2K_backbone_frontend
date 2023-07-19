@@ -555,7 +555,7 @@ const Sitechanges = () => {
                       Item={item}
                       GroupName={group}
                       typeahead={false}
-                      disabled={isLoading}
+                      disabled={Object.keys(siteCodes).length < 3 && country !== ""}
                     />
                     {Object.keys(selectOption).length !== 0 &&
                       <span className="btn-icon" onClick={()=>clearSearch(true)}>
