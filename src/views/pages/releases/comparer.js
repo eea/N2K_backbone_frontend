@@ -3,6 +3,7 @@ import { AppFooter, AppHeader } from '../../../components/index'
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import ConfigData from '../../../config.json';
 import {DataLoader} from '../../../components/DataLoader';
+import { dateFormatter } from 'src/components/DateUtils';
 import TableUnionLists from './TableUnionLists';
 import ScrollContainer from 'react-indiana-drag-scroll';
 
@@ -324,15 +325,15 @@ const Releases = () => {
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="/#/releases/unionlists">
-                <i className="fa-solid fa-bookmark"></i>
-                Union Lists
-              </a>
-            </li>
-            <li className="nav-item">
               <a className="nav-link" href="/#/releases/siteedition">
                 <i className="fa-solid fa-bookmark"></i>
                 Site Edition
+              </a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link" href="/#/releases/unionlists">
+                <i className="fa-solid fa-bookmark"></i>
+                Union Lists
               </a>
             </li>
           </CSidebarNav>
@@ -351,7 +352,7 @@ const Releases = () => {
                   <CFormSelect aria-label="Default select example" className='form-select-reporting' defaultValue="default" disabled={isLoading} onChange={(e)=>selectRelease1(e.target.value)}>/
                     <option disabled value="default" hidden>Select a Release</option>
                     {
-                      releaseList.map((e)=><option value={e.ID} key={"c1-"+e.ID}>{e.Title} {' (' + new Date(e.CreateDate).toLocaleDateString() + ')'}</option>)
+                      releaseList.map((e)=><option value={e.ID} key={"c1-"+e.ID}>{e.Title} {' (' + dateFormatter(e.CreateDate) + ')'}</option>)
                     }
                   </CFormSelect>
                   <div>
@@ -361,7 +362,7 @@ const Releases = () => {
                     <option disabled value="default" hidden>Select a Release</option>
                     {
                       selectedRelease1 &&
-                      releaseList2.map((e)=><option value={e.ID} key={"c2-"+e.ID}>{e.Title} {' (' + new Date(e.CreateDate).toLocaleDateString() + ')'}</option>)
+                      releaseList2.map((e)=><option value={e.ID} key={"c2-"+e.ID}>{e.Title} {' (' + dateFormatter(e.CreateDate) + ')'}</option>)
                     }
                     <option disabled value="noData" hidden>No releases</option>
                   </CFormSelect>

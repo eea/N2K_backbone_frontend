@@ -7,6 +7,7 @@ import TableUnionLists from './TableUnionLists';
 import ScrollContainer from 'react-indiana-drag-scroll';
 
 import {
+  CAlert,
   CCol,
   CContainer,
   CRow,
@@ -32,7 +33,14 @@ const Releases = () => {
   const [pageSize, setPageSize] = useState(10);
   const [pageResults, setPageResults] = useState();
   const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadError, setDownloadError] = useState(false);
   let dl = new(DataLoader);
+
+  const messageTimeOut = () => {
+    setTimeout(() => {
+      setDownloadError(false);
+    }, ConfigData.MessageTimeout);
+  }
 
   let loadData = () => {
     if(!isLoading && (tableData1.length === 0 && tableData2.length === 0)) {
@@ -258,8 +266,11 @@ const Releases = () => {
       .then(data => {
         if(data?.Success) {
           window.location = data.Data;
-          setIsDownloading(false);
+        } else {
+          setDownloadError(true);
+          messageTimeOut();
         }
+        setIsDownloading(false);
       });
   }
 
@@ -285,15 +296,15 @@ const Releases = () => {
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link active" href="/#/releases/unionlists">
-                <i className="fa-solid fa-bookmark"></i>
-                Union Lists
-              </a>
-            </li>
-            <li className="nav-item">
               <a className="nav-link" href="/#/releases/siteedition">
                 <i className="fa-solid fa-bookmark"></i>
                 Site Edition
+              </a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link active" href="/#/releases/unionlists">
+                <i className="fa-solid fa-bookmark"></i>
+                Union Lists
               </a>
             </li>
           </CSidebarNav>
@@ -303,10 +314,15 @@ const Releases = () => {
             <div className="d-flex justify-content-between py-3">
               <div className="page-title">
                 <h1 className="h1">Union Lists</h1>
+                {downloadError &&
+                  <CAlert color="danger">An error occurred while downloading</CAlert>
+                }
               </div>
               <div>
                 <ul className="btn--list">
-                  <CButton color="primary" disabled={isLoading && !tableData || isDownloading} onClick={()=>downloadUnionLists()}>
+                  <CButton color="primary"
+                  disabled={isLoading && !tableData || isDownloading || tableData1 == "nodata" || tableData2 == "nodata"}
+                  onClick={()=>downloadUnionLists()}>
                     {isDownloading && <CSpinner size="sm"/>}
                     {isDownloading ? " Downloading Union Lists" : "Download Union Lists"}
                   </CButton>

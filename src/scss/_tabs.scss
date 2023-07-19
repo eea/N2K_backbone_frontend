@@ -19,3 +19,18 @@
     margin-left: 0.5rem;
   }
 }
+
+.tab-pane {
+  &.tab-changes {
+    .sidebar-nav {
+      border-right: solid 1px $gray-100;
+      .nav-item {
+        margin-bottom: 1rem;
+        .nav-link {
+          margin: 0;
+          padding-right: 3rem;
+        }
+      }
+    }
+  }
+}

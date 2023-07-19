@@ -63,7 +63,6 @@
   "TABLEAU_STATUS": "https://tableau-public.discomap.eea.europa.eu/views/N2K_Backbone_Status/Status",
   "ACCEPTED_DOCUMENT_FORMATS": ".pdf, .doc, .docx, .xls, .xlsx, .txt, .tif, .json, .kml, .gml, .xml, .zip, .7z",
   "HARVESTING_STATUS": {
-    "Pending": "Incoming",
     "DataLoaded": "Incoming",
     "PreHarvested": "Ready to Use",
     "Harvested": "In Progress",
