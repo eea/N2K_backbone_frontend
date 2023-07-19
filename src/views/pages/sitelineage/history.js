@@ -581,11 +581,9 @@ const Sitelineage = () => {
     )
   }
 
-  let clearSearch = (focus) => {
+  let clearSearch = () => {
     turnstoneRef.current?.clear();
-    if(!focus) {
-      turnstoneRef.current?.blur();
-    }
+    turnstoneRef.current?.blur();
     setDisabledSearchBtn(true);
     setSelectOption({});
   }
@@ -603,6 +601,7 @@ const Sitelineage = () => {
   let selectSite = () => {
     setSiteCode(selectOption.SiteCode);
     setSiteData({});
+    clearSearch();
   } 
 
   const item = (props) => {
@@ -670,7 +669,7 @@ const Sitelineage = () => {
                     value={selectOption}
                   />
                   {Object.keys(selectOption).length !== 0 &&
-                    <span className="btn-icon" onClick={()=>clearSearch(true)}>
+                    <span className="btn-icon" onClick={()=>clearSearch()}>
                       <i className="fa-solid fa-xmark"></i>
                     </span>
                   }
