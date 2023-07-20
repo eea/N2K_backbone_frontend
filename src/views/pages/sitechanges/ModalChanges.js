@@ -46,7 +46,7 @@ import { ConfirmationModal } from './components/ConfirmationModal';
 import justificationRequiredImg from './../../../assets/images/exclamation.svg'
 import justificationProvidedImg from './../../../assets/images/file-text.svg'
 
-import MapViewer from './components/MapViewer'
+import MapViewer from '../../../components/MapViewer'
 
 import { DataLoader } from '../../../components/DataLoader';
 export class ModalChanges extends Component {
@@ -907,10 +907,12 @@ export class ModalChanges extends Component {
           }
           {!this.state.errorLoading &&
             <CRow >
-              <MapViewer  siteCode={this.props.item} 
-                          version={this.props.version} 
-                          latestRelease={ConfigData.LATEST_RELEASE} 
-                          reportedSpatial={ConfigData.REPORTED_SPATIAL}/>
+              <MapViewer
+                siteCode={this.props.item}
+                version={this.props.version}
+                latestRelease={ConfigData.LATEST_RELEASE}
+                reportedSpatial={ConfigData.REPORTED_SPATIAL}
+              />
             </CRow>
           }
         </CTabPane>

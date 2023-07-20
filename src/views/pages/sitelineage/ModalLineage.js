@@ -31,7 +31,7 @@ import {
 } from '@coreui/react'
 
 import { ConfirmationModal } from './components/ConfirmationModal';
-import MapViewer from './components/MapViewer'
+import MapViewer from '../../../components/MapViewer'
 
 import { DataLoader } from '../../../components/DataLoader';
 import { dateFormatter } from 'src/components/DateUtils';
@@ -373,7 +373,12 @@ export class ModalLineage extends Component {
           }
           {/* {!this.state.errorLoading &&
             <CRow >
-              <MapViewer siteCode={this.props.item} version={this.props.version} />
+              <MapViewer
+                siteCode={this.props.item}
+                version={this.props.version}
+                latestRelease={ConfigData.LATEST_RELEASE}
+                reportedSpatial={ConfigData.REPORTED_SPATIAL}
+              />
             </CRow>
           } */}
         </CTabPane>

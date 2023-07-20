@@ -31,7 +31,7 @@ import {DataLoader} from '../../../components/DataLoader';
 import TextareaAutosize from 'react-textarea-autosize';
 import justificationRequiredImg from './../../../assets/images/exclamation.svg'
 import justificationProvidedImg from './../../../assets/images/file-text.svg'
-import MapViewer from './components/MapViewer'
+import MapViewer from '../../../components/MapViewer'
 
 const defaultParams = () => {
   const searchParams = new URLSearchParams(window.location.href.split('?')[1]);
@@ -532,7 +532,12 @@ class ModalChanges extends Component {
     return(
       <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 2}>
         <CRow >
-          <MapViewer siteCode={this.state.sitecode} version={this.state.version}/>
+          <MapViewer
+            siteCode={this.state.sitecode}
+            version={this.state.version}
+            latestRelease={ConfigData.LATEST_RELEASE}
+            reportedSpatial={ConfigData.REPORTED_SPATIAL}
+          />
         </CRow>
       </CTabPane>
     )
