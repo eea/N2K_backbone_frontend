@@ -274,6 +274,22 @@ const Releases = () => {
       });
   }
 
+  const downloadUpdatedUnionLists = () => {
+    let regions = bioRegionsSummary.filter(a=>a.Count > 0).map(a=>a.BioRegion).toString();
+    setIsDownloading(true);
+    dl.fetch(ConfigData.UNIONLISTS_DOWNLOAD_ALL)
+      .then(response => response.json())
+      .then(data => {
+        if(data?.Success) {
+          window.location = data.Data;
+        } else {
+          setDownloadError(true);
+          messageTimeOut();
+        }
+        setIsDownloading(false);
+      });
+  }
+
   !isLoading && (!tableData || (tableData1.length === 0 && tableData2.length === 0)) && loadData();
 
   return (
@@ -322,9 +338,15 @@ const Releases = () => {
                 <ul className="btn--list">
                   <CButton color="primary"
                   disabled={isLoading && !tableData || isDownloading || tableData1 == "nodata" || tableData2 == "nodata"}
+                  onClick={()=>downloadUpdatedUnionLists()}>
+                    {isDownloading && <CSpinner size="sm"/>}
+                    {isDownloading ? "Downloading Updated Union Lists" : "Download Updated Union Lists"}
+                  </CButton>
+                  <CButton color="primary"
+                  disabled={isLoading && !tableData || isDownloading || tableData1 == "nodata" || tableData2 == "nodata"}
                   onClick={()=>downloadUnionLists()}>
                     {isDownloading && <CSpinner size="sm"/>}
-                    {isDownloading ? " Downloading Union Lists" : "Download Union Lists"}
+                    {isDownloading ? "Downloading Union Lists" : "Download Union Lists"}
                   </CButton>
                 </ul>
               </div>

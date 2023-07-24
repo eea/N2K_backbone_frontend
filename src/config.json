@@ -37,6 +37,7 @@
   "UNIONLISTS_SUMMARY": "https://n2kbackboneback-dev.azurewebsites.net/api/UnionList/GetUnionListComparerSummary",
   "UNIONLISTS_COMPARER": "https://n2kbackboneback-dev.azurewebsites.net/api/UnionList/GetUnionListComparer",
   "UNIONLISTS_DOWNLOAD": "https://n2kbackboneback-dev.azurewebsites.net/api/UnionList/Download",
+  "UNIONLISTS_DOWNLOAD_ALL": "https://n2kbackboneback-dev.azurewebsites.net/api/UnionList/DownloadAll",
   "UNIONLIST_CREATE": "https://n2kbackboneback-dev.azurewebsites.net/api/Release/Create",
   "UNIONLIST_DELETE": "https://n2kbackboneback-dev.azurewebsites.net/api/Release/Delete",
   "UNIONLIST_UPDATE": "https://n2kbackboneback-dev.azurewebsites.net/api/Release/Update",
