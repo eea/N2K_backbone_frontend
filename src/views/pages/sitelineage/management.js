@@ -273,6 +273,7 @@ const Sitelineage = () => {
   let forceRefreshData = () => {
     setIsLoading(true);
     setSearchList({});
+    setSitecodes({});
     setChangesCount([]);
     for(let i in refreshSitechanges)
       setRefreshSitechanges(i,true)
