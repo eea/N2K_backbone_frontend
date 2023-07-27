@@ -259,7 +259,7 @@ const Releases = () => {
     s2.addEventListener('scroll', select_scroll2, false);
   }
 
-  const downloadUnionLists = () => {
+  const downloadUpdatedUnionLists = () => {
     let regions = bioRegionsSummary.filter(a=>a.Count > 0).map(a=>a.BioRegion).toString();
     setIsDownloading(true);
     dl.fetch(ConfigData.UNIONLISTS_DOWNLOAD+"?bioregs="+regions)
@@ -275,8 +275,7 @@ const Releases = () => {
       });
   }
 
-  const downloadUpdatedUnionLists = () => {
-    let regions = bioRegionsSummary.filter(a=>a.Count > 0).map(a=>a.BioRegion).toString();
+  const downloadUnionLists = () => {
     setIsDownloadingAll(true);
     dl.fetch(ConfigData.UNIONLISTS_DOWNLOAD)
       .then(response => response.json())
@@ -339,18 +338,18 @@ const Releases = () => {
                 <ul className="btn--list">
                   <li>
                     <CButton color="primary"
-                    disabled={isLoading && !tableData || isDownloading || tableData1 == "nodata" || tableData2 == "nodata"}
+                    disabled={isLoading && !tableData || isDownloading || isDownloadingAll || tableData1 == "nodata" || tableData2 == "nodata"}
                     onClick={()=>downloadUpdatedUnionLists()}>
-                      {isDownloadingAll && <CSpinner size="sm"/>}
-                      {isDownloadingAll ? "Downloading Updated Union Lists" : "Download Updated Union Lists"}
+                      {isDownloading && <CSpinner size="sm"/>}
+                      {isDownloading ? " Downloading Updated Union Lists" : "Download Updated Union Lists"}
                     </CButton>
                   </li>
                   <li>
                     <CButton color="primary"
-                    disabled={isLoading && !tableData || isDownloading || tableData1 == "nodata" || tableData2 == "nodata"}
+                    disabled={isLoading && !tableData || isDownloading || isDownloadingAll || tableData1 == "nodata" || tableData2 == "nodata"}
                     onClick={()=>downloadUnionLists()}>
-                      {isDownloading && <CSpinner size="sm"/>}
-                      {isDownloading ? "Downloading Union Lists" : "Download Union Lists"}
+                      {isDownloadingAll && <CSpinner size="sm"/>}
+                      {isDownloadingAll ? " Downloading Union Lists" : "Download Union Lists"}
                     </CButton>
                   </li>
                 </ul>
