@@ -465,6 +465,14 @@ export class ModalChanges extends Component {
   }
 
   renderValuesTable(changes,type) {
+    const colorizeValue = (num) => {
+      if(Number(num) > 0)
+        return ConfigData.Colors.Green
+      if(Number(num) < 0)
+        return ConfigData.Colors.Red
+      if(Number(num) == 0)
+        return ConfigData.Colors.White
+    }
     changes = this.filteredValuesTable(changes);
     let heads = Object.keys(changes[0]).filter(v => v !== "ChangeId" && v !== "Fields");
     let fields = Object.keys(changes[0]["Fields"]);
@@ -472,9 +480,18 @@ export class ModalChanges extends Component {
     let rows = [];
     for (let i in changes) {
       let values = heads.map(v => changes[i][v]).concat(fields.map(v => changes[i]["Fields"][v]));
+      let pos = [fields.indexOf("Difference"), fields.indexOf("Percentage")]
       rows.push(
         <CTableRow key={"row_" + i}>
-          {values.map((v, j) => { return (<CTableDataCell key={v + "_" + j}> {v} </CTableDataCell>) })}
+            {values.map((v, index) => {
+              if(fields.includes("Difference") || fields.includes("Percentage"))
+                return (<CTableDataCell key={v}
+                  style={{backgroundColor: (pos.includes(index) ? colorizeValue(v) : "")}}>
+                  {v == 0 ? 0 : v} </CTableDataCell>)
+              else
+                return (<CTableDataCell key={v}>{v} </CTableDataCell>)
+            })}
+                  
         </CTableRow>
       )
     }
