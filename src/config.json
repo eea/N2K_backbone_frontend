@@ -70,6 +70,7 @@
     "Discarded": "Discarded"
   },
   "Colors": {
+    "White": "#ffffff",
     "Grey": "#e4e4e4",
     "Green": "#daf5d6",
     "Red": "#f6cbcf"
