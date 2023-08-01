@@ -466,10 +466,12 @@ export class ModalChanges extends Component {
 
   renderValuesTable(changes,type) {
     const colorizeValue = (num) => {
-      if(Number(num) >= 0)
+      if(Number(num) > 0)
         return ConfigData.Colors.Green
-      else
+      if(Number(num) < 0)
         return ConfigData.Colors.Red
+      if(Number(num) == 0)
+        return ConfigData.Colors.White
     }
     changes = this.filteredValuesTable(changes);
     let heads = Object.keys(changes[0]).filter(v => v !== "ChangeId" && v !== "Fields");
@@ -485,7 +487,7 @@ export class ModalChanges extends Component {
               if(fields.includes("Difference") || fields.includes("Percentage"))
                 return (<CTableDataCell key={v}
                   style={{backgroundColor: (pos.includes(index) ? colorizeValue(v) : "")}}>
-                  {v} </CTableDataCell>)
+                  {v == 0 ? 0 : v} </CTableDataCell>)
               else
                 return (<CTableDataCell key={v}>{v} </CTableDataCell>)
             })}
