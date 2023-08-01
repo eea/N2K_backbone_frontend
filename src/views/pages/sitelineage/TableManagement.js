@@ -273,8 +273,8 @@ import {DataLoader} from '../../../components/DataLoader';
                 tags.push(<span className={"badge badge--lineage "+row.original.Type.toLowerCase()} key={"ref_"+i}>{values[i]}</span>);
               }
             }
-            else if(!row.original.Reference){
-              tags = "-"
+            else if(!row.original.Reference || row.original.Reference === "-"){
+              tags = "-";
             }
             else {
               tags =
@@ -296,8 +296,8 @@ import {DataLoader} from '../../../components/DataLoader';
                 tags.push(<span className={"badge me-1 mb-1 mt-1 badge--lineage "+row.original.Type.toLowerCase()} key={"rep_"+i}>{values[i]}</span>);
               }
             }
-            else if(!row.original.Reported){
-              tags = "-"
+            else if(!row.original.Reported || row.original.Reported === "-"){
+              tags = "-";
             }
             else {
               tags =

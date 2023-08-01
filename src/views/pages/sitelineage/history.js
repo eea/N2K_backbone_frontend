@@ -507,7 +507,7 @@ const Sitelineage = () => {
             x = nodes.find(a=> a.release === release).position.x;
           }
           else {
-            x = Math.min(...nodes.map(a=>a.position.x)) - 150;
+            x = Math.min(...nodes.map(a=>a.position.x)) - 150 - release.length*5;
           }
         }
         let node = {
