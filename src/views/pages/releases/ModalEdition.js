@@ -699,7 +699,7 @@ export class ModalEdition extends Component {
           original = original && this.props.types.find(y => y.Code === original).Classification;
           break;
         case "BioRegion":
-          label = "Biogeographycal Region";
+          label = "Biogeographical Region";
           placeholder = "Select a region";
           options = this.props.regions.map(x => x = {label:x.RefBioGeoName, value:x.Code});
           value = value.map(x => options.find(y => y.value === x));
