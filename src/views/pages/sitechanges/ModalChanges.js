@@ -1005,7 +1005,7 @@ export class ModalChanges extends Component {
           original = original && this.state.types.find(y => y.Code === original).Classification;
           break;
         case "BioRegion":
-          label = "Biogeographycal Region";
+          label = "Biogeographical Region";
           placeholder = "Select a region";
           options = this.state.regions.map(x => x = { label: x.RefBioGeoName, value: x.Code });
           value = value.map(x => options.find(y => y.value === x));
