@@ -211,7 +211,7 @@ const confStatus = ConfigData.HARVESTING_STATUS;
                 tags.push(<span className="badge badge--lineage basic" key={"pred_"+row+values[i]}>{values[i]}</span>);
               }
             }
-            return tags;
+            return <span className="lineage-cell">{tags}</span>;
           },
           filter: customFilter,
         },
@@ -232,7 +232,7 @@ const confStatus = ConfigData.HARVESTING_STATUS;
             //     tags.push(<span className="badge badge--lineage basic" key={"suc_"+row+values[i]}>{values[i]}</span>);
             //   }
             // }
-            return tags;
+            return <span className="lineage-cell">{tags}</span>;
           },
           filter: customFilter,
         },
