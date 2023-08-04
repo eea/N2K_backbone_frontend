@@ -46,7 +46,6 @@ const cleanSiteParm = () => {
   parms.delete("siteCode");
   if(parms.toString()!==""){
     location.href = base + '?' + parms.toString();
-    location.reload();
   }
 }
 

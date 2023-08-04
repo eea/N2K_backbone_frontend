@@ -109,9 +109,6 @@
       border-color: #FED100;
       background-color: #FFF1B3;
     }
-    &:not(:last-of-type) {
-      margin-right: 0.5rem;
-    }
     &.recode {
       border-color: $gray-500;
       color: $gray-500;

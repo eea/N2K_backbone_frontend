@@ -52,7 +52,6 @@ let refreshSitechanges={"pending":false,"accepted":false,"rejected":false},
     parms.delete("siteCode");
     if(parms.toString()!==""){
       location.href = base + '?' + parms.toString();
-      location.reload();
     }
   }
 

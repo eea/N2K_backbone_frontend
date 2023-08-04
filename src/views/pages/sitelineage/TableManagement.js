@@ -201,7 +201,7 @@ import {DataLoader} from '../../../components/DataLoader';
 
     let showModal = (data) => {
       if (Object.keys(modalItem).length === 0)
-        if(props.status == data.status)
+        if(props.status == data.status || props.site)
           openModal(data);
     }
 
@@ -282,7 +282,7 @@ import {DataLoader} from '../../../components/DataLoader';
                   {row.values.Reference}
                 </span>
             }
-            return tags;
+            return <span className="lineage-cell">{tags}</span>;
           },
         },
         {
@@ -293,7 +293,7 @@ import {DataLoader} from '../../../components/DataLoader';
             if(row.original.Type === "Split" || row.original.Type === "Recode"){
               let values = row.original.Reported?.split(",");
               for(let i in values) {
-                tags.push(<span className={"badge me-1 mb-1 mt-1 badge--lineage "+row.original.Type.toLowerCase()} key={"rep_"+i}>{values[i]}</span>);
+                tags.push(<span className={"badge badge--lineage "+row.original.Type.toLowerCase()} key={"rep_"+i}>{values[i]}</span>);
               }
             }
             else if(!row.original.Reported || row.original.Reported === "-"){
@@ -305,7 +305,7 @@ import {DataLoader} from '../../../components/DataLoader';
                   {row.values.Reported}
                 </span>
             }
-            return tags;
+            return <span className="lineage-cell">{tags}</span>;
           },
         },
         {
