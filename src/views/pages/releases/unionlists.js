@@ -33,6 +33,7 @@ const Releases = () => {
   const [pageSize, setPageSize] = useState(10);
   const [pageResults, setPageResults] = useState();
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isDownloadingAll, setIsDownloadingAll] = useState(false);
   const [downloadError, setDownloadError] = useState(false);
   let dl = new(DataLoader);
 
@@ -258,7 +259,7 @@ const Releases = () => {
     s2.addEventListener('scroll', select_scroll2, false);
   }
 
-  const downloadUnionLists = () => {
+  const downloadUpdatedUnionLists = () => {
     let regions = bioRegionsSummary.filter(a=>a.Count > 0).map(a=>a.BioRegion).toString();
     setIsDownloading(true);
     dl.fetch(ConfigData.UNIONLISTS_DOWNLOAD+"?bioregs="+regions)
@@ -271,6 +272,21 @@ const Releases = () => {
           messageTimeOut();
         }
         setIsDownloading(false);
+      });
+  }
+
+  const downloadUnionLists = () => {
+    setIsDownloadingAll(true);
+    dl.fetch(ConfigData.UNIONLISTS_DOWNLOAD)
+      .then(response => response.json())
+      .then(data => {
+        if(data?.Success) {
+          window.location = data.Data;
+        } else {
+          setDownloadError(true);
+          messageTimeOut();
+        }
+        setIsDownloadingAll(false);
       });
   }
 
@@ -320,12 +336,22 @@ const Releases = () => {
               </div>
               <div>
                 <ul className="btn--list">
-                  <CButton color="primary"
-                  disabled={isLoading && !tableData || isDownloading || tableData1 == "nodata" || tableData2 == "nodata"}
-                  onClick={()=>downloadUnionLists()}>
-                    {isDownloading && <CSpinner size="sm"/>}
-                    {isDownloading ? " Downloading Union Lists" : "Download Union Lists"}
-                  </CButton>
+                  <li>
+                    <CButton color="primary"
+                    disabled={isLoading && !tableData || isDownloading || isDownloadingAll || tableData1 == "nodata" || tableData2 == "nodata"}
+                    onClick={()=>downloadUpdatedUnionLists()}>
+                      {isDownloading && <CSpinner size="sm"/>}
+                      {isDownloading ? " Downloading Updated Union Lists" : "Download Updated Union Lists"}
+                    </CButton>
+                  </li>
+                  <li>
+                    <CButton color="primary"
+                    disabled={isLoading && !tableData || isDownloading || isDownloadingAll || tableData1 == "nodata" || tableData2 == "nodata"}
+                    onClick={()=>downloadUnionLists()}>
+                      {isDownloadingAll && <CSpinner size="sm"/>}
+                      {isDownloadingAll ? " Downloading Union Lists" : "Download Union Lists"}
+                    </CButton>
+                  </li>
                 </ul>
               </div>
             </div>

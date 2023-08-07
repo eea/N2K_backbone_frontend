@@ -46,7 +46,7 @@ import { ConfirmationModal } from './components/ConfirmationModal';
 import justificationRequiredImg from './../../../assets/images/exclamation.svg'
 import justificationProvidedImg from './../../../assets/images/file-text.svg'
 
-import MapViewer from './components/MapViewer'
+import MapViewer from '../../../components/MapViewer'
 
 import { DataLoader } from '../../../components/DataLoader';
 export class ModalChanges extends Component {
@@ -465,6 +465,14 @@ export class ModalChanges extends Component {
   }
 
   renderValuesTable(changes,type) {
+    const colorizeValue = (num) => {
+      if(Number(num) > 0)
+        return ConfigData.Colors.Green
+      if(Number(num) < 0)
+        return ConfigData.Colors.Red
+      if(Number(num) == 0)
+        return ConfigData.Colors.White
+    }
     changes = this.filteredValuesTable(changes);
     let heads = Object.keys(changes[0]).filter(v => v !== "ChangeId" && v !== "Fields");
     let fields = Object.keys(changes[0]["Fields"]);
@@ -472,9 +480,18 @@ export class ModalChanges extends Component {
     let rows = [];
     for (let i in changes) {
       let values = heads.map(v => changes[i][v]).concat(fields.map(v => changes[i]["Fields"][v]));
+      let pos = [fields.indexOf("Difference"), fields.indexOf("Percentage")]
       rows.push(
         <CTableRow key={"row_" + i}>
-          {values.map((v, j) => { return (<CTableDataCell key={v + "_" + j}> {v} </CTableDataCell>) })}
+            {values.map((v, index) => {
+              if(fields.includes("Difference") || fields.includes("Percentage"))
+                return (<CTableDataCell key={v}
+                  style={{backgroundColor: (pos.includes(index) ? colorizeValue(v) : "")}}>
+                  {v == 0 ? 0 : v} </CTableDataCell>)
+              else
+                return (<CTableDataCell key={v}>{v} </CTableDataCell>)
+            })}
+                  
         </CTableRow>
       )
     }
@@ -907,10 +924,12 @@ export class ModalChanges extends Component {
           }
           {!this.state.errorLoading &&
             <CRow >
-              <MapViewer  siteCode={this.props.item} 
-                          version={this.props.version} 
-                          latestRelease={ConfigData.LATEST_RELEASE} 
-                          reportedSpatial={ConfigData.REPORTED_SPATIAL}/>
+              <MapViewer
+                siteCode={this.props.item}
+                version={this.props.version}
+                latestRelease={ConfigData.LATEST_RELEASE}
+                reportedSpatial={ConfigData.REPORTED_SPATIAL}
+              />
             </CRow>
           }
         </CTabPane>
@@ -986,7 +1005,7 @@ export class ModalChanges extends Component {
           original = original && this.state.types.find(y => y.Code === original).Classification;
           break;
         case "BioRegion":
-          label = "Biogeographycal Region";
+          label = "Biogeographical Region";
           placeholder = "Select a region";
           options = this.state.regions.map(x => x = { label: x.RefBioGeoName, value: x.Code });
           value = value.map(x => options.find(y => y.value === x));
