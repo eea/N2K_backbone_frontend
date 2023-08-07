@@ -5,6 +5,7 @@ import ConfigData from '../../../config.json';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import Turnstone from 'turnstone';
 import {DataLoader} from '../../../components/DataLoader';
+import { dateFormatter } from 'src/components/DateUtils';
 import ReactFlow, { Controls, Background, MarkerType } from 'reactflow';
 import 'reactflow/dist/style.css';
 
@@ -434,7 +435,7 @@ const Sitelineage = () => {
         <div className="mb-2">
           <b className="me-2">{siteCode}</b> | <span className="ms-2">{countryName}</span>
         </div>
-        <div className="mb-2">Release Date: 20/02/2020</div>
+        <div className="mb-2">Release Date: {dateFormatter(siteData.ReleaseDate)}</div>
         <div className="mb-2">
           Area: {siteData.Area} ha
         </div>
