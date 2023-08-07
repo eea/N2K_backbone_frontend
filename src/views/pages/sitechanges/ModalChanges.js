@@ -46,7 +46,7 @@ import { ConfirmationModal } from './components/ConfirmationModal';
 import justificationRequiredImg from './../../../assets/images/exclamation.svg'
 import justificationProvidedImg from './../../../assets/images/file-text.svg'
 
-import MapViewer from './components/MapViewer'
+import MapViewer from '../../../components/MapViewer'
 
 import { DataLoader } from '../../../components/DataLoader';
 export class ModalChanges extends Component {
@@ -78,7 +78,7 @@ export class ModalChanges extends Component {
       bookmarkUpdate: false,
       comments: [],
       documents: [],
-      showDetail: "",
+      showDetail: [],
       newComment: false,
       newDocument: false,
       justificationRequired: false,
@@ -160,10 +160,10 @@ export class ModalChanges extends Component {
   }
 
   toggleDetail(key) {
-    if (this.state.showDetail === key) {
-      this.setState({ showDetail: "" });
+    if (this.state.showDetail.includes(key)) {
+      this.setState({ showDetail: this.state.showDetail.filter((a) => a !== key) });
     } else {
-      this.setState({ showDetail: key });
+      this.setState({ showDetail: [...this.state.showDetail, key] });
     }
   }
 
@@ -456,17 +456,42 @@ export class ModalChanges extends Component {
     return filteredChanges;
   }
 
-  renderValuesTable(changes) {
+  checkTableUnits(type,field) {
+    if(type.toLowerCase().includes("area") || type.toLowerCase().includes("length")) {
+      let unit = type.toLowerCase().includes("area") ? " (ha)" : " (km)"
+      field = (field === "Reference" || field === "Reported") ? field + unit : field;
+    }
+    return field;
+  }
+
+  renderValuesTable(changes,type) {
+    const colorizeValue = (num) => {
+      if(Number(num) > 0)
+        return ConfigData.Colors.Green
+      if(Number(num) < 0)
+        return ConfigData.Colors.Red
+      if(Number(num) == 0)
+        return ConfigData.Colors.White
+    }
     changes = this.filteredValuesTable(changes);
     let heads = Object.keys(changes[0]).filter(v => v !== "ChangeId" && v !== "Fields");
     let fields = Object.keys(changes[0]["Fields"]);
-    let titles = heads.concat(fields).map(v => { return (<CTableHeaderCell scope="col" key={v}> {v} </CTableHeaderCell>) });
+    let titles = heads.concat(fields).map(v => { return (<CTableHeaderCell scope="col" key={v}> {this.checkTableUnits(type,v)} </CTableHeaderCell>) });
     let rows = [];
     for (let i in changes) {
       let values = heads.map(v => changes[i][v]).concat(fields.map(v => changes[i]["Fields"][v]));
+      let pos = [fields.indexOf("Difference"), fields.indexOf("Percentage")]
       rows.push(
         <CTableRow key={"row_" + i}>
-          {values.map((v, j) => { return (<CTableDataCell key={v + "_" + j}> {v} </CTableDataCell>) })}
+            {values.map((v, index) => {
+              if(fields.includes("Difference") || fields.includes("Percentage"))
+                return (<CTableDataCell key={v}
+                  style={{backgroundColor: (pos.includes(index) ? colorizeValue(v) : "")}}>
+                  {v == 0 ? 0 : v} </CTableDataCell>)
+              else
+                return (<CTableDataCell key={v}>{v} </CTableDataCell>)
+            })}
+                  
         </CTableRow>
       )
     }
@@ -501,7 +526,7 @@ export class ModalChanges extends Component {
               <div className="d-flex gap-2 align-items-center justify-content-between" key={i + "_" + j}>
                 <div>
                   <span className={"badge badge--" + level.toLocaleLowerCase() + " me-2"}>{level}</span>
-                  <span className="me-3"> {title}</span>
+                  <span className="me-3"> {title} {(changes[i][j].ChangeCategory === "Species" || changes[i][j].ChangeCategory === "Habitats") && " ("+changes[i][j].ChangedCodesDetail.length+")"}</span>
                 </div>
                 <div>
                   {this.state.data.Status === "Pending" && changes[i][j].ChangeType === "Site Recoded" &&
@@ -513,13 +538,13 @@ export class ModalChanges extends Component {
                   </>
                   }
                   <CButton color="link" className="btn-link--dark text-nowrap" onClick={() => this.toggleDetail(changes[i][j].ChangeCategory + title)}>
-                    {(this.state.showDetail === changes[i][j].ChangeCategory + title) ? "Hide detail" : "View detail"}
+                    {(this.state.showDetail.includes(changes[i][j].ChangeCategory + title)) ? "Hide detail" : "View detail"}
                   </CButton>
                 </div>
               </div>
-              <CCollapse visible={this.state.showDetail === changes[i][j].ChangeCategory + title}>
+              <CCollapse visible={this.state.showDetail.includes(changes[i][j].ChangeCategory + title)}>
                 <CCard>
-                  {this.state.showDetail && this.renderValuesTable(changes[i][j].ChangedCodesDetail)}
+                  {this.state.showDetail && this.renderValuesTable(changes[i][j].ChangedCodesDetail,changes[i][j].ChangeType)}
                 </CCard>
               </CCollapse>
             </div>
@@ -614,7 +639,7 @@ export class ModalChanges extends Component {
 
   renderChanges() {
     return (
-      <CTabPane role="tabpanel" aria-labelledby="home-tab" visible={this.state.activeKey === 1}>
+      <CTabPane className="tab-changes" role="tabpanel" aria-labelledby="home-tab" visible={this.state.activeKey === 1}>
         <CRow className="p-3">
           <CCol xs="auto">
             <CSidebarNav className="pe-5">
@@ -899,10 +924,12 @@ export class ModalChanges extends Component {
           }
           {!this.state.errorLoading &&
             <CRow >
-              <MapViewer  siteCode={this.props.item} 
-                          version={this.props.version} 
-                          latestRelease={ConfigData.LATEST_RELEASE} 
-                          reportedSpatial={ConfigData.REPORTED_SPATIAL}/>
+              <MapViewer
+                siteCode={this.props.item}
+                version={this.props.version}
+                latestRelease={ConfigData.LATEST_RELEASE}
+                reportedSpatial={ConfigData.REPORTED_SPATIAL}
+              />
             </CRow>
           }
         </CTabPane>
@@ -978,7 +1005,7 @@ export class ModalChanges extends Component {
           original = original && this.state.types.find(y => y.Code === original).Classification;
           break;
         case "BioRegion":
-          label = "Biogeographycal Region";
+          label = "Biogeographical Region";
           placeholder = "Select a region";
           options = this.state.regions.map(x => x = { label: x.RefBioGeoName, value: x.Code });
           value = value.map(x => options.find(y => y.value === x));
@@ -1325,6 +1352,7 @@ export class ModalChanges extends Component {
           <CModalHeader closeButton={false}>
             <CModalTitle>
               {data.SiteCode} - {data.Name}
+              <span className="ms-2 fw-normal">({data.Type})</span>
               {data.Status !== "Pending" &&
                 <>
                   <span className="mx-2"></span>

@@ -31,9 +31,10 @@ import {
 } from '@coreui/react'
 
 import { ConfirmationModal } from './components/ConfirmationModal';
-import MapViewer from './components/MapViewer'
+import MapViewer from '../../../components/MapViewer'
 
 import { DataLoader } from '../../../components/DataLoader';
+import { dateFormatter } from 'src/components/DateUtils';
 export class ModalLineage extends Component {
   constructor(props) {
     super(props);
@@ -139,9 +140,11 @@ export class ModalLineage extends Component {
       if(v === "BioRegion")
         return "Biogeographical Region"
       if(v === "AreaSDF")
-        return "Area (SDF)"
+        return "Area SDF (ha)"
       if(v === "AreaGEO")
-        return "Area (geometry)"
+        return "Area Geometry (ha)"
+      if(v === "Length")
+        return v + " (km)"
       else
         return v.replace(/([A-Z])/g, ' $1')
     });
@@ -177,17 +180,26 @@ export class ModalLineage extends Component {
   
   addPredecessor() {
     const getNewSite = () => {
-      return document.querySelector(".add-predecessor").value;
+      return document.querySelector(".add-predecessor .multi-select__single-value").textContent.split('-')[0].trim();
     }
-    if(this.state.referenceSites.length !== this.state.predecessors?.split(',').length)
+    if(this.state.referenceSites.length !== this.state.predecessors?.split(',').length) {
+      let options = this.state.referenceSites?.filter(r => 
+        !this.state.predecessors?.split(',')
+          .includes(r.SiteCode))
+        .map(v => ({ "value": v.SiteCode, "label": v.SiteCode + ' - ' + v.Name }));
       return (
         <div>
-          <CCol>
-            <CFormSelect className={"add-predecessor"}>
-              {this.state.referenceSites?.filter(r => !this.state.predecessors?.split(',').includes(r)).map(s => <option value={s}>{s}</option>)}
-            </CFormSelect>
-          </CCol>
-          <CCol>
+          <Select
+            id="new-select"
+            name="new-select"
+            className="multi-select add-predecessor mb-2"
+            classNamePrefix="multi-select"
+            placeholder="Select a site"
+            options={options}
+            isMulti={false}
+            closeMenuOnSelect={true}
+          />
+          <div>
             <CButton color="link" className="btn-icon"
               onClick={() => this.setState({ predecessors: this.state.predecessors + ',' + getNewSite(), newPredecessor: false })}>
               <i className="fa-solid fa-floppy-disk"></i>
@@ -196,9 +208,10 @@ export class ModalLineage extends Component {
               onClick={() => this.setState({ newPredecessor: false })}>
               <i className="fa-regular fa-trash-can"></i>
             </CButton>
-          </CCol>
+          </div>
         </div>
       );
+    }
     else
       return (
         <div>
@@ -208,34 +221,55 @@ export class ModalLineage extends Component {
   }
   
   setSelectedPredecessors(options) {
-    this.setState(() => ({ predecessors: Object.values(options).map(s => s.value).join(',') }));
+    this.setState(() => ({
+      predecessors: Object.values(options)
+        .map(s => s.textContent.split('-')[0].trim()
+        .replace("option ", ""))
+        .join(',')
+    }));
   }
   
   predecessorList() {
     let predecessors = this.state.predecessors?.split(',');
-    return predecessors?.map((s) => 
-      <div key={s}>
-        <CCol>
-          <CFormSelect className="option-select" defaultValue={s} disabled={this.state.status === "Consolidated" || this.state.type === "Creation"}
-            onChange={() => this.setSelectedPredecessors(document.querySelectorAll(".option-select"))}>
-            <option className="predecessor-option color--primary" value={s}>{s}</option>
-            {this.state.type === "Creation" ? [] : this.state.referenceSites?.filter(r => !this.state.predecessors?.split(',').includes(r)).map(t => <option className="predecessor-option" value={t}>{t}</option>)}
-          </CFormSelect>
-        </CCol>
-        <CCol
-          hidden={this.state.type === "Creation"
-            || this.state.type === "Merge" && predecessors?.length <= 2
-            || this.state.type === "Split" && predecessors?.length <= 1
-            || this.state.type === "Recode"
-            || this.state.type === "Deletion"
-          }>
-          <CButton color="link" className="btn-icon" hidden={this.state.status === "Consolidated" || this.state.predecessors.length === 0}
-            onClick={() => this.deleteSite(s)}>
-            <i className="fa-regular fa-trash-can"></i>
-          </CButton>
-        </CCol>
-      </div>
-    );
+    let options = this.state.referenceSites?.filter(r => 
+      !this.state.predecessors?.split(',')
+        .includes(r.SiteCode))
+      .map(v => ({ "value": v.SiteCode, "label": v.SiteCode + ' - ' + v.Name }));
+    if(predecessors?.length > 0 && options.length > 0)
+      return predecessors?.map((s) => 
+        <div key={s}>
+          <Select
+            id={"select-" + s}
+            name={"select-" + s}
+            className="multi-select multi-select-option mb-2"
+            classNamePrefix="multi-select"
+            placeholder="Select a site"
+            options={options}
+            defaultValue={() => {
+              let site = this.state.referenceSites?.find(v => v.SiteCode === s);
+              if(site)
+                return {"value": site.SiteCode, "label": site.SiteCode + ' - ' + site.Name}
+            }}
+            isMulti={false}
+            closeMenuOnSelect={true}
+            isDisabled={this.state.status === "Consolidated" || this.state.type === "Creation"}
+            onChange={() => this.setSelectedPredecessors(document.querySelectorAll(".multi-select-option"))}
+          />
+          <div
+            hidden={this.state.type === "Creation"
+              || this.state.type === "Merge" && predecessors?.length <= 2
+              || this.state.type === "Split" && predecessors?.length <= 1
+              || this.state.type === "Recode"
+              || this.state.type === "Deletion"
+            }>
+            <CButton color="link" className="btn-icon"
+              hidden={this.state.status === "Consolidated" || this.state.predecessors.length === 0}
+              onClick={() => this.deleteSite(s)}>
+              <i className="fa-regular fa-trash-can"></i>
+            </CButton>
+          </div>
+        </div>
+      );
   }
   
   deleteSite(e) {
@@ -278,10 +312,11 @@ export class ModalLineage extends Component {
               this.addPredecessor()
           }
           {(this.state.type == "" ? this.props.type : this.state.type) !== "Creation" &&
-          <CButton color="link" className="ms-auto px-0" 
+          <CButton color="link" className="ms-auto p-0" 
             hidden={this.state.type === "Deletion"
               || this.state.type === "Creation"
-              || this.state.status === "Consolidated"}
+              || this.state.status === "Consolidated"
+              || this.state.newPredecessor}
             onClick={() => this.setState({ newPredecessor: true })}>
             Add site
           </CButton>
@@ -338,7 +373,12 @@ export class ModalLineage extends Component {
           }
           {/* {!this.state.errorLoading &&
             <CRow >
-              <MapViewer siteCode={this.props.item} version={this.props.version} />
+              <MapViewer
+                siteCode={this.props.item}
+                version={this.props.version}
+                latestRelease={ConfigData.LATEST_RELEASE}
+                reportedSpatial={ConfigData.REPORTED_SPATIAL}
+              />
             </CRow>
           } */}
         </CTabPane>
@@ -380,7 +420,7 @@ export class ModalLineage extends Component {
         <>
           <CModalHeader closeButton={false}>
             <CModalTitle>
-              {data.SiteCode ?? this.props.code} - {data.SiteName ??  this.props.name}
+              {data.SiteCode ?? this.props.code} - {data.Name ??  this.props.name}
               <span className="mx-2"></span>
               <span className="badge badge--fill default">Release date: {this.state.releaseDate}</span>
             </CModalTitle>
@@ -507,15 +547,7 @@ export class ModalLineage extends Component {
           this.setState({ predecessors: data.Data.map(s => s.SiteCode).join(',')
           , predecessorData: data.Data
           , previousPredecessors: data.Data.map(s => s.SiteCode).join(',')
-          , releaseDate: [...new Set(data.Data.map(s => 
-            new Date(s.ReleaseDate).toLocaleDateString("en-GB",
-              {
-                year: "numeric",
-                month: "2-digit",
-                day: "2-digit"
-              }
-            )
-          ))].join(',') })
+          , releaseDate: [...new Set(data.Data.map(s => dateFormatter(s.ReleaseDate)))].join(',') })
       });
     }
   }

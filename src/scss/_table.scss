@@ -34,6 +34,14 @@
       .btn-group {
         width: 100%;
       }
+      .btn-link {
+        padding: 0;
+      }
+      .lineage-cell {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.25rem;
+      }
     }
     .cell-sitecode {
       max-width: 200px;

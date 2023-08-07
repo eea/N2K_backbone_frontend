@@ -335,6 +335,7 @@ const IndeterminateCheckbox = React.forwardRef(
       if(siteCodes.length > 0) {
         const site = siteCodes.filter(v => v.SiteCode === props.site)[0];
         if(site) {
+          props.setSite("");
           return site;
         }
       }
@@ -349,7 +350,8 @@ const IndeterminateCheckbox = React.forwardRef(
 
     let showModal = (data) => {
       if(Object.keys(modalItem).length === 0)
-        openModal(data);
+        if(props.status == data.status || props.site)
+          openModal(data);
     }
 
     let openModal = (data, activeKey)=>{

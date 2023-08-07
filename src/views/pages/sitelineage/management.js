@@ -46,7 +46,6 @@ const cleanSiteParm = () => {
   parms.delete("siteCode");
   if(parms.toString()!==""){
     location.href = base + '?' + parms.toString();
-    location.reload();
   }
 }
 
@@ -214,8 +213,11 @@ const Sitelineage = () => {
     });
   }
 
-  let clearSearch = () => {
+  let clearSearch = (focus) => {
     turnstoneRef.current?.clear();
+    if(!focus) {
+      turnstoneRef.current?.blur();
+    }
     setDisabledSearchBtn(true);
     setSelectOption({});
   }
@@ -270,6 +272,7 @@ const Sitelineage = () => {
   let forceRefreshData = () => {
     setIsLoading(true);
     setSearchList({});
+    setSitecodes({});
     setChangesCount([]);
     for(let i in refreshSitechanges)
       setRefreshSitechanges(i,true)
@@ -355,36 +358,41 @@ const Sitelineage = () => {
                 <div>
                   <ul className="btn--list">
                     <li>
-                      <div className="checkbox" disabled={isLoading}>
-                        <input type="checkbox" className="input-checkbox" id="lineage_check_creation" checked={types.includes("Creation")} onClick={()=>changeTypes("Creation")} />
+                      <div className="checkbox" disabled={Object.keys(siteCodes).length < 2}>
+                        <input type="checkbox" className="input-checkbox" id="lineage_check_creation"
+                          checked={types.includes("Creation")} onClick={()=>changeTypes("Creation")} />
                         <label htmlFor="lineage_check_creation" className="input-label badge badge--lineage creation">Creation
                         </label>
                       </div>
                     </li>
                     <li>
-                      <div className="checkbox" disabled={isLoading}>
-                        <input type="checkbox" className="input-checkbox" id="lineage_check_deletion" checked={types.includes("Deletion")} onClick={()=>changeTypes("Deletion")} />
+                      <div className="checkbox" disabled={Object.keys(siteCodes).length < 2}>
+                        <input type="checkbox" className="input-checkbox" id="lineage_check_deletion"
+                          checked={types.includes("Deletion")} onClick={()=>changeTypes("Deletion")} />
                         <label htmlFor="lineage_check_deletion" className="input-label badge badge--lineage deletion">Deletion
                         </label>
                       </div>
                     </li>
                     <li>
-                      <div className="checkbox" disabled={isLoading}>
-                        <input type="checkbox" className="input-checkbox" id="lineage_check_split" checked={types.includes("Split")} onClick={()=>changeTypes("Split")} />
+                      <div className="checkbox" disabled={Object.keys(siteCodes).length < 2}>
+                        <input type="checkbox" className="input-checkbox" id="lineage_check_split"
+                          checked={types.includes("Split")} onClick={()=>changeTypes("Split")} />
                         <label htmlFor="lineage_check_split" className="input-label badge badge--lineage split">Split
                         </label>
                       </div>
                     </li>
                     <li>
-                      <div className="checkbox" disabled={isLoading}>
-                        <input type="checkbox" className="input-checkbox" id="lineage_check_merge" checked={types.includes("Merge")} onClick={()=>changeTypes("Merge")} />
+                      <div className="checkbox" disabled={Object.keys(siteCodes).length < 2}>
+                        <input type="checkbox" className="input-checkbox" id="lineage_check_merge"
+                          checked={types.includes("Merge")} onClick={()=>changeTypes("Merge")} />
                         <label htmlFor="lineage_check_merge" className="input-label badge badge--lineage merge">Merge
                         </label>
                       </div>
                     </li>
                     <li>
-                      <div className="checkbox" disabled={isLoading}>
-                        <input type="checkbox" className="input-checkbox" id="lineage_check_recode" checked={types.includes("Recode")} onClick={()=>changeTypes("Recode")} />
+                      <div className="checkbox" disabled={Object.keys(siteCodes).length < 2}>
+                        <input type="checkbox" className="input-checkbox" id="lineage_check_recode"
+                          checked={types.includes("Recode")} onClick={()=>changeTypes("Recode")} />
                         <label htmlFor="lineage_check_recode" className="input-label badge badge--lineage recode">Recode
                         </label>
                       </div>
@@ -408,10 +416,10 @@ const Sitelineage = () => {
                       Item={item}
                       GroupName={group}
                       typeahead={false}
-                      disabled={isLoading}
+                      disabled={Object.keys(siteCodes).length < 2}
                     />
                     {Object.keys(selectOption).length !== 0 &&
-                      <span className="btn-icon" onClick={()=>clearSearch()}>
+                      <span className="btn-icon" onClick={()=>clearSearch(true)}>
                         <i className="fa-solid fa-xmark"></i>
                       </span>
                     }
@@ -424,7 +432,8 @@ const Sitelineage = () => {
                 <CCol sm={12} md={6} lg={6} className="mb-4">
                   <div className="select--right">
                     <CFormLabel htmlFor="exampleFormControlInput1" className='form-label form-label-reporting col-md-4 col-form-label'>Country </CFormLabel>
-                      <CFormSelect aria-label="Default select example" className='form-select-reporting' disabled={country == ""} value={country} onChange={(e)=>changeCountry(e.target.value)}>
+                      <CFormSelect aria-label="Default select example" className='form-select-reporting'
+                        disabled={Object.keys(siteCodes).length < 2} value={country} onChange={(e)=>changeCountry(e.target.value)}>
                       {
                         countries.length > 0 && countries?.map((e)=><option value={e.code} key={e.code}>{e.name}</option>)
                       }

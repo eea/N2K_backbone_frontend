@@ -507,7 +507,7 @@ const Sitelineage = () => {
             x = nodes.find(a=> a.release === release).position.x;
           }
           else {
-            x = Math.min(...nodes.map(a=>a.position.x)) - 150;
+            x = Math.min(...nodes.map(a=>a.position.x)) - 150 - release.length*5;
           }
         }
         let node = {
@@ -583,6 +583,7 @@ const Sitelineage = () => {
 
   let clearSearch = () => {
     turnstoneRef.current?.clear();
+    turnstoneRef.current?.blur();
     setDisabledSearchBtn(true);
     setSelectOption({});
   }
@@ -600,6 +601,7 @@ const Sitelineage = () => {
   let selectSite = () => {
     setSiteCode(selectOption.SiteCode);
     setSiteData({});
+    clearSearch();
   } 
 
   const item = (props) => {
@@ -649,7 +651,7 @@ const Sitelineage = () => {
               </div>
             </div>
             <CRow>
-              <CCol md={12} lg={6} xl={9} className="d-flex mb-4">
+              <CCol sm={12} md={6} lg={6} className="d-flex mb-4">
                 <div className="search--input">
                   <Turnstone
                     id="sitelineage_search"
@@ -676,7 +678,7 @@ const Sitelineage = () => {
                   <i className="fa-solid fa-magnifying-glass"></i>
                 </CButton>
               </CCol>
-              <CCol md={12} lg={6} xl={3} className="mb-4">
+              <CCol sm={12} md={6} lg={6} className="mb-4">
                   <div className="select--right">
                     <CFormLabel className="form-label form-label-reporting col-md-4 col-form-label">Country </CFormLabel>
                     <CFormSelect aria-label="Default select example" className='form-select-reporting' disabled={isLoading} value={country} onChange={(e)=>changeCountry(e.target.value)}>

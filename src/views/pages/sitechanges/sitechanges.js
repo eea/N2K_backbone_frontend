@@ -52,7 +52,6 @@ let refreshSitechanges={"pending":false,"accepted":false,"rejected":false},
     parms.delete("siteCode");
     if(parms.toString()!==""){
       location.href = base + '?' + parms.toString();
-      location.reload();
     }
   }
 
@@ -346,8 +345,11 @@ const Sitechanges = () => {
     });
   }
 
-  let clearSearch = () => {
+  let clearSearch = (focus) => {
     turnstoneRef.current?.clear();
+    if(!focus) {
+      turnstoneRef.current?.blur();
+    }
     setDisabledSearchBtn(true);
     setSelectOption({});
   }
@@ -552,10 +554,10 @@ const Sitechanges = () => {
                       Item={item}
                       GroupName={group}
                       typeahead={false}
-                      disabled={isLoading}
+                      disabled={Object.keys(siteCodes).length < 3 && country !== ""}
                     />
                     {Object.keys(selectOption).length !== 0 &&
-                      <span className="btn-icon" onClick={()=>clearSearch()}>
+                      <span className="btn-icon" onClick={()=>clearSearch(true)}>
                         <i className="fa-solid fa-xmark"></i>
                       </span>
                     }

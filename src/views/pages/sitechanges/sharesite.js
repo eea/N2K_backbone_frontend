@@ -31,7 +31,7 @@ import {DataLoader} from '../../../components/DataLoader';
 import TextareaAutosize from 'react-textarea-autosize';
 import justificationRequiredImg from './../../../assets/images/exclamation.svg'
 import justificationProvidedImg from './../../../assets/images/file-text.svg'
-import MapViewer from './components/MapViewer'
+import MapViewer from '../../../components/MapViewer'
 
 const defaultParams = () => {
   const searchParams = new URLSearchParams(window.location.href.split('?')[1]);
@@ -62,7 +62,7 @@ class ModalChanges extends Component {
       bookmarkUpdate: false,
       comments:[],
       documents:[],
-      showDetail: "",
+      showDetail: [],
       justificationRequired: false,
       justificationProvided: false,
     }
@@ -92,7 +92,9 @@ class ModalChanges extends Component {
       <>
         <div className="d-flex justify-content-between py-3">
           <div className="page-title">
-            <h1 className="h1">{data.SiteCode} - {data.Name}
+            <h1 className="h1">
+              {data.SiteCode} - {data.Name}
+              <span className="ms-2 fw-normal">({data.Type})</span>
               {data.Status !== "Pending" &&
                 <>
                   <span className="mx-2"></span>
@@ -164,7 +166,7 @@ class ModalChanges extends Component {
 
   renderChanges(){
     return(
-      <CTabPane role="tabpanel" aria-labelledby="home-tab" visible={this.state.activeKey === 1}>
+      <CTabPane className="tab-changes" role="tabpanel" aria-labelledby="home-tab" visible={this.state.activeKey === 1}>
         <CRow className="p-3">
           <CCol xs="auto">
             <CSidebarNav className="pe-5">
@@ -272,10 +274,10 @@ class ModalChanges extends Component {
   }
 
   toggleDetail(key){
-    if(this.state.showDetail===key){
-      this.setState({showDetail: ""});
+    if (this.state.showDetail.includes(key)) {
+      this.setState({ showDetail: this.state.showDetail.filter((a) => a !== key) });
     } else {
-      this.setState({showDetail: key});
+      this.setState({ showDetail: [...this.state.showDetail, key] });
     }
   }
 
@@ -296,15 +298,15 @@ class ModalChanges extends Component {
               <div className="d-flex gap-2 align-items-center justify-content-between" key={i+"_"+j}>
                 <div>
                   <span className={"badge badge--"+level.toLocaleLowerCase()+" me-2"}>{level}</span>
-                  <span className="me-3"> {title}</span>
+                  <span className="me-3"> {title} {(changes[i][j].ChangeCategory === "Species" || changes[i][j].ChangeCategory === "Habitats") && " ("+changes[i][j].ChangedCodesDetail.length+")"}</span>
                 </div>
                 <CButton color="link" className="btn-link--dark text-nowrap" onClick={()=>this.toggleDetail(changes[i][j].ChangeCategory + title)}>
-                  {(this.state.showDetail===changes[i][j].ChangeCategory + title) ? "Hide detail" : "View detail"}
+                  {(this.state.showDetail.includes(changes[i][j].ChangeCategory + title)) ? "Hide detail" : "View detail"}
                 </CButton>
               </div>
-              <CCollapse visible={this.state.showDetail===changes[i][j].ChangeCategory+title}>
+              <CCollapse visible={this.state.showDetail.includes(changes[i][j].ChangeCategory+title)}>
                 <CCard>
-                  {this.state.showDetail && this.renderValuesTable(changes[i][j].ChangedCodesDetail)}
+                  {this.state.showDetail && this.renderValuesTable(changes[i][j].ChangedCodesDetail,changes[i][j].ChangeType)}
                 </CCard>
               </CCollapse>
             </div>
@@ -322,20 +324,51 @@ class ModalChanges extends Component {
     )
   }
 
-  renderValuesTable(changes){
-    let heads = Object.keys(changes[0]).filter(v=> v!=="ChangeId" && v!=="Fields");
-    let fields= Object.keys(changes[0]["Fields"]);
-    let titles = heads.concat(fields).map(v => {return(<CTableHeaderCell scope="col" key={v}> {v} </CTableHeaderCell>)});
-    let rows=[];
-    for(let i in changes){
-      let values = heads.map(v=>changes[i][v]).concat(fields.map(v=>changes[i]["Fields"][v]));
+  filteredValuesTable(changes) {
+    let informedFields = [];
+    changes.map(c => {
+      for(let key in c) {
+        if(key === "Fields")
+          informedFields.push(key)
+        else
+          if(c[key] != null)
+            informedFields.push(key)
+      }
+    })
+    let filteredChanges = changes.map(c => {
+      for(let key in c) {
+        if(!informedFields.includes(key))
+          delete c[key]
+      }
+      return c
+    })
+    return filteredChanges;
+  }
+
+  checkTableUnits(type,field) {
+    if(type.toLowerCase().includes("area") || type.toLowerCase().includes("length")) {
+      let unit = type.toLowerCase().includes("area") ? " (ha)" : " (km)"
+      field = (field === "Reference" || field === "Reported") ? field + unit : field;
+    }
+    return field;
+  }
+
+  renderValuesTable(changes,type) {
+    changes = this.filteredValuesTable(changes);
+    let heads = Object.keys(changes[0]).filter(v => v !== "ChangeId" && v !== "Fields");
+    let fields = Object.keys(changes[0]["Fields"]);
+    let titles = heads.concat(fields).map(v => { return (<CTableHeaderCell scope="col" key={v}> {this.checkTableUnits(type,v)} </CTableHeaderCell>) });
+    let rows = [];
+    for (let i in changes) {
+      let values = heads.map(v => changes[i][v]).concat(fields.map(v => changes[i]["Fields"][v]));
+      
       rows.push(
-        <CTableRow key={"row_"+i}>
-          {values.map((v,j)=>{return(<CTableDataCell key={v+"_"+j}> {v} </CTableDataCell>)})}
+        <CTableRow key={"row_" + i}>
+          {values.map((v, j) => { return (<CTableDataCell key={v + "_" + j}> {v} </CTableDataCell>) })}
         </CTableRow>
       )
     }
-    return(
+    return (
       <CTable>
         <CTableHead>
           <CTableRow>
@@ -499,7 +532,12 @@ class ModalChanges extends Component {
     return(
       <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 2}>
         <CRow >
-          <MapViewer siteCode={this.state.sitecode} version={this.state.version}/>
+          <MapViewer
+            siteCode={this.state.sitecode}
+            version={this.state.version}
+            latestRelease={ConfigData.LATEST_RELEASE}
+            reportedSpatial={ConfigData.REPORTED_SPATIAL}
+          />
         </CRow>
       </CTabPane>
     )
