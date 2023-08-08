@@ -8,6 +8,10 @@
 # testing
 /coverage
 
+#configuration
+/src/config.json
+src/config.json
+
 # production
 /build
 
