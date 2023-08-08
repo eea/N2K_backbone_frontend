@@ -12,6 +12,11 @@
 /src/config.json
 src/config.json
 
+
+#CI/CD
+/.github/workflows/*.yml
+.github/workflows/*.yml
+
 # production
 /build
 
