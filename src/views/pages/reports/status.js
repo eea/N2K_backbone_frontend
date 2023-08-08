@@ -49,6 +49,12 @@ const Reports = () => {
                 Site Status
               </a>
             </li>
+            <li className="nav-item">
+              <a className="nav-link" href="/#/reports/changes">
+                <i className="fa-solid fa-bookmark"></i>
+                Site Current Changes
+              </a>
+            </li>
           </CSidebarNav>
         </CSidebar>
         <div className="main-content">
