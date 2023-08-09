@@ -13,8 +13,8 @@ src/config.json
 /coverage
 
 #configuration
-/src/config.json
-src/config.json
+#/src/config.json
+#src/config.json
 
 
 #CI/CD
