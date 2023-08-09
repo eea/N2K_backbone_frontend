@@ -13,7 +13,11 @@
   "license": "",
   "author": "Bilbomatica",
   "scripts": {
-    "build": "react-scripts build",
+    "build": "bash copy.sh dev & react-scripts build",
+    "build_dev": "bash copy.sh dev & react-scripts build",
+    "build_stg": "bash copy.sh stg & react-scripts build",
+    "build_prod": "bash copy.sh pro & react-scripts build",
+    
     "build:n17": "react-scripts --openssl-legacy-provider build",
     "changelog": "auto-changelog --starting-version 4.1.0 --commit-limit false --hide-credit",
     "eject": "react-scripts eject",
