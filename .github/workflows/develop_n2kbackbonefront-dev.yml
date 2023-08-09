@@ -27,7 +27,7 @@ jobs:
 
       - name: npm build
         run: |
-          npm run build
+          npm run build_dev
         env:
           CI: false          
       
