@@ -17,14 +17,14 @@
     "build_dev": "bash copy.sh dev & react-scripts build",
     "build_stg": "bash copy.sh stg & react-scripts build",
     "build_prod": "bash copy.sh pro & react-scripts build",
-    
+
     "build:n17": "react-scripts --openssl-legacy-provider build",
     "changelog": "auto-changelog --starting-version 4.1.0 --commit-limit false --hide-credit",
     "eject": "react-scripts eject",
     "lint": "eslint \"src/**/*.js\"",
-    "start": "react-scripts start",
+    "start": "bash copy.sh dev & react-scripts start  ",
     "start:n17": "react-scripts --openssl-legacy-provider start",
-    "test": "react-scripts test",
+    "test": "bash copy.sh dev & react-scripts test & react-scripts start ",
     "test:cov": "npm test -- --coverage --watchAll=false",
     "test:debug": "react-scripts --inspect-brk test --runInBand"
   },

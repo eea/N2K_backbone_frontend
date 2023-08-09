@@ -1,0 +1,1 @@
+cp "./src/config/"$1".json" "./src/config.json"

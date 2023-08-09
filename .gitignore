@@ -5,12 +5,16 @@
 /.pnp
 .pnp.js
 
+#configuration
+/src/config.json
+src/config.json
+
 # testing
 /coverage
 
 #configuration
-/src/config.json
-src/config.json
+#/src/config.json
+#src/config.json
 
 
 #CI/CD
