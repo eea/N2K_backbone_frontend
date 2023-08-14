@@ -497,11 +497,11 @@ const IndeterminateCheckbox = React.forwardRef(
                   placement="top"
                 >
                   <div className="btn-icon btn-hover">
-                    <i className="fa-solid fa-recode"/>
+                    <i className="fa-solid fa-repeat"/>
                   </div>
                 </CTooltip>
               )
-            if(row.values.LineageChangeType === "Split")
+            else if(row.values.LineageChangeType === "Split")
               return (
                 <CTooltip
                   content="Site Split"
@@ -512,7 +512,7 @@ const IndeterminateCheckbox = React.forwardRef(
                   </div>
                 </CTooltip>
               )
-            if(row.values.LineageChangeType === "Merge")
+            else if(row.values.LineageChangeType === "Merge")
               return (
                 <CTooltip
                   content="Site Merge"
