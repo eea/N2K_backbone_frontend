@@ -15,6 +15,8 @@ import {matchSorter} from 'match-sorter'
 import { ModalChanges } from './ModalChanges';
 import justificationrequired from './../../../assets/images/exclamation.svg'
 import justificationprovided from './../../../assets/images/file-text.svg'
+import merge from './../../../assets/images/merge.svg'
+import split from  './../../../assets/images/split.svg'
 import {DataLoader} from '../../../components/DataLoader';
 
 const IndeterminateCheckbox = React.forwardRef(
@@ -486,9 +488,9 @@ const IndeterminateCheckbox = React.forwardRef(
         },
         {
           Header: () => null,
-          accessor: "Recoded",
+          accessor: "LineageChangeType",
           Cell: ({ row }) => {
-            if(row.values.Recoded)
+            if(row.values.LineageChangeType === "Recode")
               return (
                 <CTooltip
                   content="Site Recode"
@@ -496,6 +498,28 @@ const IndeterminateCheckbox = React.forwardRef(
                 >
                   <div className="btn-icon btn-hover">
                     <i className="fa-solid fa-repeat"/>
+                  </div>
+                </CTooltip>
+              )
+            else if(row.values.LineageChangeType === "Split")
+              return (
+                <CTooltip
+                  content="Site Split"
+                  placement="top"
+                >
+                  <div className="btn-icon btn-hover">
+                    <CImage src={split} className="ico--md "></CImage>
+                  </div>
+                </CTooltip>
+              )
+            else if(row.values.LineageChangeType === "Merge")
+              return (
+                <CTooltip
+                  content="Site Merge"
+                  placement="top"
+                >
+                  <div className="btn-icon btn-hover">
+                    <CImage src={merge} className="ico--md "></CImage>
                   </div>
                 </CTooltip>
               )
