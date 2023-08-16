@@ -496,7 +496,7 @@ const IndeterminateCheckbox = React.forwardRef(
                   content="Site Recode"
                   placement="top"
                 >
-                  <div className="btn-icon btn-hover">
+                  <div className="btn-icon btn-hover" onClick={() => openModal(row.original)}>
                     <i className="fa-solid fa-repeat"/>
                   </div>
                 </CTooltip>
@@ -507,7 +507,7 @@ const IndeterminateCheckbox = React.forwardRef(
                   content="Site Split"
                   placement="top"
                 >
-                  <div className="btn-icon btn-hover">
+                  <div className="btn-icon btn-hover" onClick={() => openModal(row.original)}>
                     <CImage src={split} className="ico--md "></CImage>
                   </div>
                 </CTooltip>
@@ -518,7 +518,7 @@ const IndeterminateCheckbox = React.forwardRef(
                   content="Site Merge"
                   placement="top"
                 >
-                  <div className="btn-icon btn-hover">
+                  <div className="btn-icon btn-hover" onClick={() => openModal(row.original)}>
                     <CImage src={merge} className="ico--md "></CImage>
                   </div>
                 </CTooltip>
