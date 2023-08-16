@@ -50,9 +50,9 @@ const Reports = () => {
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="/#/reports/changes">
+              <a className="nav-link" href="/#/reports/unionlists">
                 <i className="fa-solid fa-bookmark"></i>
-                Site Current Changes
+                Union Lists Changes
               </a>
             </li>
           </CSidebarNav>
