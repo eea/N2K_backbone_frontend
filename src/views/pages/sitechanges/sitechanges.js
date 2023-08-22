@@ -272,7 +272,6 @@ const Sitechanges = () => {
       if(data.Success) {
         setUpdatingData(false);
         setCompletingEnvelope(false);
-        setIsLoading(true);
         loadCountries();
       }
       else {
@@ -419,13 +418,12 @@ const Sitechanges = () => {
       if(data?.Success) {
         let countriesList = [];
         if(data.Data.length > 0) {
-          setLoadingCountries(false);
           for(let i in data.Data){
             countriesList.push({name:data.Data[i].Country,code:data.Data[i].Code,version:data.Data[i].Version});
           }
           countriesList.sort((a, b) => a.name.localeCompare(b.name));
-          setCountries(countriesList);
         }
+        setCountries(countriesList);
         changeCountry(countriesList[0]?.code);
         if(countriesList[0]) {
           setIsLoading(false);
