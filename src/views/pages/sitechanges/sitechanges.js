@@ -46,11 +46,20 @@ let refreshSitechanges={"pending":false,"accepted":false,"rejected":false},
     return siteCode ?? "";
   }
 
+  const cleanCountry = () => {
+    const base = window.location.href.split('?')[0];
+    const parms = new URLSearchParams(window.location.href.split('?')[1]);
+    if(parms.has("country")){
+      parms.delete("country");
+      location.href = base;
+    }
+  }
+
   const cleanSiteParm = () => {
     const base = window.location.href.split('?')[0];
     const parms = new URLSearchParams(window.location.href.split('?')[1]);
     parms.delete("siteCode");
-    if(parms.toString()!==""){
+    if(parms.toString() !== ""){
       location.href = base + '?' + parms.toString();
     }
   }
@@ -407,6 +416,7 @@ const Sitechanges = () => {
     turnstoneRef.current?.blur();
     if(country !== "") {
       forceRefreshData();
+      cleanCountry();
     }
   }
 
@@ -424,7 +434,9 @@ const Sitechanges = () => {
           countriesList.sort((a, b) => a.name.localeCompare(b.name));
         }
         setCountries(countriesList);
-        changeCountry(countriesList[0]?.code);
+        if(country === "" || !countriesList.some(a => a.code === country)) {
+          changeCountry(countriesList[0]?.code);
+        }
         if(countriesList[0]) {
           setIsLoading(false);
         }
