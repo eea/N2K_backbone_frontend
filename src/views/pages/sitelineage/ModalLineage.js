@@ -152,13 +152,11 @@ export class ModalLineage extends Component {
     let rows = []; 
     for(let i in changes)
       rows.push(
-        <CTableRow key={"row_info"}>
+        <CTableRow key={"row_"+i}>
           {Object.entries(changes[i]).map(([k,v]) => {
             if(k == "SiteType")
               return (<CTableDataCell key={k + "_" + v}> {["SPA","SCI","SPA/SCI"][['A','B','C'].indexOf(v)]} </CTableDataCell>) 
-            else if(k == "ReleaseDate")
-              return (<></>)
-            else
+            else if(k !== "ReleaseDate")
               return (<CTableDataCell key={k + "_" + v}> {v} </CTableDataCell>) 
             })
           }
@@ -371,7 +369,7 @@ export class ModalLineage extends Component {
           {this.state.errorLoading &&
             <CAlert color="danger">Error loading data</CAlert>
           }
-          {/* {!this.state.errorLoading &&
+          {!this.state.errorLoading &&
             <CRow >
               <MapViewer
                 siteCode={this.props.item}
@@ -380,7 +378,7 @@ export class ModalLineage extends Component {
                 reportedSpatial={ConfigData.REPORTED_SPATIAL}
               />
             </CRow>
-          } */}
+          }
         </CTabPane>
     )
   }
@@ -422,7 +420,7 @@ export class ModalLineage extends Component {
             <CModalTitle>
               {data.SiteCode ?? this.props.code} - {data.Name ??  this.props.name}
               <span className="mx-2"></span>
-              <span className="badge badge--fill default">Release date: {this.state.releaseDate}</span>
+              <span className="badge badge--fill default">Release date: {this.state.releaseDate !== "" ? this.state.releaseDate : "--/--/----"}</span>
             </CModalTitle>
             <CCloseButton onClick={() => this.closeModal()} />
           </CModalHeader>
