@@ -46,10 +46,14 @@ let refreshSitechanges={"pending":false,"accepted":false,"rejected":false},
     return siteCode ?? "";
   }
 
-  const cleanCountry = () => {
+  const changeCountryParam = (country) => {
     const base = window.location.href.split('?')[0];
     const parms = new URLSearchParams(window.location.href.split('?')[1]);
-    if(parms.has("country")){
+    if(country) {
+      parms.set("country", country);
+      location.href = base + '?' + parms.toString();
+    }
+    else {
       parms.delete("country");
       location.href = base;
     }
@@ -74,6 +78,7 @@ const Sitechanges = () => {
   const [forceRefresh, setForceRefresh] = useState(0);
   const [countries, setCountries] = useState([]);
   const [loadingCountries, setLoadingCountries] = useState(false);
+  const [loadingSites, setLoadingSites] = useState(true);
   const [country, setCountry] = useState(defaultCountry);
   const [level, setLevel] = useState('Critical');
   const [filterEdited, setFilterEdited] = useState(false)
@@ -163,6 +168,7 @@ const Sitechanges = () => {
 
   let forceRefreshData = ()=>{
     setIsLoading(true);
+    setLoadingSites(true);
     setSitecodes({});
     setSearchList({});
     for(let i in refreshSitechanges)
@@ -274,6 +280,7 @@ const Sitechanges = () => {
   let completeEnvelope = () => {
     setUpdatingData(true);
     setCompletingEnvelope(true);
+    setLoadingSites(true);
     let version = countries.find(x => x.code === country).version;
     sendRequest(ConfigData.HARVESTING_CHANGE_STATUS+"?country="+country+"&version="+version+"&toStatus=Closed","POST","")
     .then(response => response.json())
@@ -416,7 +423,7 @@ const Sitechanges = () => {
     turnstoneRef.current?.blur();
     if(country !== "") {
       forceRefreshData();
-      cleanCountry();
+      changeCountryParam(country);
     }
   }
 
@@ -528,19 +535,19 @@ const Sitechanges = () => {
                 <div>
                   <ul className="btn--list">
                     <li>
-                      <div className="checkbox" disabled={Object.keys(siteCodes).length < 3}>
+                      <div className="checkbox" disabled={loadingSites}>
                         <input type="checkbox" className="input-checkbox" id="site_check_critical" checked={level==="Critical"} onClick={()=>changeLevel("Critical")} readOnly/>
                         <label htmlFor="site_check_critical" className="input-label badge color--critical">Critical</label>
                       </div>
                     </li>
                     <li>
-                      <div className="checkbox" disabled={Object.keys(siteCodes).length < 3}>
+                      <div className="checkbox" disabled={loadingSites}>
                         <input type="checkbox" className="input-checkbox" id="site_check_warning" checked={level==="Warning"} onClick={()=>changeLevel("Warning")} readOnly/>
                         <label htmlFor="site_check_warning" className="input-label badge color--warning">Warning</label>
                       </div>
                     </li>
                     <li>
-                      <div className="checkbox" disabled={Object.keys(siteCodes).length < 3}>
+                      <div className="checkbox" disabled={loadingSites}>
                         <input type="checkbox" className="input-checkbox" id="site_check_info" checked={level==="Info"} onClick={()=>changeLevel("Info")} readOnly/>
                         <label htmlFor="site_check_info" className="input-label badge color--info">Info</label>
                       </div>
@@ -564,7 +571,7 @@ const Sitechanges = () => {
                       Item={item}
                       GroupName={group}
                       typeahead={false}
-                      disabled={Object.keys(siteCodes).length < 3 && country !== ""}
+                      disabled={loadingSites}
                     />
                     {Object.keys(selectOption).length !== 0 &&
                       <span className="btn-icon" onClick={()=>clearSearch(true)}>
@@ -580,7 +587,7 @@ const Sitechanges = () => {
                 <CCol sm={12} md={6} lg={6} className="mb-4">
                   <div className="select--right">
                     <CFormLabel htmlFor="exampleFormControlInput1" className='form-label form-label-reporting col-md-4 col-form-label'>Country </CFormLabel>
-                      <CFormSelect aria-label="Default select example" className='form-select-reporting' disabled={Object.keys(siteCodes).length < 3 && country !== ""} value={country} onChange={(e)=>changeCountry(e.target.value)}>
+                      <CFormSelect aria-label="Default select example" className='form-select-reporting' disabled={loadingSites} value={country} onChange={(e)=>changeCountry(e.target.value)}>
                       {
                         countries.map((e)=><option value={e.code} key={e.code}>{e.name}</option>)
                       }
@@ -657,6 +664,7 @@ const Sitechanges = () => {
                         site={site}
                         setSite={setSite}
                         closeModal={closeModal}
+                        setLoadingSites={setLoadingSites}
                       />
                     </CTabPane>
                     <CTabPane role="tabpanel" aria-labelledby="accepted-tab" visible={activeTab === 2}>
@@ -680,6 +688,7 @@ const Sitechanges = () => {
                         site={site}
                         setSite={setSite}
                         closeModal={closeModal}
+                        setLoadingSites={setLoadingSites}
                       />
                     </CTabPane>
                     <CTabPane role="tabpanel" aria-labelledby="rejected-tab" visible={activeTab === 3}>
@@ -703,6 +712,7 @@ const Sitechanges = () => {
                         site={site}
                         setSite={setSite}
                         closeModal={closeModal}
+                        setLoadingSites={setLoadingSites}
                       />
                     </CTabPane>
                     </CTabContent>

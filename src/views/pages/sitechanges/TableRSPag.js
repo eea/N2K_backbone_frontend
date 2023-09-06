@@ -650,6 +650,7 @@ const IndeterminateCheckbox = React.forwardRef(
       if(props.getRefresh()||(!isLoading && changesData!=="nodata" && Object.keys(changesData).length===0)){
         let promises=[];
         setIsLoading(true);
+        props.setLoadingSites(true);
         
         if(props.getRefresh()||(levelCountry==={})||(levelCountry.level!==props.level)||(levelCountry.country!==props.country)){
           props.setRefresh(props.status,false);  //For the referred status, data is updated
@@ -676,7 +677,10 @@ const IndeterminateCheckbox = React.forwardRef(
             }
           })
         )
-        Promise.all(promises).then(v=>setIsLoading(false));
+        Promise.all(promises).then(v=>{
+          setIsLoading(false);
+          props.setLoadingSites(false);
+        });
       }
     }
     
