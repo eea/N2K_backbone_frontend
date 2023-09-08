@@ -113,19 +113,22 @@ const Harvesting = () => {
   }
 
   async function discardHandler(values) {
+    let promises = [];
     let errors = [];
     values = !Array.isArray(values) ? [values] : values;
-    let rBody = {
-      "countryVersion": values.map(v => ({ "CountryCode": v.country, "VersionId": v.version })),
-      "toStatus": "Discarded"
-    }
-    sendRequest(ConfigData.HARVESTING_CHANGE_STATUS,"POST",rBody)
-      .then(response => response.json())
-      .then(data => {
-        if(!data?.Success) {
-          errors.push(data.Message);
-          console.log("Error: " + data.Message);
-        }
+    for (let i in values) {
+      let code = values[i];
+      promises.push(
+        sendRequest(ConfigData.HARVESTING_CHANGE_STATUS+"?country="+code.country+"&version="+code.version+"&toStatus=Discarded","POST","")
+        .then(response => response.json())
+        .then(data => {
+          if(!data?.Success) {
+            errors.push(data.Message);
+            console.log("Error: " + data.Message);
+          }
+        })
+      )
+      Promise.all(promises).then(v=>{
         if(errors.length === 0) {
           showMessage("Envelope successfully discarded");
           setRefreshEnvelopes(true);
@@ -136,8 +139,9 @@ const Harvesting = () => {
           ...state,
           updating: false,
           discarding: false,
-        }))
-      })
+        }));
+      });
+    }
     setUpdatingData(state => ({
       ...state,
       updating: true,
