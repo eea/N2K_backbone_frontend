@@ -279,27 +279,6 @@ const Sitechanges = () => {
 
   let completeEnvelope = () => {
     let version = countries.find(x => x.code === country).version;
-    sendRequest(ConfigData.HARVESTING_CHANGE_STATUS+"?country="+country+"&version="+version+"&toStatus=Closed","POST","")
-      .then(response => response.json())
-      .then(data => {
-        if(data.Success) {
-          setUpdatingData(false);
-          setCompletingEnvelope(false);
-          setCountries([]);
-          setCountry();
-          setSitecodes({});
-          loadCountries();
-          setIsLoading(true);
-        }
-        else {
-          showErrorMessage("Complete Envelope");
-          console.log("Error: " + data.Message);
-        }
-      })
-    setUpdatingData(true);
-    setCompletingEnvelope(true);
-    setLoadingSites(true);
-    let version = countries.find(x => x.code === country).version;
     let rBody = {
       "countryVersion": [{ "CountryCode": country, "VersionId": version }],
       "toStatus": "Closed"
