@@ -46,20 +46,11 @@ let refreshSitechanges={"pending":false,"accepted":false,"rejected":false},
     return siteCode ?? "";
   }
 
-  const cleanCountry = () => {
-    const base = window.location.href.split('?')[0];
-    const parms = new URLSearchParams(window.location.href.split('?')[1]);
-    if(parms.has("country")){
-      parms.delete("country");
-      location.href = base;
-    }
-  }
-
   const cleanSiteParm = () => {
     const base = window.location.href.split('?')[0];
     const parms = new URLSearchParams(window.location.href.split('?')[1]);
     parms.delete("siteCode");
-    if(parms.toString() !== ""){
+    if(parms.toString()!==""){
       location.href = base + '?' + parms.toString();
     }
   }
@@ -73,7 +64,6 @@ const Sitechanges = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [forceRefresh, setForceRefresh] = useState(0);
   const [countries, setCountries] = useState([]);
-  const [loadingCountries, setLoadingCountries] = useState(false);
   const [country, setCountry] = useState(defaultCountry);
   const [level, setLevel] = useState('Critical');
   const [filterEdited, setFilterEdited] = useState(false)
@@ -206,17 +196,17 @@ const Sitechanges = () => {
 
     return postRequest(ConfigData.MOVE_TO_PENDING, rBody)
     .then(data => {
-      if(data?.ok){
-        setUpdatingData(false);
+        if(data?.ok){
+          setUpdatingData(false);
+          setBacking(false);
+          let response = readResponse(data, "Back To Pending");
+          if(refresh){
+            forceRefreshData();
+            setForceRefresh(forceRefresh+1);
+          }
+          return response;
+        } else showErrorMessage("Back To Pending");
         setBacking(false);
-        let response = readResponse(data, "Back To Pending");
-        if(refresh){
-          forceRefreshData();
-          setForceRefresh(forceRefresh+1);
-        }
-        return response;
-      } else showErrorMessage("Back To Pending");
-      setBacking(false);
     }).catch(e => {
       showErrorMessage("Back To Pending");
       console.error(e)
@@ -230,17 +220,17 @@ const Sitechanges = () => {
 
     return postRequest(ConfigData.ACCEPT_CHANGES, rBody)
     .then(data => {
-      if(data.ok){
-        setUpdatingData(false);
+        if(data.ok){
+          setUpdatingData(false);
+          setAccepting(false);
+          let response = readResponse(data, "Accept Changes");
+          if(refresh){
+            forceRefreshData();
+            setForceRefresh(forceRefresh+1);
+          }
+          return response;
+        } else showErrorMessage("Accept Changes");
         setAccepting(false);
-        let response = readResponse(data, "Accept Changes");
-        if(refresh){
-          forceRefreshData();
-          setForceRefresh(forceRefresh+1);
-        }
-        return response;
-      } else showErrorMessage("Accept Changes");
-      setAccepting(false);
     }).catch(e => {
       showErrorMessage("Accept Changes");
       console.error(e);
@@ -254,17 +244,17 @@ const Sitechanges = () => {
 
     return postRequest(ConfigData.REJECT_CHANGES, rBody)
     .then(data => {
-      if(data.ok){
-        setUpdatingData(false);
+        if(data.ok){
+          setUpdatingData(false);
+          setRejecting(false);
+          let response = readResponse(data, "Reject Changes");
+          if(refresh){
+            forceRefreshData();
+            setForceRefresh(forceRefresh+1);
+          }
+          return response;
+        } else showErrorMessage("Reject Changes");
         setRejecting(false);
-        let response = readResponse(data, "Reject Changes");
-        if(refresh){
-          forceRefreshData();
-          setForceRefresh(forceRefresh+1);
-        }
-        return response;
-      } else showErrorMessage("Reject Changes");
-      setRejecting(false);
     }).catch(e => {
       showErrorMessage("Reject Changes");
       console.error(e);
@@ -272,26 +262,26 @@ const Sitechanges = () => {
   }
 
   let completeEnvelope = () => {
+    let version = countries.find(x => x.code === country).version;
+    sendRequest(ConfigData.HARVESTING_CHANGE_STATUS+"?country="+country+"&version="+version+"&toStatus=Closed","POST","")
+      .then(response => response.json())
+      .then(data => {
+        if(data.Success) {
+          setUpdatingData(false);
+          setCompletingEnvelope(false);
+          setCountries([]);
+          setCountry();
+          setSitecodes({});
+          loadCountries();
+          setIsLoading(true);
+        }
+        else {
+          showErrorMessage("Complete Envelope");
+          console.log("Error: " + data.Message);
+        }
+      })
     setUpdatingData(true);
     setCompletingEnvelope(true);
-    let version = countries.find(x => x.code === country).version;
-    let rBody = {
-      "countryVersion": [{ "CountryCode": country, "VersionId": version }],
-      "toStatus": "Closed"
-    }
-    sendRequest(ConfigData.HARVESTING_CHANGE_STATUS,"POST",rBody)
-    .then(response => response.json())
-    .then(data => {
-      if(data.Success) {
-        setUpdatingData(false);
-        setCompletingEnvelope(false);
-        loadCountries();
-      }
-      else {
-        showErrorMessage("Complete Envelope");
-        console.log("Error: " + data.Message);
-      }
-    })
   }
 
   let sendRequest = (url,method,body,path)=>  {
@@ -420,26 +410,22 @@ const Sitechanges = () => {
     turnstoneRef.current?.blur();
     if(country !== "") {
       forceRefreshData();
-      cleanCountry();
     }
   }
 
   let loadCountries = () => {
-    setLoadingCountries(true);
     dl.fetch(ConfigData.COUNTRIES_WITH_DATA)
     .then(response => response.json())
     .then(data => {
       if(data?.Success) {
         let countriesList = [];
-        if(data.Data.length > 0) {
-          for(let i in data.Data){
-            countriesList.push({name:data.Data[i].Country,code:data.Data[i].Code,version:data.Data[i].Version});
-          }
-          countriesList.sort((a, b) => a.name.localeCompare(b.name));
+        for(let i in data.Data){
+          countriesList.push({name:data.Data[i].Country,code:data.Data[i].Code,version:data.Data[i].Version});
         }
+        countriesList.sort((a, b) => a.name.localeCompare(b.name));
         setCountries(countriesList);
-        if(country === "" || !countriesList.some(a => a.code === country)) {
-          changeCountry(countriesList[0]?.code);
+        if(country === "") {
+          changeCountry(countriesList[0]?.code)
         }
         if(countriesList[0]) {
           setIsLoading(false);
@@ -449,7 +435,7 @@ const Sitechanges = () => {
   }
 
   //Initial set for countries
-  if(countries.length === 0 && !loadingCountries){
+  if(countries.length === 0){
     loadCountries();
   }
 
