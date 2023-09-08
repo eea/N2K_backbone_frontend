@@ -282,7 +282,11 @@ const Sitechanges = () => {
     setCompletingEnvelope(true);
     setLoadingSites(true);
     let version = countries.find(x => x.code === country).version;
-    sendRequest(ConfigData.HARVESTING_CHANGE_STATUS+"?country="+country+"&version="+version+"&toStatus=Closed","POST","")
+    let rBody = {
+      "countryVersion": [{ "CountryCode": country, "VersionId": version }],
+      "toStatus": "Closed"
+    }
+    sendRequest(ConfigData.HARVESTING_CHANGE_STATUS,"POST",rBody)
     .then(response => response.json())
     .then(data => {
       if(data.Success) {
