@@ -498,7 +498,7 @@ const IndeterminateCheckbox = React.forwardRef(
                   content="Site Recode"
                   placement="top"
                 >
-                  <div className="btn-icon btn-hover" onClick={() => openModal(row.original)}>
+                  <div className="btn-icon btn-hover">
                     <i className="fa-solid fa-repeat"/>
                   </div>
                 </CTooltip>
@@ -509,7 +509,7 @@ const IndeterminateCheckbox = React.forwardRef(
                   content="Site Split"
                   placement="top"
                 >
-                  <div className="btn-icon btn-hover" onClick={() => openModal(row.original)}>
+                  <div className="btn-icon btn-hover">
                     <CImage src={split} className="ico--md "></CImage>
                   </div>
                 </CTooltip>
@@ -520,7 +520,7 @@ const IndeterminateCheckbox = React.forwardRef(
                   content="Site Merge"
                   placement="top"
                 >
-                  <div className="btn-icon btn-hover" onClick={() => openModal(row.original)}>
+                  <div className="btn-icon btn-hover">
                     <CImage src={merge} className="ico--md "></CImage>
                   </div>
                 </CTooltip>
@@ -531,7 +531,7 @@ const IndeterminateCheckbox = React.forwardRef(
                   content="Site Creation"
                   placement="top"
                 >
-                  <div className="btn-icon btn-hover" onClick={() => openModal(row.original)}>
+                  <div className="btn-icon btn-hover">
                     <CImage src={creation} className="ico--md "></CImage>
                   </div>
                 </CTooltip>
@@ -542,7 +542,7 @@ const IndeterminateCheckbox = React.forwardRef(
                   content="Site Deletion"
                   placement="top"
                 >
-                  <div className="btn-icon btn-hover" onClick={() => openModal(row.original)}>
+                  <div className="btn-icon btn-hover">
                     <CImage src={deletion} className="ico--md "></CImage>
                   </div>
                 </CTooltip>
