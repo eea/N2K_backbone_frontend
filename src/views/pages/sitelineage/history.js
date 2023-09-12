@@ -42,311 +42,23 @@ const Sitelineage = () => {
   const turnstoneRef = useRef();
   let dl = new(DataLoader);
 
-  let testData = [
-    {
-      "SiteCode": "AT1101112",
-      "Release": "2019-2020",
-      "Predecessors": {
-        "SiteCode": null,
-        "Release": null,
-      },
-      "Successors": {
-        "SiteCode": "AT1101112",
-        "Release": "2020-2021",
-      },
-    },
-    {
-      "SiteCode": "AT1101112",
-      "Release": "2020-2021",
-      "Predecessors": {
-        "SiteCode": "AT1101112",
-        "Release": "2019-2020",
-      },
-      "Successors": {
-        "SiteCode": "AT2208000,AT2209000",
-        "Release": "2021-2022",
-      },
-    },
-    {
-      "SiteCode": "AT2208000",
-      "Release": "2021-2022",
-      "Predecessors": {
-        "SiteCode": "AT1101112",
-        "Release": "2020-2021",
-      },
-      "Successors": {
-        "SiteCode": null,
-        "Release": null,
-      },
-    },
-    {
-      "SiteCode": "AT2209000",
-      "Release": "2021-2022",
-      "Predecessors": {
-        "SiteCode": "AT1101112",
-        "Release": "2020-2021"
-      },
-      "Successors": {
-        "SiteCode": null,
-        "Release": null
-      },
-    },
-  ]
-  let tableData1 = [
-    {
-      "SiteCode": "AT1101112",
-      "Release": "2019-2020",
-      "Predecessors": {
-        "SiteCode": null,
-        "Release": null,
-      },
-      "Successors": {
-        "SiteCode": "AT1101112",
-        "Release": "2020-2021",
-      },
-    },
-    {
-      "SiteCode": "AT1101112",
-      "Release": "2020-2021",
-      "Predecessors": {
-        "SiteCode": "AT1101112",
-        "Release": "2019-2020",
-      },
-      "Successors": {
-        "SiteCode": "AT2208000",
-        "Release": "2021-2022",
-      },
-    },
-    {
-      "SiteCode": "AT2208000",
-      "Release": "2021-2022",
-      "Predecessors": {
-        "SiteCode": "AT1101112",
-        "Release": "2020-2021",
-      },
-      "Successors": {
-        "SiteCode": "AT2208000",
-        "Release": "2022-2023",
-      },
-    },
-    {
-      "SiteCode": "AT2208000",
-      "Release": "2022-2023",
-      "Predecessors": {
-        "SiteCode": "AT2208000",
-        "Release": "2021-2022"
-      },
-      "Successors": {
-        "SiteCode": null,
-        "Release": null
-      },
-    },
-  ]
-  let tableData2 = [
-    {
-      "SiteCode": "AT1101112",
-      "Release": "2019-2020",
-      "Predecessors": {
-        "SiteCode": null,
-        "Release": null,
-      },
-      "Successors": {
-        "SiteCode": "AT1101112",
-        "Release": "2020-2021",
-      },
-    },
-    {
-      "SiteCode": "AT1101112",
-      "Release": "2020-2021",
-      "Predecessors": {
-        "SiteCode": "AT1101112",
-        "Release": "2019-2020",
-      },
-      "Successors": {
-        "SiteCode": "AT2209000",
-        "Release": "2021-2022",
-      },
-    },
-    {
-      "SiteCode": "AT2209000",
-      "Release": "2021-2022",
-      "Predecessors": {
-        "SiteCode": "AT1101112",
-        "Release": "2020-2021"
-      },
-      "Successors": {
-        "SiteCode": null,
-        "Release": null
-      },
-    },
-  ]
-  let merge1 = [
-    {
-      "SiteCode": "AT1101112",
-      "Release": "2019-2020",
-      "Predecessors": {
-        "SiteCode": null,
-        "Release": null,
-      },
-      "Successors": {
-        "SiteCode": "AT1101112",
-        "Release": "2020-2021",
-      },
-    },
-    {
-      "SiteCode": "AT1101112",
-      "Release": "2020-2021",
-      "Predecessors": {
-        "SiteCode": "AT1101112",
-        "Release": "2019-2020",
-      },
-      "Successors": {
-        "SiteCode": "AT1101112",
-        "Release": "2021-2022",
-      },
-    },
-    {
-      "SiteCode": "AT2208000",
-      "Release": "2020-2021",
-      "Predecessors": {
-        "SiteCode": null,
-        "Release": null,
-      },
-      "Successors": {
-        "SiteCode": "AT1101112",
-        "Release": "2021-2022",
-      },
-    },
-    {
-      "SiteCode": "AT1101112",
-      "Release": "2021-2022",
-      "Predecessors": {
-        "SiteCode": "AT1101112,AT2208000",
-        "Release": "2020-2021"
-      },
-      "Successors": {
-        "SiteCode": null,
-        "Release": null
-      },
-    },
-  ]
-  let merge2 = [
-    {
-      "SiteCode": "AT1101112",
-      "Release": "2019-2020",
-      "Predecessors": {
-        "SiteCode": null,
-        "Release": null,
-      },
-      "Successors": {
-        "SiteCode": "AT1101112",
-        "Release": "2020-2021",
-      },
-    },
-    {
-      "SiteCode": "AT1101112",
-      "Release": "2020-2021",
-      "Predecessors": {
-        "SiteCode": "AT1101112",
-        "Release": "2019-2020",
-      },
-      "Successors": {
-        "SiteCode": "AT2208000",
-        "Release": "2021-2022",
-      },
-    },
-    {
-      "SiteCode": "AT2208000",
-      "Release": "2020-2021",
-      "Predecessors": {
-        "SiteCode": null,
-        "Release": null,
-      },
-      "Successors": {
-        "SiteCode": "AT2208000",
-        "Release": "2021-2022",
-      },
-    },
-    {
-      "SiteCode": "AT2208000",
-      "Release": "2021-2022",
-      "Predecessors": {
-        "SiteCode": "AT1101112,AT2208000",
-        "Release": "2020-2021"
-      },
-      "Successors": {
-        "SiteCode": null,
-        "Release": null
-      },
-    },
-  ]
-  let merge3 = [
-    {
-      "SiteCode": "AT1101112",
-      "Release": "2019-2020",
-      "Predecessors": {
-        "SiteCode": null,
-        "Release": null,
-      },
-      "Successors": {
-        "SiteCode": "AT1101112",
-        "Release": "2020-2021",
-      },
-    },
-    {
-      "SiteCode": "AT1101112",
-      "Release": "2020-2021",
-      "Predecessors": {
-        "SiteCode": "AT1101112",
-        "Release": "2019-2020",
-      },
-      "Successors": {
-        "SiteCode": "AT2209000",
-        "Release": "2021-2022",
-      },
-    },
-    {
-      "SiteCode": "AT2208000",
-      "Release": "2020-2021",
-      "Predecessors": {
-        "SiteCode": null,
-        "Release": null,
-      },
-      "Successors": {
-        "SiteCode": "AT2209000",
-        "Release": "2021-2022",
-      },
-    },
-    {
-      "SiteCode": "AT2209000",
-      "Release": "2021-2022",
-      "Predecessors": {
-        "SiteCode": "AT1101112,AT2208000",
-        "Release": "2020-2021"
-      },
-      "Successors": {
-        "SiteCode": null,
-        "Release": null
-      },
-    },
-  ]
-
   if(countries.length === 0 && !loadingCountries){
     setLoadingCountries(true);
     dl.fetch(ConfigData.LINEAGE_COUNTRIES)
     .then(response => response.json())
     .then(data => {
       if(data?.Success) {
-        setLoadingCountries(false);
         let countriesList = [];
-        for(let i in data.Data){
-          countriesList.push({name:data.Data[i].Country,code:data.Data[i].Code});
+        if(data.Data.length > 0) {
+          setLoadingCountries(false);
+          for(let i in data.Data){
+            countriesList.push({name:data.Data[i].Country,code:data.Data[i].Code});
+          }
+          setCountries(countriesList);
         }
-        countriesList = [{name:"",code:""}, ...countriesList];
-        setCountries(countriesList);
         if(country === ""){
-          setCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code);
-          changeCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code);
+          setCountry(countriesList[0]?.code);
+          changeCountry(countriesList[0]?.code);
         }
       }
     });
@@ -666,7 +378,7 @@ const Sitelineage = () => {
                     ref={turnstoneRef}
                     Item={item}
                     typeahead={false}
-                    disabled={isLoading}
+                    disabled={isLoading || !country}
                     value={selectOption}
                   />
                   {Object.keys(selectOption).length !== 0 &&
@@ -682,7 +394,7 @@ const Sitelineage = () => {
               <CCol sm={12} md={6} lg={6} className="mb-4">
                   <div className="select--right">
                     <CFormLabel className="form-label form-label-reporting col-md-4 col-form-label">Country </CFormLabel>
-                    <CFormSelect aria-label="Default select example" className='form-select-reporting' disabled={isLoading} value={country} onChange={(e)=>changeCountry(e.target.value)}>
+                    <CFormSelect aria-label="Default select example" className='form-select-reporting' disabled={isLoading || !country} value={country} onChange={(e)=>changeCountry(e.target.value)}>
                       {
                         countries.map((e)=><option value={e.code} key={e.code}>{e.name}</option>)
                       }
@@ -691,17 +403,19 @@ const Sitelineage = () => {
                 </CCol>
             </CRow>
             <CRow className="grid">
-              {
-                siteCode && isLoading ?
-                  <div className="loading-container"><em>Loading...</em></div>
+              {isLoading || country === "" ?
+                <div className="loading-container"><em>Loading...</em></div>
+              : (!country ?
+                <div className="nodata-container"><em>No Data</em></div>
                 : Object.keys(siteData).length > 0 &&
-                <>
-                  {loadCard()}
-                  {loadChart()}
-                  {tableData !== "nodata" &&
-                    <TableLineage data={tableData} siteCode={siteCode}/>
-                  }
-                </>
+                  <>
+                    {loadCard()}
+                    {loadChart()}
+                    {tableData !== "nodata" &&
+                      <TableLineage data={tableData} siteCode={siteCode}/>
+                    }
+                  </>
+                )
               }
             </CRow>
           </CContainer>
