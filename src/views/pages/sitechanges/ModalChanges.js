@@ -962,7 +962,11 @@ export class ModalChanges extends Component {
                 <>
                   <CAlert color="danger">Error loading fields data</CAlert>
                 </>
-                : this.createFieldElement()
+                :
+                (this.state.fields === "noData" ?
+                  <p className="text-center mt-5">This site has been deleted</p>
+                  : this.createFieldElement()
+                )
               }
             </CRow>
           </CForm>
