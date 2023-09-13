@@ -66,18 +66,19 @@ const Releases = () => {
     .then(data => {
       if(data?.Success) {
         let countriesList = [];
-        for(let i in data.Data){
-          countriesList.push({name:data.Data[i].Country,code:data.Data[i].Code});
+        if(data.Data.length > 0) {
+          setLoadingCountries(false);
+          for(let i in data.Data){
+            countriesList.push({name:data.Data[i].Country,code:data.Data[i].Code});
+          }
+          countriesList.sort((a, b) => a.name.localeCompare(b.name));
+          setCountries(countriesList);
         }
-        countriesList.sort((a, b) => a.name.localeCompare(b.name));
-        countriesList = [{name:"",code:""}, ...countriesList];
-        setCountries(countriesList);
         if(country === ""){
-          setCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code);
-          changeCountry((countriesList.length>1)?countriesList[1]?.code:countriesList[0]?.code)
+          setCountry(countriesList[0]?.code);
+          changeCountry(countriesList[0]?.code)
         }
       } else { setErrorLoading(true) }
-      setLoadingCountries(false);
     });
   }
 
@@ -168,8 +169,8 @@ const Releases = () => {
   }
 
   let loadData = () => {
-    if(siteCodes.length !==0) return;
-    if(country !=="" && !isLoading && siteCodes!=="nodata" && siteCodes.length === 0 && !errorLoading){
+    if(siteCodes.length !== 0) return;
+    if(country && country !=="" && !isLoading && siteCodes!=="nodata" && siteCodes.length === 0 && !errorLoading){
       setIsLoading(true);
       dl.fetch(ConfigData.SITEEDITION_NON_PENDING_GET+"country="+country)
       .then(response =>response.json())
@@ -317,7 +318,7 @@ const Releases = () => {
                     ref={turnstoneRef}
                     Item={item}
                     typeahead={false}
-                    disabled={isLoading}
+                    disabled={isLoading || !country}
                   />
                   {Object.keys(selectOption).length !== 0 &&
                     <span className="btn-icon" onClick={()=>clearSearch(true)}>
@@ -339,7 +340,7 @@ const Releases = () => {
                         </div>
                       </CTooltip>
                     </CFormLabel>
-                    <CFormSelect aria-label="Default select example" className='form-select-reporting' disabled={isLoading} value={country} onChange={(e)=>changeCountry(e.target.value)}>
+                    <CFormSelect aria-label="Default select example" className='form-select-reporting' disabled={isLoading || !country} value={country} onChange={(e)=>changeCountry(e.target.value)}>
                       {
                         countries.map((e)=><option value={e.code} key={e.code}>{e.name}</option>)
                       }
@@ -353,7 +354,7 @@ const Releases = () => {
               }
               {(!errorLoading && isLoading) ?
                 <div className="loading-container"><em>Loading...</em></div>
-              : (siteCodes === "nodata" ?
+              : (siteCodes === "nodata" || !country ?
                 <div className="nodata-container"><em>No Data</em></div>
                 : siteCodes.length > 0 &&
                   <>
