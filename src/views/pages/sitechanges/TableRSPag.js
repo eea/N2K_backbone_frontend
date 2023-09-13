@@ -16,7 +16,9 @@ import { ModalChanges } from './ModalChanges';
 import justificationrequired from './../../../assets/images/exclamation.svg'
 import justificationprovided from './../../../assets/images/file-text.svg'
 import merge from './../../../assets/images/merge.svg'
-import split from  './../../../assets/images/split.svg'
+import split from './../../../assets/images/split.svg'
+import creation from './../../../assets/images/creation.svg'
+import deletion from './../../../assets/images/deletion.svg'
 import {DataLoader} from '../../../components/DataLoader';
 
 const IndeterminateCheckbox = React.forwardRef(
@@ -520,6 +522,28 @@ const IndeterminateCheckbox = React.forwardRef(
                 >
                   <div className="btn-icon btn-hover">
                     <CImage src={merge} className="ico--md "></CImage>
+                  </div>
+                </CTooltip>
+              )
+            else if(row.values.LineageChangeType === "Creation")
+              return (
+                <CTooltip
+                  content="Site Creation"
+                  placement="top"
+                >
+                  <div className="btn-icon btn-hover">
+                    <CImage src={creation} className="ico--md "></CImage>
+                  </div>
+                </CTooltip>
+              )
+            else if(row.values.LineageChangeType === "Deletion")
+              return (
+                <CTooltip
+                  content="Site Deletion"
+                  placement="top"
+                >
+                  <div className="btn-icon btn-hover">
+                    <CImage src={deletion} className="ico--md "></CImage>
                   </div>
                 </CTooltip>
               )
