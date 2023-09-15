@@ -30,6 +30,19 @@ const defaultCountry = () => {
   return parmCountry ? parmCountry : ConfigData.DEFAULT_COUNTRY ? ConfigData.DEFAULT_COUNTRY : "";
 }
 
+const changeCountryParam = (country) => {
+  const base = window.location.href.split('?')[0];
+  const parms = new URLSearchParams(window.location.href.split('?')[1]);
+  if(country) {
+    parms.set("country", country);
+    location.href = base + '?' + parms.toString();
+  }
+  else {
+    parms.delete("country");
+    location.href = base;
+  }
+}
+
 const Releases = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalItem, setModalItem] = useState({});
@@ -58,8 +71,19 @@ const Releases = () => {
     }
   });
   let dl = new(DataLoader);
+  
+  let changeCountry = (country) => {
+    setCountry(country);
+    setSearchList({});
+    turnstoneRef.current?.clear();
+    turnstoneRef.current?.blur();
+    if(country !== "") {
+      forceRefreshData();
+      changeCountryParam(country);
+    }
+  }
 
-  if(countries.length === 0 && !loadingCountries){
+  let loadCountries = () => {
     setLoadingCountries(true);
     dl.fetch(ConfigData.GET_CLOSED_COUNTRIES)
     .then(response => response.json())
@@ -72,22 +96,20 @@ const Releases = () => {
             countriesList.push({name:data.Data[i].Country,code:data.Data[i].Code});
           }
           countriesList.sort((a, b) => a.name.localeCompare(b.name));
-          setCountries(countriesList);
         }
-        if(country === ""){
-          setCountry(countriesList[0]?.code);
-          changeCountry(countriesList[0]?.code)
+        setCountries(countriesList);
+        if(country === "" || !countriesList.some(a => a.code === country)) {
+          changeCountry(countriesList[0]?.code);
+        }
+        if(countriesList[0]) {
+          setIsLoading(false);
         }
       } else { setErrorLoading(true) }
     });
   }
 
-  let changeCountry = (country) => {
-    setCountry(country);
-    setSearchList({});
-    turnstoneRef.current?.clear();
-    turnstoneRef.current?.blur();
-    forceRefreshData();
+  if(countries.length === 0 && !loadingCountries){
+    loadCountries();
   }
 
   if(bioRegions.length === 0){
