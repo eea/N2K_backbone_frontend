@@ -222,12 +222,12 @@ const Releases = () => {
   }
 
   useEffect(() => {
-    if(tableData1.length > 0 && tableData2.length > 0 && document.querySelectorAll(".unionlist-table")[0] && document.querySelectorAll(".unionlist-table")[1]){
+    if(tableData1 !== "nodata" && tableData2 !== "nodata" && document.querySelectorAll(".unionlist-table")[0] && document.querySelectorAll(".unionlist-table")[1]){
       let heading1 = document.querySelectorAll(".unionlist-table")[0].querySelectorAll("th");
       let heading2 = document.querySelectorAll(".unionlist-table")[1].querySelectorAll("th");
       heading1.forEach((th,i) => {
         let th2 = heading2[i];
-        let width = Math.max(th.offsetWidth, th2.offsetWidth)
+        let width = Math.max(th.offsetWidth, th2.offsetWidth);
         th.style.width = width + "px";
         th2.style.width = width + "px";
       });
@@ -346,7 +346,7 @@ const Releases = () => {
                   </li>
                   <li>
                     <CButton color="primary"
-                    disabled={isLoading && !tableData || isDownloading || isDownloadingAll || tableData1 == "nodata" || tableData2 == "nodata"}
+                    disabled={isLoading && !tableData || isDownloading || isDownloadingAll || (tableData1 == "nodata" && tableData2 == "nodata")}
                     onClick={()=>downloadUnionLists()}>
                       {isDownloadingAll && <CSpinner size="sm"/>}
                       {isDownloadingAll ? " Downloading Union Lists" : "Download Union Lists"}
