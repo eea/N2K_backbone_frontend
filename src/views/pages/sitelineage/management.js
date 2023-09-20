@@ -40,6 +40,19 @@ const openSite = () => {
   return siteCode ?? "";
 }
 
+const changeCountryParam = (country) => {
+  const base = window.location.href.split('?')[0];
+  const parms = new URLSearchParams(window.location.href.split('?')[1]);
+  if(country) {
+    parms.set("country", country);
+    location.href = base + '?' + parms.toString();
+  }
+  else {
+    parms.delete("country");
+    location.href = base;
+  }
+}
+
 const cleanSiteParm = () => {
   const base = window.location.href.split('?')[0];
   const parms = new URLSearchParams(window.location.href.split('?')[1]);
@@ -52,6 +65,7 @@ const cleanSiteParm = () => {
 const Sitelineage = () => {
   const [countries, setCountries] = useState([]);
   const [country, setCountry] = useState(defaultCountry);
+  const [loadingCountries, setLoadingCountries] = useState(false);
   const [site, setSite] = useState(openSite);
   const [isLoading, setIsLoading] = useState(false);
   const [forceRefresh, setForceRefresh] = useState(0);
@@ -71,18 +85,21 @@ const Sitelineage = () => {
   let dl = new(DataLoader);
 
   let loadCountries = () => {
+    setLoadingCountries(true);
     dl.fetch(ConfigData.COUNTRIES_WITH_DATA)
     .then(response => response.json())
     .then(data => {
       if(data?.Success) {
         let countriesList = [];
-        for(let i in data.Data){
-          countriesList.push({name:data.Data[i].Country,code:data.Data[i].Code,version:data.Data[i].Version});
+        if(data.Data.length > 0) {
+          for(let i in data.Data){
+            countriesList.push({name:data.Data[i].Country,code:data.Data[i].Code,version:data.Data[i].Version});
+          }
+          countriesList.sort((a, b) => a.name.localeCompare(b.name));
         }
-        countriesList.sort((a, b) => a.name.localeCompare(b.name));
         setCountries(countriesList);
-        if(country === ""){
-          changeCountry(countriesList[0]?.code)
+        if(country === "" || !countriesList.some(a => a.code === country)) {
+          changeCountry(countriesList[0]?.code);
         }
         if(countriesList[0]) {
           setIsLoading(false);
@@ -115,7 +132,7 @@ const Sitelineage = () => {
     turnstoneRef.current?.blur();
     if(country !== "") {
       forceRefreshData();
-      setForceRefresh(forceRefresh+1);
+      changeCountryParam(country);
     }
   }
 
@@ -280,7 +297,7 @@ const Sitelineage = () => {
     setIsLoadingCount(false);
   }
 
-  if(countries.length === 0){
+  if(countries.length === 0 && !loadingCountries){
     loadCountries();
   }
 
@@ -302,7 +319,7 @@ const Sitelineage = () => {
     });
   }
   
-  if(country && changesCount.length === 0 && !isLoadingCount) {
+  if(country && changesCount.length === 0 && !isLoadingCount && countries.length > 0) {
     getChangesCount();
   }
 
