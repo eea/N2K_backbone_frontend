@@ -77,5 +77,5 @@
   },
   "EULoginServiceUrl": "http://redneckedswan/n2kbackbone_back/api/",
   "EULogoutURL": "https://ecas.acceptance.ec.europa.eu/cas/oauth2/logout",
-  "MessageTimeout": 5001
+  "MessageTimeout": 5000
 }

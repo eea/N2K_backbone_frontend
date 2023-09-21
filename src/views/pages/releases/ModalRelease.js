@@ -311,7 +311,11 @@ export class ModalRelease extends Component {
 
   completeEnvelope(country, version) {
     this.setState({completingEnvelope: {state: true, id: country}});
-    this.sendRequest(ConfigData.HARVESTING_CHANGE_STATUS+"?country="+country+"&version="+version+"&toStatus=Closed","POST","")
+    let rBody = {
+      "countryVersion": [{ "CountryCode": country, "VersionId": version }],
+      "toStatus": "Closed"
+    }
+    this.sendRequest(ConfigData.HARVESTING_CHANGE_STATUS,"POST",rBody)
     .then(response => response.json())
     .then(data => {
       if(data?.Success) {

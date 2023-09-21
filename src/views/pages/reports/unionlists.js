@@ -50,9 +50,9 @@ const Reports = () => {
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link active" href="/#/reports/changes">
+              <a className="nav-link active" href="/#/reports/unionlists">
                 <i className="fa-solid fa-bookmark"></i>
-                Site Current Changes
+                Union Lists Changes
               </a>
             </li>
           </CSidebarNav>
@@ -61,7 +61,7 @@ const Reports = () => {
           <CContainer fluid>
             <div className="d-flex justify-content-between py-3">
               <div className="page-title">
-                <h1 className="h1">Site Current Changes</h1>
+                <h1 className="h1">Union Lists Changes</h1>
               </div>
             </div>
             <CRow>
