@@ -27,9 +27,9 @@ class MapViewer extends React.Component {
     componentDidMount(){
         loadModules(
             ["esri/Map", "esri/views/MapView", "esri/widgets/Zoom", "esri/layers/GeoJSONLayer", "esri/widgets/LayerList", "esri/layers/FeatureLayer",
-            "esri/layers/MapImageLayer"],
+            "esri/layers/MapImageLayer", "esri/widgets/BasemapToggle"],
             { css: true }
-          ).then(([Map, MapView, Zoom, _GeoJSONLayer, LayerList, FeatureLayer, MapImageLayer]) => {
+          ).then(([Map, MapView, Zoom, _GeoJSONLayer, LayerList, FeatureLayer, MapImageLayer, BasemapToggle]) => {
             GeoJSONLayer = _GeoJSONLayer;
 
             let layers=[];
@@ -102,6 +102,13 @@ class MapViewer extends React.Component {
             }
           
             this.view = new MapView(mapFeats);
+
+            const basemapToggle = new BasemapToggle({
+                view: this.view,
+                nextBasemap: "satellite"
+            });
+        
+            this.view.ui.add(basemapToggle,"bottom-left");
 
             //Code to disable all events if required
             this.view.when(()=>{
