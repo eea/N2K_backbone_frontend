@@ -81,7 +81,7 @@ class MapViewer extends React.Component {
             }
 
             this.map = new Map({
-                basemap: this.props.latestRelease ? "satellite" : "osm",
+                basemap: this.props.latestRelease ? "gray-vector" : "osm",
                 layers: layers
             });
 
