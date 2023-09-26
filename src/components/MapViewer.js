@@ -85,6 +85,13 @@ class MapViewer extends React.Component {
                 layers: layers
             });
 
+            const featureLayer = new FeatureLayer({
+                url: this.props.lineageChangeType === "Deletion" ? this.props.latestRelease : this.props.reportedSpatial,
+                outFields: ["*"],
+                definitionExpression: "SiteCode = '" + this.props.siteCode + "'",
+            });
+            //layers.push(featureLayer);
+
             let mapFeats = {
                 container: this.mapDiv,
                 map: this.map,
@@ -159,7 +166,7 @@ class MapViewer extends React.Component {
             this.view.popup.defaultPopupTemplateEnabled = true;
             this.view.popup.autoOpenEnabled = true;
 
-            this.getReportedGeometry(reportedSpatial,this.props.siteCode);
+            this.getReportedGeometry(featureLayer,this.props.siteCode);
         });
     }
 
@@ -171,7 +178,9 @@ class MapViewer extends React.Component {
             res => {
                 for(let i in res.features){
                     let feat = res.features[i];
-                    this.view.extent = feat?.geometry?.extent;
+                    this.view.goTo({
+                        extent: feat?.geometry?.extent
+                    });
                     let polylineSymbol = {};
 
                     if(this.props.lastRelease) {
