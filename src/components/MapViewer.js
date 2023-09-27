@@ -103,13 +103,6 @@ class MapViewer extends React.Component {
           
             this.view = new MapView(mapFeats);
 
-            const basemapToggle = new BasemapToggle({
-                view: this.view,
-                nextBasemap: "satellite"
-            });
-        
-            this.view.ui.add(basemapToggle,"bottom-left");
-
             //Code to disable all events if required
             this.view.when(()=>{
                 if(!this.props.latestRelease){
@@ -159,6 +152,12 @@ class MapViewer extends React.Component {
 
                 let layerList = new LayerList({view: this.view});
                 this.view.ui.add(layerList,{position: "top-left"});
+                
+                const basemapToggle = new BasemapToggle({
+                    view: this.view,
+                    nextBasemap: "satellite"
+                });
+                this.view.ui.add(basemapToggle,"bottom-left");
             } 
 
             this.view.popup.visibleElements={closeButton:false};
