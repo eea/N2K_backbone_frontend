@@ -63,7 +63,7 @@ let refreshSitechanges={"pending":false,"accepted":false,"rejected":false},
     const base = window.location.href.split('?')[0];
     const parms = new URLSearchParams(window.location.href.split('?')[1]);
     parms.delete("siteCode");
-    if(parms.toString()!==""){
+    if(parms.toString() !== ""){
       location.href = base + '?' + parms.toString();
     }
   }
@@ -212,17 +212,17 @@ const Sitechanges = () => {
 
     return postRequest(ConfigData.MOVE_TO_PENDING, rBody)
     .then(data => {
-        if(data?.ok){
-          setUpdatingData(false);
-          setBacking(false);
-          let response = readResponse(data, "Back To Pending");
-          if(refresh){
-            forceRefreshData();
-            setForceRefresh(forceRefresh+1);
-          }
-          return response;
-        } else showErrorMessage("Back To Pending");
+      if(data?.ok){
+        setUpdatingData(false);
         setBacking(false);
+        let response = readResponse(data, "Back To Pending");
+        if(refresh){
+          forceRefreshData();
+          setForceRefresh(forceRefresh+1);
+        }
+        return response;
+      } else showErrorMessage("Back To Pending");
+      setBacking(false);
     }).catch(e => {
       showErrorMessage("Back To Pending");
       console.error(e)
@@ -236,17 +236,17 @@ const Sitechanges = () => {
 
     return postRequest(ConfigData.ACCEPT_CHANGES, rBody)
     .then(data => {
-        if(data.ok){
-          setUpdatingData(false);
-          setAccepting(false);
-          let response = readResponse(data, "Accept Changes");
-          if(refresh){
-            forceRefreshData();
-            setForceRefresh(forceRefresh+1);
-          }
-          return response;
-        } else showErrorMessage("Accept Changes");
+      if(data.ok){
+        setUpdatingData(false);
         setAccepting(false);
+        let response = readResponse(data, "Accept Changes");
+        if(refresh){
+          forceRefreshData();
+          setForceRefresh(forceRefresh+1);
+        }
+        return response;
+      } else showErrorMessage("Accept Changes");
+      setAccepting(false);
     }).catch(e => {
       showErrorMessage("Accept Changes");
       console.error(e);
@@ -260,17 +260,17 @@ const Sitechanges = () => {
 
     return postRequest(ConfigData.REJECT_CHANGES, rBody)
     .then(data => {
-        if(data.ok){
-          setUpdatingData(false);
-          setRejecting(false);
-          let response = readResponse(data, "Reject Changes");
-          if(refresh){
-            forceRefreshData();
-            setForceRefresh(forceRefresh+1);
-          }
-          return response;
-        } else showErrorMessage("Reject Changes");
+      if(data.ok){
+        setUpdatingData(false);
         setRejecting(false);
+        let response = readResponse(data, "Reject Changes");
+        if(refresh){
+          forceRefreshData();
+          setForceRefresh(forceRefresh+1);
+        }
+        return response;
+      } else showErrorMessage("Reject Changes");
+      setRejecting(false);
     }).catch(e => {
       showErrorMessage("Reject Changes");
       console.error(e);
@@ -278,6 +278,9 @@ const Sitechanges = () => {
   }
 
   let completeEnvelope = () => {
+    setUpdatingData(true);
+    setCompletingEnvelope(true);
+    setLoadingSites(true);
     let version = countries.find(x => x.code === country).version;
     let rBody = {
       "countryVersion": [{ "CountryCode": country, "VersionId": version }],
@@ -429,18 +432,21 @@ const Sitechanges = () => {
   }
 
   let loadCountries = () => {
+    setLoadingCountries(true);
     dl.fetch(ConfigData.COUNTRIES_WITH_DATA)
     .then(response => response.json())
     .then(data => {
       if(data?.Success) {
         let countriesList = [];
-        for(let i in data.Data){
-          countriesList.push({name:data.Data[i].Country,code:data.Data[i].Code,version:data.Data[i].Version});
+        if(data.Data.length > 0) {
+          for(let i in data.Data){
+            countriesList.push({name:data.Data[i].Country,code:data.Data[i].Code,version:data.Data[i].Version});
+          }
+          countriesList.sort((a, b) => a.name.localeCompare(b.name));
         }
-        countriesList.sort((a, b) => a.name.localeCompare(b.name));
         setCountries(countriesList);
-        if(country === "") {
-          changeCountry(countriesList[0]?.code)
+        if(country === "" || !countriesList.some(a => a.code === country)) {
+          changeCountry(countriesList[0]?.code);
         }
         if(countriesList[0]) {
           setIsLoading(false);
@@ -450,7 +456,7 @@ const Sitechanges = () => {
   }
 
   //Initial set for countries
-  if(countries.length === 0){
+  if(countries.length === 0 && !loadingCountries){
     loadCountries();
   }
 
