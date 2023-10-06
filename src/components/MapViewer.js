@@ -39,7 +39,10 @@ class MapViewer extends React.Component {
                 fieldInfos: [
                     {
                         fieldName: "Date",
-                        label: "Date"
+                        label: "Date",
+                        format: {
+                            dateFormat: "short-date"
+                        }
                     },
                     {
                         fieldName: "SiteType",
