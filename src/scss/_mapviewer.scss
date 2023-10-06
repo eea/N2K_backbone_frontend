@@ -27,11 +27,24 @@
       border-bottom: none;
     }
   }
+  .esri-layer-list {
+    &__item-container {
+      border-color: $primary-base;
+      padding: 12px;
+    }
+    &__list {
+      width: fit-content;
+    }
+    &__item-toggle {
+      line-height: 0.5rem;
+    }
+  }
   .legend-color {
     display: inline-block;
     height: 1rem;
     width: 1rem;
     opacity: 0.5;
+    margin-left: 0.5rem;
     &.legend-color-0 {
       background-color: #fed100;
     }
