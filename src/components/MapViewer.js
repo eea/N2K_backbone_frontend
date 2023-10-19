@@ -40,6 +40,7 @@ class MapViewer extends React.Component {
                     id: 1,
                     popupEnabled: true,
                     title: "Last Release",
+                    minScale : 288895.277144, 
                     opacity: 0.5,
                     renderer: {
                         type: "simple",
@@ -62,6 +63,7 @@ class MapViewer extends React.Component {
                 id: 0,
                 popupEnabled: this.props.latestRelease,
                 title: "Reported Geometries",
+                minScale : 288895.277144, 
                 opacity: 0.5,
                 renderer: {
                     type: "simple",
