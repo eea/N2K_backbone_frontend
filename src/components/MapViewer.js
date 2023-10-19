@@ -130,6 +130,20 @@ class MapViewer extends React.Component {
                 popupEnabled: false,
                 listMode: "hide",
                 definitionExpression: "SiteCode = '" + this.props.siteCode + "'",
+                renderer: {
+                    type: "simple",
+                    symbol: {
+                        type: "simple-fill",  // autocasts as new SimpleFillSymbol()
+                        color: [ 0, 0, 21, 0.25 ],
+                        style: "solid",
+                        outline: {  // autocasts as new SimpleLineSymbol()
+                            color: "#000015",
+                            width: 2
+                        }
+                    },
+                },
+
+                
             });
             this.map.add(siteLayer);
 
