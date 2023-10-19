@@ -927,6 +927,7 @@ export class ModalChanges extends Component {
               <MapViewer
                 siteCode={this.props.item}
                 version={this.props.version}
+                lineageChangeType={this.props.lineageChangeType}
                 latestRelease={ConfigData.LATEST_RELEASE}
                 reportedSpatial={ConfigData.REPORTED_SPATIAL}
               />
