@@ -70,6 +70,7 @@ class MapViewer extends React.Component {
                     popupEnabled: true,
                     title: "Reference",
                     opacity: 0.5,
+                    minScale :  288895.277144,
                     renderer: {
                         type: "simple",
                         symbol: {
@@ -96,6 +97,7 @@ class MapViewer extends React.Component {
                 popupEnabled: this.props.latestRelease,
                 title: "Submission",
                 opacity: 0.5,
+                minScale :  288895.277144,
                 renderer: {
                     type: "simple",
                     symbol: {
