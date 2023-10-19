@@ -373,7 +373,7 @@ const Releases = () => {
                   <>
                     <CRow>
                       <CCol xs={6}>
-                        <b>Latest release</b>
+                        <b>Reference</b>
                         <ScrollContainer hideScrollbars={false} className="scroll-container unionlist-table" style={{width: tableWidth}}>
                           {tableData1.length > 0 &&
                             <TableUnionLists data={tableData1} colors={false}/>
@@ -381,7 +381,7 @@ const Releases = () => {
                         </ScrollContainer>
                       </CCol>
                       <CCol xs={6}>
-                        <b>Current</b>
+                        <b>Submission</b>
                         <ScrollContainer hideScrollbars={false} className="scroll-container unionlist-table" style={{width: tableWidth}}>
                         {tableData2.length > 0 &&
                             <TableUnionLists data={tableData2} colors={true}/>

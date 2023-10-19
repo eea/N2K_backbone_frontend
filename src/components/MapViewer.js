@@ -27,21 +27,51 @@ class MapViewer extends React.Component {
     componentDidMount(){
         loadModules(
             ["esri/Map", "esri/views/MapView", "esri/widgets/Zoom", "esri/layers/GeoJSONLayer", "esri/widgets/LayerList", "esri/layers/FeatureLayer",
-            "esri/layers/MapImageLayer"],
+            "esri/layers/MapImageLayer", "esri/widgets/BasemapToggle"],
             { css: true }
-          ).then(([Map, MapView, Zoom, _GeoJSONLayer, LayerList, FeatureLayer, MapImageLayer]) => {
+          ).then(([Map, MapView, Zoom, _GeoJSONLayer, LayerList, FeatureLayer, MapImageLayer, BasemapToggle]) => {
             GeoJSONLayer = _GeoJSONLayer;
 
-            let layers=[];
+            let layers = [];
+
+            let popupTemplate = {
+                type: "fields",
+                fieldInfos: [
+                    {
+                        fieldName: "Date",
+                        label: "Date",
+                        format: {
+                            dateFormat: "short-date"
+                        }
+                    },
+                    {
+                        fieldName: "SiteType",
+                        label: "Site Type"
+                    },
+                    {
+                        fieldName: "Priority",
+                        label: "Priority"
+                    },
+                    {
+                        fieldName: "Area",
+                        label: "Area (ha)"
+                    },
+                    {
+                        fieldName: "Length",
+                        label: "Length (km)"
+                    }
+                ]
+            };
 
             if(this.props.latestRelease){
                 let lastRelease = new FeatureLayer({
                     url: this.props.latestRelease,
                     id: 1,
                     popupEnabled: true,
-                    title: "Last Release",
-                    minScale : 288895.277144, 
+                    title: "Reference",
+                    minScale : 288895.277144,
                     opacity: 0.5,
+                    minScale :  577790.554289,
                     renderer: {
                         type: "simple",
                         symbol: {
@@ -53,6 +83,10 @@ class MapViewer extends React.Component {
                                 color: "#444444"
                             }
                         },
+                    },
+                    popupTemplate: {
+                        title: "Reference: {SiteCode} - {SiteName}",
+                        content: [ popupTemplate ]
                     }
                 });
                 layers.push(lastRelease);
@@ -62,9 +96,10 @@ class MapViewer extends React.Component {
                 url: this.props.reportedSpatial,
                 id: 0,
                 popupEnabled: this.props.latestRelease,
-                title: "Reported Geometries",
-                minScale : 288895.277144, 
+                title: "Submission",
+                minScale : 288895.277144,
                 opacity: 0.5,
+                minScale :  577790.554289,
                 renderer: {
                     type: "simple",
                     symbol: {
@@ -76,6 +111,10 @@ class MapViewer extends React.Component {
                             color: "#444444"
                         }
                     },
+                },
+                popupTemplate: {
+                    title: "Submission: {SiteCode} - {SiteName}",
+                    content: [ popupTemplate ]
                 }
             });
             if(this.props.latestRelease){
@@ -163,6 +202,12 @@ class MapViewer extends React.Component {
 
                 let layerList = new LayerList({view: this.view});
                 this.view.ui.add(layerList,{position: "top-left"});
+                
+                const basemapToggle = new BasemapToggle({
+                    view: this.view,
+                    nextBasemap: "satellite"
+                });
+                this.view.ui.add(basemapToggle,"bottom-left");
             } 
 
             this.view.popup.visibleElements={closeButton:false};
