@@ -189,9 +189,13 @@ class MapViewer extends React.Component {
 
                     if(this.props.lastRelease) {
                         polylineSymbol = {
-                            type: "simple-line",  // autocasts as SimpleLineSymbol()
-                            color: "#000015",
-                            width: 2
+                            type: "simple-fill",  // autocasts as new SimpleFillSymbol()
+                            color: [ 0, 0, 21, 0.25 ],
+                            style: "solid",
+                            outline: {  // autocasts as new SimpleLineSymbol()
+                              color: "#000015",
+                              width: 2
+                            }
                         };
                     }
                     else {
