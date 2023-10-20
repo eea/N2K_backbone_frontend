@@ -32,7 +32,36 @@ class MapViewer extends React.Component {
           ).then(([Map, MapView, Zoom, _GeoJSONLayer, LayerList, FeatureLayer, MapImageLayer]) => {
             GeoJSONLayer = _GeoJSONLayer;
 
-            let layers=[];
+            let layers = [];
+
+            let popupTemplate = {
+                type: "fields",
+                fieldInfos: [
+                    {
+                        fieldName: "Date",
+                        label: "Date",
+                        format: {
+                            dateFormat: "short-date"
+                        }
+                    },
+                    {
+                        fieldName: "SiteType",
+                        label: "Site Type"
+                    },
+                    {
+                        fieldName: "Priority",
+                        label: "Priority"
+                    },
+                    {
+                        fieldName: "Area",
+                        label: "Area (ha)"
+                    },
+                    {
+                        fieldName: "Length",
+                        label: "Length (km)"
+                    }
+                ]
+            };
 
             if(this.props.latestRelease){
                 let lastRelease = new FeatureLayer({
@@ -53,6 +82,10 @@ class MapViewer extends React.Component {
                                 color: "#444444"
                             }
                         },
+                    },
+                    popupTemplate: {
+                        title: "Reference: {SiteCode} - {SiteName}",
+                        content: [ popupTemplate ]
                     }
                 });
                 layers.push(lastRelease);
@@ -76,6 +109,10 @@ class MapViewer extends React.Component {
                             color: "#444444"
                         }
                     },
+                },
+                popupTemplate: {
+                    title: "Submission: {SiteCode} - {SiteName}",
+                    content: [ popupTemplate ]
                 }
             });
             if(this.props.latestRelease){
