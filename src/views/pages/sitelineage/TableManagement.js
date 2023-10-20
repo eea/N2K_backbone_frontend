@@ -286,7 +286,7 @@ import {DataLoader} from '../../../components/DataLoader';
           },
         },
         {
-          Header: 'Reported',
+          Header: 'Submission',
           accessor: 'Reported',
           Cell: ({ row }) => {
             let tags = [];

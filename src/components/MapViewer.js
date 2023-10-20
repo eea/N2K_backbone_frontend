@@ -68,9 +68,9 @@ class MapViewer extends React.Component {
                     url: this.props.latestRelease,
                     id: 1,
                     popupEnabled: true,
-                    title: "Last Release",
-                    minScale : 288895.277144, 
+                    title: "Reference",
                     opacity: 0.5,
+                    minScale : 577790.554289,
                     renderer: {
                         type: "simple",
                         symbol: {
@@ -95,9 +95,9 @@ class MapViewer extends React.Component {
                 url: this.props.reportedSpatial,
                 id: 0,
                 popupEnabled: this.props.latestRelease,
-                title: "Reported Geometries",
-                minScale : 288895.277144, 
+                title: "Submission",
                 opacity: 0.5,
+                minScale : 577790.554289,
                 renderer: {
                     type: "simple",
                     symbol: {
