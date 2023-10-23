@@ -130,6 +130,16 @@ class MapViewer extends React.Component {
                 popupEnabled: false,
                 listMode: "hide",
                 definitionExpression: "SiteCode = '" + this.props.siteCode + "'",
+                renderer: {
+                    type: "simple",
+                    symbol: {
+                        type: "simple-fill",
+                        color: "transparent",
+                        outline: {
+                            style: "none",
+                        }
+                    },
+                },
             });
             this.map.add(siteLayer);
 
@@ -228,26 +238,15 @@ class MapViewer extends React.Component {
                     this.view.goTo({
                         extent: feat?.geometry?.extent
                     });
-                    let polylineSymbol = {};
-
-                    if(this.props.lastRelease) {
-                        polylineSymbol = {
-                            type: "simple-line",  // autocasts as SimpleLineSymbol()
+                    let polylineSymbol = {
+                        type: "simple-fill",
+                        color: [ 0, 0, 21, 0.25 ],
+                        style: "solid",
+                        outline: {
                             color: "#000015",
                             width: 2
-                        };
-                    }
-                    else {
-                        polylineSymbol = {
-                            type: "simple-fill",  // autocasts as new SimpleFillSymbol()
-                            color: [ 0, 0, 21, 0.25 ],
-                            style: "solid",
-                            outline: {  // autocasts as new SimpleLineSymbol()
-                              color: "#000015",
-                              width: 2
-                            }
-                        };
-                    }
+                        }
+                    };
                     feat.symbol = polylineSymbol;
                     this.view.graphics.add(feat);
                 }

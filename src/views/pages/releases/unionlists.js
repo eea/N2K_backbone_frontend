@@ -346,7 +346,7 @@ const Releases = () => {
                   </li>
                   <li>
                     <CButton color="primary"
-                    disabled={isLoading && !tableData || isDownloading || isDownloadingAll || (tableData1 == "nodata" && tableData2 == "nodata")}
+                    disabled={isLoading || (isDownloading || isDownloadingAll || bioRegionsSummary.length === 0)}
                     onClick={()=>downloadUnionLists()}>
                       {isDownloadingAll && <CSpinner size="sm"/>}
                       {isDownloadingAll ? " Downloading Union Lists" : "Download Union Lists"}
