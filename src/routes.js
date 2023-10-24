@@ -11,7 +11,7 @@ const SiteChanges = React.lazy(() => import('./views/pages/sitechanges/sitechang
 const ReportsReleases = React.lazy(() => import('./views/pages/reports/releases'))
 const ReportsSites = React.lazy(() => import('./views/pages/reports/sites'))
 const ReportsStatus = React.lazy(() => import('./views/pages/reports/status'))
-const ReportsChanges = React.lazy(() => import('./views/pages/reports/changes'))
+const ReportsUnion = React.lazy(() => import('./views/pages/reports/unionlists'))
 const ReleasesManagement = React.lazy(() => import('./views/pages/releases/management'))
 const ReleasesComparer = React.lazy(() => import('./views/pages/releases/comparer'))
 const UnionLists = React.lazy(() => import('./views/pages/releases/unionlists'))
@@ -36,7 +36,7 @@ const routes = [
   { path: '/reports/releases', exact: true, name: 'Reports', component: ReportsReleases },
   { path: '/reports/sites', exact: true, name: 'Reports', component: ReportsSites },
   { path: '/reports/status', exact: true, name: 'Reports', component: ReportsStatus },
-  { path: '/reports/changes', exact: true, name: 'Reports', component: ReportsChanges },
+  { path: '/reports/unionlists', exact: true, name: 'Reports', component: ReportsUnion },
   { path: '/releases/management', exact: true, name: 'Releases', component: ReleasesManagement },
   { path: '/releases/comparer', exact: true, name: 'Releases', component: ReleasesComparer },
   { path: '/releases/unionlists', exact: true, name: 'Releases', component: UnionLists },

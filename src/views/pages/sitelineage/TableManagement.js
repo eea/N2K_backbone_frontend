@@ -175,7 +175,7 @@ import {DataLoader} from '../../../components/DataLoader';
 
     let dl = new(DataLoader);
 
-    useEffect(() => {loadData()}, [country, props.typeFilter, props.getRefresh()])
+    useEffect(() => {props.country && loadData()}, [country, props.typeFilter, props.getRefresh()])
 
     let getSite = () => {
       if(changesData.length > 0) {
@@ -286,7 +286,7 @@ import {DataLoader} from '../../../components/DataLoader';
           },
         },
         {
-          Header: 'Reported',
+          Header: 'Submission',
           accessor: 'Reported',
           Cell: ({ row }) => {
             let tags = [];
@@ -378,7 +378,8 @@ import {DataLoader} from '../../../components/DataLoader';
     if(!props.country) {
       if(changesData !== "nodata") {
         setChangesData("nodata");
-        setIsLoaded(false);
+        setIsLoaded(true);
+        props.setSitecodes({});
       }
     }
 
@@ -410,7 +411,7 @@ import {DataLoader} from '../../../components/DataLoader';
             visible = {modalVisible}
             close = {closeModal}
             status={props.status}
-            item={modalItem.ChangeId}
+            change={modalItem.ChangeId}
             code={modalItem.SiteCode}
             name={modalItem.SiteName}
             type={modalItem.Type}

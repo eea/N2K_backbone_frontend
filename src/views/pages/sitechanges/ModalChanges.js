@@ -459,7 +459,7 @@ export class ModalChanges extends Component {
   checkTableUnits(type,field) {
     if(type.toLowerCase().includes("area") || type.toLowerCase().includes("length")) {
       let unit = type.toLowerCase().includes("area") ? " (ha)" : " (km)"
-      field = (field === "Reference" || field === "Reported") ? field + unit : field;
+      field = (field === "Reference" || field === "Submission") ? field + unit : field;
     }
     return field;
   }
@@ -927,6 +927,7 @@ export class ModalChanges extends Component {
               <MapViewer
                 siteCode={this.props.item}
                 version={this.props.version}
+                lineageChangeType={this.props.lineageChangeType}
                 latestRelease={ConfigData.LATEST_RELEASE}
                 reportedSpatial={ConfigData.REPORTED_SPATIAL}
               />
@@ -962,7 +963,11 @@ export class ModalChanges extends Component {
                 <>
                   <CAlert color="danger">Error loading fields data</CAlert>
                 </>
-                : this.createFieldElement()
+                :
+                (this.state.fields === "noData" ?
+                  <p className="text-center mt-5">This site has been deleted</p>
+                  : this.createFieldElement()
+                )
               }
             </CRow>
           </CForm>

@@ -27,20 +27,50 @@ class MapViewer extends React.Component {
     componentDidMount(){
         loadModules(
             ["esri/Map", "esri/views/MapView", "esri/widgets/Zoom", "esri/layers/GeoJSONLayer", "esri/widgets/LayerList", "esri/layers/FeatureLayer",
-            "esri/layers/MapImageLayer"],
+            "esri/layers/MapImageLayer", "esri/widgets/BasemapToggle"],
             { css: true }
-          ).then(([Map, MapView, Zoom, _GeoJSONLayer, LayerList, FeatureLayer, MapImageLayer]) => {
+          ).then(([Map, MapView, Zoom, _GeoJSONLayer, LayerList, FeatureLayer, MapImageLayer, BasemapToggle]) => {
             GeoJSONLayer = _GeoJSONLayer;
 
-            let layers=[];
+            let layers = [];
+
+            let popupTemplate = {
+                type: "fields",
+                fieldInfos: [
+                    {
+                        fieldName: "Date",
+                        label: "Date",
+                        format: {
+                            dateFormat: "short-date"
+                        }
+                    },
+                    {
+                        fieldName: "SiteType",
+                        label: "Site Type"
+                    },
+                    {
+                        fieldName: "Priority",
+                        label: "Priority"
+                    },
+                    {
+                        fieldName: "Area",
+                        label: "Area (ha)"
+                    },
+                    {
+                        fieldName: "Length",
+                        label: "Length (km)"
+                    }
+                ]
+            };
 
             if(this.props.latestRelease){
                 let lastRelease = new FeatureLayer({
                     url: this.props.latestRelease,
                     id: 1,
                     popupEnabled: true,
-                    title: "Last Release",
+                    title: "Reference",
                     opacity: 0.5,
+                    minScale : 577790.554289,
                     renderer: {
                         type: "simple",
                         symbol: {
@@ -52,6 +82,10 @@ class MapViewer extends React.Component {
                                 color: "#444444"
                             }
                         },
+                    },
+                    popupTemplate: {
+                        title: "Reference: {SiteCode} - {SiteName}",
+                        content: [ popupTemplate ]
                     }
                 });
                 layers.push(lastRelease);
@@ -61,8 +95,9 @@ class MapViewer extends React.Component {
                 url: this.props.reportedSpatial,
                 id: 0,
                 popupEnabled: this.props.latestRelease,
-                title: "Reported Geometries",
+                title: "Submission",
                 opacity: 0.5,
+                minScale : 577790.554289,
                 renderer: {
                     type: "simple",
                     symbol: {
@@ -74,6 +109,10 @@ class MapViewer extends React.Component {
                             color: "#444444"
                         }
                     },
+                },
+                popupTemplate: {
+                    title: "Submission: {SiteCode} - {SiteName}",
+                    content: [ popupTemplate ]
                 }
             });
             if(this.props.latestRelease){
@@ -81,9 +120,28 @@ class MapViewer extends React.Component {
             }
 
             this.map = new Map({
-                basemap: this.props.latestRelease ? "satellite" : "osm",
+                basemap: this.props.latestRelease ? "gray-vector" : "osm",
                 layers: layers
             });
+
+            let siteLayer = new FeatureLayer({
+                url: this.props.lineageChangeType === "Deletion" ? this.props.latestRelease : this.props.reportedSpatial,
+                id: 3,
+                popupEnabled: false,
+                listMode: "hide",
+                definitionExpression: "SiteCode = '" + this.props.siteCode + "'",
+                renderer: {
+                    type: "simple",
+                    symbol: {
+                        type: "simple-fill",
+                        color: "transparent",
+                        outline: {
+                            style: "none",
+                        }
+                    },
+                },
+            });
+            this.map.add(siteLayer);
 
             let mapFeats = {
                 container: this.mapDiv,
@@ -152,6 +210,12 @@ class MapViewer extends React.Component {
 
                 let layerList = new LayerList({view: this.view});
                 this.view.ui.add(layerList,{position: "top-left"});
+                
+                const basemapToggle = new BasemapToggle({
+                    view: this.view,
+                    nextBasemap: "satellite"
+                });
+                this.view.ui.add(basemapToggle,"bottom-left");
             } 
 
             this.view.popup.visibleElements={closeButton:false};
@@ -159,7 +223,7 @@ class MapViewer extends React.Component {
             this.view.popup.defaultPopupTemplateEnabled = true;
             this.view.popup.autoOpenEnabled = true;
 
-            this.getReportedGeometry(reportedSpatial,this.props.siteCode);
+            this.getReportedGeometry(siteLayer,this.props.siteCode);
         });
     }
 
@@ -171,27 +235,18 @@ class MapViewer extends React.Component {
             res => {
                 for(let i in res.features){
                     let feat = res.features[i];
-                    this.view.extent = feat?.geometry?.extent;
-                    let polylineSymbol = {};
-
-                    if(this.props.lastRelease) {
-                        polylineSymbol = {
-                            type: "simple-line",  // autocasts as SimpleLineSymbol()
+                    this.view.goTo({
+                        extent: feat?.geometry?.extent
+                    });
+                    let polylineSymbol = {
+                        type: "simple-fill",
+                        color: [ 0, 0, 21, 0.25 ],
+                        style: "solid",
+                        outline: {
                             color: "#000015",
                             width: 2
-                        };
-                    }
-                    else {
-                        polylineSymbol = {
-                            type: "simple-fill",  // autocasts as new SimpleFillSymbol()
-                            color: [ 0, 0, 21, 0.4 ],
-                            style: "solid",
-                            outline: {  // autocasts as new SimpleLineSymbol()
-                              color: "#000015",
-                              width: 2
-                            }
-                        };
-                    }
+                        }
+                    };
                     feat.symbol = polylineSymbol;
                     this.view.graphics.add(feat);
                 }

@@ -15,6 +15,10 @@ import {matchSorter} from 'match-sorter'
 import { ModalChanges } from './ModalChanges';
 import justificationrequired from './../../../assets/images/exclamation.svg'
 import justificationprovided from './../../../assets/images/file-text.svg'
+import merge from './../../../assets/images/merge.svg'
+import split from './../../../assets/images/split.svg'
+import creation from './../../../assets/images/creation.svg'
+import deletion from './../../../assets/images/deletion.svg'
 import {DataLoader} from '../../../components/DataLoader';
 
 const IndeterminateCheckbox = React.forwardRef(
@@ -486,9 +490,9 @@ const IndeterminateCheckbox = React.forwardRef(
         },
         {
           Header: () => null,
-          accessor: "Recoded",
+          accessor: "LineageChangeType",
           Cell: ({ row }) => {
-            if(row.values.Recoded)
+            if(row.values.LineageChangeType === "Recode")
               return (
                 <CTooltip
                   content="Site Recode"
@@ -496,6 +500,50 @@ const IndeterminateCheckbox = React.forwardRef(
                 >
                   <div className="btn-icon btn-hover">
                     <i className="fa-solid fa-repeat"/>
+                  </div>
+                </CTooltip>
+              )
+            else if(row.values.LineageChangeType === "Split")
+              return (
+                <CTooltip
+                  content="Site Split"
+                  placement="top"
+                >
+                  <div className="btn-icon btn-hover">
+                    <CImage src={split} className="ico--md "></CImage>
+                  </div>
+                </CTooltip>
+              )
+            else if(row.values.LineageChangeType === "Merge")
+              return (
+                <CTooltip
+                  content="Site Merge"
+                  placement="top"
+                >
+                  <div className="btn-icon btn-hover">
+                    <CImage src={merge} className="ico--md "></CImage>
+                  </div>
+                </CTooltip>
+              )
+            else if(row.values.LineageChangeType === "Creation")
+              return (
+                <CTooltip
+                  content="Site Creation"
+                  placement="top"
+                >
+                  <div className="btn-icon btn-hover">
+                    <CImage src={creation} className="ico--md "></CImage>
+                  </div>
+                </CTooltip>
+              )
+            else if(row.values.LineageChangeType === "Deletion")
+              return (
+                <CTooltip
+                  content="Site Deletion"
+                  placement="top"
+                >
+                  <div className="btn-icon btn-hover">
+                    <CImage src={deletion} className="ico--md "></CImage>
                   </div>
                 </CTooltip>
               )
@@ -626,6 +674,7 @@ const IndeterminateCheckbox = React.forwardRef(
       if(props.getRefresh()||(!isLoading && changesData!=="nodata" && Object.keys(changesData).length===0)){
         let promises=[];
         setIsLoading(true);
+        props.setLoadingSites(true);
         
         if(props.getRefresh()||(levelCountry==={})||(levelCountry.level!==props.level)||(levelCountry.country!==props.country)){
           props.setRefresh(props.status,false);  //For the referred status, data is updated
@@ -652,7 +701,10 @@ const IndeterminateCheckbox = React.forwardRef(
             }
           })
         )
-        Promise.all(promises).then(v=>setIsLoading(false));
+        Promise.all(promises).then(v=>{
+          setIsLoading(false);
+          props.setLoadingSites(false);
+        });
       }
     }
     
@@ -712,6 +764,7 @@ const IndeterminateCheckbox = React.forwardRef(
             justificationRequired={modalItem.JustificationRequired}
             justificationProvided={modalItem.JustificationProvided}
             activeKey={modalItem.ActiveKey}
+            lineageChangeType={modalItem.LineageChangeType}
           />
         </>
         )
