@@ -28,6 +28,7 @@ const Releases = () => {
   const [releaseTitle2, setReleaseTitle2] = useState();
   const [compare, setCompare] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [noData, setNoData] = useState(false);
   const [bioRegions, setBioRegions] = useState([]);
   const [bioRegionsSummary, setBioRegionsSummary] = useState([]);
   const [activeBioregions, setActiveBioregions] = useState("");
@@ -49,6 +50,8 @@ const Releases = () => {
       if(data?.Success) {
         if(Object.keys(data.Data).length > 0){
           setReleaseList(data.Data.sort((a,b)=>new Date(b.CreateDate)-new Date(a.CreateDate)));
+        } else {
+          setNoData(true);
         }
         setIsLoading(false);
       }
@@ -301,7 +304,7 @@ const Releases = () => {
       return "No selection"
   }
 
-  releaseList.length === 0 && !isLoading && loadUnionLists();
+  releaseList.length === 0 && !isLoading && !noData && loadUnionLists();
 
   compare && (tableData1.length === 0 && tableData2.length === 0) && loadData();
 
@@ -349,7 +352,7 @@ const Releases = () => {
               <CCol>
                 <div className="unionlist-compare">
                   <b>Compare</b>
-                  <CFormSelect aria-label="Default select example" className='form-select-reporting' defaultValue="default" disabled={isLoading} onChange={(e)=>selectRelease1(e.target.value)}>/
+                  <CFormSelect aria-label="Default select example" className='form-select-reporting' defaultValue="default" disabled={isLoading || noData} onChange={(e)=>selectRelease1(e.target.value)}>/
                     <option disabled value="default" hidden>Select a Release</option>
                     {
                       releaseList.map((e)=><option value={e.ID} key={"c1-"+e.ID}>{e.Title} {' (' + dateFormatter(e.CreateDate) + ')'}</option>)
