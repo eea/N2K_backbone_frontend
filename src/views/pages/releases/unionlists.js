@@ -218,7 +218,7 @@ const Releases = () => {
   }
 
   useEffect(() => {
-    if(tableData1 !== "nodata" && tableData2 !== "nodata" && document.querySelectorAll(".unionlist-table")[0] && document.querySelectorAll(".unionlist-table")[1]){
+    if((tableData1.length > 0 && tableData1 !== "nodata") && (tableData2.length > 0 && tableData2 !== "nodata") && document.querySelectorAll(".unionlist-table")[0] && document.querySelectorAll(".unionlist-table")[1]){
       let heading1 = document.querySelectorAll(".unionlist-table")[0].querySelectorAll("th");
       let heading2 = document.querySelectorAll(".unionlist-table")[1].querySelectorAll("th");
       heading1.forEach((th,i) => {
@@ -342,7 +342,7 @@ const Releases = () => {
                   </li>
                   <li>
                     <CButton color="primary"
-                    disabled={isLoading || (isDownloading || isDownloadingAll || bioRegionsSummary.length === 0)}
+                    disabled={isLoading && !tableData || (isDownloading || isDownloadingAll || bioRegionsSummary.length === 0)}
                     onClick={()=>downloadUnionLists()}>
                       {isDownloadingAll && <CSpinner size="sm"/>}
                       {isDownloadingAll ? " Downloading Union Lists" : "Download Union Lists"}
