@@ -133,9 +133,13 @@ const PendingCards = () => {
       <div className="bg-white rounded-2 mb-5">
         <CRow className="grid">
           {isLoading ?
-            <em className="loading-container">Loading...</em>
+            <div className="container-card-dashboard">
+              <em className="loading-container">Loading...</em>
+            </div>
             : errorsLoading ? <></> : (pendingCountriesData.length === 0 ?
-              <CAlert color="warning">No Data</CAlert>
+              <div className="container-card-dashboard">
+                <div className="nodata-container"><em>No Data</em></div>
+              </div>
               : cards())
           }
           {errorsLoading &&
