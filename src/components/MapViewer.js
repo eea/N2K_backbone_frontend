@@ -125,7 +125,7 @@ class MapViewer extends React.Component {
             });
 
             let siteLayer = new FeatureLayer({
-                url: this.props.lineageChangeType === "Deletion" ? this.props.latestRelease : this.props.reportedSpatial,
+                url: this.props.lineageChangeType === "Deletion" || this.props.noGeometry ? this.props.latestRelease : this.props.reportedSpatial,
                 id: 3,
                 popupEnabled: false,
                 listMode: "hide",
