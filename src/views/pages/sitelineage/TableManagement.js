@@ -411,7 +411,7 @@ import {DataLoader} from '../../../components/DataLoader';
             visible = {modalVisible}
             close = {closeModal}
             status={props.status}
-            item={modalItem.ChangeId}
+            change={modalItem.ChangeId}
             code={modalItem.SiteCode}
             name={modalItem.SiteName}
             type={modalItem.Type}
