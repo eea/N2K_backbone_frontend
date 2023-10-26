@@ -287,22 +287,22 @@ import {DataLoader} from '../../../components/DataLoader';
         },
         {
           Header: 'Submission',
-          accessor: 'Reported',
+          accessor: 'Submission',
           Cell: ({ row }) => {
             let tags = [];
             if(row.original.Type === "Split" || row.original.Type === "Recode"){
-              let values = row.original.Reported?.split(",");
+              let values = row.original.Submission?.split(",");
               for(let i in values) {
                 tags.push(<span className={"badge badge--lineage "+row.original.Type.toLowerCase()} key={"rep_"+i}>{values[i]}</span>);
               }
             }
-            else if(!row.original.Reported || row.original.Reported === "-"){
+            else if(!row.original.Submission || row.original.Submission === "-"){
               tags = "-";
             }
             else {
               tags =
                 <span className={"badge badge--lineage basic"}>
-                  {row.values.Reported}
+                  {row.values.Submission}
                 </span>
             }
             return <span className="lineage-cell">{tags}</span>;
@@ -416,7 +416,7 @@ import {DataLoader} from '../../../components/DataLoader';
             name={modalItem.SiteName}
             type={modalItem.Type}
             reference={modalItem.Reference}
-            reported={modalItem.reported}
+            submission={modalItem.Submission}
             country={props.country}
             errorMessage={props.errorMessage}
             updateModalValues = {props.updateModalValues}
