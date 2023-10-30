@@ -459,7 +459,7 @@ export class ModalChanges extends Component {
   checkTableUnits(type,field) {
     if(type.toLowerCase().includes("area") || type.toLowerCase().includes("length")) {
       let unit = type.toLowerCase().includes("area") ? " (ha)" : " (km)"
-      field = (field === "Reference" || field === "Reported") ? field + unit : field;
+      field = (field === "Reference" || field === "Submission") ? field + unit : field;
     }
     return field;
   }
