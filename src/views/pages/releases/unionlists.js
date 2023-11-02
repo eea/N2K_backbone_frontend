@@ -84,10 +84,6 @@ const Releases = () => {
           })
         );
       }
-      if (activeBioregions === "nodata") {
-        setTableData1("nodata");
-        setTableData2("nodata");
-      }
       else if(!tableDataLoading || (tableData1.length === 0 && tableData2.length === 0)) {
         if(activeBioregions==="") return;
         setTableDataLoading(true);
@@ -222,7 +218,7 @@ const Releases = () => {
   }
 
   useEffect(() => {
-    if(tableData1 !== "nodata" && tableData2 !== "nodata" && document.querySelectorAll(".unionlist-table")[0] && document.querySelectorAll(".unionlist-table")[1]){
+    if((tableData1.length > 0 && tableData1 !== "nodata") && (tableData2.length > 0 && tableData2 !== "nodata") && document.querySelectorAll(".unionlist-table")[0] && document.querySelectorAll(".unionlist-table")[1]){
       let heading1 = document.querySelectorAll(".unionlist-table")[0].querySelectorAll("th");
       let heading2 = document.querySelectorAll(".unionlist-table")[1].querySelectorAll("th");
       heading1.forEach((th,i) => {
@@ -346,7 +342,7 @@ const Releases = () => {
                   </li>
                   <li>
                     <CButton color="primary"
-                    disabled={isLoading && !tableData || isDownloading || isDownloadingAll || (tableData1 == "nodata" && tableData2 == "nodata")}
+                    disabled={isLoading && !tableData || (isDownloading || isDownloadingAll || bioRegionsSummary.length === 0)}
                     onClick={()=>downloadUnionLists()}>
                       {isDownloadingAll && <CSpinner size="sm"/>}
                       {isDownloadingAll ? " Downloading Union Lists" : "Download Union Lists"}
@@ -357,92 +353,95 @@ const Releases = () => {
             </div>
             {isLoading && !tableData ?
               <div className="loading-container"><em>Loading...</em></div>
-            :
-              <>
-                <CRow>
-                  <CCol>
-                    <div className="unionlist-changes">
-                      <b>Detected changes:</b>
-                      {loadBioRegionButtons()}
-                    </div>
-                  </CCol>
-                </CRow>
-                {tableDataLoading ? 
-                  <div className="loading-container"><em>Loading...</em></div>
-                :
-                  <>
-                    <CRow>
-                      <CCol xs={6}>
-                        <b>Latest release</b>
-                        <ScrollContainer hideScrollbars={false} className="scroll-container unionlist-table" style={{width: tableWidth}}>
-                          {tableData1.length > 0 &&
-                            <TableUnionLists data={tableData1} colors={false}/>
-                          }
-                        </ScrollContainer>
-                      </CCol>
-                      <CCol xs={6}>
-                        <b>Current</b>
-                        <ScrollContainer hideScrollbars={false} className="scroll-container unionlist-table" style={{width: tableWidth}}>
-                        {tableData2.length > 0 &&
-                            <TableUnionLists data={tableData2} colors={true}/>
-                          }
-                        </ScrollContainer>
-                      </CCol>
-                    </CRow>
-                    {pageResults > 0 &&
-                      <div className="table-footer mt-3">
-                        <div className="table-legend">
-                          <div className="table-legend--item">
-                            <span className="table-legend--color" style={{backgroundColor: ConfigData.Colors.Red}}></span>
-                            <span className="table-legend--label">Deleted/Decreased/Priority changed</span>
-                          </div>
-                          <div className="table-legend--item">
-                            <span className="table-legend--color" style={{backgroundColor: ConfigData.Colors.Green}}></span>
-                            <span className="table-legend--label">Added/Increased</span>
-                          </div>
-                        </div>
-                        <CPagination>
-                          <CPaginationItem onClick={() => gotoPage(1, null)} disabled={pageNumber === 1}>
-                            <i className="fa-solid fa-angles-left"></i>
-                          </CPaginationItem>
-                          <CPaginationItem onClick={() => gotoPage(pageNumber-1, null)} disabled={pageNumber === 1}>
-                            <i className="fa-solid fa-angle-left"></i>
-                          </CPaginationItem>
-                          <span>
-                            Page{' '}
-                            <strong>
-                              {pageNumber} of {Math.ceil(pageResults / Number(pageSize))}
-                            </strong>{' '}
-                            ({pageResults === 1 ? pageResults + " result" : pageResults + " results"})
-                          </span>
-                          <CPaginationItem onClick={() => gotoPage(pageNumber+1, null)} disabled={pageNumber === Math.ceil(pageResults / Number(pageSize))}>
-                            <i className="fa-solid fa-angle-right"></i>
-                          </CPaginationItem>
-                          <CPaginationItem onClick={() => gotoPage(Math.ceil(pageResults / Number(pageSize)), null)} disabled={pageNumber === Math.ceil(pageResults / Number(pageSize))}>
-                            <i className="fa-solid fa-angles-right"></i>
-                          </CPaginationItem>
-                          <div className='pagination-rows'>
-                            <label className='form-label'>Rows per page</label>
-                            <select
-                              className='form-select'
-                              value={pageSize}
-                              onChange={e => {
-                                gotoPage(null,Number(e.target.value))
-                              }}
-                            >
-                              {[10, 20, 30, 40, 50].map(pageSize => (
-                                <option key={pageSize} value={pageSize}>
-                                  {pageSize}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                        </CPagination>
+            : (bioRegionsSummary.length === 0 ? 
+                <div className="nodata-container"><em>No Data</em></div>
+              :
+                <>
+                  <CRow>
+                    <CCol>
+                      <div className="unionlist-changes">
+                        <b>Detected changes:</b>
+                        {loadBioRegionButtons()}
                       </div>
-                    }
-                  </>
-                }
-              </>
+                    </CCol>
+                  </CRow>
+                  {tableDataLoading ? 
+                    <div className="loading-container"><em>Loading...</em></div>
+                  :
+                    <>
+                      <CRow>
+                        <CCol xs={6}>
+                          <b>Reference</b>
+                          <ScrollContainer hideScrollbars={false} className="scroll-container unionlist-table" style={{width: tableWidth}}>
+                            {tableData1.length > 0 &&
+                              <TableUnionLists data={tableData1} colors={false}/>
+                            }
+                          </ScrollContainer>
+                        </CCol>
+                        <CCol xs={6}>
+                          <b>Submission</b>
+                          <ScrollContainer hideScrollbars={false} className="scroll-container unionlist-table" style={{width: tableWidth}}>
+                          {tableData2.length > 0 &&
+                              <TableUnionLists data={tableData2} colors={true}/>
+                            }
+                          </ScrollContainer>
+                        </CCol>
+                      </CRow>
+                      {pageResults > 0 &&
+                        <div className="table-footer mt-3">
+                          <div className="table-legend">
+                            <div className="table-legend--item">
+                              <span className="table-legend--color" style={{backgroundColor: ConfigData.Colors.Red}}></span>
+                              <span className="table-legend--label">Deleted/Decreased/Priority changed</span>
+                            </div>
+                            <div className="table-legend--item">
+                              <span className="table-legend--color" style={{backgroundColor: ConfigData.Colors.Green}}></span>
+                              <span className="table-legend--label">Added/Increased</span>
+                            </div>
+                          </div>
+                          <CPagination>
+                            <CPaginationItem onClick={() => gotoPage(1, null)} disabled={pageNumber === 1}>
+                              <i className="fa-solid fa-angles-left"></i>
+                            </CPaginationItem>
+                            <CPaginationItem onClick={() => gotoPage(pageNumber-1, null)} disabled={pageNumber === 1}>
+                              <i className="fa-solid fa-angle-left"></i>
+                            </CPaginationItem>
+                            <span>
+                              Page{' '}
+                              <strong>
+                                {pageNumber} of {Math.ceil(pageResults / Number(pageSize))}
+                              </strong>{' '}
+                              ({pageResults === 1 ? pageResults + " result" : pageResults + " results"})
+                            </span>
+                            <CPaginationItem onClick={() => gotoPage(pageNumber+1, null)} disabled={pageNumber === Math.ceil(pageResults / Number(pageSize))}>
+                              <i className="fa-solid fa-angle-right"></i>
+                            </CPaginationItem>
+                            <CPaginationItem onClick={() => gotoPage(Math.ceil(pageResults / Number(pageSize)), null)} disabled={pageNumber === Math.ceil(pageResults / Number(pageSize))}>
+                              <i className="fa-solid fa-angles-right"></i>
+                            </CPaginationItem>
+                            <div className='pagination-rows'>
+                              <label className='form-label'>Rows per page</label>
+                              <select
+                                className='form-select'
+                                value={pageSize}
+                                onChange={e => {
+                                  gotoPage(null,Number(e.target.value))
+                                }}
+                              >
+                                {[10, 20, 30, 40, 50].map(pageSize => (
+                                  <option key={pageSize} value={pageSize}>
+                                    {pageSize}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                          </CPagination>
+                        </div>
+                      }
+                    </>
+                  }
+                </>
+              )
             }
           </CContainer>
         </div>

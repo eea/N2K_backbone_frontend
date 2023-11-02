@@ -372,8 +372,9 @@ export class ModalLineage extends Component {
           {!this.state.errorLoading &&
             <CRow >
               <MapViewer
-                siteCode={this.props.item}
+                siteCode={this.props.code}
                 version={this.props.version}
+                lineageChangeType={this.props.type}
                 latestRelease={ConfigData.LATEST_RELEASE}
                 reportedSpatial={ConfigData.REPORTED_SPATIAL}
               />
@@ -386,7 +387,7 @@ export class ModalLineage extends Component {
   getBody() {
     return (
       {
-        "ChangeId": this.props.item,
+        "ChangeId": this.props.change,
         "Type": this.state.type,
         "Predecessors": this.state.type === "Creation" ? "" : this.state.predecessors
       }
@@ -510,7 +511,7 @@ export class ModalLineage extends Component {
   loadData() {
     if (this.isVisible()) {
       this.isLoadingData = true;
-      this.dl.fetch(ConfigData.LINEAGE_GET_CHANGES_DETAIL + "?ChangeId=" + this.props.item)
+      this.dl.fetch(ConfigData.LINEAGE_GET_CHANGES_DETAIL + "?ChangeId=" + this.props.change)
       .then(response => {
           if (response.status === 200)
             return response.json();
@@ -531,7 +532,7 @@ export class ModalLineage extends Component {
   loadPredecessorData() {
     if (this.isVisible()) {
       this.isLoadingPredecessorData = true;
-      this.dl.fetch(ConfigData.LINEAGE_GET_PREDECESSORS + "?ChangeId=" + this.props.item)
+      this.dl.fetch(ConfigData.LINEAGE_GET_PREDECESSORS + "?ChangeId=" + this.props.change)
       .then(response => {
           if (response.status === 200)
             return response.json();
