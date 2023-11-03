@@ -12,25 +12,33 @@ import {
   CSidebar,
   CSidebarNav,
   CCard,
+  CAlert
 } from '@coreui/react'
 
 const Sitelineage = () => {
   const [countries, setCountries] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorsLoading, setErrorsLoading] = useState(false);
   let dl = new(DataLoader);
 
   let loadData = () => {
     if(countries.length !==0) return;
-    if(!isLoading && countries!=="nodata" && countries.length === 0){
+    if(!isLoading && countries!=="nodata" && countries.length === 0 && !errorsLoading){
       setIsLoading(true);
       dl.fetch(ConfigData.LINEAGE_GET_OVERVIEW)
       .then(response =>response.json())
       .then(data => {
-        if(Object.keys(data.Data).length === 0){
-          setCountries("nodata");
+        if (data?.Success) {
+          if(Object.keys(data.Data).length === 0){
+            setCountries("nodata");
+          }
+          else {
+            data.Data.sort((a, b) => a.CountryName.localeCompare(b.CountryName));
+            setCountries(data.Data);
+          }
         }
         else {
-          setCountries(data.Data);
+          setErrorsLoading(true);
         }
         setIsLoading(false);
       });
@@ -117,6 +125,11 @@ const Sitelineage = () => {
                 : countries.length > 0 &&
                 loadCards()
                 )
+              }
+              {!isLoading && errorsLoading &&
+                <div>
+                  <CAlert color="danger">Error loading countries data</CAlert>
+                </div>
               }
             </CRow>
           </CContainer>
