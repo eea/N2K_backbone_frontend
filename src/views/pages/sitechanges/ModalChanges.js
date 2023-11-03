@@ -529,13 +529,13 @@ export class ModalChanges extends Component {
                   <span className="me-3"> {title} {(changes[i][j].ChangeCategory === "Species" || changes[i][j].ChangeCategory === "Habitats") && " ("+changes[i][j].ChangedCodesDetail.length+")"}</span>
                 </div>
                 <div>
-                  {this.state.data.Status === "Pending" && changes[i][j].ChangeType === "Site Recoded" &&
-                  <>
-                    <CButton color="link" href={"/#/sitelineage/management?country=" + this.props.country + "&siteCode=" + this.props.item} className="btn-link--dark text-nowrap">
-                      Review Lineage 
-                    </CButton>
-                    <span>|</span>
-                  </>
+                  {this.state.data.Status === "Pending" && (this.props.lineageChangeType !== "NoChanges" && this.props.lineageChangeType !== "NoGeometryReported" && this.props.lineageChangeType !== "NewGeometryReported") &&
+                    <>
+                      <CButton color="link" href={"/#/sitelineage/management?country=" + this.props.country + "&siteCode=" + this.props.item} className="btn-link--dark text-nowrap">
+                        Review Lineage 
+                      </CButton>
+                      <span>|</span>
+                    </>
                   }
                   <CButton color="link" className="btn-link--dark text-nowrap" onClick={() => this.toggleDetail(changes[i][j].ChangeCategory + title)}>
                     {(this.state.showDetail.includes(changes[i][j].ChangeCategory + title)) ? "Hide detail" : "View detail"}
