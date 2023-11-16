@@ -27,7 +27,7 @@ const Sitelineage = () => {
       .then(response =>response.json())
       .then(data => {
         if(Object.keys(data.Data).length === 0){
-          countries("nodata");
+          setCountries("nodata");
         }
         else {
           setCountries(data.Data);
