@@ -529,7 +529,11 @@ export class ModalChanges extends Component {
                   <span className="me-3"> {title} {(changes[i][j].ChangeCategory === "Species" || changes[i][j].ChangeCategory === "Habitats") && " ("+changes[i][j].ChangedCodesDetail.length+")"}</span>
                 </div>
                 <div>
-                  {this.state.data.Status === "Pending" && (this.props.lineageChangeType !== "NoChanges" && this.props.lineageChangeType !== "NoGeometryReported" && this.props.lineageChangeType !== "NewGeometryReported") &&
+                  {this.state.data.Status === "Pending"
+                    && ((changes[i][j].ChangeCategory == "Lineage" || changes[i][j].ChangeType == "Site Added" || changes[i][j].ChangeType == "Site Deleted")
+                    && this.props.lineageChangeType !== "NoChanges" && this.props.lineageChangeType !== "NoGeometryReported"
+                      && this.props.lineageChangeType !== "NewGeometryReported")
+                    &&
                     <>
                       <CButton color="link" href={"/#/sitelineage/management?country=" + this.props.country + "&siteCode=" + this.props.item} className="btn-link--dark text-nowrap">
                         Review Lineage 
