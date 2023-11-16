@@ -530,7 +530,7 @@ export class ModalChanges extends Component {
                 </div>
                 <div>
                   {this.state.data.Status === "Pending"
-                    && ((changes[i][j].ChangeCategory == "Lineage" || changes[i][j].ChangeCategory == "Network general structure")
+                    && ((changes[i][j].ChangeCategory == "Lineage" || changes[i][j].ChangeType == "Site Added" || changes[i][j].ChangeType == "Site Deleted")
                     && this.props.lineageChangeType !== "NoChanges" && this.props.lineageChangeType !== "NoGeometryReported"
                       && this.props.lineageChangeType !== "NewGeometryReported")
                     &&
