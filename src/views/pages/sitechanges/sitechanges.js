@@ -205,10 +205,25 @@ const Sitechanges = () => {
     });
   }
 
+  let getChangesBody = (changes) => {
+    if(!Array.isArray(changes)) {
+      if(changes.LineageChangeType != "NoChanges") {
+        let siteList = [].concat(siteCodes.pending).concat(siteCodes.accepted).concat(siteCodes.rejected)
+        return changes.AffectedSites.split(",")
+          .flatMap(s => [{"SiteCode": s, "Version": siteList.find(a => a.SiteCode == s)?.Version}])
+          .filter(o => o.Version != null | o.Version != undefined)
+      } else {
+        return [{"SiteCode": changes.SiteCode, "Version": changes.Version}]
+      }
+    } else {
+      return changes
+    }
+  }
+
   let setBackToPending = (changes, refresh)=>{
     setBacking(true);
     setUpdatingData(true);
-    let rBody = !Array.isArray(changes)?[changes]:changes
+    let rBody = getChangesBody(changes);
 
     return postRequest(ConfigData.MOVE_TO_PENDING, rBody)
     .then(data => {
@@ -232,7 +247,7 @@ const Sitechanges = () => {
   let acceptChanges = (changes, refresh)=>{
     setAccepting(true);
     setUpdatingData(true);
-    let rBody = !Array.isArray(changes)?[changes]:changes
+    let rBody = getChangesBody(changes);
 
     return postRequest(ConfigData.ACCEPT_CHANGES, rBody)
     .then(data => {
@@ -256,7 +271,7 @@ const Sitechanges = () => {
   let rejectChanges = (changes, refresh)=>{
     setRejecting(true);
     setUpdatingData(true);
-    let rBody = !Array.isArray(changes)?[changes]:changes
+    let rBody = getChangesBody(changes);
 
     return postRequest(ConfigData.REJECT_CHANGES, rBody)
     .then(data => {

@@ -195,7 +195,7 @@ const IndeterminateCheckbox = React.forwardRef(
             ),
             Cell: ({ row }) => (
               row.canExpand ?(
-                <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} name={"chk_"+row.original.SiteCode} sitecode={row.original.SiteCode} id={"sitechanges_check_" +  row.original.SiteCode} />
+                <IndeterminateCheckbox disabled={row.original.LineageChangeType != "NoChanges"} {...row.getToggleRowSelectedProps()} name={"chk_"+row.original.SiteCode} sitecode={row.original.SiteCode} id={"sitechanges_check_" +  row.original.SiteCode} />
               ): null
             ),
           },
@@ -225,6 +225,10 @@ const IndeterminateCheckbox = React.forwardRef(
       return page.filter(row => !row.id.includes(".")).length;
     }
 
+    let getSelectableCodes = (sites) => {
+      return sites.filter(s => !["Recode","Split","Merge"].includes(s.LineageChangeType))
+    }
+
     // Render the UI for your table
     return (
       <>
@@ -239,7 +243,9 @@ const IndeterminateCheckbox = React.forwardRef(
           :
           <div className="message-board">
             <span className="message-board-text">The <b>{countSitesOnPage()}</b> sites of this page are selected</span>
-            <span className="message-board-link" onClick={() =>(setSelectedRows(siteCodes.length), setSelected(siteCodes))}>Select {siteCodes.length} sites</span>
+            <span className="message-board-link"
+              onClick={() =>(setSelectedRows(getSelectableCodes(siteCodes).length), setSelected(getSelectableCodes(siteCodes)))}>
+            Select {getSelectableCodes(siteCodes).length} sites</span>
           </div> 
         )
       }
@@ -377,7 +383,7 @@ const IndeterminateCheckbox = React.forwardRef(
     }
 
     let setBackToPending = (change, refresh)=>{
-      return props.setBackToPending({"SiteCode":change.SiteCode,"VersionId":change.Version}, refresh)
+      return props.setBackToPending(change, refresh)
         .then(data => {
           if(data?.ok){
             if(refresh) {
@@ -389,7 +395,7 @@ const IndeterminateCheckbox = React.forwardRef(
     }
 
     let acceptChanges = (change, refresh)=>{
-      return props.accept({"SiteCode":change.SiteCode,"VersionId":change.Version}, refresh)
+      return props.accept(change, refresh)
       .then(data => {
           if(data?.ok){
             if(refresh) {
@@ -401,7 +407,7 @@ const IndeterminateCheckbox = React.forwardRef(
     }
 
     let rejectChanges = (change, refresh)=>{
-      return props.reject({"SiteCode":change.SiteCode,"VersionId":change.Version}, refresh)
+      return props.reject(change, refresh)
       .then(data => {
         if(data?.ok){
           if(refresh) {
@@ -634,20 +640,28 @@ const IndeterminateCheckbox = React.forwardRef(
         case 'pending':
           return {
             review: ()=>openModal(row.original),
-            accept: ()=>props.updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(row.original, true), "Cancel", ()=>{}),
-            reject: ()=>props.updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(row.original, true), "Cancel", ()=>{}),
+            accept: ()=>props.updateModalValues("Accept Changes",
+              "This will accept all the site changes" + (row.original.AffectedSites ? ", including lineage changes. Those sites related to this by lineage changes will also be accepted: " + row.original.AffectedSites : ""),
+              "Continue", ()=>acceptChanges(row.original, true), "Cancel", ()=>{}),
+            reject: ()=>props.updateModalValues("Reject Changes",
+              "This will reject all the site changes" + (row.original.AffectedSites ? ", including lineage changes. Those sites related to this by lineage changes will also be rejected: " + row.original.AffectedSites : ""),
+              "Continue", ()=>rejectChanges(row.original, true), "Cancel", ()=>{}),
             mark: ()=>props.updateModalValues(`${toggleMark} Changes`, `This will ${toggleMark.toLowerCase()} all the site changes`, "Continue", ()=>switchMarkChanges(row.original), "Cancel", ()=>{}),            
           }
         case 'accepted':
           return {
             review: ()=>openModal(row.original),
-            backPending: ()=>props.updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", ()=>setBackToPending(row.original, true), "Cancel", ()=>{}),
+            backPending: ()=>props.updateModalValues("Back to Pending",
+              "This will set the changes back to Pending" + (row.original.AffectedSites ? ", including lineage changes. Those sites related to this by lineage changes will also be set back to pending: " + row.original.AffectedSites : ""),
+              "Continue", ()=>setBackToPending(row.original, true), "Cancel", ()=>{}),
             edition: ()=>openModal(row.original, 3),
           }
         case 'rejected':
           return {
             review: ()=>openModal(row.original),
-            backPending: ()=>props.updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", ()=>setBackToPending(row.original, true), "Cancel", ()=>{}),
+            backPending: ()=>props.updateModalValues("Back to Pending",
+              "This will set the changes back to Pending" + (row.original.AffectedSites ? ", including lineage changes. Those sites related to this by lineage changes will also be set back to pending: " + row.original.AffectedSites : ""),
+              "Continue", ()=>setBackToPending(row.original, true), "Cancel", ()=>{}),
           }
         default:
           return {}
