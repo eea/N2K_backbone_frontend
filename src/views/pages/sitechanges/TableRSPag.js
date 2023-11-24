@@ -183,6 +183,12 @@ const IndeterminateCheckbox = React.forwardRef(
       usePagination,
       useRowSelect,
       hooks => {
+      // TODO: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        // hooks.getToggleAllRowsSelectedProps = [ 
+        //   (props, {instance}) => [ props, {               
+        //     disabled: true,
+        //   } ]
+        // ];
         hooks.visibleColumns.push(columns => [
           {
             id: 'selection',
@@ -194,8 +200,9 @@ const IndeterminateCheckbox = React.forwardRef(
               </>
             ),
             Cell: ({ row }) => (
-              row.canExpand ?(
-                <IndeterminateCheckbox disabled={row.original.LineageChangeType != "NoChanges"} {...row.getToggleRowSelectedProps()} name={"chk_"+row.original.SiteCode} sitecode={row.original.SiteCode} id={"sitechanges_check_" +  row.original.SiteCode} />
+              row.canExpand
+              && row.original.LineageChangeType === "NoChanges" ?(
+                <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} name={"chk_"+row.original.SiteCode} sitecode={row.original.SiteCode} id={"sitechanges_check_" +  row.original.SiteCode} />
               ): null
             ),
           },
@@ -222,11 +229,11 @@ const IndeterminateCheckbox = React.forwardRef(
     }, [isTabChanged]);
 
     let countSitesOnPage = () => {
-      return page.filter(row => !row.id.includes(".")).length;
+      return page.filter(row => !row.id.includes(".") && row.original.LineageChangeType == "NoChanges").length;
     }
 
     let getSelectableCodes = (sites) => {
-      return sites.filter(s => !["Recode","Split","Merge"].includes(s.LineageChangeType))
+      return sites.filter(s => s.LineageChangeType == "NoChanges")
     }
 
     // Render the UI for your table
@@ -249,6 +256,7 @@ const IndeterminateCheckbox = React.forwardRef(
           </div> 
         )
       }
+          <span>{selectedRows}</span>
         <table  className="table" {...getTableProps()}>
           <thead>
             {headerGroups.map(headerGroup => (
