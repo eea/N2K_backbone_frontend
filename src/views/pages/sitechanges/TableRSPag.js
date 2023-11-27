@@ -183,12 +183,6 @@ const IndeterminateCheckbox = React.forwardRef(
       usePagination,
       useRowSelect,
       hooks => {
-      // TODO: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-        // hooks.getToggleAllRowsSelectedProps = [ 
-        //   (props, {instance}) => [ props, {               
-        //     disabled: true,
-        //   } ]
-        // ];
         hooks.visibleColumns.push(columns => [
           {
             id: 'selection',
@@ -212,7 +206,7 @@ const IndeterminateCheckbox = React.forwardRef(
     )
 
     let getSelectableCodes = (sites) => {
-      return sites.filter(s => s.LineageChangeType == "NoChanges")
+      return sites.filter(s => s.LineageChangeType == "NoChanges" || s.LineageChangeType == null)
     }
 
     selectedRows === getSelectableCodes(siteCodes).length && setSelected ?
@@ -233,7 +227,7 @@ const IndeterminateCheckbox = React.forwardRef(
     }, [isTabChanged]);
 
     let countSitesOnPage = () => {
-      return page.filter(row => !row.id.includes(".") && row.original.LineageChangeType == "NoChanges").length;
+      return page.filter(row => !row.id.includes(".") && (row.original.LineageChangeType == "NoChanges" || row.original.LineageChangeType == "NoChanges")).length;
     }
 
 
@@ -257,7 +251,6 @@ const IndeterminateCheckbox = React.forwardRef(
           </div> 
         )
       }
-          <span>{selectedRows}</span>
         <table  className="table" {...getTableProps()}>
           <thead>
             {headerGroups.map(headerGroup => (

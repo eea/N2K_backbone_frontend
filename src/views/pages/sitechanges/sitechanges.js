@@ -139,7 +139,7 @@ const Sitechanges = () => {
   setSelectedCodes = (v) => {
     if(!isLoading){
       let checkAll = document.querySelector('.tab-pane.active [id^=sitechanges_check_all]');
-      if(document.querySelectorAll('input[sitecode]:checked').length !== 0 && v.length === 0) {
+      if(v.length === 0) {
         if(!checkAll) {
           setDisabledBtn(true);
         }
@@ -209,14 +209,14 @@ const Sitechanges = () => {
     if(!Array.isArray(changes)) {
       if(changes.LineageChangeType != "NoChanges") {
         let siteList = [].concat(siteCodes.pending).concat(siteCodes.accepted).concat(siteCodes.rejected)
-        return changes.AffectedSites.split(",")
-          .flatMap(s => [{"SiteCode": s, "Version": siteList.find(a => a.SiteCode == s)?.Version}])
-          .filter(o => o.Version != null | o.Version != undefined)
+        return siteList.filter(s => changes.AffectedSites.split(",").includes(s.SiteCode))
+          .map(b => ({"SiteCode": b.SiteCode, "VersionId": b.Version}))
       } else {
-        return [{"SiteCode": changes.SiteCode, "Version": changes.Version}]
+        return [{"SiteCode": changes.SiteCode, "VersionId": changes.Version}]
       }
     } else {
-      return changes.filter(a => a.LineageChangeType === "NoChanges");
+      return changes.filter(a => a.LineageChangeType === "NoChanges")
+        .map(b => ({"SiteCode": b.SiteCode, "VersionId": b.VersionId}));
     }
   }
 
