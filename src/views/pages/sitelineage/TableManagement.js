@@ -263,6 +263,17 @@ import {DataLoader} from '../../../components/DataLoader';
           },
         },
         {
+          Header: 'Site Type',
+          accessor: 'SiteType',
+          Cell: ({ row }) => {
+            return (
+              <span>
+                {row.values.SiteType}
+              </span>
+            )
+          },
+        },
+        {
           Header: 'Reference',
           accessor: 'Reference',
           Cell: ({ row }) => {
