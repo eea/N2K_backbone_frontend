@@ -216,7 +216,7 @@ const Sitechanges = () => {
         return [{"SiteCode": changes.SiteCode, "Version": changes.Version}]
       }
     } else {
-      return changes
+      return changes.filter(a => a.LineageChangeType === "NoChanges");
     }
   }
 

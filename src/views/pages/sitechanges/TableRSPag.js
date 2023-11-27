@@ -212,9 +212,9 @@ const IndeterminateCheckbox = React.forwardRef(
     )
 
     selectedRows === siteCodes.length && setSelected ?
-      setSelected(siteCodes.map(v =>{return {SiteCode: v.SiteCode, VersionId: v.Version}}))
+      setSelected(siteCodes.map(v =>{return {SiteCode: v.SiteCode, VersionId: v.Version, LineageChangeType: v.LineageChangeType}}))
     :
-      setSelected(Object.keys(selectedRowIds).filter(v=>!v.includes(".")).map(v=>{return {SiteCode:data[v].SiteCode, VersionId: data[v].Version}}))
+      setSelected(Object.keys(selectedRowIds).filter(v=>!v.includes(".")).map(v=>{return {SiteCode:data[v].SiteCode, VersionId: data[v].Version, LineageChangeType: data[v].LineageChangeType}}))
         
     let changePage = (page,chunk)=>{
       loadPage(page,pageSize);
