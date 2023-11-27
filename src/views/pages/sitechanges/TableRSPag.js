@@ -211,7 +211,11 @@ const IndeterminateCheckbox = React.forwardRef(
       }
     )
 
-    selectedRows === siteCodes.length && setSelected ?
+    let getSelectableCodes = (sites) => {
+      return sites.filter(s => s.LineageChangeType == "NoChanges")
+    }
+
+    selectedRows === getSelectableCodes(siteCodes).length && setSelected ?
       setSelected(siteCodes.map(v =>{return {SiteCode: v.SiteCode, VersionId: v.Version, LineageChangeType: v.LineageChangeType}}))
     :
       setSelected(Object.keys(selectedRowIds).filter(v=>!v.includes(".")).map(v=>{return {SiteCode:data[v].SiteCode, VersionId: data[v].Version, LineageChangeType: data[v].LineageChangeType}}))
@@ -232,9 +236,6 @@ const IndeterminateCheckbox = React.forwardRef(
       return page.filter(row => !row.id.includes(".") && row.original.LineageChangeType == "NoChanges").length;
     }
 
-    let getSelectableCodes = (sites) => {
-      return sites.filter(s => s.LineageChangeType == "NoChanges")
-    }
 
     // Render the UI for your table
     return (
@@ -242,9 +243,9 @@ const IndeterminateCheckbox = React.forwardRef(
       {isAllPageRowsSelected && 
         (
           (status === 'pending' || status === 'accepted' || status === 'rejected')
-          && (selectedRows === siteCodes.length || pageSize >= siteCodes.length) ?
+          && (selectedRows === getSelectableCodes(siteCodes).length || pageSize >= siteCodes.length) ?
           <div className="message-board">
-            <span className="message-board-text">All the <b>{siteCodes.length}</b> sites are selected</span>
+            <span className="message-board-text">All the <b>{getSelectableCodes(siteCodes).length}</b> sites are selected</span>
             <ClearSelectionLink {...getToggleAllPageRowsSelectedProps()} id={"sitechanges_check_all_" + status} />
           </div>
           :
