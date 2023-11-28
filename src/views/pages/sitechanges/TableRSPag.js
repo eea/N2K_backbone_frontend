@@ -33,7 +33,7 @@ const IndeterminateCheckbox = React.forwardRef(
       return (
         <>
           <div className={"checkbox" + (rest.hidden ? " d-none" :"")} >
-            <input type="checkbox" className="input-checkbox" ref={resolvedRef} {...rest}/>
+            <input type="checkbox" className="input-checkbox" onChange={(a) => console.log(a)} ref={resolvedRef} {...rest}/>
             <label htmlFor={rest.id}></label>
           </div>
         </>
@@ -206,7 +206,7 @@ const IndeterminateCheckbox = React.forwardRef(
     )
 
     let getSelectableCodes = (sites) => {
-      return sites.filter(s => s.LineageChangeType == "NoChanges" || s.LineageChangeType == null)
+      return sites.filter(s => s.LineageChangeType == "NoChanges")
     }
 
     selectedRows === getSelectableCodes(siteCodes).length && setSelected ?
@@ -227,17 +227,16 @@ const IndeterminateCheckbox = React.forwardRef(
     }, [isTabChanged]);
 
     let countSitesOnPage = () => {
-      return page.filter(row => !row.id.includes(".") && (row.original.LineageChangeType == "NoChanges" || row.original.LineageChangeType == "NoChanges")).length;
+      return page.filter(row => !row.id.includes(".") && row.original.LineageChangeType == "NoChanges").length;
     }
-
 
     // Render the UI for your table
     return (
       <>
-      {isAllPageRowsSelected && 
+      {isAllPageRowsSelected &&
         (
           (status === 'pending' || status === 'accepted' || status === 'rejected')
-          && (selectedRows === getSelectableCodes(siteCodes).length || pageSize >= siteCodes.length) ?
+          && (selectedRows === getSelectableCodes(siteCodes).length || countSitesOnPage() == getSelectableCodes(siteCodes).length) ?
           <div className="message-board">
             <span className="message-board-text">All the <b>{getSelectableCodes(siteCodes).length}</b> sites are selected</span>
             <ClearSelectionLink {...getToggleAllPageRowsSelectedProps()} id={"sitechanges_check_all_" + status} />

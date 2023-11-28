@@ -138,9 +138,10 @@ const Sitechanges = () => {
   let selectedCodes = [],
   setSelectedCodes = (v) => {
     if(!isLoading){
+      v = v.filter(s => s.LineageChangeType == "NoChanges")
       let checkAll = document.querySelector('.tab-pane.active [id^=sitechanges_check_all]');
       if(v.length === 0) {
-        if(!checkAll) {
+        if(!checkAll || !checkAll?.checked) {
           setDisabledBtn(true);
         }
         return;
