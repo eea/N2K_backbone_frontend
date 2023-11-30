@@ -252,23 +252,23 @@ import {DataLoader} from '../../../components/DataLoader';
           filter: customFilter,
         },
         {
-          Header: 'Type',
-          accessor: 'Type',
-          Cell: ({ row }) => {
-            return (
-              <span className={"badge badge--lineage " + row.values.Type.toLowerCase()}>
-                {row.values.Type}
-              </span>
-            )
-          },
-        },
-        {
           Header: 'Site Type',
           accessor: 'SiteType',
           Cell: ({ row }) => {
             return (
               <span>
                 {row.values.SiteType}
+              </span>
+            )
+          },
+        },
+        {
+          Header: 'Type',
+          accessor: 'Type',
+          Cell: ({ row }) => {
+            return (
+              <span className={"badge badge--lineage " + row.values.Type.toLowerCase()}>
+                {row.values.Type}
               </span>
             )
           },
