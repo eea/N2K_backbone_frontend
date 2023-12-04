@@ -201,9 +201,7 @@ const IndeterminateCheckbox = React.forwardRef(
               );
             },
             Cell: ({ row }) => (
-
-                <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} name={"chk_"+row.original.SiteCode} sitecode={row.original.SiteCode} id={"sitechanges_check_" +  row.original.SiteCode} disabled={row.original.LineageChangeType !== "NoChanges"} style={{display: row.canExpand || row.original.LineageChangeType !== "NoChanges" ? "none" : ""}} />
-              
+              <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} name={"chk_"+row.original.SiteCode} sitecode={row.original.SiteCode} id={"sitechanges_check_" +  row.original.SiteCode} disabled={row.original.LineageChangeType !== "NoChanges"} style={{display: row.canExpand || row.original.LineageChangeType !== "NoChanges" ? "none" : ""}} />
             )
           },
           ...columns

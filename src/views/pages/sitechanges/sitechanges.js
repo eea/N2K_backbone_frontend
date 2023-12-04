@@ -140,7 +140,7 @@ const Sitechanges = () => {
     if(!isLoading){
       v = v.filter(s => s.LineageChangeType == "NoChanges")
       let checkAll = document.querySelector('.tab-pane.active [id^=sitechanges_check_all]');
-      if(v.length === 0 && document.querySelectorAll('input[sitecode]:checked').length !== 0) {
+      if(v.length === 0 && document.querySelectorAll('tbody input[sitecode]:checked').length !== 0) {
         if(!checkAll) {
           setDisabledBtn(true);
         }
@@ -211,13 +211,13 @@ const Sitechanges = () => {
       if(changes.LineageChangeType != "NoChanges") {
         let siteList = [].concat(siteCodes.pending).concat(siteCodes.accepted).concat(siteCodes.rejected)
         return changes.AffectedSites.split(",")
-          .flatMap(s => [{"SiteCode": s, "Version": siteList.find(a => a.SiteCode == s)?.Version}])
+          .flatMap(s => [{"SiteCode": s, "VersionId": siteList.find(a => a.SiteCode == s)?.Version}])
           .filter(o => o.Version != null | o.Version != undefined)
       } else {
-        return [{"SiteCode": changes.SiteCode, "Version": changes.Version}]
+        return [{"SiteCode": changes.SiteCode, "VersionId": changes.Version}]
       }
     } else {
-      return changes.filter(a => a.LineageChangeType === "NoChanges");
+      return changes.filter(a => a.LineageChangeType === "NoChanges").map(b => ({"SiteCode": b.SiteCode, "VersionId": b.VersionId}));
     }
   }
 
@@ -436,9 +436,10 @@ const Sitechanges = () => {
   }
 
   let changeCountry = (country)=>{
-    setCountry(country)
+    setCountry(country);
     setSitecodes({});
     setSearchList({});
+    setDisabledBtn(true);
     turnstoneRef.current?.clear();
     turnstoneRef.current?.blur();
     if(country !== "") {
