@@ -33,8 +33,8 @@ const IndeterminateCheckbox = React.forwardRef(
       return (
         <>
           <div className={"checkbox" + (rest.hidden ? " d-none" :"")} >
-            <input type="checkbox" className="input-checkbox" onChange={(a) => console.log(a)} ref={resolvedRef} {...rest}/>
-            <label htmlFor={rest.id}></label>
+            <input type="checkbox" className="input-checkbox" ref={resolvedRef} {...rest}/>
+            <label htmlFor={rest.id} style={{display: rest.disabled ? "none" : ""}}></label>
           </div>
         </>
       )
@@ -182,28 +182,40 @@ const IndeterminateCheckbox = React.forwardRef(
       useExpanded,
       usePagination,
       useRowSelect,
-      hooks => {
-        hooks.visibleColumns.push(columns => [
+      (hooks) => {
+        hooks.visibleColumns.push((columns) => [
           {
-            id: 'selection',
-            cellWidth: '48px',
-            Header: ({ getToggleAllPageRowsSelectedProps }) => (
-              <>
-              <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} id={"sitechanges_check_all_" + status} />
-              {isAllPageRowsSelected ? null : setSelectedRows(0)}
-              </>
-            ),
+            id: "anyThing",
+            Header: ({ toggleRowSelected, isAllPageRowsSelected, page }) => {
+              let selectableRowsInCurrentPage = 0;
+              let selectedRowsInCurrentPage = 0;
+              page.forEach((row) => {
+                row.isSelected && selectedRowsInCurrentPage++;
+                !row.original.disabled && selectableRowsInCurrentPage++;
+              });
+  
+              return (
+                <div>
+                  <IndeterminateCheckbox {...{...getToggleAllPageRowsSelectedProps(), ...checkSelectedRows()}} id={"sitechanges_check_all_" + status} />
+                </div>
+              );
+            },
             Cell: ({ row }) => (
-              row.canExpand
-              && row.original.LineageChangeType === "NoChanges" ?(
-                <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} name={"chk_"+row.original.SiteCode} sitecode={row.original.SiteCode} id={"sitechanges_check_" +  row.original.SiteCode} />
-              ): null
-            ),
+
+                <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} name={"chk_"+row.original.SiteCode} sitecode={row.original.SiteCode} id={"sitechanges_check_" +  row.original.SiteCode} disabled={row.original.LineageChangeType !== "NoChanges"} style={{display: row.canExpand || row.original.LineageChangeType !== "NoChanges" ? "none" : ""}} />
+              
+            )
           },
-          ...columns,
-        ])
+          ...columns
+        ]);
       }
     )
+
+    let checkSelectedRows = () => {
+      if(getSelectableCodes(page.map(a=>a.original)).length === page.filter(a => (a.original.LineageChangeType==="NoChanges") && a.isSelected).length && getSelectableCodes(page.map(a=>a.original)).length > 0) {
+        return {checked: true, "indeterminate": false};
+      }
+    }
 
     let getSelectableCodes = (sites) => {
       return sites.filter(s => s.LineageChangeType == "NoChanges")
@@ -230,16 +242,25 @@ const IndeterminateCheckbox = React.forwardRef(
       return page.filter(row => !row.id.includes(".") && row.original.LineageChangeType == "NoChanges").length;
     }
 
+    let isAllSelected = () => {
+      if(getSelectableCodes(page.map(a => a.original)).length === page.filter(a => a.original.LineageChangeType==="NoChanges" && a.isSelected).length && getSelectableCodes(page.map(a=>a.original)).length > 0) {
+        return true;
+      }
+      else {
+        return false;
+      }
+    }
+
     // Render the UI for your table
     return (
       <>
-      {isAllPageRowsSelected &&
+      {(isAllPageRowsSelected || isAllSelected()) &&
         (
           (status === 'pending' || status === 'accepted' || status === 'rejected')
           && (selectedRows === getSelectableCodes(siteCodes).length || countSitesOnPage() == getSelectableCodes(siteCodes).length) ?
           <div className="message-board">
             <span className="message-board-text">All the <b>{getSelectableCodes(siteCodes).length}</b> sites are selected</span>
-            <ClearSelectionLink {...getToggleAllPageRowsSelectedProps()} id={"sitechanges_check_all_" + status} />
+            <ClearSelectionLink {...{...getToggleAllPageRowsSelectedProps(getSelectableCodes(siteCodes)), ...checkSelectedRows()}} id={"sitechanges_check_all_" + status} />
           </div>
           :
           <div className="message-board">

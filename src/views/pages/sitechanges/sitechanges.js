@@ -140,8 +140,8 @@ const Sitechanges = () => {
     if(!isLoading){
       v = v.filter(s => s.LineageChangeType == "NoChanges")
       let checkAll = document.querySelector('.tab-pane.active [id^=sitechanges_check_all]');
-      if(v.length === 0) {
-        if(!checkAll || !checkAll?.checked) {
+      if(v.length === 0 && document.querySelectorAll('input[sitecode]:checked').length !== 0) {
+        if(!checkAll) {
           setDisabledBtn(true);
         }
         return;
@@ -210,14 +210,14 @@ const Sitechanges = () => {
     if(!Array.isArray(changes)) {
       if(changes.LineageChangeType != "NoChanges") {
         let siteList = [].concat(siteCodes.pending).concat(siteCodes.accepted).concat(siteCodes.rejected)
-        return siteList.filter(s => changes.AffectedSites.split(",").includes(s.SiteCode))
-          .map(b => ({"SiteCode": b.SiteCode, "VersionId": b.Version}))
+        return changes.AffectedSites.split(",")
+          .flatMap(s => [{"SiteCode": s, "Version": siteList.find(a => a.SiteCode == s)?.Version}])
+          .filter(o => o.Version != null | o.Version != undefined)
       } else {
-        return [{"SiteCode": changes.SiteCode, "VersionId": changes.Version}]
+        return [{"SiteCode": changes.SiteCode, "Version": changes.Version}]
       }
     } else {
-      return changes.filter(a => a.LineageChangeType === "NoChanges")
-        .map(b => ({"SiteCode": b.SiteCode, "VersionId": b.VersionId}));
+      return changes.filter(a => a.LineageChangeType === "NoChanges");
     }
   }
 
