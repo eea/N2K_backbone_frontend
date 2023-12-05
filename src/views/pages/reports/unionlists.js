@@ -50,6 +50,12 @@ const Reports = () => {
               </a>
             </li>
             <li className="nav-item">
+              <a className="nav-link" href="/#/reports/manual">
+                <i className="fa-solid fa-bookmark"></i>
+                Manual Updates
+              </a>
+            </li>
+            <li className="nav-item">
               <a className="nav-link active" href="/#/reports/unionlists">
                 <i className="fa-solid fa-bookmark"></i>
                 Union Lists Changes
