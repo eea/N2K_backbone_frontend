@@ -420,6 +420,7 @@ export class ModalLineage extends Component {
           <CModalHeader closeButton={false}>
             <CModalTitle>
               {data.SiteCode ?? this.props.code} - {data.Name ??  this.props.name}
+              <span className="ms-2 fw-normal">({["SPA","SCI","SPA/SCI"][['A','B','C'].indexOf(data.SiteType)]})</span>
               <span className="mx-2"></span>
               <span className="badge badge--fill default">Release date: {this.state.releaseDate !== "" ? this.state.releaseDate : "--/--/----"}</span>
             </CModalTitle>

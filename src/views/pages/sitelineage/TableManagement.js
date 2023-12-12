@@ -252,6 +252,17 @@ import {DataLoader} from '../../../components/DataLoader';
           filter: customFilter,
         },
         {
+          Header: 'Site Type',
+          accessor: 'SiteType',
+          Cell: ({ row }) => {
+            return (
+              <span>
+                {row.values.SiteType}
+              </span>
+            )
+          },
+        },
+        {
           Header: 'Type',
           accessor: 'Type',
           Cell: ({ row }) => {
