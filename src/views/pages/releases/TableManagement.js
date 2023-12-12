@@ -89,7 +89,7 @@ function Table({ columns, data, setSelected, modalProps, updateModalValues }) {
           id: 'unionListEdit',
           cellWidth: "48px",
           Cell: ({ row }) => (
-            <div className="btn-icon" onClick={() => modalProps.showEditModal(row.original.ID, row.original.Title, row.original.IsOfficial === "Yes" ? true : false)}>
+            <div className="btn-icon" onClick={() => modalProps.showEditModal(row.original.ID, row.original.Title, row.original.Final === "Yes" ? true : false)}>
               <i className="fa-solid fa-pencil"></i>
             </div>
           )
@@ -204,7 +204,7 @@ function TableManagement(props) {
       },
       {
         Header: 'Final',
-        accessor: 'IsOfficial',
+        accessor: 'Final',
       },
       {
         Header: 'User',
@@ -235,7 +235,7 @@ function TableManagement(props) {
             setReleasesDate("nodata");
           }
           else {
-            data.Data = data.Data.map(a=>{a.IsOfficial = a.IsOfficial? "Yes":"No"; return a});
+            data.Data = data.Data.map(a=>{a.Final = a.Final? "Yes":"No"; return a});
             setReleasesDate(data.Data.sort((a,b)=>new Date(b.CreateDate)-new Date(a.CreateDate)));
           }
           setIsLoading(false);
