@@ -196,7 +196,7 @@ const Releases = () => {
               />
               <div className="checkbox">
                 <input type="checkbox" className="input-checkbox" id="modal_check_final" name="Final" defaultChecked={final}/>
-                <label htmlFor="modal_check_final" className="input-label">Mark as official</label>
+                <label htmlFor="modal_check_final" className="input-label">Mark as Official</label>
               </div>
             </CCol>
           </CRow>
