@@ -203,7 +203,7 @@ function TableManagement(props) {
         accessor: 'Title',
       },
       {
-        Header: 'Final',
+        Header: 'Official',
         accessor: 'IsOfficial',
       },
       {
