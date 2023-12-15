@@ -4,6 +4,9 @@ import TableEnvelops from './TableEnvelops';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import {ReactComponent as ReactLogo} from './../../../assets/images/harvesting.svg';
 import {DataLoader} from '../../../components/DataLoader';
+import {
+  HubConnectionBuilder
+} from '@microsoft/signalr';
 
 import {
   CButton,
@@ -155,30 +158,58 @@ const Harvesting = () => {
       "countryVersion": values.map(v => ({ "CountryCode": v.country, "VersionId": v.version })),
       "toStatus": "Discarded"
     }
-    sendRequest(ConfigData.HARVESTING_CHANGE_STATUS,"POST",rBody)
-    .then(response => response.json())
-    .then(data => {
-      if(!data?.Success) {
-        errors.push(data.Message);
-        console.log("Error: " + data.Message);
-      }
-      if(errors.length === 0) {
-        showMessage("Envelope successfully discarded");
-        setRefreshEnvelopes(true);
-      } else {
+    let countryVersion = [];
+    const signalR_connection = new HubConnectionBuilder()
+      .withUrl("https://n2kbackboneback-dev.azurewebsites.net/hubs/chat", {
+        withCredentials: false
+      })                        
+      .build();
+    let start = async() => {
+      try {
+        await signalR_connection.start();
+        sendRequest(ConfigData.HARVESTING_CHANGE_STATUS,"POST",rBody)
+          .then(response => response.json())
+          .then(data => {
+            if(!data?.Success) {
+              errors.push(data.Message);
+              console.log("Error: " + data.Message);
+              showErrorMessage("Something went wrong");
+              setUpdatingData(state => ({
+                ...state,
+                updating: false,
+                discarding: false,
+              }));
+              signalR_connection.stop();
+            }
+          });
+          setUpdatingData(state => ({
+            ...state,
+            updating: true,
+            discarding: true,
+          }));
+      } catch (error) {
+        console.log(error);
         showErrorMessage("Something went wrong");
+        signalR_connection.stop();
       }
-      setUpdatingData(state => ({
-        ...state,
-        updating: false,
-        discarding: false,
-      }));
+    };
+    signalR_connection.on("ToProcessing", (message) => {
+      message = JSON.parse(message);
+      if(rBody.countryVersion.some(a => a.CountryCode === message.CountryCode && a.VersionId === message.VersionId)) {
+        countryVersion.push(message);
+      }
+      if(rBody.countryVersion.sort().toString() === countryVersion.sort().toString()) {
+        showMessage("Envelope successfully discarded, next submission will be ‘Ready to use’ soon");
+        setRefreshEnvelopes(true);
+        setUpdatingData(state => ({
+          ...state,
+          updating: false,
+          discarding: false,
+        }));
+        signalR_connection.stop();
+      }
     });
-    setUpdatingData(state => ({
-      ...state,
-      updating: true,
-      discarding: true,
-    }));
+    start();
   }
 
   return (
@@ -248,7 +279,7 @@ const Harvesting = () => {
             </div>
             <CRow>
               <CCol md={12} lg={12}>
-                <CAlert color={alertValues.color} dismissible visible={alertValues.visible} onClose={() => setAlertValues({visible:false})}>{alertValues.text}</CAlert>
+                <CAlert color={alertValues.color} dismissible visible={alertValues.visible} onClose={() => setAlertValues({visible: false, text: '', color: 'primary'})}>{alertValues.text}</CAlert>
                 <TableEnvelops
                   getRefresh={()=>getRefreshEnvelopes()}
                   setRefresh={setRefreshEnvelopes}
