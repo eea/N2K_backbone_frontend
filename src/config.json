@@ -50,8 +50,8 @@
   "LINEAGE_GET_PREDECESSORS": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteLineage/GetPredecessorsInfo",
   "LINEAGE_GET_REFERENCE_SITES": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteLineage/GetLineageReferenceSites",
   "LINEAGE_SAVE_CHANGES": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteLineage/SaveEdition",
-  "REPORTED_SPATIAL": "https://bio.discomap.eea.europa.eu/arcgis/rest/services/N2K_Backbone/N2KBackbone/MapServer/0",
-  "LATEST_RELEASE": "https://bio.discomap.eea.europa.eu/arcgis/rest/services/N2K_Backbone/N2KBackbone/MapServer/1",
+  "REPORTED_SPATIAL": "https://bio.discomap.eea.europa.eu/arcgis/rest/services/N2K_Backbone/N2KBackbone_stg/MapServer/0",
+  "LATEST_RELEASE": "https://bio.discomap.eea.europa.eu/arcgis/rest/services/N2K_Backbone/N2KBackbone_stg/MapServer/1",
   "THEME_COLORS": {
     "PRIMARY": "#007bff",
     "SECONDARY": "#fc3"
