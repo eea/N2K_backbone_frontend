@@ -4,9 +4,7 @@ import TableEnvelops from './TableEnvelops';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import {ReactComponent as ReactLogo} from './../../../assets/images/harvesting.svg';
 import {DataLoader} from '../../../components/DataLoader';
-import {
-  HubConnectionBuilder
-} from '@microsoft/signalr';
+import {HubConnectionBuilder} from '@microsoft/signalr';
 
 import {
   CButton,
@@ -160,33 +158,33 @@ const Harvesting = () => {
     }
     let countryVersion = [];
     const signalR_connection = new HubConnectionBuilder()
-      .withUrl("https://n2kbackboneback-dev.azurewebsites.net/hubs/chat", {
-        withCredentials: false
-      })                        
-      .build();
+    .withUrl("https://n2kbackboneback-dev.azurewebsites.net/hubs/chat", {
+      withCredentials: false
+    })                        
+    .build();
     let start = async() => {
       try {
         await signalR_connection.start();
         sendRequest(ConfigData.HARVESTING_CHANGE_STATUS,"POST",rBody)
-          .then(response => response.json())
-          .then(data => {
-            if(!data?.Success) {
-              errors.push(data.Message);
-              console.log("Error: " + data.Message);
-              showErrorMessage("Something went wrong");
-              setUpdatingData(state => ({
-                ...state,
-                updating: false,
-                discarding: false,
-              }));
-              signalR_connection.stop();
-            }
-          });
-          setUpdatingData(state => ({
-            ...state,
-            updating: true,
-            discarding: true,
-          }));
+        .then(response => response.json())
+        .then(data => {
+          if(!data?.Success) {
+            errors.push(data.Message);
+            console.log("Error: " + data.Message);
+            showErrorMessage("Something went wrong");
+            setUpdatingData(state => ({
+              ...state,
+              updating: false,
+              discarding: false,
+            }));
+            signalR_connection.stop();
+          }
+        });
+        setUpdatingData(state => ({
+          ...state,
+          updating: true,
+          discarding: true,
+        }));
       } catch (error) {
         console.log(error);
         showErrorMessage("Something went wrong");
