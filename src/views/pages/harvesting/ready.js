@@ -158,7 +158,7 @@ const Harvesting = () => {
     }
     let countryVersion = [];
     const signalR_connection = new HubConnectionBuilder()
-    .withUrl("https://n2kbackboneback-dev.azurewebsites.net/hubs/chat", {
+    .withUrl(ConfigData.SERVER_API_ENDPOINT + "hubs/chat", {
       withCredentials: false
     })                        
     .build();
