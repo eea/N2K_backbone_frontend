@@ -230,7 +230,7 @@ const Harvesting = () => {
     }));
     setTimeout(() => {
       start()
-    }, 2000);
+    }, 4000);
     setUpdatingData(state => ({
       ...state,
       updating: true,
