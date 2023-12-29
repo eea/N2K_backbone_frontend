@@ -24,23 +24,12 @@ import PendingCards from './components/PendingCards';
 import SiteGraph from './components/SiteGraph';
 
 const Dashboard = () => {
-
   return (
     <div className="container--main min-vh-100">
       <AppHeader page="dashboard"/>
       <div className="main-content">
         <CContainer fluid>
           <div className="dashboard-title">
-            <div hidden className="select--right m-0">
-              <CFormLabel htmlFor="exampleFormControlInput1" className="form-label form-label-reporting col-md-4 col-form-label">Country</CFormLabel>
-                <CFormSelect aria-label="Default select example" className="form-select-reporting">
-                  <option>All</option>
-                  <option value="1">Austria</option>
-                  <option value="2">Belgium</option>
-                  <option value="3">Bulgaria</option>
-                  <option value="4">...</option>
-                </CFormSelect>
-              </div>
             <h1 className="h1-main">Dashboard</h1>
           </div>
           <div className="container-card-dashboard mb-5">
@@ -53,7 +42,7 @@ const Dashboard = () => {
                           <IconEnvelopes/>
                         </div>
                         <CCardText className="card-text-new">
-                        INCOMING SUBMISSIONS
+                          Incoming Submissions
                         </CCardText>
                       </CCardBody>
                   </CCard>
@@ -67,7 +56,7 @@ const Dashboard = () => {
                         <IconChanges/>
                       </div>
                       <CCardText className="card-text-new">
-                        PENDING CHANGES
+                        Site Changes
                       </CCardText>
                     </CCardBody>
                   </CCard>
@@ -81,21 +70,21 @@ const Dashboard = () => {
                       <IconReleases/>
                     </div>
                       <CCardText className="card-text-new">
-                        RELEASES & UNION LISTS
+                        Releases & Union Lists
                       </CCardText>
                     </CCardBody>
                   </CCard>
                 </a>
               </div>
               <div className="col-md-6 col-xl-3">
-                <a href="/#/reports/status">
+                <a href="/#/reports/releases">
                   <CCard className="card-dashboard-new">
                     <CCardBody>
                       <div className="card-icon-new">
                         <IconReports/>
                       </div>
                       <CCardText className="card-text-new">
-                        REPORTS
+                        Reports
                       </CCardText>
                     </CCardBody>
                   </CCard>
