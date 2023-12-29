@@ -1,10 +1,30 @@
 .sdf-map {
   pointer-events: none;
   #mapDiv {
-    height: 300px !important;
+    height: 400px !important;
     .esri-attribution {
       display: none;
     }
+  }
+}
+
+.sdf-general {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+  h1 {
+    margin-bottom: 0;
+  }
+  svg {
+    width: 8rem;
+    min-width: 8rem;
+  }
+}
+
+.sdf-index {
+  ol {
+    width: fit-content;
+    padding-inline-start: 32px;
   }
 }
 
@@ -98,9 +118,6 @@
   }
 
   .indicators {
-    &-container > div{
-      margin-bottom: 1.5rem;
-    }
     &-item {
       display: flex;
       flex-direction: column;
