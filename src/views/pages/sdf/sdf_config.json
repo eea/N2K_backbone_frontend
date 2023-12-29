@@ -13,7 +13,25 @@
     "B": "Habitats Directive",
     "C": "Birds and Habitats Directive"
   },
-  "HabitatTypes": {
+  "Respondent": {
+    "Name": "Name/Organisation",
+    "Address": "Address",
+    "Email": "Email"
+  },
+  "SiteDesignation": {
+    "ClassifiedSPA": "Date site classified as SPA",
+    "ReferenceSPA": "National legal reference of SPA designation",
+    "ProposedSCI": "Date site proposed as SCI",
+    "ConfirmedSCI": "Date site confirmed as SCI",
+    "DesignatedSAC": "Date site designated as SAC",
+    "ReferenceSAC": "National legal reference of SAC designation",
+    "Explanations": "Explanations"
+  },
+  "Region": {
+    "NUTSLevel2Code": "NUTS level 2 code",
+    "RegionName": "Region Name"
+  },
+  "HabitatTypess": {
     "1":"Coastal and halophytic habitats",
     "2":"Coastal sand dunes and inland dunes",
     "3":"Freshwater habitats",
@@ -24,7 +42,37 @@
     "8":"Rocky habitats and caves",
     "9":"Forests"
   },
+  "HabitatTypes": {
+    "HabitatName": "Habitat Name",
+    "Code": "Code",
+    "PF": "PF",
+    "NP": "NP",
+    "Cover": "Cover [ha]",
+    "Cave": "Cave",
+    "DataQuality": "Data Quality",
+    "Representativity": "Representativity",
+    "RelativeSurface": "Relative Surface",
+    "Conservation": "Conservation",
+    "Global": "Global"
+  },
   "Species": {
+    "Category": "Category",
+    "Code": "Code",
+    "Conservation": "Conservation",
+    "DataQuality": "Data Quality",
+    "Global": "Global",
+    "Group": "Group",
+    "Isolation": "Isolation",
+    "Max": "Max",
+    "Min": "Min",
+    "NP": "NP",
+    "Population": "Population",
+    "Sensitive": "Sensitive",
+    "SpeciesName": "Species Name",
+    "Type": "Type",
+    "Unit": "Unit"
+  },
+  "SpeciesTypes": {
     "A": "Amphibians",
     "B": "Birds",
     "F": "Fish",
@@ -62,10 +110,52 @@
     "N26": "Woodland habitats (general)",
     "N27": "Agricultural habitats (general)"
   },
+  "GeneralCharacter": {
+    "HabitatClass": "Habitat Class",
+    "Code": "Code",
+    "Cover": "Cover [ha]"
+  },
+  "NegativeThreats": {
+    "Rank": "Rank",
+    "Impacts": "Threats and pressures [code]",
+    "Pollution": "Pollution (optional) [code]",
+    "Origin": "Origin"
+  },
+  "PositiveThreats": {
+    "Rank": "Rank",
+    "Impacts": "Activities, management [code]",
+    "Pollution": "Pollution (optional) [code]",
+    "Origin": "Origin"
+  },
   "Origin": {
     "i":"Inside",
     "o":"Outside",
     "b": "Both"
+  },
+  "Ownership": {
+    "Types": "Type",
+    "Percent": "[%]"
+  },
+  "OwnershipType": {
+    "Private": "Private",
+    "publicNational": "Public - National/Federal",
+    "publicState": "Public - State/Province",
+    "publicLocal": "Public - Local/Municipal",
+    "publicAny": "Public - Any Public",
+
+    "joint": "Joint or Co-Ownership",
+    "unknown": "Unknown"
+  },
+  "DesignationTypes": {
+    "Code": "Code",
+    "Cover": "Cover [ha]"
+  },
+  "RelationSites": {
+    "DesignationLevel": "Designation Level",
+    "TypeCode": "Type Code",
+    "SiteName": "Site Name",
+    "Type": "Type",
+    "Percent": "Cover [%]"
   },
   "Legend": {
     "HabitatTypes": {

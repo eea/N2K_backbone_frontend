@@ -22,7 +22,8 @@ import {
   CTableHeaderCell,
   CTableRow,
   CHeader,
-  CHeaderBrand
+  CHeaderBrand,
+  CAlert
 } from '@coreui/react'
 
 import MapViewer from '../../../components/MapViewer'
@@ -30,7 +31,7 @@ import MapViewer from '../../../components/MapViewer'
 const SDFVisualization = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState([]);
-  const [activeKey, setActiveKey] = useState(1);
+  const [errorLoading, setErrorLoading] = useState(false);
   const [siteCode, setSiteCode] = useState("");
 
   let dl = new(DataLoader);
@@ -38,15 +39,15 @@ const SDFVisualization = () => {
   const getSiteCode = () => {
     let query = window.location.hash.split("?")[1];
     let params = new URLSearchParams(query);
-    let siteCode = params.get("sitecode")
-    setSiteCode(siteCode ? siteCode : "ES0000144"); 
+    let sitecode = params.get("sitecode")
+    setSiteCode(sitecode ? sitecode : "nodata"); 
   }
 
   const showMap = () => {
     return (
       <div className='sdf-map px-4 pb-5'>
         <MapViewer  
-          siteCode={"ES0000144"}
+          siteCode={siteCode}
           reportedSpatial={ConfigData.REPORTED_SPATIAL}
         />
       </div>
@@ -56,7 +57,7 @@ const SDFVisualization = () => {
   const loadData = () => {
     if(siteCode !=="" && !isLoading) {
       setIsLoading(true);
-      dl.fetch(ConfigData.SITEDETAIL_GET+"?siteCode="+siteCode)
+      dl.fetch(ConfigData.GET_SDF_DATA+"?siteCode="+siteCode)
       .then(response =>response.json())
       .then(data => {
         if(data?.Success) {
@@ -64,12 +65,32 @@ const SDFVisualization = () => {
             setData("nodata");
           }
           else {
-            setData(DataSDF);
+            setData(formatData(data));
           }
-        } else { setErrorLoading(true) }
+        }
+        else {
+          setErrorLoading(true)
+        }
         setIsLoading(false);
       });
     }
+    else {
+      setData("nodata");
+      setIsLoading(false);
+    }
+  }
+
+  const formatData = (data) => {
+    let siteCentre = Object.fromEntries(Object.entries(data.Data.SiteLocation).filter(([key, value]) => key==="Latitude" || key==="Longitude"));
+    data.Data.SiteLocation.Longitude = siteCentre;
+    delete data.Data.SiteLocation.Latitude;
+    let threats = Object.fromEntries(Object.entries(data.Data.SiteDescription).filter(([key, value]) => key==="NegativeThreats" || key==="PositiveThreats"));
+    data.Data.SiteDescription.NegativeThreats = threats;
+    delete data.Data.SiteDescription.PositiveThreats;
+    let documents = Object.fromEntries(Object.entries(data.Data.SiteDescription).filter(([key, value]) => key==="Documents" || key==="Links"));
+    data.Data.SiteDescription.Documents = documents;
+    delete data.Data.SiteDescription.Links;
+    return data.Data;
   }
   
   const showMainData = () => {
@@ -106,7 +127,7 @@ const SDFVisualization = () => {
     getSiteCode();
   }
 
-  if(siteCode && Object.keys(data).length === 0) {
+  if(!isLoading && siteCode && siteCode !== "nodata" && Object.keys(data).length === 0 && !errorLoading) {
     loadData();
   }
 
@@ -129,9 +150,17 @@ const SDFVisualization = () => {
           </CContainer>
         </CRow>
       </CContainer>
+      {(errorLoading && !isLoading) &&
+        <CContainer fluid>
+          <CRow className="p-4">
+            <CAlert color="danger">Error loading data</CAlert>
+          </CRow>
+        </CContainer>
+      }
       {isLoading ?
         <div className="loading-container"><em>Loading...</em></div>
       :
+      siteCode === "nodata" ? <div className="nodata-container"><em>No Data</em></div> :
       siteCode && Object.keys(data).length > 0 &&
         <>
           {showMainData()}
@@ -151,8 +180,21 @@ const scrollTo = (item) => {
   event.stopPropagation();
   event.preventDefault();
   let element = document.getElementById(item.currentTarget.dataset.id).parentNode;
-  element.scrollIntoView();
+  const y = element.getBoundingClientRect().top + window.scrollY;
+  window.scroll({
+    top: y,
+    behavior: 'instant'
+  });
 }
+
+const formatDate = (date) => {
+  date = new Date(date);
+  var d = date.getDate();
+  var m = date.getMonth() + 1;
+  var y = date.getFullYear();
+  date = (d <= 9 ? '0' + d : d) + '/' + (m <= 9 ? '0' + m : m) + '/' + y;
+  return date;
+};
 
 const sectionsContent = (activekey, data) => {
   let fields = [];
@@ -200,14 +242,25 @@ const sectionsContent = (activekey, data) => {
             break;
           case "SiteDesignation":
             title = "Site indication and designation / classification dates";
-            value = field[1];
-            type = "array";
+            value = field[1][0];
+            if(data.Type === "A") {
+              let filters = ["ProposedSCI", "ConfirmedSCI", "DesignatedSAC", "ReferenceSAC"];
+              filters.forEach(a => delete value[a]);
+            }
+            else if(data.Type === "B") {
+              let filters = ["ClassifiedSPA", "ReferenceSPA"];
+              filters.forEach(a => delete value[a]);
+            }
+            if(!value.Explanations) {
+              delete value.Explanations;
+            }
+            type = "value";
             break;
         }
         break;
       case 2:
         switch(field[0]) {
-          case "SiteCentre":
+          case "Longitude":
             title = "Site-centre location [decimal degrees]";
             value = field[1];
             type = "value";
@@ -230,7 +283,7 @@ const sectionsContent = (activekey, data) => {
           case "Region":
             title = "Administrative region code and name";
             value = field[1];
-            type = "value";
+            type = "array";
             break;
           case "BiogeographicalRegions":
             title = "Biogeographical Region(s)";
@@ -266,9 +319,9 @@ const sectionsContent = (activekey, data) => {
           case "GeneralCharacter":
             title = "General site character";
             value = field[1];
-            value = value.map(obj => ({"Habitat Class": ConfigSDF.HabitatClasses[obj.Code], ...obj}));
-            let total = value.map(a=> a["Cover [%]"]).reduce((a, b) => a + b, 0);
-            value.push({"Habitat Class":"Total Habitat Code", "Code":"","Cover [%]":total});
+            value = value.map(obj => ({"HabitatClass": ConfigSDF.HabitatClasses[obj.Code], ...obj}));
+            let total = value.map(a => a["Cover"]).reduce((a, b) => a + b, 0);
+            value.push({"HabitatClass":"Total Habitat Code", "Code":"","Cover":total});
             type = "table";
             break;
           case "Quality":
@@ -276,7 +329,7 @@ const sectionsContent = (activekey, data) => {
             value = field[1];
             type = "value";
             break;
-          case "Threats":
+          case "NegativeThreats":
             title = "Threats, pressures and activities with impacts on the site";
             value = field[1];
             type = "double-table";
@@ -285,12 +338,20 @@ const sectionsContent = (activekey, data) => {
           case "Ownership":
             title = "Ownership (optional)";
             value = field[1];
+            let x = ConfigSDF.OwnershipType
+            value = value.map(obj => ({"Types": x[obj.Type], "Percent":obj.Percent}));
             type = "table";
             break;
-          case "Documentation":
+          case "Documents":
             title = "Documentation (optional)";
             value = field[1];
-            type = "array";
+            if(!value.Links?.length) {
+              delete value.Links;
+              if(!value.Documents) {
+                value = null;
+              }
+            }
+            type = "value";
             break;
         }
         break;
@@ -346,8 +407,35 @@ const sectionsContent = (activekey, data) => {
             break;
         }
     }
-    if (!value) {
+    if (!value || value.length === 0) {
       value = "No information provided";
+      type = "value";
+    }
+    let labels = ConfigSDF[field[0]]; 
+    if(labels) {
+      if(Array.isArray(value)) {
+        value = value.map(a=>{let b = {}; Object.keys(a).forEach(key => b[labels[key]] = a[key] ? (isNaN(a[key]) && !isNaN(Date.parse(a[key])) ? formatDate(a[key]) : a[key]) : a[key]); return b});
+      }
+      else if (typeof value === 'object') {
+        let b = {};
+        value = Object.keys(value).forEach(key => b[labels[key]] = value[key] ? (isNaN(value[key]) && !isNaN(Date.parse(value[key])) ? formatDate(value[key]) : value[key]) : value[key]);
+        value = b;
+      }
+    }
+    else {
+      value = isNaN(value) && !isNaN(Date.parse(value)) ? formatDate(value) : value;
+    }
+
+    const parseLinks = (text) => {
+      const reg = new RegExp(/(^|\s)(https?:\/\/[^\s]+|www\.[^\s]+|[\w-]+\.com[^\s]*)/g, 'gi');
+      let parts = text;
+      if(isNaN(text)) {
+        parts = !Array.isArray(text) ? text.split(reg) : text;
+        return parts.map((part, i) => (part.match(reg) ? <a href={part} target="_blank" key={i+"_"+part}>{part}</a> : part));
+      }
+      else {
+        return parts;
+      }
     }
 
     const dataType = (type, data) => {
@@ -355,14 +443,14 @@ const sectionsContent = (activekey, data) => {
         case "value":
           return (
             <div className="sdf-row-field">
-              {typeof data === 'object' ? Object.entries(data).map(a => <p key={"v_"+a}><b>{a[0]}</b>: {a[1] ? a[1] : "No information provided"}</p>) : data}
+              {typeof data === 'object' ? Object.entries(data).map(a => <p key={"v_"+a}><b>{a[0]}</b>: {a[1] ? parseLinks(a[1]) : "No information provided"}</p>) : parseLinks(data)}
             </div>
           )
         case "array":
           return (
             Array.isArray(data) && data.map((a, i) => 
               <div className="sdf-row-field" key={"a_"+i}>
-                {typeof a === 'object' ? Object.entries(a).map(b => <p key={"b_"+b}><b>{b[0]}</b>: {b[1] ? b[1] : "No information provided"}</p>) : a[1]}
+                {typeof a === 'object' ? Object.entries(a).map(b => <p key={"b_"+b}><b>{b[0]}</b>: {b[1] ? parseLinks(b[1]) : "No information provided"}</p>) : parseLinks(a[1])}
               </div>
             )
           )
@@ -405,10 +493,10 @@ const sectionsContent = (activekey, data) => {
           )
         case "double-table":
           let tables = [];
-          Object.entries(value).map( a => {
+          Object.entries(value).map(a => {
             a[1] = a[1].map(obj => ({...obj, "Origin": ConfigSDF.Origin[obj.Origin]}));
 
-            let header = Object.keys(a[1][0]).map(b => {return(<CTableHeaderCell scope="col" key={b}> {b} </CTableHeaderCell>)});
+            let header = a[1].length > 0 ? Object.keys(a[1][0]).map(b => {return(<CTableHeaderCell scope="col" key={b}> {b} </CTableHeaderCell>)}) : "";
             let body = a[1].map((row, i) => {
               return (
                 <tr key={"tr_"+i}>
@@ -421,17 +509,23 @@ const sectionsContent = (activekey, data) => {
             tables.push(
               <CCol xs={12} md={6} lg={6} xl={6} key={a[0]}>
                 <div className="indicators-container">
+                  <b>
+                    {a[0] === "NegativeThreats" ? "Threats and pressures" : "Activities and Management"}
+                  </b>
                   <div className="sdf-row-field">
-                    <CTable>
-                      <CTableHead>
-                        <CTableRow>
-                          {header}
-                        </CTableRow>
-                      </CTableHead>
-                      <CTableBody>
-                        {body}
-                      </CTableBody>
-                    </CTable>
+                    {a[1].length > 0 ?
+                      <CTable>
+                        <CTableHead>
+                          <CTableRow>
+                            {header}
+                          </CTableRow>
+                        </CTableHead>
+                        <CTableBody>
+                          {body}
+                        </CTableBody>
+                      </CTable>
+                      : "No information provided"
+                    }
                   </div>
                 </div>
               </CCol>
