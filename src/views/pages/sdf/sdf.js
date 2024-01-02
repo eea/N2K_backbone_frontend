@@ -1,7 +1,7 @@
 import ConfigData from '../../../config.json';
 import ConfigSDF from './sdf_config.json';
 import DataSDF from './sdf_data.json';
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { AppHeader } from '../../../components/index'
 import {ReactComponent as NaturaLogo} from './../../../../src/assets/images/natura2000_logo.svg';
 import {DataLoader} from '../../../components/DataLoader';
@@ -33,6 +33,18 @@ const SDFVisualization = () => {
   const [data, setData] = useState([]);
   const [errorLoading, setErrorLoading] = useState(false);
   const [siteCode, setSiteCode] = useState("");
+  const [showScrollBtn, setShowScrollBtn] = useState(false);
+
+  useEffect(() => {
+    window.addEventListener("scroll", () => {
+      if(window.scrollY === 0) {
+        setShowScrollBtn(false);
+      }
+      else {
+        setShowScrollBtn(true);
+      }
+    });
+  }, []);
 
   let dl = new(DataLoader);
 
@@ -171,6 +183,13 @@ const SDFVisualization = () => {
             </CTabContent>
           </CContainer>
         </>
+      }
+      {showScrollBtn &&
+        <div className="sdf-scroll">
+          <CButton color="primary" onClick={() => window.scroll({top: 0, behavior: 'instant'})}>
+            <i className="fas fa-arrow-up"></i>
+          </CButton>
+        </div>
       }
     </div>
   );
@@ -438,7 +457,7 @@ const sectionsContent = (activekey, data) => {
       }
     }
 
-    const dataType = (type, data) => {
+    const dataType = (field, type, data) => {
       switch (type) {
         case "value":
           return (
@@ -460,11 +479,20 @@ const sectionsContent = (activekey, data) => {
               <th scope="col" key={a}>{a}</th>
             )
           });
+          let checkCellLink = (cell, value) => {
+            if(field === "HabitatTypes" && cell === "Code") {
+              value = <a href={"https://eunis.eea.europa.eu/habitats/" + value} target="blank">{value}</a>
+            }
+            else if((field === "Species" || field === "OtherSpecies") && (cell === "Species Name" || cell === "Code") && value !== "-") {
+              value = <a href={"https://eunis.eea.europa.eu/species/" + value} target="blank">{value}</a>
+            }
+            return value;
+          }
           let body = value.map((row, i) => {
             return (
               <tr key={"tr_"+i}>
                 {Object.keys(value[0]).map((cell, ii) => {
-                  return <CTableDataCell key={"tc_"+i+ii}><span>{row[cell]}</span></CTableDataCell>
+                  return <CTableDataCell key={"tc_"+i+ii}><span>{checkCellLink(cell, row[cell])}</span></CTableDataCell>
                 })}
               </tr>
             )
@@ -548,7 +576,7 @@ const sectionsContent = (activekey, data) => {
       <CRow className={"sdf-row" + (layout === 2 ? " col-md-6 col-12" : "")} key={index}>
         <CCol>
           <div className='sdf-row-title'>{index + ' ' + title}</div>
-          {dataType(type, value)}
+          {dataType(field[0], type, value)}
         </CCol>
       </CRow>
     );

@@ -149,6 +149,13 @@
   }
 }
 
+.sdf-scroll {
+  display: inline-block;
+  position: fixed;
+  bottom: 2rem;
+  right: 2.5rem;
+}
+
 /*  Tooltips  */
 [tooltips] {
   position: relative;
@@ -253,5 +260,8 @@
       height: 200px !important;
       width: auto !important;
     }
+  }
+  .sdf-scroll {
+    display: none;
   }
 }
