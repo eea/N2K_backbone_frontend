@@ -1,6 +1,7 @@
 import React, { lazy, useState, useRef } from 'react'
 import { CAlert } from '@coreui/react';
 import { AppFooter, AppHeader } from '../../../components/index'
+import TableEdition from './TableEdition';
 import ConfigData from '../../../config.json';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import Turnstone from 'turnstone';
@@ -61,6 +62,7 @@ const Releases = () => {
   const [pageSize, setPageSize] = useState(30);
   const [pageIndex, setPageIndex] = useState(1);
   const [pageCount, setPageCount] = useState(0);
+  const [refresh,setRefresh] = useState(false);
   const [modalValues, setModalValues] = useState({
     visibility: false,
     close: () => {
@@ -158,6 +160,15 @@ const Releases = () => {
     setModalItem({});
     clearSearch();
     forceRefreshData();
+  }
+
+  let modalProps = {
+    showDeleteModal(id) {
+      updateModalValues("Delete Release", "This will delete this Release", "Continue", ()=>deleteReport(id), "Cancel", ()=>{}, true);
+    },
+    showEditModal(id, name, final) {
+      updateModalValues("Edit Release", renderReleaseForm(name, final), "Continue", ()=>editReport(id), "Cancel", ()=>{}, true);
+    },
   }
 
   let forceRefreshData = () => setSitecodes([]);
@@ -283,7 +294,7 @@ const Releases = () => {
     )
   }
 
-  loadData();
+  //loadData();
 
   return (
     <div className="container--main min-vh-100">
@@ -356,11 +367,6 @@ const Releases = () => {
                   <div className="select--right">
                     <CFormLabel className="form-label form-label-reporting col-md-4 col-form-label">
                       Country
-                      <CTooltip content="Only countries with complete envelopes can be edited">
-                        <div className="btn-icon btn-hover ms-2">
-                          <i className="fa-solid fa-circle-info"></i>
-                        </div>
-                      </CTooltip>
                     </CFormLabel>
                     <CFormSelect aria-label="Default select example" className='form-select-reporting' disabled={isLoading || !country} value={country} onChange={(e)=>changeCountry(e.target.value)}>
                       {
@@ -371,58 +377,15 @@ const Releases = () => {
                 </CCol>
             </CRow>
             <CRow className="grid">
-              {(errorLoading && !isLoading) &&
-                <CAlert color="danger">Error loading data</CAlert>
-              }
-              {(!errorLoading && isLoading) ?
-                <div className="loading-container"><em>Loading...</em></div>
-              : (siteCodes === "nodata" || !country ?
-                <div className="nodata-container"><em>No Data</em></div>
-                : siteCodes.length > 0 &&
-                  <>
-                    {loadCards()}
-                    <CPagination className="mt-3">
-                      <CPaginationItem onClick={() => setPageIndex(1)} disabled={pageIndex===1}>
-                        <i className="fa-solid fa-angles-left"></i>
-                      </CPaginationItem>
-                      <CPaginationItem onClick={() => setPageIndex(pageIndex-1)} disabled={pageIndex===1}>
-                        <i className="fa-solid fa-angle-left"></i>
-                      </CPaginationItem>
-                      <span>
-                        Page{' '}
-                        <strong>
-                          {pageIndex} of {pageCount}
-                        </strong>{' '}
-                      </span>
-                      <CPaginationItem onClick={() => {setPageIndex(pageIndex+1);loadCards()}} disabled={pageIndex===pageCount}>
-                        <i className="fa-solid fa-angle-right"></i>
-                      </CPaginationItem>
-                      <CPaginationItem onClick={() => setPageIndex(pageCount)} disabled={pageIndex===pageCount}>
-                        <i className="fa-solid fa-angles-right"></i>
-                      </CPaginationItem>
-
-                      <div className='pagination-rows'>
-                        <label className='form-label'>Rows per page</label>
-                        <select
-                          className='form-select'
-                          value={pageSize}
-                          onChange={e => {
-                            setPageCount(Math.ceil(siteCodes.length / Number(e.target.value)));
-                            setPageSize(Number(e.target.value));
-                            setPageIndex(1);
-                          }}
-                        >
-                          {[10, 20, 30, 40, 50].map(pageSize => (
-                            <option key={pageSize} value={pageSize}>
-                              {pageSize}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </CPagination>
-                  </>
-                )
-              }
+              <>
+                <TableEdition
+                  updateModalValues={updateModalValues}
+                  modalProps={modalProps}
+                  refresh = {refresh}
+                  setRefresh = {(v)=>{setRefresh(v)}}
+                  country={country}
+                />
+              </>
             </CRow>
           </CContainer>
           <ModalEdition
