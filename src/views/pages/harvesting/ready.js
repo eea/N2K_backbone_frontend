@@ -156,96 +156,59 @@ const Harvesting = () => {
       "countryVersion": values.map(v => ({ "CountryCode": v.country, "VersionId": v.version })),
       "toStatus": "Discarded"
     }
-    // let countryVersion = [];
-    // const signalR_connection = new HubConnectionBuilder()
-    // .withUrl(ConfigData.SERVER_API_ENDPOINT + "hubs/chat", {
-    //   withCredentials: false
-    // })                        
-    // .build();
-    // let start = async() => {
-    //   try {
-    //     await signalR_connection.start();
-    //     sendRequest(ConfigData.HARVESTING_CHANGE_STATUS,"POST",rBody)
-    //     .then(response => response.json())
-    //     .then(data => {
-    //       if(!data?.Success) {
-    //         errors.push(data.Message);
-    //         console.log("Error: " + data.Message);
-    //         showErrorMessage("Something went wrong");
-    //         setUpdatingData(state => ({
-    //           ...state,
-    //           updating: false,
-    //           discarding: false,
-    //         }));
-    //         signalR_connection.stop();
-    //       }
-    //     });
-    //     setUpdatingData(state => ({
-    //       ...state,
-    //       updating: true,
-    //       discarding: true,
-    //     }));
-    //   } catch (error) {
-    //     console.log(error);
-    //     showErrorMessage("Something went wrong");
-    //     signalR_connection.stop();
-    //   }
-    // };
-    // signalR_connection.on("ToProcessing", (message) => {
-    //   message = JSON.parse(message);
-    //   if(rBody.countryVersion.some(a => a.CountryCode === message.CountryCode && a.VersionId === message.VersionId)) {
-    //     countryVersion.push(message);
-    //   }
-    //   if(rBody.countryVersion.sort().toString() === countryVersion.sort().toString()) {
-    //     showMessage("Envelope successfully discarded, next submission will be ‘Ready to use’ soon");
-    //     setRefreshEnvelopes(true);
-    //     setUpdatingData(state => ({
-    //       ...state,
-    //       updating: false,
-    //       discarding: false,
-    //     }));
-    //     signalR_connection.stop();
-    //   }
-    // });
-    // start();
-
-    sendRequest(ConfigData.HARVESTING_CHANGE_STATUS,"POST",rBody)
-    .then(response => response.json())
-    .then(data => {
-      if(!data?.Success) {
-        errors.push(data.Message);
-        console.log("Error: " + data.Message);
+    let countryVersion = [];
+    const signalR_connection = new HubConnectionBuilder()
+    .withUrl(ConfigData.SERVER_API_ENDPOINT + "hubs/chat", {
+      withCredentials: false
+    })                        
+    .build();
+    let start = async() => {
+      try {
+        await signalR_connection.start();
+        debugger
+        sendRequest(ConfigData.HARVESTING_CHANGE_STATUS,"POST",rBody)
+        .then(response => response.json())
+        .then(data => {
+          if(!data?.Success) {
+            errors.push(data.Message);
+            console.log("Error: " + data.Message);
+            showErrorMessage("Something went wrong");
+            setUpdatingData(state => ({
+              ...state,
+              updating: false,
+              discarding: false,
+            }));
+            signalR_connection.stop();
+          }
+        });
+        setUpdatingData(state => ({
+          ...state,
+          updating: true,
+          discarding: true,
+        }));
+      } catch (error) {
+        console.log(error);
         showErrorMessage("Something went wrong");
+        signalR_connection.stop();
+      }
+    };
+    signalR_connection.on("ToProcessing", (message) => {
+      message = JSON.parse(message);
+      if(rBody.countryVersion.some(a => a.CountryCode === message.CountryCode && a.VersionId === message.VersionId)) {
+        countryVersion.push(message);
+      }
+      if(rBody.countryVersion.sort().toString() === countryVersion.sort().toString()) {
+        showMessage("Envelope successfully discarded, next submission will be ‘Ready to use’ soon");
+        setRefreshEnvelopes(true);
         setUpdatingData(state => ({
           ...state,
           updating: false,
           discarding: false,
         }));
+        signalR_connection.stop();
       }
     });
-    setUpdatingData(state => ({
-      ...state,
-      updating: false,
-      discarding: false,
-    }));
-    setTimeout(() => {
-      start()
-    }, 4000);
-    setUpdatingData(state => ({
-      ...state,
-      updating: true,
-      discarding: true,
-    }));
-
-    function start() {
-      showMessage("Envelope successfully discarded, next submission will be ‘Ready to use’ soon");
-      setRefreshEnvelopes(true);
-      setUpdatingData(state => ({
-        ...state,
-        updating: false,
-        discarding: false,
-      }));
-    }
+    start();
   }
 
   return (
