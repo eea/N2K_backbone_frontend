@@ -165,7 +165,6 @@ const Harvesting = () => {
     let start = async() => {
       try {
         await signalR_connection.start();
-        debugger
         sendRequest(ConfigData.HARVESTING_CHANGE_STATUS,"POST",rBody)
         .then(response => response.json())
         .then(data => {
