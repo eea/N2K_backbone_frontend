@@ -322,12 +322,16 @@ const sectionsContent = (activekey, data) => {
           case "Species":
             title = "Species referred to in Article 4 of Directive 2009/147/EC and listed in Annex II of Directive 92/43/EEC and site evaluation for them";
             value = field[1];
+            var filters = ["AnnexIV", "AnnexV", "OtherCategoriesA", "OtherCategoriesB", "OtherCategoriesC", "OtherCategoriesD"];
+            value.map(a => filters.forEach(b => delete a[b]));
             type = "table";
             legend = ConfigSDF.Legend.Species;
             break;
           case "OtherSpecies":
             title = "Other important species of flora and fauna (optional)";
             value = field[1];
+            var filters = ["DataQuality", "Population", "Conservation", "Isolation", "Global"];
+            value.map(a => filters.forEach(b => delete a[b]));
             type = "table";
             legend = ConfigSDF.Legend.OtherSpecies;
             break;

@@ -92,13 +92,12 @@
     "Max": "Max",
     "Unit": "Unit",
     "Category": "Cat.",
-    "DataQuality": "D.qual.",
-    "Population": "Pop.",
-    "Conservation": "Con.",
-    "Isolation": "Iso.",
-    "Global": "Glo.",
-    "SpeciesAnnex": "Species Annex",
-    "OtherCategories": "Other Categories"
+    "AnnexIV": "Annex IV",
+    "AnnexV": "Annex V",
+    "OtherCategoriesA": "Other Cat. A",
+    "OtherCategoriesB": "Other Cat. B",
+    "OtherCategoriesC": "Other Cat. C",
+    "OtherCategoriesD": "Other Cat. D"
   },
   "HabitatClasses": {
     "N01": "Marine areas, Sea inlets",
