@@ -59,9 +59,6 @@ const Releases = () => {
   const [bioRegions, setBioRegions] = useState([]);
   const [siteTypes, setSiteTypes] = useState([]);
   const turnstoneRef = useRef();
-  const [pageSize, setPageSize] = useState(30);
-  const [pageIndex, setPageIndex] = useState(1);
-  const [pageCount, setPageCount] = useState(0);
   const [refresh,setRefresh] = useState(false);
   const [modalValues, setModalValues] = useState({
     visibility: false,
@@ -76,6 +73,7 @@ const Releases = () => {
   
   let changeCountry = (country) => {
     setCountry(country);
+    setSitecodes({});
     setSearchList({});
     turnstoneRef.current?.clear();
     turnstoneRef.current?.blur();
@@ -136,6 +134,17 @@ const Releases = () => {
     });
   }
 
+  let setCodes = (data) => {
+    if(data) {
+      setSitecodes(data);
+      setSearchList(getSitesList(data));
+      setIsLoading(false);
+    }
+    else if (country){
+      setIsLoading(false);
+    }
+  }
+
   let getSitesList = (data) => {
     return {
       name: "sites",
@@ -163,12 +172,9 @@ const Releases = () => {
   }
 
   let modalProps = {
-    showDeleteModal(id) {
-      updateModalValues("Delete Release", "This will delete this Release", "Continue", ()=>deleteReport(id), "Cancel", ()=>{}, true);
-    },
-    showEditModal(id, name, final) {
-      updateModalValues("Edit Release", renderReleaseForm(name, final), "Continue", ()=>editReport(id), "Cancel", ()=>{}, true);
-    },
+    showEditModal(data){
+      showModalSitechanges(data)
+    }
   }
 
   let forceRefreshData = () => setSitecodes([]);
@@ -201,28 +207,6 @@ const Releases = () => {
     )
   }
 
-  let loadData = () => {
-    if(siteCodes.length !== 0) return;
-    if(country && country !=="" && !isLoading && siteCodes!=="nodata" && siteCodes.length === 0 && !errorLoading){
-      setIsLoading(true);
-      dl.fetch(ConfigData.SITEEDITION_NON_PENDING_GET+"country="+country)
-      .then(response =>response.json())
-      .then(data => {
-        if(data?.Success) {
-          if(Object.keys(data.Data).length === 0){
-            setSitecodes("nodata");
-          }
-          else {
-            setSitecodes(data.Data);
-            setSearchList(getSitesList(data.Data));
-            setPageCount(Math.ceil(data.Data.length / Number(pageSize)));
-          }
-        } else { setErrorLoading(true) }
-        setIsLoading(false);
-      });
-    }
-  }
-
   function updateModalValues(title, text, primaryButtonText, primaryButtonFunction, secondaryButtonText, secondaryButtonFunction, keepOpen) {
     setModalValues({
       visibility: true,
@@ -246,55 +230,6 @@ const Releases = () => {
       keepOpen: keepOpen ? true : false,
     });
   }
-
-  let loadCards = () => {
-    let cards = [];
-    if(countries.length > 0){
-      let countryName = countries.find(a=>a.code===country).name;
-      let sites = siteCodes.slice(pageIndex*pageSize-pageSize,pageIndex*pageSize);
-      for(let i in sites){
-        let siteName = sites[i].Name;
-        let siteCode = sites[i].SiteCode;
-        let version = sites[i].Version;
-        let date = sites[i].EditedDate;
-        let user = sites[i].EditedBy;
-        cards.push(
-          <CCol xs={12} md={6} lg={4} xl={3} key={"card_"+i}>
-            <CCard className="search-card">
-              <div className="search-card-header">
-                <span className="search-card-title">{siteName}</span>
-              </div>
-              <div className="search-card-body">
-                <span className="search-card-description"><b>{siteCode}</b> | {countryName}</span>
-              </div>
-              <div className="search-card-button">
-                <CButton color="link" className="btn-link--dark" onClick={()=>openModal({SiteCode:siteCode, Version:version})}>
-                  Edit
-                </CButton>
-                {date && user &&
-                <CTooltip 
-                  content={"Edited"
-                    + (date && " on " + date.slice(0,10).split('-').reverse().join('/'))
-                    + (user && " by " + user)}>
-                  <div className="btn-icon btn-hover btn-editinfo">
-                    <i className="fa-solid fa-pen-to-square"></i>
-                  </div>
-                </CTooltip>
-              }
-              </div>
-            </CCard>
-          </CCol>
-        )
-      }
-    }
-    return(
-      <>
-        {cards}
-      </>
-    )
-  }
-
-  //loadData();
 
   return (
     <div className="container--main min-vh-100">
@@ -351,7 +286,7 @@ const Releases = () => {
                     ref={turnstoneRef}
                     Item={item}
                     typeahead={false}
-                    disabled={isLoading || !country}
+                    disabled={Object.keys(siteCodes).length === 0}
                   />
                   {Object.keys(selectOption).length !== 0 &&
                     <span className="btn-icon" onClick={()=>clearSearch(true)}>
@@ -368,7 +303,7 @@ const Releases = () => {
                     <CFormLabel className="form-label form-label-reporting col-md-4 col-form-label">
                       Country
                     </CFormLabel>
-                    <CFormSelect aria-label="Default select example" className='form-select-reporting' disabled={isLoading || !country} value={country} onChange={(e)=>changeCountry(e.target.value)}>
+                    <CFormSelect aria-label="Default select example" className='form-select-reporting' disabled={Object.keys(siteCodes).length === 0} value={country} onChange={(e)=>changeCountry(e.target.value)}>
                       {
                         countries.map((e)=><option value={e.code} key={e.code}>{e.name}</option>)
                       }
@@ -384,6 +319,8 @@ const Releases = () => {
                   refresh = {refresh}
                   setRefresh = {(v)=>{setRefresh(v)}}
                   country={country}
+                  setSitecodes={setCodes}
+                  siteCodes={siteCodes}
                 />
               </>
             </CRow>
