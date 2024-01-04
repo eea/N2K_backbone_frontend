@@ -48,7 +48,7 @@ const Releases = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalItem, setModalItem] = useState({});
   const [siteCodes, setSitecodes] = useState([]);
-  const [errorLoading, setErrorLoading] = useState(false);
+  const [filterEdited, setFilterEdited] = useState(false);
   const [searchList, setSearchList] = useState({});
   const [selectOption, setSelectOption] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -104,7 +104,7 @@ const Releases = () => {
         if(countriesList[0]) {
           setIsLoading(false);
         }
-      } else { setErrorLoading(true) }
+      }
     });
   }
 
@@ -151,6 +151,12 @@ const Releases = () => {
       data: data.map?data.map(x=>({"search":x.SiteCode+" - "+x.Name,...x})):[],
       searchType: "contains",
     }
+  }
+
+  let changeFilterEdited = (edited) => {
+    setFilterEdited(edited);
+    clearSearch();
+    forceRefreshData();
   }
 
   let showModalSitechanges = (data) => {
@@ -271,6 +277,22 @@ const Releases = () => {
                 <h1 className="h1">Site Edition</h1>
               </div>
             </div>
+            <div className="d-flex flex-start align-items-center p-3 card-lineage-type">
+                <div className="me-5">
+                  <h2 className="card-lineage-type-title">Filter by</h2>
+                </div>
+                <div>
+                  <ul className="btn--list">
+                    <li>
+                      <div className="checkbox" disabled={Object.keys(siteCodes).length === 0}>
+                        <input type="checkbox" className="input-checkbox" id="edition_check" checked={filterEdited} onClick={(e)=>changeFilterEdited(e.currentTarget.checked)} />
+                        <label htmlFor="edition_check" className="input-label badge color--default">Edited
+                        </label>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              </div>
             <CRow>
               <CCol sm={12} md={6} lg={6} className="d-flex mb-4">
                 <div className="search--input">
@@ -321,6 +343,7 @@ const Releases = () => {
                   country={country}
                   setSitecodes={setCodes}
                   siteCodes={siteCodes}
+                  onlyEdited={filterEdited}
                 />
               </>
             </CRow>

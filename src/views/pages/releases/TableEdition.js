@@ -250,7 +250,7 @@ function TableEdition(props) {
         props.setRefresh(false);
       } 
       setIsLoading(true);
-      dl.fetch(ConfigData.SITEEDITION_NON_PENDING_GET+"country="+props.country)
+      dl.fetch(ConfigData.SITEEDITION_NON_PENDING_GET+"country="+props.country)//+'&onlyedited='+props.onlyEdited)
       .then(response =>response.json())
       .then(data => {
         if(data?.Success) {
@@ -268,10 +268,12 @@ function TableEdition(props) {
     }
   }
 
-  if(props.hasOwnProperty('getRefresh') && props.getRefresh()){
-    props.setRefresh(false);
-    setEnvelopsData([]);
-    loadData();
+  if(!props.country) {
+    if(sitesData !== "nodata") {
+      setSitesData("nodata");
+      props.setSitecodes({});
+      setIsLoading(false);
+    }
   }
   else {
     loadData();
