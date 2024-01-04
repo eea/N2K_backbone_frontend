@@ -461,6 +461,10 @@ export class ModalChanges extends Component {
       let unit = type.toLowerCase().includes("area") ? " (ha)" : " (km)"
       field = (field === "Reference" || field === "Submission") ? field + unit : field;
     }
+    if(type.toLowerCase().includes("population")) {
+      const populationFields = ["reference", "submission"]
+      field = populationFields.includes(field.toLowerCase()) ? field + " (pop)" : field;
+    }
     return field;
   }
 
