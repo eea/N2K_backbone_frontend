@@ -250,7 +250,7 @@ function TableEdition(props) {
         props.setRefresh(false);
       } 
       setIsLoading(true);
-      dl.fetch(ConfigData.SITEEDITION_NON_PENDING_GET+"country="+props.country)//+'&onlyedited='+props.onlyEdited)
+      dl.fetch(ConfigData.SITEEDITION_NON_PENDING_GET+"country="+props.country+'&onlyedited='+props.onlyEdited)
       .then(response =>response.json())
       .then(data => {
         if(data?.Success) {
@@ -259,6 +259,7 @@ function TableEdition(props) {
             props.setSitecodes("nodata");
           }
           else {
+            data.Data.map(a => {let row = a; a.Type = props.types.find(b => b.Code === a.Type).Classification; return row});
             setSitesData(data.Data);
             props.setSitecodes(data.Data);
           }
@@ -276,7 +277,8 @@ function TableEdition(props) {
     }
   }
   else {
-    loadData();
+    if(props.types.length > 0)
+      loadData();
   }
 
   if(isLoading)

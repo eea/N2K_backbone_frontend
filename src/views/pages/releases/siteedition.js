@@ -344,6 +344,7 @@ const Releases = () => {
                   setSitecodes={setCodes}
                   siteCodes={siteCodes}
                   onlyEdited={filterEdited}
+                  types={siteTypes}
                 />
               </>
             </CRow>
