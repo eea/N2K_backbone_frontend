@@ -534,9 +534,9 @@ export class ModalChanges extends Component {
                 </div>
                 <div>
                   {this.state.data.Status === "Pending"
-                    && ((changes[i][j].ChangeCategory == "Lineage" || changes[i][j].ChangeType == "Site Added" || changes[i][j].ChangeType == "Site Deleted")
+                    && ((changes[i][j].ChangeCategory == "Lineage" || changes[i][j].ChangeCategory == "Network general structure")
                     && this.props.lineageChangeType !== "NoChanges" && this.props.lineageChangeType !== "NoGeometryReported"
-                      && this.props.lineageChangeType !== "NewGeometryReported")
+                    && this.props.lineageChangeType !== "NewGeometryReported")
                     &&
                     <>
                       <CButton color="link" href={"/#/sitelineage/management?country=" + this.props.country + "&siteCode=" + this.props.item} className="btn-link--dark text-nowrap">
