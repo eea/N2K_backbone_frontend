@@ -158,7 +158,7 @@ const Harvesting = () => {
     }
     let countryVersion = [];
     const signalR_connection = new HubConnectionBuilder()
-    .withUrl(ConfigData.SERVER_API_ENDPOINT + "hubs/chat", {
+    .withUrl(ConfigData.SERVER_API_ENDPOINT + "ws/", {
       withCredentials: false
     })                        
     .build();

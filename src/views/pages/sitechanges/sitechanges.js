@@ -480,12 +480,6 @@ const Sitechanges = () => {
                   No Changes
                 </a>
               </li>
-              <li className="nav-item">
-                <a className="nav-link">
-                  <i className="fa-solid fa-bookmark"></i>
-                  Changes History
-                </a>
-              </li>
             </CSidebarNav>
           </CSidebar>
           <div className="main-content">
