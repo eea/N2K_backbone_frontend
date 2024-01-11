@@ -420,7 +420,7 @@ const Sitechanges = () => {
   }
 
   let changeCountry = (country)=>{
-    setCountry(country)
+    setCountry(country);
     setSitecodes({});
     setSearchList({});
     turnstoneRef.current?.clear();
