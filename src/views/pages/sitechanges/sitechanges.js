@@ -420,7 +420,7 @@ const Sitechanges = () => {
   }
 
   let changeCountry = (country)=>{
-    setCountry(country)
+    setCountry(country);
     setSitecodes({});
     setSearchList({});
     turnstoneRef.current?.clear();
@@ -478,12 +478,6 @@ const Sitechanges = () => {
                 <a className="nav-link">
                   <i className="fa-solid fa-bookmark"></i>
                   No Changes
-                </a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link">
-                  <i className="fa-solid fa-bookmark"></i>
-                  Changes History
                 </a>
               </li>
             </CSidebarNav>
