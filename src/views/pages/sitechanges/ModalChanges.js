@@ -1432,7 +1432,7 @@ export class ModalChanges extends Component {
                 </CNavLink>
               </CNavItem>
               <div className="ms-auto">
-                <CButton color="link" href={"/#/sdf?sitecode=" + data.ReferenceSiteCode} target="_blank" className={data.ReferenceSiteCode === null ? "disabled" : ""}>
+                <CButton color="link" href={"/#/sdf?sitecode=" + data.ReferenceSiteCode} target="_blank" className={!data.ReferenceSiteCode ? "disabled" : ""}>
                   <i class="fas fa-arrow-up-right-from-square me-2"></i>
                   Expert View
                 </CButton>
