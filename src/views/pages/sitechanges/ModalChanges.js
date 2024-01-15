@@ -461,6 +461,10 @@ export class ModalChanges extends Component {
       let unit = type.toLowerCase().includes("area") ? " (ha)" : " (km)"
       field = (field === "Reference" || field === "Submission") ? field + unit : field;
     }
+    if(type.toLowerCase().includes("population")) {
+      const populationFields = ["reference", "submission"]
+      field = populationFields.includes(field.toLowerCase()) ? field + " (pop)" : field;
+    }
     return field;
   }
 
@@ -1427,19 +1431,25 @@ export class ModalChanges extends Component {
                   Documents & Comments
                 </CNavLink>
               </CNavItem>
-              <CButton color="link" className="ms-auto" onClick={() => this.copyLink()}>
-                {this.state.showCopyTooltip ?
-                  <CTooltip
-                    content="Link copied"
-                    trigger="focus"
-                    visible={true}
-                  >
-                    <span><i className="far fa-copy me-2"></i>Share site</span>
-                  </CTooltip>
-                  :
-                  <><i className="far fa-copy me-2"></i>Share site</>
-                }
-              </CButton>
+              <div className="ms-auto">
+                <CButton color="link" href={"/#/sdf?sitecode=" + data.ReferenceSiteCode} target="_blank" className={!data.ReferenceSiteCode ? "disabled" : ""}>
+                  <i class="fas fa-arrow-up-right-from-square me-2"></i>
+                  Expert View
+                </CButton>
+                <CButton color="link" onClick={() => this.copyLink()}>
+                  {this.state.showCopyTooltip ?
+                    <CTooltip
+                      content="Link copied"
+                      trigger="focus"
+                      visible={true}
+                    >
+                      <span><i className="far fa-copy me-2"></i>Share site</span>
+                    </CTooltip>
+                    :
+                    <><i className="far fa-copy me-2"></i>Share site</>
+                  }
+                </CButton>
+              </div>
             </CNav>
             <CTabContent>
               {this.renderChanges()}

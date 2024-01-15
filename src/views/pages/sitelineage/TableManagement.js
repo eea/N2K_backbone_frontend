@@ -7,6 +7,7 @@ import {
   CPaginationItem,
   CTooltip,
   CButton,
+  CAlert
 } from '@coreui/react'
 import { ModalLineage } from './ModalLineage';
 import {DataLoader} from '../../../components/DataLoader';
@@ -172,6 +173,7 @@ import {DataLoader} from '../../../components/DataLoader';
     // TODO solve pagination issues
     const [currentSize, setCurrentSize] = useState(0);
     const [country, setCountry] = useState("");
+    const [errorRequest, setErrorRequest] = useState(false);
 
     let dl = new(DataLoader);
 
@@ -250,6 +252,17 @@ import {DataLoader} from '../../../components/DataLoader';
             )
           },
           filter: customFilter,
+        },
+        {
+          Header: 'Site Type',
+          accessor: 'SiteType',
+          Cell: ({ row }) => {
+            return (
+              <span>
+                {row.values.SiteType}
+              </span>
+            )
+          },
         },
         {
           Header: 'Type',
@@ -337,7 +350,7 @@ import {DataLoader} from '../../../components/DataLoader';
         });
       }
       if(props.getRefresh()||(!isLoaded && changesData!=="nodata" && Object.keys(changesData).length===0)){
-        let promises=[];
+        let promises = [];
         
         if(props.getRefresh()||(country === {})||(country !== props.country)){
           props.setRefresh(props.status,false);  //For the referred status, data is updated
@@ -368,6 +381,10 @@ import {DataLoader} from '../../../components/DataLoader';
                 return data.Data;
               }
             }
+            else {
+              setChangesData("nodata");
+              setErrorRequest(true);
+            }
           })
           .then(data => passData(data))
         )
@@ -387,7 +404,10 @@ import {DataLoader} from '../../../components/DataLoader';
       return (<div className="loading-container"><em>Loading...</em></div>)
     else
       if(changesData==="nodata")
-        return (<div className="nodata-container"><em>No Data</em></div>)
+        if(errorRequest)
+          return (<CAlert color="danger" className="mt-3">Something went wrong</CAlert>)
+        else 
+          return (<div className="nodata-container"><em>No Data</em></div>)
       else{
         if(Array.isArray(changesData)) {
           const data = getSite();

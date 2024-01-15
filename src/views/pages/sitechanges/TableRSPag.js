@@ -5,7 +5,8 @@ import {
   CPagination,
   CPaginationItem,
   CImage,
-  CTooltip
+  CTooltip,
+  CAlert
 } from '@coreui/react'
 
 import ConfigData from '../../../config.json';
@@ -356,6 +357,7 @@ const IndeterminateCheckbox = React.forwardRef(
     const [currentPage, setCurrentPage] = useState(0);
     const [currentSize, setCurrentSize] = useState(30);
     const [levelCountry, setLevelCountry] = useState({});
+    const [errorRequest, setErrorRequest] = useState(false);
 
     let dl = new(DataLoader);
 
@@ -647,7 +649,7 @@ const IndeterminateCheckbox = React.forwardRef(
           Cell: ({ row }) => {
               const toggleMark = row.values.JustificationRequired ? "Unmark" : "Mark";
               return row.canExpand ? (
-                <DropdownSiteChanges actions={getContextActions(row, toggleMark)} toggleMark = {toggleMark}/>          
+                <DropdownSiteChanges actions={getContextActions(row, toggleMark)} siteCode={row.values.SiteCode} toggleMark={toggleMark} referenceSiteCode={row.original.ReferenceSiteCode}/>
               ) : null
           }
         },
@@ -706,13 +708,21 @@ const IndeterminateCheckbox = React.forwardRef(
   
     let loadData= ()=>{
       if(props.getRefresh()||(!isLoading && changesData!=="nodata" && Object.keys(changesData).length===0)){
-        let promises=[];
+        let promises = [];
         setIsLoading(true);
         props.setLoadingSites(true);
+        let page = currentPage;
+        let size = currentSize;
         
         if(props.getRefresh()||(levelCountry==={})||(levelCountry.level!==props.level)||(levelCountry.country!==props.country)){
           props.setRefresh(props.status,false);  //For the referred status, data is updated
           promises.push(getSiteCodes());
+          if(levelCountry.country!==props.country){
+            page = 0;
+            size = 30;
+            setCurrentPage(page)
+            setCurrentSize(size)
+          }
           setLevelCountry({level:props.level,country:props.country});
         }
 
@@ -720,8 +730,8 @@ const IndeterminateCheckbox = React.forwardRef(
         url += 'country='+ props.country;
         url += '&status='+props.status;
         url += '&level='+props.level;
-        url += '&page='+(currentPage+1);
-        url += '&limit='+currentSize;
+        url += '&page='+(page+1);
+        url += '&limit='+size;
         url += '&onlyedited='+props.onlyEdited;
         promises.push(
           dl.fetch(url)
@@ -732,6 +742,10 @@ const IndeterminateCheckbox = React.forwardRef(
                 setChangesData("nodata");
               else
                 setChangesData(data.Data);
+            }
+            else {
+              setChangesData("nodata");
+              setErrorRequest(true);
             }
           })
         )
@@ -758,7 +772,10 @@ const IndeterminateCheckbox = React.forwardRef(
       return (<div className="loading-container"><em>Loading...</em></div>)
     else
       if(changesData==="nodata")
-        return (<div className="nodata-container"><em>No Data</em></div>)
+        if(errorRequest)
+          return (<CAlert color="danger" className="mt-3">Something went wrong</CAlert>)
+        else 
+          return (<div className="nodata-container"><em>No Data</em></div>)
       else{
         if(Array.isArray(changesData)){
           const data = getSite();

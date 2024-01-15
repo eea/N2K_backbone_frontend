@@ -3,6 +3,8 @@ import { useTable, usePagination, useFilters,useGlobalFilter, useRowSelect, useA
 import {matchSorter} from 'match-sorter'
 import ConfigData from '../../../config.json';
 import {
+  CButton,
+  CTooltip,
   CPagination,
   CPaginationItem,
 } from '@coreui/react'
@@ -74,6 +76,7 @@ function Table({ columns, data, setSelected, modalProps, updateModalValues }) {
       data,
       defaultColumn,
       filterTypes,
+      initialState: {hiddenColumns: ["EditedDate", "EditedBy"]},
     },
     useFilters,
     useGlobalFilter,
@@ -86,23 +89,33 @@ function Table({ columns, data, setSelected, modalProps, updateModalValues }) {
         ...columns,
         {
           Header: () => null,
-          id: 'unionListEdit',
-          cellWidth: "48px",
-          Cell: ({ row }) => (
-            <div className="btn-icon" onClick={() => modalProps.showEditModal(row.original.ID, row.original.Title, row.original.Final === "Yes" ? true : false)}>
-              <i className="fa-solid fa-pencil"></i>
-            </div>
-          )
+          id: 'siteEdited',
+          Cell: ({ row }) => {
+            return (
+              row.values.EditedDate && row.values.EditedBy ? (
+                  <CTooltip 
+                    content={"Edited"
+                      + (row.values.EditedDate && " on " + row.values.EditedDate.slice(0,10).split('-').reverse().join('/'))
+                      + (row.values.EditedBy && " by " + row.values.EditedBy)}>
+                    <div className="btn-icon btn-hover">
+                      <i className="fa-solid fa-pen-to-square"></i>
+                    </div>
+                  </CTooltip>
+              ) : null
+            )
+          },
         },
         {
           Header: () => null,
-          id: 'unionListDelete',
-          cellWidth: "48px",
-          Cell: ({ row }) => (
-            <div className="btn-icon" onClick={() => modalProps.showDeleteModal(row.original.ID)}>
-              <i className="fa-regular fa-trash-can"></i>
-            </div>
-          )
+          id: 'siteEdit',
+          Cell: ({ row }) => {
+            return (
+              <CButton color="link" onClick={() => modalProps.showEditModal(row.original)}>
+                Edit
+              </CButton>
+            )
+          },
+          canFilter: false
         },
       ])
     }
@@ -182,61 +195,73 @@ function Table({ columns, data, setSelected, modalProps, updateModalValues }) {
   )
 }
 
-function TableManagement(props) {
+function TableEdition(props) {
   const [isLoading, setIsLoading] = useState(props.isLoading);
-  const [releasesData, setReleasesDate] = useState([]);
+  const [sitesData, setSitesData] = useState([]);
   let dl = new(DataLoader);
 
-  const formatDate = (date) => {
-    date = new Date(date);
-    var d = date.getDate();
-    var m = date.getMonth() + 1;
-    var y = date.getFullYear();
-    date = (d <= 9 ? '0' + d : d) + '/' + (m <= 9 ? '0' + m : m) + '/' + y;
-    return date;
-  };
+  
+  const customFilter = (rows, columnIds, filterValue) => {
+    let result = filterValue.length === 0 ? rows : rows.filter((row) => row.original.SiteCode.toLowerCase().includes(filterValue.toLowerCase()) || row.original.Name.toLowerCase().includes(filterValue.toLowerCase()))
+    return result;
+  }
 
   const columns = React.useMemo(
     () => [
       {
-        Header: 'Name',
-        accessor: 'Title',
+        Header: 'Site Code',
+        accessor: 'SiteCode',
+        className:"cell-sitecode",
+        Cell: ({ row }) => {
+          return (
+            row.values.SiteCode ? (
+              <CTooltip
+                content={row.original.Name}
+                placement="top"
+              >
+                <div>
+                  {row.values.SiteCode + " - " + row.original.Name}
+                </div>
+              </CTooltip>
+            ) : null
+          )
+        },
+        filter: customFilter,
       },
       {
-        Header: 'Official',
-        accessor: 'Final',
+        Header: 'Site Type',
+        accessor: 'Type',
       },
       {
-        Header: 'User',
-        accessor: 'Author',
+        Header: 'Edited By',
+        accessor: 'EditedBy',
       },
       {
-        Header: 'Date',
-        accessor: 'CreateDate',
-        Cell: ({ cell }) => (
-          formatDate(cell.value)
-        )
+        Header: 'Edited Date',
+        accessor: 'EditedDate',
       },
     ],
     []
   )
 
   let loadData = () => {
-    if((!isLoading && props.refresh) || (!isLoading && releasesData !== "nodata" && Object.keys(releasesData).length===0)){
+    if((!isLoading && props.refresh) || (!isLoading && props.siteCodes !== "nodata" && Object.keys(props.siteCodes).length===0)){
       if(props.refresh){
         props.setRefresh(false);
       } 
       setIsLoading(true);
-      dl.fetch(ConfigData.RELEASES_GET)
+      dl.fetch(ConfigData.SITEEDITION_NON_PENDING_GET+"country="+props.country+'&onlyedited='+props.onlyEdited)
       .then(response =>response.json())
       .then(data => {
         if(data?.Success) {
           if(Object.keys(data.Data).length === 0){
-            setReleasesDate("nodata");
+            setSitesData("nodata");
+            props.setSitecodes("nodata");
           }
           else {
-            data.Data = data.Data.map(a=>{a.Final = a.Final? "Yes":"No"; return a});
-            setReleasesDate(data.Data.sort((a,b)=>new Date(b.CreateDate)-new Date(a.CreateDate)));
+            data.Data.map(a => {let row = a; a.Type = props.types.find(b => b.Code === a.Type).Classification; return row});
+            setSitesData(data.Data);
+            props.setSitecodes(data.Data);
           }
           setIsLoading(false);
         }
@@ -244,26 +269,29 @@ function TableManagement(props) {
     }
   }
 
-  if(props.hasOwnProperty('getRefresh') && props.getRefresh()){
-    props.setRefresh(false);
-    setEnvelopsData([]);
-    loadData();
+  if(!props.country) {
+    if(sitesData !== "nodata") {
+      setSitesData("nodata");
+      props.setSitecodes({});
+      setIsLoading(false);
+    }
   }
   else {
-    loadData();
+    if(props.types.length > 0)
+      loadData();
   }
 
   if(isLoading)
     return (<div className="loading-container"><em>Loading...</em></div>)
   else
-    if(releasesData==="nodata")
+    if(sitesData==="nodata")
       return (<div className="nodata-container"><em>No Data</em></div>)
     else
     return (
       <>
         <Table
           columns={columns}
-          data={releasesData}
+          data={sitesData}
           modalProps={props.modalProps}
           updateModalValues={props.updateModalValues}
         />
@@ -271,4 +299,4 @@ function TableManagement(props) {
     )
 }
 
-export default TableManagement
+export default TableEdition

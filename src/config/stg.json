@@ -50,6 +50,7 @@
   "LINEAGE_GET_PREDECESSORS": "http://redneckedswan/n2kbackbone_back/api/SiteLineage/GetPredecessorsInfo",
   "LINEAGE_GET_REFERENCE_SITES": "http://redneckedswan/n2kbackbone_back/api/SiteLineage/GetLineageReferenceSites",
   "LINEAGE_SAVE_CHANGES": "http://redneckedswan/n2kbackbone_back/api/SiteLineage/SaveEdition",
+  "GET_SDF_DATA": "http://redneckedswan/n2kbackbone_back/api/SDF/GetData",
   "REPORTED_SPATIAL": "https://bio.discomap.eea.europa.eu/arcgis/rest/services/N2K_Backbone/N2KBackbone_stg/MapServer/0",
   "LATEST_RELEASE": "https://bio.discomap.eea.europa.eu/arcgis/rest/services/N2K_Backbone/N2KBackbone_stg/MapServer/1",
   "THEME_COLORS": {
@@ -61,6 +62,7 @@
   "TABLEAU_RELEASES": "https://tableau-public.discomap.eea.europa.eu/views/N2K_Backbone_Releases_Stg/Releases",
   "TABLEAU_SITES": "https://tableau-public.discomap.eea.europa.eu/views/N2K_Backbone_Sites_Stg/Sites",
   "TABLEAU_STATUS": "https://tableau-public.discomap.eea.europa.eu/views/N2K_Backbone_Status_Stg/Status",
+  "TABLEAU_MANUAL": "https://tableau-public.discomap.eea.europa.eu/views/N2K_Backbone_Manual_Stg/Manual",
   "ACCEPTED_DOCUMENT_FORMATS": ".pdf, .doc, .docx, .xls, .xlsx, .txt, .tif, .json, .kml, .gml, .xml, .zip, .7z",
   "HARVESTING_STATUS": {
     "DataLoaded": "Incoming",

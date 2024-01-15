@@ -10,6 +10,7 @@ function DropdownSiteChanges(props) {
             </CDropdownToggle>
             <CDropdownMenu>
                 {props.actions.review && <CDropdownItem role={'button'} onClick={() => props.actions.review()}>Review site <b>CHANGES</b></CDropdownItem>}
+                <CDropdownItem href={"/#/sdf?sitecode=" + props.referenceSiteCode} target="_blank" className={!props.referenceSiteCode ? "disabled" : ""}>Expert View</CDropdownItem>
                 {props.actions.accept && <CDropdownItem role={'button'} onClick={() => props.actions.accept()}>Accept changes</CDropdownItem>}
                 {props.actions.reject && <CDropdownItem role={'button'} onClick={() => props.actions.reject()}>Reject changes</CDropdownItem>}
                 {props.actions.addComents && <CDropdownItem >Add comments</CDropdownItem>}
