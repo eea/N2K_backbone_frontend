@@ -212,7 +212,7 @@ const Sitechanges = () => {
         let siteList = [].concat(siteCodes.pending).concat(siteCodes.accepted).concat(siteCodes.rejected)
         return changes.AffectedSites.split(",")
           .flatMap(s => [{"SiteCode": s, "VersionId": siteList.find(a => a.SiteCode == s)?.Version}])
-          .filter(o => o.Version != null | o.Version != undefined)
+          .filter(o => o.VersionId != null || o.VersionId != undefined)
       } else {
         return [{"SiteCode": changes.SiteCode, "VersionId": changes.Version}]
       }

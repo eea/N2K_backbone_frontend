@@ -1709,7 +1709,6 @@ export class ModalChanges extends Component {
       this.cleanUnsavedChanges();
     }
     this.props.updateModalValues("Reject Changes",
-      "This will reject all the site changes",
       "This will reject all the site changes" + (this.state.data.AffectedSites ? ", including lineage changes. Those sites related to this by lineage changes will also be rejected: " + this.state.data.AffectedSites : ""),
       "Continue", () => this.rejectChanges(), "Cancel", () => { this.changingStatus = false });
   }
