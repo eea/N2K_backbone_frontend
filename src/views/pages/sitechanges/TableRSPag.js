@@ -34,7 +34,7 @@ const IndeterminateCheckbox = React.forwardRef(
       return (
         <>
           <div className={"checkbox" + (rest.hidden ? " d-none" :"")} >
-            <input type="checkbox" className="input-checkbox" ref={resolvedRef} {...rest}/>
+            <input ref={resolvedRef} {...rest} type="checkbox" className="input-checkbox"/>
             <label htmlFor={rest.id} style={{display: rest.disabled ? "none" : ""}}></label>
           </div>
         </>
@@ -54,7 +54,7 @@ const IndeterminateCheckbox = React.forwardRef(
       return (
         <>
          <div className={"hiddenCheckbox" + (rest.hidden ? " d-none" :"")} >
-            <input  type="checkbox" className="input-checkbox" ref={resolvedRef} {...rest}/>
+            <input ref={resolvedRef} {...rest} type="checkbox" className="input-checkbox"/>
             <label htmlFor={rest.id}>
               <span className="message-board-link">Clear selection</span>
             </label>
@@ -259,7 +259,7 @@ const IndeterminateCheckbox = React.forwardRef(
           && (selectedRows === getSelectableCodes(siteCodes).length || countSitesOnPage() == getSelectableCodes(siteCodes).length) ?
           <div className="message-board">
             <span className="message-board-text">All the <b>{getSelectableCodes(siteCodes).length}</b> sites are selected</span>
-            <ClearSelectionLink {...{...getToggleAllPageRowsSelectedProps(getSelectableCodes(siteCodes)), ...checkSelectedRows()}} id={"sitechanges_check_all_" + status} />
+            <ClearSelectionLink {...{...getToggleAllPageRowsSelectedProps(), ...checkSelectedRows()}} id={"clear_check_all_" + status} onChange={() => {toggleAllRowsSelected(false); setSelectedRows(0)}}/>
           </div>
           :
           <div className="message-board">

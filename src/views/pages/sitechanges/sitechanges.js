@@ -140,8 +140,9 @@ const Sitechanges = () => {
     if(!isLoading){
       v = v.filter(s => s.LineageChangeType == "NoChanges")
       let checkAll = document.querySelector('.tab-pane.active [id^=sitechanges_check_all]');
-      if(v.length === 0 && document.querySelectorAll('tbody input[sitecode]:checked').length !== 0) {
-        if(!checkAll) {
+      let clear = document.querySelector('.tab-pane.active [id^=clear_check_all]');
+      if(v.length === 0 && document.querySelectorAll('tbody input[sitecode]:checked:not([disabled])').length !== 0) {
+        if(!clear && !checkAll?.checked && !checkAll?.indeterminate ) {
           setDisabledBtn(true);
         }
         return;
