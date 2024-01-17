@@ -16,6 +16,7 @@ const ReportsUnion = React.lazy(() => import('./views/pages/reports/unionlists')
 const ReleasesManagement = React.lazy(() => import('./views/pages/releases/management'))
 const ReleasesComparer = React.lazy(() => import('./views/pages/releases/comparer'))
 const UnionLists = React.lazy(() => import('./views/pages/releases/unionlists'))
+const SiteEditionOverview = React.lazy(() => import('./views/pages/releases/siteeditionoverview'))
 const SiteEdition = React.lazy(() => import('./views/pages/releases/siteedition'))
 const LineageOverview = React.lazy(() => import('./views/pages/sitelineage/overview'))
 const LineageManagement = React.lazy(() => import('./views/pages/sitelineage/management'))
@@ -42,6 +43,7 @@ const routes = [
   { path: '/releases/management', exact: true, name: 'Releases', component: ReleasesManagement },
   { path: '/releases/comparer', exact: true, name: 'Releases', component: ReleasesComparer },
   { path: '/releases/unionlists', exact: true, name: 'Releases', component: UnionLists },
+  { path: '/releases/siteeditionoverview', exact: true, name: 'Releases', component: SiteEditionOverview },
   { path: '/releases/siteedition', exact: true, name: 'Releases', component: SiteEdition },
   { path: '/sitelineage/overview', exact: true, name: 'SiteLineage', component: LineageOverview },
   { path: '/sitelineage/management', exact: true, name: 'SiteLineage', component: LineageManagement },
