@@ -1,10 +1,11 @@
 import React, { lazy, useState, useEffect } from 'react'
 import { AppFooter, AppHeader } from '../../../components/index'
 import ConfigData from '../../../config.json';
-import '@fortawesome/fontawesome-free/css/all.min.css';
+import '@coreui/icons/css/flag.min.css';
 import { DataLoader } from '../../../components/DataLoader';
 
 import {
+  CAlert,
   CButton,
   CCol,
   CContainer,
@@ -21,28 +22,20 @@ import {
 
 const SiteEditionOverView = () => {
   const [countries, setCountries] = useState([])
-  const [data, setData] = useState([])
-  const [errors, setErrors] = useState([])
+  const [errors, setErrors] = useState('')
   const [isLoading, setIsLoading] = useState(true)
 
   let dl = new (DataLoader);
 
   const loadData = () => {
     let promises = []
-    promises.push(dl.fetch(ConfigData.GET_CLOSED_COUNTRIES)
+    promises.push(dl.fetch(ConfigData.GET_EDITION_COUNTRIES)
       .then(response => response.json())
       .then(data => {
         if (data?.Success) {
           data.Data.sort((a, b) => a.Country.localeCompare(b.Country));
           setCountries(data.Data);
-        } else { setErrors("Error loading countries list") }
-      }));
-    promises.push(dl.fetch(ConfigData.GET_CLOSED_COUNTRIES)
-      .then(response => response.json())
-      .then(data => {
-        if (data?.Success) {
-          setData(data.Data);
-        } else { setErrors("Error loading country data") }
+        } else { setErrors("Error loading data") }
       }));
     Promise.all(promises).then(d => setIsLoading(false));
   }
@@ -52,14 +45,13 @@ const SiteEditionOverView = () => {
   }, [])
 
   const countryCards = () => {
-    console.log(countries)
     let result = []
 
     countries.map((country) => {
       result.push(
         <CCol key={country.name + "Card"} xs={12} md={6} lg={4} xl={3}>
-          <a className="country-card-link" href={"/#/releases/siteedition?country=" + country.Code}>
-            <CCard className="country-card">
+          <a className="country-card-link" href={country.IsEditable ? "/#/releases/siteedition?country=" + country.Code : null}>
+            <CCard className={"country-card" + (!country.IsEditable ? '-disabled' : '')}>
               <div className="country-card-header">
                 <div className="country-card-left">
                   <span className={"card-img--flag cif-" + country.Code.toLowerCase()}></span>
@@ -71,7 +63,7 @@ const SiteEditionOverView = () => {
               </div>
               <div className="country-card-body">
                 <div>
-                  <span className="badge--type">Sites: </span>
+                  <span className="badge--type"><b>Sites</b> {country.SiteCount}</span>
                 </div>
               </div>
             </CCard>
@@ -128,12 +120,15 @@ const SiteEditionOverView = () => {
               <div className="page-title">
                 <h1 className="h1">Site Edition Overview</h1>
               </div>
-              <CRow className="grid">
-                {isLoading && <em>Loading...</em>}
-                {!isLoading && countries.length > 0 && countryCards()}
-                {!isLoading && countries.length == 0 && <em>No Data</em>}
-              </CRow>
             </div>
+            <CRow className="grid">
+              {errors.length > 0 && <CAlert color="danger">{errors}</CAlert>}
+              {isLoading &&
+                <div className="loading-container"><em>Loading...</em></div>
+              }
+              {!isLoading && countries.length > 0 && countryCards()}
+              {!isLoading && countries.length == 0 && <em>No Data</em>}
+            </CRow>
           </CContainer>
         </div>
       </div>
