@@ -485,10 +485,13 @@ const sectionsContent = (activekey, data) => {
           });
           let checkCellLink = (cell, value) => {
             if(field === "HabitatTypes" && cell === "Code") {
-              value = <a href={"https://eunis.eea.europa.eu/habitats/" + value} target="blank">{value}</a>
+              value = <a href={"https://eunis.eea.europa.eu/habitats_code2000/" + value} target="blank">{value}</a>
             }
-            else if((field === "Species" || field === "OtherSpecies") && (cell === "Species Name" || cell === "Code") && value !== "-") {
+            else if((field === "Species" || field === "OtherSpecies") && cell === "Species Name" && value !== "-") {
               value = <a href={"https://eunis.eea.europa.eu/species/" + value} target="blank">{value}</a>
+            }
+            else if((field === "Species" || field === "OtherSpecies") && cell === "Code" && value !== "-") {
+              value = <a href={"https://eunis.eea.europa.eu/species_code2000/" + value} target="blank">{value}</a>
             }
             return value;
           }
