@@ -1211,7 +1211,12 @@ export class ModalChanges extends Component {
   }
 
   checkUnsavedChanges() {
-    return this.state.loading === false && ((this.state.newComment && document.querySelector(".comment--item.new textarea")?.value.trim() !== "") || (this.state.newDocument && this.state.isSelected) || (this.state.comments !== "noData" && document.querySelectorAll(".comment--item:not(.new) textarea[disabled]").length !== this.state.comments.length));
+    // TODO check new comment condition
+    return this.state.loading === false
+      && (
+        (this.state.newComment && document.querySelector(".comment--item.new textarea")?.value.trim() !== "")
+        || (this.state.newDocument && this.state.isSelected)
+        || (this.state.comments !== "noData" && document.querySelectorAll(".comment--item:not(.new) textarea[disabled]").length !== this.state.comments.length));
   }
 
   warningUnsavedChanges(activeKey) {
