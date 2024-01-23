@@ -765,6 +765,8 @@ const IndeterminateCheckbox = React.forwardRef(
             justificationProvided={modalItem.JustificationProvided}
             activeKey={modalItem.ActiveKey}
             lineageChangeType={modalItem.LineageChangeType}
+            hasChanges = {props.modalHasChanges}
+            setHasChanges = {props.setModalHasChanges}
           />
         </>
         )

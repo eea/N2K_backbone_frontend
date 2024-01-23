@@ -89,6 +89,7 @@ const Sitechanges = () => {
   const [searchList, setSearchList] = useState({});
   const [selectOption, setSelectOption] = useState({});
   const [showModal, setShowModal] = useState(false);
+  const [modalHasChanges, setModalHasChanges] = useState(false);
   const [updatingData, setUpdatingData] = useState(false);
   const [completingEnvelope, setCompletingEnvelope] = useState(false);
   const [accepting, setAccepting] = useState(false);
@@ -96,6 +97,22 @@ const Sitechanges = () => {
   const [backing, setBacking] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const turnstoneRef = useRef();
+
+  useEffect(() => {
+    if(!modalHasChanges) return;
+
+    function handleBeforeUnload(e) {
+      e.preventDefault();
+      return (e.returnValue = '');
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      setModalHasChanges(false)
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+    }
+  }, [modalHasChanges])
 
   let setCodes = (status,data) => {
     if(data) {
@@ -161,6 +178,7 @@ const Sitechanges = () => {
       cleanSiteParm();
     } 
     setShowModal(false);
+    setModalHasChanges(false);
     clearSearch();
     forceRefreshData();
     setForceRefresh(forceRefresh+1);
@@ -668,6 +686,8 @@ const Sitechanges = () => {
                         site={site}
                         setSite={setSite}
                         closeModal={closeModal}
+                        modalHasChanges = {modalHasChanges}
+                        setModalHasChanges = {setModalHasChanges}
                         setLoadingSites={setLoadingSites}
                       />
                     </CTabPane>
@@ -692,6 +712,8 @@ const Sitechanges = () => {
                         site={site}
                         setSite={setSite}
                         closeModal={closeModal}
+                        modalHasChanges = {modalHasChanges}
+                        setModalHasChanges = {setModalHasChanges}
                         setLoadingSites={setLoadingSites}
                       />
                     </CTabPane>
@@ -716,6 +738,8 @@ const Sitechanges = () => {
                         site={site}
                         setSite={setSite}
                         closeModal={closeModal}
+                        modalHasChanges = {modalHasChanges}
+                        setModalHasChanges = {setModalHasChanges}
                         setLoadingSites={setLoadingSites}
                       />
                     </CTabPane>

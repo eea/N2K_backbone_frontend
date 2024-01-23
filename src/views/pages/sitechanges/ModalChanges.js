@@ -114,20 +114,20 @@ export class ModalChanges extends Component {
     };
   }
 
-  componentDidMount() {
-    window.addEventListener('beforeunload', (e) => this.handleLeavePage(e));
-  }
+  // componentDidMount() {
+  //   window.addEventListener('beforeunload', (e) => this.handleLeavePage(e));
+  // }
 
-  componentWillUnmount() {
-    window.removeEventListener('beforeunload', (e) => this.handleLeavePage(e));
-  }
+  // componentWillUnmount() {
+  //   window.removeEventListener('beforeunload', (e) => this.handleLeavePage(e));
+  // }
 
-  handleLeavePage(e) {
-    if (this.isVisible() && this.checkUnsavedChanges()) {
-      e.preventDefault();
-      e.returnValue = '';
-    }
-  }
+  // handleLeavePage(e) {
+  //   if (this.isVisible() && this.checkUnsavedChanges()) {
+  //     e.preventDefault();
+  //     e.returnValue = '';
+  //   }
+  // }
 
   setActiveKey(val) {
     this.setState({ activeKey: val })
@@ -705,6 +705,7 @@ export class ModalChanges extends Component {
             minRows={3}
             placeholder="Add a comment"
             className="comment--input"
+            onChange={({target}) => this.props.setHasChanges(target.value.length > 0)}
           ></TextareaAutosize>
         </div>
         <div>
@@ -1211,12 +1212,13 @@ export class ModalChanges extends Component {
   }
 
   checkUnsavedChanges() {
-    // TODO check new comment condition
-    return this.state.loading === false
+    const check = this.state.loading === false
       && (
         (this.state.newComment && document.querySelector(".comment--item.new textarea")?.value.trim() !== "")
         || (this.state.newDocument && this.state.isSelected)
         || (this.state.comments !== "noData" && document.querySelectorAll(".comment--item:not(.new) textarea[disabled]").length !== this.state.comments.length));
+    this.props.setHasChanges(check)
+    return check
   }
 
   warningUnsavedChanges(activeKey) {
@@ -1272,8 +1274,8 @@ export class ModalChanges extends Component {
   }
 
   checkForChanges(e) {
-    let body = this.getBody();
-    let errorMargin = 0.00000001;
+    const body = this.getBody();
+    const errorMargin = 0.00000001;
     if (this.state.fields.SiteName != body.SiteName
       || this.state.fields.Area != body.Area
       || this.state.fields.Length != body.Length
@@ -1283,9 +1285,11 @@ export class ModalChanges extends Component {
       || e.value ? this.state.fields.SiteType !== e.value : false
     ) {
       this.setState({ fieldChanged: true });
+      this.props.setHasChanges(true)
       return true;
     } else {
       this.setState({ fieldChanged: false });
+      this.props.setHasChanges(false)
       return false;
     }
   }
