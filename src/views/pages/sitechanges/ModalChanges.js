@@ -114,21 +114,6 @@ export class ModalChanges extends Component {
     };
   }
 
-  // componentDidMount() {
-  //   window.addEventListener('beforeunload', (e) => this.handleLeavePage(e));
-  // }
-
-  // componentWillUnmount() {
-  //   window.removeEventListener('beforeunload', (e) => this.handleLeavePage(e));
-  // }
-
-  // handleLeavePage(e) {
-  //   if (this.isVisible() && this.checkUnsavedChanges()) {
-  //     e.preventDefault();
-  //     e.returnValue = '';
-  //   }
-  // }
-
   setActiveKey(val) {
     this.setState({ activeKey: val })
   }
