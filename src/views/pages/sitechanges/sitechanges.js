@@ -204,8 +204,9 @@ const Sitechanges = () => {
   }
 
   let getChangesBody = (changes) => {
+    const changeTypes = ["Site Merged", "Site Split", "Site Recoded"]
     if(!Array.isArray(changes)) {
-      if(changes.LineageChangeType != "NoChanges") {
+      if(changeTypes.includes(changes.LineageChangeType)) {
         let siteList = [].concat(siteCodes.pending).concat(siteCodes.accepted).concat(siteCodes.rejected)
         return changes.AffectedSites.split(",")
           .flatMap(s => [{"SiteCode": s, "VersionId": siteList.find(a => a.SiteCode == s)?.Version}])
@@ -660,7 +661,7 @@ const Sitechanges = () => {
                         country = {country}
                         level = {level}
                         onlyEdited = {false}
-                        setSelected={setSelectedCodes} 
+                        setSelected={(v) => {if(activeTab===1) setSelectedCodes(v)}} 
                         getRefresh={()=>getRefreshSitechanges("pending")} 
                         setRefresh={setRefreshSitechanges}
                         accept={acceptChanges}
@@ -685,7 +686,7 @@ const Sitechanges = () => {
                         country = {country}
                         level = {level}
                         onlyEdited = {filterEdited}
-                        setSelected={setSelectedCodes} 
+                        setSelected={(v) => {if(activeTab===2) setSelectedCodes(v)}} 
                         getRefresh={()=>getRefreshSitechanges("accepted")} 
                         setRefresh={setRefreshSitechanges}
                         accept={acceptChanges}
@@ -709,7 +710,7 @@ const Sitechanges = () => {
                         country = {country}
                         level = {level}
                         onlyEdited = {false}
-                        setSelected={setSelectedCodes} 
+                        setSelected={(v) => {if(activeTab===3) setSelectedCodes(v)}} 
                         getRefresh={()=>getRefreshSitechanges("rejected")} 
                         setRefresh={setRefreshSitechanges}
                         accept={acceptChanges}
