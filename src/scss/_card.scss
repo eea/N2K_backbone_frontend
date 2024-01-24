@@ -76,6 +76,10 @@
   height: 100%;
   transition: $transition-base;
 
+  b {
+    font-weight: bold;
+  }
+
   &:hover {
     background-color: $gray-25;
     cursor: pointer;
@@ -130,14 +134,9 @@
   }
 
   &-disabled {
+    opacity: 0.4;
+    pointer-events: none;
     box-shadow: $box-shadow-disabled;
-    border-radius: 10px;
-    margin: 0;
-    padding: 1rem 0.75rem;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    transition: $transition-base;
   }
 }
 
