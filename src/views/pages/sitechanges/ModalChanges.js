@@ -1682,7 +1682,9 @@ export class ModalChanges extends Component {
     if (clean) {
       this.cleanUnsavedChanges();
     }
-    this.props.updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", () => this.acceptChanges(), "Cancel", () => { this.changingStatus = false });
+    this.props.updateModalValues("Accept Changes",
+      "This will accept all the site changes" + (this.state.data.AffectedSites ? ", including lineage changes. Those sites related to this by lineage changes will also be accepted: " + this.state.data.AffectedSites : ""),
+      "Continue", () => this.acceptChanges(), "Cancel", () => { this.changingStatus = false });
   }
 
   acceptChanges() {
@@ -1701,7 +1703,9 @@ export class ModalChanges extends Component {
     if (clean) {
       this.cleanUnsavedChanges();
     }
-    this.props.updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", () => this.rejectChanges(), "Cancel", () => { this.changingStatus = false });
+    this.props.updateModalValues("Reject Changes",
+      "This will reject all the site changes" + (this.state.data.AffectedSites ? ", including lineage changes. Those sites related to this by lineage changes will also be rejected: " + this.state.data.AffectedSites : ""),
+      "Continue", () => this.rejectChanges(), "Cancel", () => { this.changingStatus = false });
   }
 
   rejectChanges() {
@@ -1720,7 +1724,9 @@ export class ModalChanges extends Component {
     if (clean) {
       this.cleanUnsavedChanges();
     }
-    this.props.updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", () => this.setBackToPending(), "Cancel", () => { this.changingStatus = false });
+    this.props.updateModalValues("Back to Pending",
+      "This will set the changes back to Pending" + (this.state.data.AffectedSites ? ", including lineage changes. Those sites related to this by lineage changes will also be set back to pending: " + this.state.data.AffectedSites : ""),
+      "Continue", () => this.setBackToPending(), "Cancel", () => { this.changingStatus = false });
   }
 
   getCurrentVersion() {

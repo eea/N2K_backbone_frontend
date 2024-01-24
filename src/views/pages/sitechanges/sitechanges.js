@@ -152,14 +152,12 @@ const Sitechanges = () => {
     setTimeout(() => {setErrorMessage('')}, ConfigData.MessageTimeout);
   }
 
-  let selectedCodes = [],
-  setSelectedCodes = (v) => {
+  let selectedCodes = []
+  let setSelectedCodes = (v) => {
     if(!isLoading){
-      let checkAll = document.querySelector('.tab-pane.active [id^=sitechanges_check_all]');
-      if(document.querySelectorAll('input[sitecode]:checked').length !== 0 && v.length === 0) {
-        if(!checkAll) {
-          setDisabledBtn(true);
-        }
+      v = v.filter(s => s.LineageChangeType == "NoChanges")
+      if(v.length === 0 && document.querySelectorAll('tbody input[sitecode]:checked:not([disabled])').length !== 0) {
+        setDisabledBtn(true)
         return;
       }
       selectedCodes = v;
@@ -223,10 +221,25 @@ const Sitechanges = () => {
     });
   }
 
+  let getChangesBody = (changes) => {
+    if(!Array.isArray(changes)) {
+      if(changes.LineageChangeType != "NoChanges") {
+        let siteList = [].concat(siteCodes.pending).concat(siteCodes.accepted).concat(siteCodes.rejected)
+        return changes.AffectedSites.split(",")
+          .flatMap(s => [{"SiteCode": s, "VersionId": siteList.find(a => a.SiteCode == s)?.Version}])
+          .filter(o => o.VersionId != null || o.VersionId != undefined)
+      } else {
+        return [{"SiteCode": changes.SiteCode, "VersionId": changes.Version}]
+      }
+    } else {
+      return changes.filter(a => a.LineageChangeType === "NoChanges").map(b => ({"SiteCode": b.SiteCode, "VersionId": b.VersionId}));
+    }
+  }
+
   let setBackToPending = (changes, refresh)=>{
     setBacking(true);
     setUpdatingData(true);
-    let rBody = !Array.isArray(changes)?[changes]:changes
+    let rBody = getChangesBody(changes);
 
     return postRequest(ConfigData.MOVE_TO_PENDING, rBody)
     .then(data => {
@@ -250,7 +263,7 @@ const Sitechanges = () => {
   let acceptChanges = (changes, refresh)=>{
     setAccepting(true);
     setUpdatingData(true);
-    let rBody = !Array.isArray(changes)?[changes]:changes
+    let rBody = getChangesBody(changes);
 
     return postRequest(ConfigData.ACCEPT_CHANGES, rBody)
     .then(data => {
@@ -274,7 +287,7 @@ const Sitechanges = () => {
   let rejectChanges = (changes, refresh)=>{
     setRejecting(true);
     setUpdatingData(true);
-    let rBody = !Array.isArray(changes)?[changes]:changes
+    let rBody = getChangesBody(changes);
 
     return postRequest(ConfigData.REJECT_CHANGES, rBody)
     .then(data => {
@@ -441,6 +454,7 @@ const Sitechanges = () => {
     setCountry(country);
     setSitecodes({});
     setSearchList({});
+    setDisabledBtn(true);
     turnstoneRef.current?.clear();
     turnstoneRef.current?.blur();
     if(country !== "") {
