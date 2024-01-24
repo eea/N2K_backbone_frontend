@@ -49,9 +49,9 @@ const SiteEditionOverView = () => {
 
     countries.map((country) => {
       result.push(
-        <CCol key={country.name + "Card"} xs={12} md={6} lg={4} xl={3}>
+        <CCol key={country.Country + "Card"} xs={12} md={6} lg={4} xl={3}>
           <a className="country-card-link" href={country.IsEditable ? "/#/releases/siteedition?country=" + country.Code : null}>
-            <CCard className={"country-card" + (!country.IsEditable ? '-disabled' : '')}>
+            <CCard className={"country-card" + (!country.IsEditable ? ' country-card-disabled' : '')}>
               <div className="country-card-header">
                 <div className="country-card-left">
                   <span className={"card-img--flag cif-" + country.Code.toLowerCase()}></span>
@@ -63,7 +63,7 @@ const SiteEditionOverView = () => {
               </div>
               <div className="country-card-body">
                 <div>
-                  <span className="badge--type"><b>Sites</b> {country.SiteCount}</span>
+                  <span className="badge--type"><b>{country.SiteCount}</b> Sites</span>
                 </div>
               </div>
             </CCard>
