@@ -861,7 +861,10 @@ export class ModalEdition extends Component {
     return(
       <>
         <CModalHeader closeButton={false}>
-          <CModalTitle>{data.SiteCode} - {data.SiteName}</CModalTitle>
+          <CModalTitle>
+            {data.SiteCode} - {data.SiteName}
+            <span className="ms-2 fw-normal">({this.props.types.find(a => a.Code === data.SiteType).Classification})</span>
+          </CModalTitle>
           <CCloseButton onClick={()=>this.closeModal()}/>
         </CModalHeader>
         <CModalBody >

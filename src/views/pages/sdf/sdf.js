@@ -148,7 +148,7 @@ const SDFVisualization = () => {
       <CHeader className='header--custom'>
         <CRow className='align-items-center'>
           <CCol className="header__title">
-            <CHeaderBrand>Natura Change Manager</CHeaderBrand>
+            <CHeaderBrand href="#" target="_blank">Natura Change Manager</CHeaderBrand>
           </CCol>
         </CRow>
       </CHeader>
