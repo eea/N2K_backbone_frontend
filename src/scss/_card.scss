@@ -76,6 +76,10 @@
   height: 100%;
   transition: $transition-base;
 
+  b {
+    font-weight: bold;
+  }
+
   &:hover {
     background-color: $gray-25;
     cursor: pointer;
@@ -127,6 +131,12 @@
 
   &-link {
     text-decoration: none;
+  }
+
+  &-disabled {
+    opacity: 0.4;
+    pointer-events: none;
+    box-shadow: $box-shadow-disabled;
   }
 }
 
