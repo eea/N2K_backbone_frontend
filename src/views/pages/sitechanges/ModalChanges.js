@@ -1685,14 +1685,18 @@ export class ModalChanges extends Component {
   }
 
   acceptChanges() {
-    this.props.accept()
-      .then((data) => {
-        if (data?.Success) {
-          this.changingStatus = false;
-          this.resetLoading();
-          this.setState({ data: {}, fields: {}, loading: true, siteTypeValue: "", siteRegionValue: "" });
-        } else { this.showErrorMessage("general", "Error accepting changes") }
-      });
+    try {
+      this.props.accept()
+        .then((data) => {
+          if (data?.Success) {
+            this.changingStatus = false;
+            this.resetLoading();
+            this.setState({ data: {}, fields: {}, loading: true, siteTypeValue: "", siteRegionValue: "" });
+          } else { throw("The service returned Success: false") }
+        });
+    } catch(e) {
+      this.showErrorMessage("general", "Error accepting changes")
+    }
   }
 
   rejectChangesModal(clean) {
@@ -1704,14 +1708,18 @@ export class ModalChanges extends Component {
   }
 
   rejectChanges() {
-    this.props.reject()
-      .then(data => {
-        if (data?.Success) {
-          this.changingStatus = false;
-          this.resetLoading();
-          this.setState({ data: {}, fields: {}, loading: true, siteTypeValue: "", siteRegionValue: "" });
-        } else { this.showErrorMessage("general", "Error rejecting changes") }
-      });
+    try {
+      this.props.reject()
+        .then(data => {
+          if (data?.Success) {
+            this.changingStatus = false;
+            this.resetLoading();
+            this.setState({ data: {}, fields: {}, loading: true, siteTypeValue: "", siteRegionValue: "" });
+          } else { throw("The service returned Success: false") }
+        });
+    } catch(e) {
+      this.showErrorMessage("general", "Error rejecting changes")
+    }
   }
 
   backToPendingModal(clean) {
@@ -1745,10 +1753,10 @@ export class ModalChanges extends Component {
         this.currentVersion = data.Data[0].VersionId;
         this.resetLoading();
         this.setState({ data: {}, fields: {}, loading: true, siteTypeValue: "", siteRegionValue: "" });
-      } else { this.showErrorMessage("general", "Error setting changes back to pending") }
+      } else { throw("The service returned Success: false") }
     }
 
-    if(this.state.data.Status === "Accepted" && !this.isSiteDeleted())
+    if(this.state.data.Status === "Accepted" && !this.isSiteDeleted()) {
       this.getCurrentVersion()
         .then(version => { 
           this.props.backToPending(version)
@@ -1756,11 +1764,16 @@ export class ModalChanges extends Component {
             controlResult(data);
           })
         });
-    else
-      this.props.backToPending(this.props.version)
-        .then((data) => {
-          controlResult(data);
-        })
+    } else {
+      try {
+        this.props.backToPending(this.props.version)
+          .then((data) => {
+            controlResult(data);
+          })
+      } catch(e) {
+        this.showErrorMessage("general", "Error setting changes back to pending")
+      }
+    }
   }
 
   sendRequest(url, method, body, path) {
