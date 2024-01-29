@@ -5,7 +5,8 @@ import {
   CPagination,
   CPaginationItem,
   CImage,
-  CTooltip
+  CTooltip,
+  CAlert
 } from '@coreui/react'
 
 import ConfigData from '../../../config.json';
@@ -33,8 +34,8 @@ const IndeterminateCheckbox = React.forwardRef(
       return (
         <>
           <div className={"checkbox" + (rest.hidden ? " d-none" :"")} >
-            <input type="checkbox" className="input-checkbox" ref={resolvedRef} {...rest}/>
-            <label htmlFor={rest.id}></label>
+            <input ref={resolvedRef} {...rest} type="checkbox" className="input-checkbox"/>
+            <label htmlFor={rest.id} style={{display: rest.disabled ? "none" : ""}}></label>
           </div>
         </>
       )
@@ -53,7 +54,7 @@ const IndeterminateCheckbox = React.forwardRef(
       return (
         <>
          <div className={"hiddenCheckbox" + (rest.hidden ? " d-none" :"")} >
-            <input  type="checkbox" className="input-checkbox" ref={resolvedRef} {...rest}/>
+            <input ref={resolvedRef} {...rest} type="checkbox" className="input-checkbox"/>
             <label htmlFor={rest.id}>
               <span className="message-board-link">Clear selection</span>
             </label>
@@ -182,32 +183,47 @@ const IndeterminateCheckbox = React.forwardRef(
       useExpanded,
       usePagination,
       useRowSelect,
-      hooks => {
-        hooks.visibleColumns.push(columns => [
+      (hooks) => {
+        hooks.visibleColumns.push((columns) => [
           {
-            id: 'selection',
-            cellWidth: '48px',
-            Header: ({ getToggleAllPageRowsSelectedProps }) => (
-              <>
-              <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} id={"sitechanges_check_all_" + status} />
-              {isAllPageRowsSelected ? null : setSelectedRows(0)}
-              </>
-            ),
+            id: "anyThing",
+            Header: ({ toggleRowSelected, isAllPageRowsSelected, page }) => {
+              let selectableRowsInCurrentPage = 0;
+              let selectedRowsInCurrentPage = 0;
+              page.forEach((row) => {
+                row.isSelected && selectedRowsInCurrentPage++;
+                !row.original.disabled && selectableRowsInCurrentPage++;
+              });
+  
+              return (
+                <div>
+                  <IndeterminateCheckbox {...{...getToggleAllPageRowsSelectedProps(), ...checkSelectedRows()}} id={"sitechanges_check_all_" + status} />
+                </div>
+              );
+            },
             Cell: ({ row }) => (
-              row.canExpand ?(
-                <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} name={"chk_"+row.original.SiteCode} sitecode={row.original.SiteCode} id={"sitechanges_check_" +  row.original.SiteCode} />
-              ): null
-            ),
+              <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} name={"chk_"+row.original.SiteCode} sitecode={row.original.SiteCode} id={"sitechanges_check_" +  row.original.SiteCode} disabled={row.original.LineageChangeType !== "NoChanges"} style={{display: row.canExpand || row.original.LineageChangeType !== "NoChanges" ? "none" : ""}} />
+            )
           },
-          ...columns,
-        ])
+          ...columns
+        ]);
       }
     )
 
-    selectedRows === siteCodes.length && setSelected ?
-      setSelected(siteCodes.map(v =>{return {SiteCode: v.SiteCode, VersionId: v.Version}}))
+    let checkSelectedRows = () => {
+      if(getSelectableCodes(page.map(a=>a.original)).length === page.filter(a => (a.original.LineageChangeType==="NoChanges") && a.isSelected).length && getSelectableCodes(page.map(a=>a.original)).length > 0) {
+        return {checked: true, "indeterminate": false};
+      }
+    }
+
+    let getSelectableCodes = (sites) => {
+      return sites.filter(s => s.LineageChangeType == "NoChanges")
+    }
+
+    selectedRows === getSelectableCodes(siteCodes).length && setSelected ?
+      setSelected(siteCodes.map(v =>{return {SiteCode: v.SiteCode, VersionId: v.Version, LineageChangeType: v.LineageChangeType}}))
     :
-      setSelected(Object.keys(selectedRowIds).filter(v=>!v.includes(".")).map(v=>{return {SiteCode:data[v].SiteCode, VersionId: data[v].Version}}))
+      setSelected(Object.keys(selectedRowIds).filter(v=>!v.includes(".")).map(v=>{return {SiteCode:data[v].SiteCode, VersionId: data[v].Version, LineageChangeType: data[v].LineageChangeType}}))
         
     let changePage = (page,chunk)=>{
       loadPage(page,pageSize);
@@ -222,24 +238,35 @@ const IndeterminateCheckbox = React.forwardRef(
     }, [isTabChanged]);
 
     let countSitesOnPage = () => {
-      return page.filter(row => !row.id.includes(".")).length;
+      return page.filter(row => !row.id.includes(".") && row.original.LineageChangeType == "NoChanges").length;
+    }
+
+    let isAllSelected = () => {
+      if(getSelectableCodes(page.map(a => a.original)).length === page.filter(a => a.original.LineageChangeType==="NoChanges" && a.isSelected).length && getSelectableCodes(page.map(a=>a.original)).length > 0) {
+        return true;
+      }
+      else {
+        return false;
+      }
     }
 
     // Render the UI for your table
     return (
       <>
-      {isAllPageRowsSelected && 
+      {(isAllPageRowsSelected || isAllSelected()) &&
         (
           (status === 'pending' || status === 'accepted' || status === 'rejected')
-          && (selectedRows === siteCodes.length || pageSize >= siteCodes.length) ?
+          && (selectedRows === getSelectableCodes(siteCodes).length || countSitesOnPage() == getSelectableCodes(siteCodes).length) ?
           <div className="message-board">
-            <span className="message-board-text">All the <b>{siteCodes.length}</b> sites are selected</span>
-            <ClearSelectionLink {...getToggleAllPageRowsSelectedProps()} id={"sitechanges_check_all_" + status} />
+            <span className="message-board-text">All the <b>{getSelectableCodes(siteCodes).length}</b> sites are selected</span>
+            <ClearSelectionLink {...{...getToggleAllPageRowsSelectedProps(), ...checkSelectedRows()}} id={"clear_check_all_" + status} onChange={() => {toggleAllRowsSelected(false); setSelectedRows(0)}}/>
           </div>
           :
           <div className="message-board">
             <span className="message-board-text">The <b>{countSitesOnPage()}</b> sites of this page are selected</span>
-            <span className="message-board-link" onClick={() =>(setSelectedRows(siteCodes.length), setSelected(siteCodes))}>Select {siteCodes.length} sites</span>
+            <span className="message-board-link"
+              onClick={() =>(setSelectedRows(getSelectableCodes(siteCodes).length), setSelected(getSelectableCodes(siteCodes)))}>
+            Select {getSelectableCodes(siteCodes).length} sites</span>
           </div> 
         )
       }
@@ -330,6 +357,7 @@ const IndeterminateCheckbox = React.forwardRef(
     const [currentPage, setCurrentPage] = useState(0);
     const [currentSize, setCurrentSize] = useState(30);
     const [levelCountry, setLevelCountry] = useState({});
+    const [errorRequest, setErrorRequest] = useState(false);
 
     let dl = new(DataLoader);
 
@@ -377,7 +405,7 @@ const IndeterminateCheckbox = React.forwardRef(
     }
 
     let setBackToPending = (change, refresh)=>{
-      return props.setBackToPending({"SiteCode":change.SiteCode,"VersionId":change.Version}, refresh)
+      return props.setBackToPending(change, refresh)
         .then(data => {
           if(data?.ok){
             if(refresh) {
@@ -389,7 +417,7 @@ const IndeterminateCheckbox = React.forwardRef(
     }
 
     let acceptChanges = (change, refresh)=>{
-      return props.accept({"SiteCode":change.SiteCode,"VersionId":change.Version}, refresh)
+      return props.accept(change, refresh)
       .then(data => {
           if(data?.ok){
             if(refresh) {
@@ -401,7 +429,7 @@ const IndeterminateCheckbox = React.forwardRef(
     }
 
     let rejectChanges = (change, refresh)=>{
-      return props.reject({"SiteCode":change.SiteCode,"VersionId":change.Version}, refresh)
+      return props.reject(change, refresh)
       .then(data => {
         if(data?.ok){
           if(refresh) {
@@ -621,7 +649,7 @@ const IndeterminateCheckbox = React.forwardRef(
           Cell: ({ row }) => {
               const toggleMark = row.values.JustificationRequired ? "Unmark" : "Mark";
               return row.canExpand ? (
-                <DropdownSiteChanges actions={getContextActions(row, toggleMark)} toggleMark = {toggleMark}/>          
+                <DropdownSiteChanges actions={getContextActions(row, toggleMark)} siteCode={row.values.SiteCode} toggleMark={toggleMark} referenceSiteCode={row.original.ReferenceSiteCode}/>
               ) : null
           }
         },
@@ -634,20 +662,28 @@ const IndeterminateCheckbox = React.forwardRef(
         case 'pending':
           return {
             review: ()=>openModal(row.original),
-            accept: ()=>props.updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(row.original, true), "Cancel", ()=>{}),
-            reject: ()=>props.updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(row.original, true), "Cancel", ()=>{}),
+            accept: ()=>props.updateModalValues("Accept Changes",
+              "This will accept all the site changes" + (row.original.AffectedSites ? ", including lineage changes. Those sites related to this by lineage changes will also be accepted: " + row.original.AffectedSites : ""),
+              "Continue", ()=>acceptChanges(row.original, true), "Cancel", ()=>{}),
+            reject: ()=>props.updateModalValues("Reject Changes",
+              "This will reject all the site changes" + (row.original.AffectedSites ? ", including lineage changes. Those sites related to this by lineage changes will also be rejected: " + row.original.AffectedSites : ""),
+              "Continue", ()=>rejectChanges(row.original, true), "Cancel", ()=>{}),
             mark: ()=>props.updateModalValues(`${toggleMark} Changes`, `This will ${toggleMark.toLowerCase()} all the site changes`, "Continue", ()=>switchMarkChanges(row.original), "Cancel", ()=>{}),            
           }
         case 'accepted':
           return {
             review: ()=>openModal(row.original),
-            backPending: ()=>props.updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", ()=>setBackToPending(row.original, true), "Cancel", ()=>{}),
+            backPending: ()=>props.updateModalValues("Back to Pending",
+              "This will set the changes back to Pending" + (row.original.AffectedSites ? ", including lineage changes. Those sites related to this by lineage changes will also be set back to pending: " + row.original.AffectedSites : ""),
+              "Continue", ()=>setBackToPending(row.original, true), "Cancel", ()=>{}),
             edition: ()=>openModal(row.original, 3),
           }
         case 'rejected':
           return {
             review: ()=>openModal(row.original),
-            backPending: ()=>props.updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", ()=>setBackToPending(row.original, true), "Cancel", ()=>{}),
+            backPending: ()=>props.updateModalValues("Back to Pending",
+              "This will set the changes back to Pending" + (row.original.AffectedSites ? ", including lineage changes. Those sites related to this by lineage changes will also be set back to pending: " + row.original.AffectedSites : ""),
+              "Continue", ()=>setBackToPending(row.original, true), "Cancel", ()=>{}),
           }
         default:
           return {}
@@ -672,13 +708,21 @@ const IndeterminateCheckbox = React.forwardRef(
   
     let loadData= ()=>{
       if(props.getRefresh()||(!isLoading && changesData!=="nodata" && Object.keys(changesData).length===0)){
-        let promises=[];
+        let promises = [];
         setIsLoading(true);
         props.setLoadingSites(true);
+        let page = currentPage;
+        let size = currentSize;
         
         if(props.getRefresh()||(levelCountry==={})||(levelCountry.level!==props.level)||(levelCountry.country!==props.country)){
           props.setRefresh(props.status,false);  //For the referred status, data is updated
           promises.push(getSiteCodes());
+          if(levelCountry.country!==props.country || levelCountry.level!==props.level){
+            page = 0;
+            size = 30;
+            setCurrentPage(page);
+            setCurrentSize(size);
+          }
           setLevelCountry({level:props.level,country:props.country});
         }
 
@@ -686,8 +730,8 @@ const IndeterminateCheckbox = React.forwardRef(
         url += 'country='+ props.country;
         url += '&status='+props.status;
         url += '&level='+props.level;
-        url += '&page='+(currentPage+1);
-        url += '&limit='+currentSize;
+        url += '&page='+(page+1);
+        url += '&limit='+size;
         url += '&onlyedited='+props.onlyEdited;
         promises.push(
           dl.fetch(url)
@@ -698,6 +742,10 @@ const IndeterminateCheckbox = React.forwardRef(
                 setChangesData("nodata");
               else
                 setChangesData(data.Data);
+            }
+            else {
+              setChangesData("nodata");
+              setErrorRequest(true);
             }
           })
         )
@@ -724,7 +772,10 @@ const IndeterminateCheckbox = React.forwardRef(
       return (<div className="loading-container"><em>Loading...</em></div>)
     else
       if(changesData==="nodata")
-        return (<div className="nodata-container"><em>No Data</em></div>)
+        if(errorRequest)
+          return (<CAlert color="danger" className="mt-3">Something went wrong</CAlert>)
+        else 
+          return (<div className="nodata-container"><em>No Data</em></div>)
       else{
         if(Array.isArray(changesData)){
           const data = getSite();
@@ -765,6 +816,8 @@ const IndeterminateCheckbox = React.forwardRef(
             justificationProvided={modalItem.JustificationProvided}
             activeKey={modalItem.ActiveKey}
             lineageChangeType={modalItem.LineageChangeType}
+            hasChanges = {props.modalHasChanges}
+            setHasChanges = {props.setModalHasChanges}
           />
         </>
         )

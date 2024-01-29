@@ -23,6 +23,7 @@
   "GET_SITE_COUNT": "https://n2kbackbone.eea.europa.eu/n2kbackbone_back/api/Countries/GetSiteCount",
   "GET_SITE_LEVEL": "https://n2kbackbone.eea.europa.eu/n2kbackbone_back/api/Countries/GetSiteLevel",
   "GET_CLOSED_COUNTRIES": "https://n2kbackbone.eea.europa.eu/n2kbackbone_back/api/Countries/GetClosedAndDiscardedCountries",
+  "GET_EDITION_COUNTRIES": "https://n2kbackbone.eea.europa.eu/api/Countries/GetEditionCountries",
   "COUNTRIES_CONSOLIDATED": "https://n2kbackbone.eea.europa.eu/n2kbackbone_back/api/Countries/GetConsolidatedCountries",
   "SITEEDITION_GET": "https://n2kbackbone.eea.europa.eu/n2kbackbone_back/api/SiteChanges/GetSiteCodes/",
   "SITEEDITION_NON_PENDING_GET": "https://n2kbackbone.eea.europa.eu/n2kbackbone_back/api/SiteChanges/GetNonPendingSiteCodes/",
@@ -50,6 +51,7 @@
   "LINEAGE_GET_PREDECESSORS": "https://n2kbackbone.eea.europa.eu/n2kbackbone_back/api/SiteLineage/GetPredecessorsInfo",
   "LINEAGE_GET_REFERENCE_SITES": "https://n2kbackbone.eea.europa.eu/n2kbackbone_back/api/SiteLineage/GetLineageReferenceSites",
   "LINEAGE_SAVE_CHANGES": "https://n2kbackbone.eea.europa.eu/n2kbackbone_back/api/SiteLineage/SaveEdition",
+  "GET_SDF_DATA": "https://n2kbackbone.eea.europa.eu/n2kbackbone_back/api/SDF/GetData",
   "REPORTED_SPATIAL": "https://bio.discomap.eea.europa.eu/arcgis/rest/services/N2K_Backbone/N2KBackbone/MapServer/0",
   "LATEST_RELEASE": "https://bio.discomap.eea.europa.eu/arcgis/rest/services/N2K_Backbone/N2KBackbone/MapServer/1",
   "THEME_COLORS": {

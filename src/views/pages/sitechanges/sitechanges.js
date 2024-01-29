@@ -89,6 +89,7 @@ const Sitechanges = () => {
   const [searchList, setSearchList] = useState({});
   const [selectOption, setSelectOption] = useState({});
   const [showModal, setShowModal] = useState(false);
+  const [modalHasChanges, setModalHasChanges] = useState(false);
   const [updatingData, setUpdatingData] = useState(false);
   const [completingEnvelope, setCompletingEnvelope] = useState(false);
   const [accepting, setAccepting] = useState(false);
@@ -96,6 +97,22 @@ const Sitechanges = () => {
   const [backing, setBacking] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const turnstoneRef = useRef();
+
+  useEffect(() => {
+    if(!modalHasChanges) return;
+
+    function handleBeforeUnload(e) {
+      e.preventDefault();
+      return (e.returnValue = '');
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      setModalHasChanges(false)
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+    }
+  }, [modalHasChanges])
 
   let setCodes = (status,data) => {
     if(data) {
@@ -135,14 +152,12 @@ const Sitechanges = () => {
     setTimeout(() => {setErrorMessage('')}, ConfigData.MessageTimeout);
   }
 
-  let selectedCodes = [],
-  setSelectedCodes = (v) => {
+  let selectedCodes = []
+  let setSelectedCodes = (v) => {
     if(!isLoading){
-      let checkAll = document.querySelector('.tab-pane.active [id^=sitechanges_check_all]');
-      if(document.querySelectorAll('input[sitecode]:checked').length !== 0 && v.length === 0) {
-        if(!checkAll) {
-          setDisabledBtn(true);
-        }
+      v = v.filter(s => s.LineageChangeType == "NoChanges")
+      if(v.length === 0 && document.querySelectorAll('tbody input[sitecode]:checked:not([disabled])').length !== 0) {
+        setDisabledBtn(true)
         return;
       }
       selectedCodes = v;
@@ -161,6 +176,7 @@ const Sitechanges = () => {
       cleanSiteParm();
     } 
     setShowModal(false);
+    setModalHasChanges(false);
     clearSearch();
     forceRefreshData();
     setForceRefresh(forceRefresh+1);
@@ -205,10 +221,26 @@ const Sitechanges = () => {
     });
   }
 
+  let getChangesBody = (changes) => {
+    const changeTypes = ["Site Merged", "Site Split", "Site Recoded"]
+    if(!Array.isArray(changes)) {
+      if(changeTypes.includes(changes.LineageChangeType)) {
+        let siteList = [].concat(siteCodes.pending).concat(siteCodes.accepted).concat(siteCodes.rejected)
+        return changes.AffectedSites.split(",")
+          .flatMap(s => [{"SiteCode": s, "VersionId": siteList.find(a => a.SiteCode == s)?.Version}])
+          .filter(o => o.VersionId != null || o.VersionId != undefined)
+      } else {
+        return [{"SiteCode": changes.SiteCode, "VersionId": changes.Version}]
+      }
+    } else {
+      return changes.filter(a => a.LineageChangeType === "NoChanges").map(b => ({"SiteCode": b.SiteCode, "VersionId": b.VersionId}));
+    }
+  }
+
   let setBackToPending = (changes, refresh)=>{
     setBacking(true);
     setUpdatingData(true);
-    let rBody = !Array.isArray(changes)?[changes]:changes
+    let rBody = getChangesBody(changes);
 
     return postRequest(ConfigData.MOVE_TO_PENDING, rBody)
     .then(data => {
@@ -232,7 +264,7 @@ const Sitechanges = () => {
   let acceptChanges = (changes, refresh)=>{
     setAccepting(true);
     setUpdatingData(true);
-    let rBody = !Array.isArray(changes)?[changes]:changes
+    let rBody = getChangesBody(changes);
 
     return postRequest(ConfigData.ACCEPT_CHANGES, rBody)
     .then(data => {
@@ -256,7 +288,7 @@ const Sitechanges = () => {
   let rejectChanges = (changes, refresh)=>{
     setRejecting(true);
     setUpdatingData(true);
-    let rBody = !Array.isArray(changes)?[changes]:changes
+    let rBody = getChangesBody(changes);
 
     return postRequest(ConfigData.REJECT_CHANGES, rBody)
     .then(data => {
@@ -420,9 +452,10 @@ const Sitechanges = () => {
   }
 
   let changeCountry = (country)=>{
-    setCountry(country)
+    setCountry(country);
     setSitecodes({});
     setSearchList({});
+    setDisabledBtn(true);
     turnstoneRef.current?.clear();
     turnstoneRef.current?.blur();
     if(country !== "") {
@@ -478,12 +511,6 @@ const Sitechanges = () => {
                 <a className="nav-link">
                   <i className="fa-solid fa-bookmark"></i>
                   No Changes
-                </a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link">
-                  <i className="fa-solid fa-bookmark"></i>
-                  Changes History
                 </a>
               </li>
             </CSidebarNav>
@@ -652,7 +679,7 @@ const Sitechanges = () => {
                         country = {country}
                         level = {level}
                         onlyEdited = {false}
-                        setSelected={setSelectedCodes} 
+                        setSelected={(v) => {if(activeTab===1) setSelectedCodes(v)}} 
                         getRefresh={()=>getRefreshSitechanges("pending")} 
                         setRefresh={setRefreshSitechanges}
                         accept={acceptChanges}
@@ -668,6 +695,8 @@ const Sitechanges = () => {
                         site={site}
                         setSite={setSite}
                         closeModal={closeModal}
+                        modalHasChanges = {modalHasChanges}
+                        setModalHasChanges = {setModalHasChanges}
                         setLoadingSites={setLoadingSites}
                       />
                     </CTabPane>
@@ -677,7 +706,7 @@ const Sitechanges = () => {
                         country = {country}
                         level = {level}
                         onlyEdited = {filterEdited}
-                        setSelected={setSelectedCodes} 
+                        setSelected={(v) => {if(activeTab===2) setSelectedCodes(v)}} 
                         getRefresh={()=>getRefreshSitechanges("accepted")} 
                         setRefresh={setRefreshSitechanges}
                         accept={acceptChanges}
@@ -692,6 +721,8 @@ const Sitechanges = () => {
                         site={site}
                         setSite={setSite}
                         closeModal={closeModal}
+                        modalHasChanges = {modalHasChanges}
+                        setModalHasChanges = {setModalHasChanges}
                         setLoadingSites={setLoadingSites}
                       />
                     </CTabPane>
@@ -701,7 +732,7 @@ const Sitechanges = () => {
                         country = {country}
                         level = {level}
                         onlyEdited = {false}
-                        setSelected={setSelectedCodes} 
+                        setSelected={(v) => {if(activeTab===3) setSelectedCodes(v)}} 
                         getRefresh={()=>getRefreshSitechanges("rejected")} 
                         setRefresh={setRefreshSitechanges}
                         accept={acceptChanges}
@@ -716,6 +747,8 @@ const Sitechanges = () => {
                         site={site}
                         setSite={setSite}
                         closeModal={closeModal}
+                        modalHasChanges = {modalHasChanges}
+                        setModalHasChanges = {setModalHasChanges}
                         setLoadingSites={setLoadingSites}
                       />
                     </CTabPane>
