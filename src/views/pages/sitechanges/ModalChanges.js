@@ -1684,17 +1684,20 @@ export class ModalChanges extends Component {
     }
     this.props.updateModalValues("Accept Changes",
       "This will accept all the site changes" + (this.state.data.AffectedSites ? ", including lineage changes. Those sites related to this by lineage changes will also be accepted: " + this.state.data.AffectedSites : ""),
-      "Continue", () => this.acceptChanges(), "Cancel", () => { this.changingStatus = false });
+      "Continue", () => this.acceptChanges().catch(e => {this.showErrorMessage("general", "Error accepting changes"); console.log(e)}),
+      "Cancel", () => { this.changingStatus = false });
   }
 
   acceptChanges() {
-    this.props.accept()
+    return this.props.accept()
       .then((data) => {
+        this.changingStatus = false;
         if (data?.Success) {
-          this.changingStatus = false;
           this.resetLoading();
           this.setState({ data: {}, fields: {}, loading: true, siteTypeValue: "", siteRegionValue: "" });
-        } else { this.showErrorMessage("general", "Error accepting changes") }
+        } else {
+          throw("The service returned Success: false")
+        }
       });
   }
 
@@ -1705,17 +1708,19 @@ export class ModalChanges extends Component {
     }
     this.props.updateModalValues("Reject Changes",
       "This will reject all the site changes" + (this.state.data.AffectedSites ? ", including lineage changes. Those sites related to this by lineage changes will also be rejected: " + this.state.data.AffectedSites : ""),
-      "Continue", () => this.rejectChanges(), "Cancel", () => { this.changingStatus = false });
+      "Continue", () => this.rejectChanges().catch(e => {this.showErrorMessage("general", "Error rejecting changes"); console.log(e)}), "Cancel", () => { this.changingStatus = false });
   }
 
   rejectChanges() {
-    this.props.reject()
+    return this.props.reject()
       .then(data => {
+        this.changingStatus = false;
         if (data?.Success) {
-          this.changingStatus = false;
           this.resetLoading();
           this.setState({ data: {}, fields: {}, loading: true, siteTypeValue: "", siteRegionValue: "" });
-        } else { this.showErrorMessage("general", "Error rejecting changes") }
+        } else {
+          throw("The service returned Success: false")
+        }
       });
   }
 
@@ -1726,7 +1731,7 @@ export class ModalChanges extends Component {
     }
     this.props.updateModalValues("Back to Pending",
       "This will set the changes back to Pending" + (this.state.data.AffectedSites ? ", including lineage changes. Those sites related to this by lineage changes will also be set back to pending: " + this.state.data.AffectedSites : ""),
-      "Continue", () => this.setBackToPending(), "Cancel", () => { this.changingStatus = false });
+      "Continue", () => this.setBackToPending().catch(e => {this.showErrorMessage("general", "Error setting changes back to pending"); console.log(e)}), "Cancel", () => { this.changingStatus = false });
   }
 
   getCurrentVersion() {
@@ -1746,28 +1751,29 @@ export class ModalChanges extends Component {
 
   setBackToPending() {
     let controlResult = (data) => {
+      this.changingStatus = false;
       if (data?.Success) {
-        this.changingStatus = false;
         this.versionChanged = true;
         this.currentVersion = data.Data[0].VersionId;
         this.resetLoading();
         this.setState({ data: {}, fields: {}, loading: true, siteTypeValue: "", siteRegionValue: "" });
-      } else { this.showErrorMessage("general", "Error setting changes back to pending") }
+      } else {
+          throw("The service returned Success: false")
+      }
     }
 
-    if(this.state.data.Status === "Accepted" && !this.isSiteDeleted())
-      this.getCurrentVersion()
-        .then(version => { 
-          this.props.backToPending(version)
-          .then((data) => {
-            controlResult(data);
-          })
-        });
-    else
-      this.props.backToPending(this.props.version)
+    if(this.state.data.Status === "Accepted" && !this.isSiteDeleted()) {
+      let version = this.getCurrentVersion()
+      return this.props.backToPending(version)
         .then((data) => {
           controlResult(data);
         })
+    } else {
+      return this.props.backToPending(this.props.version)
+        .then((data) => {
+          controlResult(data);
+        })
+    }
   }
 
   sendRequest(url, method, body, path) {
