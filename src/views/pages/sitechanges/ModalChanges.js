@@ -694,11 +694,19 @@ export class ModalChanges extends Component {
     );
   }
 
-  renderComments() {
+  renderComments(target) {
     let cmts = [];
-    this.state.comments !== "noData" && this.sortComments();
+    let filteredComments = [];
+    if(this.state.comments !== "noData") {
+      this.sortComments();
+      if(target == "country") {
+        filteredComments = this.state.comments?.filter(c => c.Release)
+      } else {
+        filteredComments = this.state.comments?.filter(c => !c.Release)
+      }
+    }
     cmts.push(
-      this.state.newComment &&
+      target == "site" && this.state.newComment &&
       <div className="comment--item new" key={"cmtItem_new"}>
         <div className="comment--text">
           <TextareaAutosize
@@ -718,18 +726,11 @@ export class ModalChanges extends Component {
       </div>
     )
     if (this.state.comments !== "noData") {
-      for (let i in this.state.comments) {
+      filteredComments.forEach(c => {
         cmts.push(
-          this.createCommentElement(
-            this.state.comments[i].Id
-            , this.state.comments[i].Comments
-            , this.state.comments[i].Date
-            , this.state.comments[i].Owner
-            , this.state.comments[i].Edited
-            , this.state.comments[i].EditedDate
-            , this.state.comments[i].Editedby)
+          this.createCommentElement(c.Id, c.Comments, c.Date, c.Owner, c.Edited, c.EditedDate, c.EditedBy)
         )
-      }
+      })
     }
     return (
       <div id="changes_comments">
@@ -779,11 +780,18 @@ export class ModalChanges extends Component {
     );
   }
 
-  renderDocuments() {
+  renderDocuments(target) {
     let docs = [];
-    this.state.documents !== "noData" && this.sortDocuments();
+    let filteredDocuments = [];
+    if(this.state.documents !== "noData") {
+      this.sortDocuments();
+      if(target == "country")
+        filteredDocuments = this.state.documents?.filter(d => d.Release)
+      else
+        filteredDocuments = this.state.documents?.filter(d => !d.Release)
+    }
     docs.push(
-      this.state.newDocument &&
+      target == "site" && this.state.newDocument &&
       <div className="document--item new" key={"docItem_new"}>
         <div className="input-file">
           <label htmlFor="uploadBtn">
@@ -805,15 +813,10 @@ export class ModalChanges extends Component {
       </div>
     )
     if (this.state.documents !== "noData") {
-      for (let i in this.state.documents) {
+      filteredDocuments.forEach(d => {
         docs.push(
-          this.createDocumentElement(
-            this.state.documents[i].Id
-            , this.state.documents[i].Path
-            , this.state.documents[i].ImportDate
-            , this.state.documents[i].Username)
-        )
-      }
+          this.createDocumentElement(d.Id, d.OriginalName, d.Path, d.ImportDate, d.Username)
+      )})
     }
     return (
       <div id="changes_documents">
@@ -825,12 +828,12 @@ export class ModalChanges extends Component {
     )
   }
 
-  createDocumentElement(id, path, date, user) {
+  createDocumentElement(id, name, path, date, user) {
     return (
       <div className="document--item" key={"docItem_" + id} id={"docItem_" + id} doc_id={id}>
         <div className="my-auto document--text">
           <CImage src={justificationProvidedImg} className="ico--md me-3"></CImage>
-          <span>{path.replace(/^.*[\\\/]/, '')}</span>
+          <span>{name.replace(/^.*[\\\/]/, '')}</span>
         </div>
         <div className="document--icons">
           {(date || user) &&
@@ -859,6 +862,7 @@ export class ModalChanges extends Component {
       <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 4}>
         <CRow className="py-3">
           <CCol className="mb-3" xs={12} lg={6}>
+            <b>Attached documents</b>
             {this.errorLoadingDocuments ?
               <CAlert color="danger">Error loading documents</CAlert>
               :
@@ -869,14 +873,19 @@ export class ModalChanges extends Component {
                   </CAlert>
                 }
                 <div className="d-flex justify-content-between align-items-center pb-2">
-                  <b>Attached documents</b>
+                  <b>Country Level</b>
+                </div>
+                {this.renderDocuments("country")}
+                <div className="d-flex justify-content-between align-items-center pb-2">
+                  <b>Site Level</b>
                   <CButton color="link" className="btn-link--dark" onClick={() => this.addNewDocument()}>Add Document</CButton>
                 </div>
-                {this.renderDocuments()}
+                {this.renderDocuments("site")}
               </CCard>
             }
           </CCol>
           <CCol className="mb-3" xs={12} lg={6}>
+            <b>Comments</b>
             {this.errorLoadingComments ?
               <CAlert color="danger">Error loading comments</CAlert>
               :
@@ -887,10 +896,14 @@ export class ModalChanges extends Component {
                   </CAlert>
                 }
                 <div className="d-flex justify-content-between align-items-center pb-2">
-                  <b>Comments</b>
+                  <b>Country Level</b>
+                </div>
+                {this.renderComments("country")}
+                <div className="d-flex justify-content-between align-items-center pb-2">
+                  <b>Site Level</b>
                   <CButton color="link" className="btn-link--dark" onClick={() => this.addNewComment()}>Add Comment</CButton>
                 </div>
-                {this.renderComments()}
+                {this.renderComments("site")}
               </CCard>
             }
           </CCol>
