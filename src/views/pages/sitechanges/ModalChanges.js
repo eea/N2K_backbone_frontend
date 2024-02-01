@@ -735,7 +735,7 @@ export class ModalChanges extends Component {
     return (
       <div id="changes_comments">
         {cmts}
-        {this.state.comments === "noData" && !this.state.newComment &&
+        {filteredComments.length == 0 && !this.state.newComment &&
           <em>No comments</em>
         }
       </div>
@@ -814,14 +814,17 @@ export class ModalChanges extends Component {
     )
     if (this.state.documents !== "noData") {
       filteredDocuments.forEach(d => {
+        // original name may be null until the backend part it's finished
+        const name = d.OriginalName ?? d.Path
         docs.push(
-          this.createDocumentElement(d.Id, d.OriginalName, d.Path, d.ImportDate, d.Username)
-      )})
+          this.createDocumentElement(d.Id, name, d.Path, d.ImportDate, d.Username)
+        )
+      })
     }
     return (
       <div id="changes_documents">
         {docs}
-        {this.state.documents === "noData" && !this.state.newDocument &&
+        {filteredDocuments.length == 0 && !this.state.newDocument &&
           <em>No documents</em>
         }
       </div>
@@ -833,7 +836,7 @@ export class ModalChanges extends Component {
       <div className="document--item" key={"docItem_" + id} id={"docItem_" + id} doc_id={id}>
         <div className="my-auto document--text">
           <CImage src={justificationProvidedImg} className="ico--md me-3"></CImage>
-          <span>{name.replace(/^.*[\\\/]/, '')}</span>
+          <span>{name?.replace(/^.*[\\\/]/, '')}</span>
         </div>
         <div className="document--icons">
           {(date || user) &&
