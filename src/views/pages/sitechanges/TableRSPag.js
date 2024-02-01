@@ -418,7 +418,7 @@ const IndeterminateCheckbox = React.forwardRef(
 
     let acceptChanges = (change, refresh)=>{
       return props.accept(change, refresh)
-      .then(data => {
+        .then(data => {
           if(data?.ok){
             if(refresh) {
               forceRefreshData();
@@ -664,10 +664,10 @@ const IndeterminateCheckbox = React.forwardRef(
             review: ()=>openModal(row.original),
             accept: ()=>props.updateModalValues("Accept Changes",
               "This will accept all the site changes" + (row.original.AffectedSites ? ", including lineage changes. Those sites related to this by lineage changes will also be accepted: " + row.original.AffectedSites : ""),
-              "Continue", ()=>acceptChanges(row.original, true), "Cancel", ()=>{}),
+              "Continue", ()=>acceptChanges(row.original, true).catch(e => {props.showErrorMessage("Accept changes"); console.log(e)}), "Cancel", ()=>{}),
             reject: ()=>props.updateModalValues("Reject Changes",
               "This will reject all the site changes" + (row.original.AffectedSites ? ", including lineage changes. Those sites related to this by lineage changes will also be rejected: " + row.original.AffectedSites : ""),
-              "Continue", ()=>rejectChanges(row.original, true), "Cancel", ()=>{}),
+              "Continue", ()=>rejectChanges(row.original, true).catch(e => {props.showErrorMessage("Reject changes"); console.log(e)}), "Cancel", ()=>{}),
             mark: ()=>props.updateModalValues(`${toggleMark} Changes`, `This will ${toggleMark.toLowerCase()} all the site changes`, "Continue", ()=>switchMarkChanges(row.original), "Cancel", ()=>{}),            
           }
         case 'accepted':
@@ -675,7 +675,7 @@ const IndeterminateCheckbox = React.forwardRef(
             review: ()=>openModal(row.original),
             backPending: ()=>props.updateModalValues("Back to Pending",
               "This will set the changes back to Pending" + (row.original.AffectedSites ? ", including lineage changes. Those sites related to this by lineage changes will also be set back to pending: " + row.original.AffectedSites : ""),
-              "Continue", ()=>setBackToPending(row.original, true), "Cancel", ()=>{}),
+              "Continue", ()=>setBackToPending(row.original, true).catch(e => {props.showErrorMessage("Back to pending"); console.log(e)}), "Cancel", ()=>{}),
             edition: ()=>openModal(row.original, 3),
           }
         case 'rejected':
@@ -683,7 +683,7 @@ const IndeterminateCheckbox = React.forwardRef(
             review: ()=>openModal(row.original),
             backPending: ()=>props.updateModalValues("Back to Pending",
               "This will set the changes back to Pending" + (row.original.AffectedSites ? ", including lineage changes. Those sites related to this by lineage changes will also be set back to pending: " + row.original.AffectedSites : ""),
-              "Continue", ()=>setBackToPending(row.original, true), "Cancel", ()=>{}),
+              "Continue", ()=>setBackToPending(row.original, true).catch(e => {props.showErrorMessage("Back to pending"); console.log(e)}), "Cancel", ()=>{}),
           }
         default:
           return {}

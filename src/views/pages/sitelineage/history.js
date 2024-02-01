@@ -89,7 +89,7 @@ const Sitelineage = () => {
   let loadSites = () => {
     if(!isLoading && siteCodes.length === 0) {
       setIsLoading(true);
-      dl.fetch(ConfigData.LINEAGE_GET_SITES+"country="+country)
+      dl.fetch(ConfigData.LINEAGE_GET_SITES+"country="+country+"&onlyedited=false")
       .then(response =>response.json())
       .then(data => {
         if(data?.Success) {
