@@ -501,6 +501,7 @@ export class ModalChanges extends Component {
   renderChangeList() {
     let levels = this.state.levels;
     let list = [];
+    const lineageTypeList = ["Site Added", "Site Deleted", "Site Merged", "Site Split", "Site Recoded"];
     for (let l in levels) {
       let changes = this.state.data[levels[l]][this.state.bookmark];
       let level = levels[l];
@@ -519,9 +520,9 @@ export class ModalChanges extends Component {
                 </div>
                 <div>
                   {this.state.data.Status === "Pending"
-                    && ((changes[i][j].ChangeCategory == "Lineage" || changes[i][j].ChangeType == "Site Added" || changes[i][j].ChangeType == "Site Deleted")
+                    && ((changes[i][j].ChangeCategory == "Lineage" || lineageTypeList.includes(changes[i][j].ChangeType))
                     && this.props.lineageChangeType !== "NoChanges" && this.props.lineageChangeType !== "NoGeometryReported"
-                      && this.props.lineageChangeType !== "NewGeometryReported")
+                    && this.props.lineageChangeType !== "NewGeometryReported")
                     &&
                     <>
                       <CButton color="link" href={"/#/sitelineage/management?country=" + this.props.country + "&siteCode=" + this.props.item} className="btn-link--dark text-nowrap">
