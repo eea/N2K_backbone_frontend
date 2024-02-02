@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { AppFooter, AppHeader } from '../../../components/index'
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import ConfigData from '../../../config.json';
-import {DataLoader} from '../../../components/DataLoader';
+import { DataLoader } from '../../../components/DataLoader';
 
 import {
   CCol,
@@ -16,27 +16,35 @@ import {
   CFormSelect,
 } from '@coreui/react'
 
+import ModalDocumentation from './ModalDocumentation';
+
 const Releases = () => {
   const [data, setData] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState()
+  const [showModal, setShowModal] = useState(false)
+  const [modalItem, setModalItem] = useState({})
 
   let dl = new DataLoader()
 
-  // useEffect(() => {
-  //   loadData()
-  // }, [])
+  // useEffect(() => loadData(), [])
 
   const loadData = () => {
     dl.fetch()
   }
 
+  const openModal = (data) => {
+    setModalItem({"country": "AT2208000", "version": 2})
+    setShowModal(!showModal)
+    console.log(showModal)
+  }
+
   return (
     <div className="container--main min-vh-100">
-      <AppHeader page="releases"/>
+      <AppHeader page="releases" />
       <div className="content--wrapper">
         <CSidebar className="sidebar--light">
-        <CSidebarNav>
+          <CSidebarNav>
             <li className="nav-title">Releases</li>
             <li className="nav-item">
               <a className="nav-link" href="/#/releases/management">
@@ -80,6 +88,15 @@ const Releases = () => {
           </CContainer>
         </div>
       </div>
+
+      <CButton onClick={openModal}>Open modal</CButton>
+
+      <ModalDocumentation 
+        visible={showModal}
+        setVisible={setShowModal}
+        modalItem={modalItem}
+        setModalItem={setModalItem}
+      />
     </div>
   )
 }
