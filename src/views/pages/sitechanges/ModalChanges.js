@@ -1552,7 +1552,7 @@ export class ModalChanges extends Component {
         if (!data.Success)
           this.setState({ errorLoading: true, loading: false });
         else
-          if(this.isSiteDeleted())
+          if(data.Data.LineageChangeType === "Deletion")
             this.setState({ fields: "noData", isDeleted: true })
           this.setState({ data: data.Data, loading: false
           , justificationRequired: data.Data?.JustificationRequired
