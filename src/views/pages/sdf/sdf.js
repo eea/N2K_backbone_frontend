@@ -1,8 +1,9 @@
 import ConfigData from '../../../config.json';
 import ConfigSDF from './sdf_config.json';
 import DataSDF from './sdf_data.json';
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { AppHeader } from '../../../components/index'
+import {ReactComponent as NaturaLogo} from './../../../../src/assets/images/natura2000_logo.svg';
 import {DataLoader} from '../../../components/DataLoader';
 import {
   CRow,
@@ -19,7 +20,10 @@ import {
   CTableDataCell,
   CTableHead,
   CTableHeaderCell,
-  CTableRow
+  CTableRow,
+  CHeader,
+  CHeaderBrand,
+  CAlert
 } from '@coreui/react'
 
 import MapViewer from '../../../components/MapViewer'
@@ -27,23 +31,35 @@ import MapViewer from '../../../components/MapViewer'
 const SDFVisualization = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState([]);
-  const [activeKey, setActiveKey] = useState(1);
+  const [errorLoading, setErrorLoading] = useState(false);
   const [siteCode, setSiteCode] = useState("");
+  const [showScrollBtn, setShowScrollBtn] = useState(false);
+
+  useEffect(() => {
+    window.addEventListener("scroll", () => {
+      if(window.scrollY === 0) {
+        setShowScrollBtn(false);
+      }
+      else {
+        setShowScrollBtn(true);
+      }
+    });
+  }, []);
 
   let dl = new(DataLoader);
 
   const getSiteCode = () => {
     let query = window.location.hash.split("?")[1];
     let params = new URLSearchParams(query);
-    let siteCode = params.get("sitecode")
-    setSiteCode(siteCode ? siteCode : "ES0000144"); 
+    let sitecode = params.get("sitecode")
+    setSiteCode(sitecode ? sitecode : "nodata"); 
   }
 
   const showMap = () => {
     return (
-      <div className='sdf-map'>
+      <div className='sdf-map px-4 pb-5'>
         <MapViewer  
-          siteCode={"AT1101112"}
+          siteCode={siteCode}
           reportedSpatial={ConfigData.REPORTED_SPATIAL}
         />
       </div>
@@ -53,7 +69,7 @@ const SDFVisualization = () => {
   const loadData = () => {
     if(siteCode !=="" && !isLoading) {
       setIsLoading(true);
-      dl.fetch(ConfigData.SITEDETAIL_GET+"?siteCode="+siteCode)
+      dl.fetch(ConfigData.GET_SDF_DATA+"?siteCode="+siteCode)
       .then(response =>response.json())
       .then(data => {
         if(data?.Success) {
@@ -61,132 +77,61 @@ const SDFVisualization = () => {
             setData("nodata");
           }
           else {
-            setData(DataSDF);
+            setData(formatData(data));
           }
-        } else { setErrorLoading(true) }
+        }
+        else {
+          setErrorLoading(true)
+        }
         setIsLoading(false);
       });
     }
+    else {
+      setData("nodata");
+      setIsLoading(false);
+    }
+  }
+
+  const formatData = (data) => {
+    let siteCentre = Object.fromEntries(Object.entries(data.Data.SiteLocation).filter(([key, value]) => key==="Latitude" || key==="Longitude"));
+    data.Data.SiteLocation.Longitude = siteCentre;
+    delete data.Data.SiteLocation.Latitude;
+    let threats = Object.fromEntries(Object.entries(data.Data.SiteDescription).filter(([key, value]) => key==="NegativeThreats" || key==="PositiveThreats"));
+    data.Data.SiteDescription.NegativeThreats = threats;
+    delete data.Data.SiteDescription.PositiveThreats;
+    let documents = Object.fromEntries(Object.entries(data.Data.SiteDescription).filter(([key, value]) => key==="Documents" || key==="Links"));
+    data.Data.SiteDescription.Documents = documents;
+    delete data.Data.SiteDescription.Links;
+    return data.Data;
   }
   
   const showMainData = () => {
     return (
-      <div className="sdf-header header--custom">
-        <CRow className='sdf-title'>
+      <CContainer fluid>
+        <CRow className="sdf-title p-4">
           <CCol className='col-auto'>
-            <h1>{data.SiteInfo.SiteName.toUpperCase()}</h1>
+            <div>
+              Site name: <b>{data.SiteInfo.SiteName}</b>
+            </div>
+            <div>
+              Site code: <b>{data.SiteInfo.SiteCode}</b>
+            </div>
           </CCol>
           <CCol className='col-auto ms-auto'>
-            <CButton color="white" onClick={()=>{window.print()}}>
+            <CButton color="primary" onClick={()=>{window.print()}}>
               <i className="fa-solid fa-download"></i> Download PDF
             </CButton>
           </CCol>
         </CRow>
-        <CRow>
-          <div>
-            {data.SiteInfo.Country}
-          </div>
-          <div>
-            {ConfigSDF.SiteType[data.SiteInfo.Directive]}
-          </div>
-        </CRow>
-        <CRow className="sdf-header-items">
-          <CCol xs={12} md={6} lg={4} xl={2}>
-            <b>{data.SiteInfo.SiteCode}</b>
-            <div>SITE CODE</div>
-          </CCol>
-          <CCol xs={12} md={6} lg={4} xl={2}>
-            <b>{data.SiteInfo.Area} ha</b>
-            <div>AREA</div>
-          </CCol>
-          <CCol xs={12} md={6} lg={4} xl={2}>
-            <b>{data.SiteInfo.Est}</b>
-            <div>SITE ESTABLISHED</div>
-          </CCol>
-          <CCol xs={12} md={6} lg={4} xl={2}>
-            <b>{data.SiteInfo.MarineArea} %</b>
-            <div>MARINE AREA</div>
-          </CCol>
-          <CCol xs={12} md={6} lg={4} xl={2}>
-            <b>{data.SiteInfo.Habitats}</b>
-            <div>HABITATS</div>
-          </CCol>
-          <CCol xs={12} md={6} lg={4} xl={2}>
-            <b>{data.SiteInfo.Species}</b>
-            <div>SPECIES</div>
+        <CRow className="sdf-index p-4">
+          <CCol>
+            <h2>Table of contents</h2>
+            <ol>
+              {Object.keys(data).filter(a => a !== "SiteInfo").map((a, i) => <a href="#" data-id={i+1} key={i} onClick={(e) => scrollTo(e)}><li>{ConfigSDF.Titles[i]}</li></a>)}
+            </ol>
           </CCol>
         </CRow>
-      </div>
-    );
-  }
-
-  const showTabs = () => {
-    return (
-      <CNav variant="tabs" role="tablist">
-        <CNavItem>
-          <CNavLink
-            href="javascript:void(0);"
-            active={activeKey === 1}
-            onClick={() => setActiveKey(1)}
-          >
-            {ConfigSDF.Titles[0]}
-          </CNavLink>
-        </CNavItem>
-        <CNavItem>
-          <CNavLink
-            href="javascript:void(0);"
-            active={activeKey === 2}
-            onClick={() => setActiveKey(2)}
-          >
-            {ConfigSDF.Titles[1]}
-          </CNavLink>
-        </CNavItem>
-        <CNavItem>
-          <CNavLink
-            href="javascript:void(0);"
-            active={activeKey === 3}
-            onClick={() => setActiveKey(3)}
-          >
-            {ConfigSDF.Titles[2]}
-          </CNavLink>
-        </CNavItem>
-        <CNavItem>
-          <CNavLink
-            href="javascript:void(0);"
-            active={activeKey === 4}
-            onClick={() => setActiveKey(4)}
-          >
-            {ConfigSDF.Titles[3]}
-          </CNavLink>
-        </CNavItem>
-        <CNavItem>
-          <CNavLink
-            href="javascript:void(0);"
-            active={activeKey === 5}
-            onClick={() => setActiveKey(5)}
-          >
-            {ConfigSDF.Titles[4]}
-          </CNavLink>
-        </CNavItem>
-        <CNavItem>
-          <CNavLink
-            href="javascript:void(0);"
-            active={activeKey === 6}
-            onClick={() => setActiveKey(6)}
-          >
-            {ConfigSDF.Titles[5]}
-          </CNavLink>
-        </CNavItem>
-        <CNavItem>
-          <CNavLink
-            href="javascript:void(0);"
-            active={activeKey === 7}
-            onClick={() => setActiveKey(7)}
-          >
-            {ConfigSDF.Titles[6]}
-          </CNavLink>
-        </CNavItem>
-      </CNav>
+      </CContainer>
     );
   }
 
@@ -194,54 +139,83 @@ const SDFVisualization = () => {
     getSiteCode();
   }
 
-  if(siteCode && Object.keys(data).length === 0) {
+  if(!isLoading && siteCode && siteCode !== "nodata" && Object.keys(data).length === 0 && !errorLoading) {
     loadData();
   }
 
   return (
     <div className="container--main min-vh-100">
-      <AppHeader page="sdf"/>
-        {isLoading ?
-          <div className="loading-container"><em>Loading...</em></div>
-        :
-        siteCode && Object.keys(data).length > 0 &&
-          <>
-            {showMap()}
-            {showMainData()}
-            <CContainer fluid>
-              <CRow className="p-3">
-                {showTabs()}
-              </CRow>
-              <CTabContent>
-                {renderTab(activeKey, data)}
-              </CTabContent>
-            </CContainer>
-          </>
-        }
+      <CHeader className='header--custom'>
+        <CRow className='align-items-center'>
+          <CCol className="header__title">
+            <CHeaderBrand>Natura Change Manager</CHeaderBrand>
+          </CCol>
+        </CRow>
+      </CHeader>
+      <CContainer fluid>
+        <CRow className="p-4">
+          <CContainer>
+            <div className="sdf-general">
+              <NaturaLogo/>
+              <h1>NATURA 2000 - STANDARD DATA FORM</h1>
+            </div>
+          </CContainer>
+        </CRow>
+      </CContainer>
+      {(errorLoading && !isLoading) &&
+        <CContainer fluid>
+          <CRow className="p-4">
+            <CAlert color="danger">Error loading data</CAlert>
+          </CRow>
+        </CContainer>
+      }
+      {isLoading ?
+        <div className="loading-container"><em>Loading...</em></div>
+      :
+      siteCode === "nodata" ? <div className="nodata-container"><em>No Data</em></div> :
+      siteCode && Object.keys(data).length > 0 &&
+        <>
+          {showMainData()}
+          <CContainer fluid>
+            <CTabContent>
+              {Object.keys(data).filter(a => a !== "SiteInfo").map((a,i) => renderSections(i + 1, data[a]))}
+              {showMap()}
+            </CTabContent>
+          </CContainer>
+        </>
+      }
+      {showScrollBtn &&
+        <div className="sdf-scroll">
+          <CButton color="primary" onClick={() => window.scroll({top: 0, behavior: 'instant'})}>
+            <i className="fas fa-arrow-up"></i>
+          </CButton>
+        </div>
+      }
     </div>
   );
 }
 
-const transformData = (activekey, data) => {
-  switch(activekey) {
-    case 1:
-      return data.SiteIdentification;
-    case 2:
-      return data.SiteLocation;
-    case 3:
-      return data.EcologicalInformation;
-    case 4:
-      return data.SiteDescription;
-    case 5:
-      return data.SiteProtectionStatus;
-    case 6:
-      return data.SiteManagement;
-    case 7:
-      return data.MapOfTheSite;
-  }
+const scrollTo = (item) => {
+  event.stopPropagation();
+  event.preventDefault();
+  let element = document.getElementById(item.currentTarget.dataset.id).parentNode;
+  const y = element.getBoundingClientRect().top + window.scrollY;
+  window.scroll({
+    top: y,
+    behavior: 'instant'
+  });
 }
 
-const tabStructure = (activekey, data) => {
+const formatDate = (date) => {
+  date = new Date(date);
+  var d = date.getDate();
+  var m = date.getMonth() + 1;
+  var y = date.getFullYear();
+  date = (d <= 9 ? '0' + d : d) + '/' + (m <= 9 ? '0' + m : m) + '/' + y;
+  return date;
+};
+
+const sectionsContent = (activekey, data) => {
   let fields = [];
   for(let i in Object.entries(data)){
     let field = Object.entries(data)[i];
@@ -250,6 +224,7 @@ const tabStructure = (activekey, data) => {
     let value;
     let type;
     let layout;
+    let legend;
 
     switch(activekey) {
       case 1:
@@ -286,46 +261,53 @@ const tabStructure = (activekey, data) => {
             break;
           case "SiteDesignation":
             title = "Site indication and designation / classification dates";
-            value = field[1];
-            type = "array";
+            value = field[1][0];
+            if(data.Type === "A") {
+              let filters = ["ProposedSCI", "ConfirmedSCI", "DesignatedSAC", "ReferenceSAC"];
+              filters.forEach(a => delete value[a]);
+            }
+            else if(data.Type === "B") {
+              let filters = ["ClassifiedSPA", "ReferenceSPA"];
+              filters.forEach(a => delete value[a]);
+            }
+            if(!value.Explanations) {
+              delete value.Explanations;
+            }
+            type = "value";
             break;
         }
         break;
       case 2:
         switch(field[0]) {
-          case "SiteCentre":
+          case "Longitude":
             title = "Site-centre location [decimal degrees]";
             value = field[1];
             type = "value";
-            layout = 2;
             break;
           case "Area":
             title = "Area [ha]";
             value = field[1];
             type = "value";
-            layout = 2;
             break;
           case "MarineArea":
             title = "Marine area [%]";
             value = field[1];
-            type = "chart";
-            layout = 2;
+            type = "value";
             break;
           case "SiteLength":
             title = "Sitelength [km] (optional)";
             value = field[1];
             type = "value";
-            layout = 2;
             break;
           case "Region":
             title = "Administrative region code and name";
             value = field[1];
-            type = "value";
+            type = "array";
             break;
           case "BiogeographicalRegions":
             title = "Biogeographical Region(s)";
             value = field[1];
-            type = "chart";
+            type = "array";
             break;
         }
         break;
@@ -334,17 +316,24 @@ const tabStructure = (activekey, data) => {
           case "HabitatTypes":
             title = "Habitat types present on the site and assessment for them";
             value = field[1];
-            type = "combo";
+            type = "table";
+            legend = ConfigSDF.Legend.HabitatTypes;
             break;
           case "Species":
             title = "Species referred to in Article 4 of Directive 2009/147/EC and listed in Annex II of Directive 92/43/EEC and site evaluation for them";
             value = field[1];
-            type = "combo";
+            var filters = ["AnnexIV", "AnnexV", "OtherCategoriesA", "OtherCategoriesB", "OtherCategoriesC", "OtherCategoriesD"];
+            value.map(a => filters.forEach(b => delete a[b]));
+            type = "table";
+            legend = ConfigSDF.Legend.Species;
             break;
           case "OtherSpecies":
             title = "Other important species of flora and fauna (optional)";
             value = field[1];
+            var filters = ["DataQuality", "Population", "Conservation", "Isolation", "Global"];
+            value.map(a => filters.forEach(b => delete a[b]));
             type = "table";
+            legend = ConfigSDF.Legend.OtherSpecies;
             break;
         }
         break;
@@ -353,9 +342,9 @@ const tabStructure = (activekey, data) => {
           case "GeneralCharacter":
             title = "General site character";
             value = field[1];
-            value = value.map(obj => ({"Habitat Class": ConfigSDF.HabitatClasses[obj.Code], ...obj}));
-            let total = value.map(a=> a["Cover [%]"]).reduce((a, b) => a + b, 0);
-            value.push({"Habitat Class":"Total Habitat Code", "Code":"","Cover [%]":total});
+            value = value.map(obj => ({"HabitatClass": ConfigSDF.HabitatClasses[obj.Code], ...obj}));
+            let total = value.map(a => a["Cover"]).reduce((a, b) => a + b, 0);
+            value.push({"HabitatClass":"Total Habitat Code", "Code":"","Cover":total});
             type = "table";
             break;
           case "Quality":
@@ -363,20 +352,29 @@ const tabStructure = (activekey, data) => {
             value = field[1];
             type = "value";
             break;
-          case "Threats":
+          case "NegativeThreats":
             title = "Threats, pressures and activities with impacts on the site";
             value = field[1];
             type = "double-table";
+            legend = ConfigSDF.Legend.Threats;
             break;
           case "Ownership":
             title = "Ownership (optional)";
             value = field[1];
+            let x = ConfigSDF.OwnershipType
+            value = value.map(obj => ({"Types": x[obj.Type], "Percent":obj.Percent}));
             type = "table";
             break;
-          case "Documentation":
+          case "Documents":
             title = "Documentation (optional)";
             value = field[1];
-            type = "array";
+            if(!value.Links?.length) {
+              delete value.Links;
+              if(!value.Documents) {
+                value = null;
+              }
+            }
+            type = "value";
             break;
         }
         break;
@@ -432,8 +430,35 @@ const tabStructure = (activekey, data) => {
             break;
         }
     }
-    if (!value) {
+    if (!value || value.length === 0) {
       value = "No information provided";
+      type = "value";
+    }
+    let labels = ConfigSDF[field[0]]; 
+    if(labels) {
+      if(Array.isArray(value)) {
+        value = value.map(a=>{let b = {}; Object.keys(a).forEach(key => b[labels[key]] = a[key] ? (isNaN(a[key]) && !isNaN(Date.parse(a[key])) ? formatDate(a[key]) : a[key]) : a[key]); return b});
+      }
+      else if (typeof value === 'object') {
+        let b = {};
+        value = Object.keys(value).forEach(key => b[labels[key]] = value[key] ? (isNaN(value[key]) && !isNaN(Date.parse(value[key])) ? formatDate(value[key]) : value[key]) : value[key]);
+        value = b;
+      }
+    }
+    else {
+      value = isNaN(value) && !isNaN(Date.parse(value)) ? formatDate(value) : value;
+    }
+
+    const parseLinks = (text) => {
+      const reg = new RegExp(/(^|\s)(https?:\/\/[^\s]+|www\.[^\s]+|[\w-]+\.com[^\s]*)/g, 'gi');
+      let parts = text;
+      if(isNaN(text)) {
+        parts = !Array.isArray(text) ? text.split(reg) : text;
+        return parts.map((part, i) => (part.match(reg) ? <a href={part} target="_blank" key={i+"_"+part}>{part}</a> : part));
+      }
+      else {
+        return parts;
+      }
     }
 
     const dataType = (field, type, data) => {
@@ -441,111 +466,72 @@ const tabStructure = (activekey, data) => {
         case "value":
           return (
             <div className="sdf-row-field">
-              {typeof data === 'object' ? Object.entries(data).map(a => <p><b>{a[0]}</b>: {a[1] ? a[1] : "No information provided"}</p>) : data}
+              {typeof data === 'object' ? Object.entries(data).map(a => <p key={"v_"+a}><b>{a[0]}</b>: {a[1] ? parseLinks(a[1]) : "No information provided"}</p>) : parseLinks(data)}
             </div>
           )
         case "array":
           return (
-            Array.isArray(data) && data.map((a) => 
-              <div className="sdf-row-field">
-                {typeof a === 'object' ? Object.entries(a).map(b => <p><b>{b[0]}</b>: {b[1] ? b[1] : "No information provided"}</p>) : a[1]}
+            Array.isArray(data) && data.map((a, i) => 
+              <div className="sdf-row-field" key={"a_"+i}>
+                {typeof a === 'object' ? Object.entries(a).map(b => <p key={"b_"+b}><b>{b[0]}</b>: {b[1] ? parseLinks(b[1]) : "No information provided"}</p>) : parseLinks(a[1])}
               </div>
             )
           )
-        case "chart":
-          return (
-            <div className="piechart-container">
-            {Array.isArray(value) ? value.map((a) =>
-              Object.entries(a).map(b => 
-              <div className="piechart-item">
-                <div className="piechart" data-progress={b[1].toFixed(2)} data-label={b[0]} style={{"--progress": (b[1]*360/100+"deg")}}>{b[1]}%</div>
-                <label>{b[0]}</label>
-              </div>
-              )
-            )
-            : <div className="piechart" data-progress={value.toFixed(2)} style={{"--progress": (value*360/100+"deg")}}>{value}%</div>}
-            </div>
-          )
-        case "table": case "combo":
-          let indicators;
-          let codes = [];
-          var count = {};
-          if(type === "combo") {
-            if(field === "HabitatTypes") {
-              codes = value.map(a=> ConfigSDF.HabitatTypes[parseInt(a.Code.toString().substring(0, 1))]);
-            }
-            else if(field === "Species") {
-              codes = value.map(a=> ConfigSDF.Species[a.Group]);
-            }
-            codes.forEach((i) => { count[i] = (count[i]||0) + 1;});
-            indicators = 
-              <CRow className="indicators-container">
-                {Object.entries(count).map((a,i)=>
-                  <CCol xs={12} md={6} lg={4} xl={3} key={"i_"+[i]}>
-                    <div className="indicators-item">
-                      <div className="indicators-number">{a[1]}</div>
-                      <div className="indicators-title">{a[0]}</div>
-                    </div>
-                  </CCol>
-                )}
-              </CRow>
-          }
-          let tooltips = ConfigSDF.Tooltips;
+        case "table":
           let header = Object.keys(value[0]).map(a => { 
             return (
-              <th scope="col" key={a}>{a}
-                {
-                  tooltips[field] && tooltips[field][a] &&
-                  <span tooltips={tooltips[field][a]}>
-                    <i className="fa-solid fa-circle-info"></i>
-                  </span>
-                }
-              </th>
+              <th scope="col" key={a}>{a}</th>
             )
           });
+          let checkCellLink = (cell, value) => {
+            if(field === "HabitatTypes" && cell === "Code") {
+              value = <a href={"https://eunis.eea.europa.eu/habitats_code2000/" + value} target="blank">{value}</a>
+            }
+            else if((field === "Species" || field === "OtherSpecies") && cell === "Species Name" && value !== "-") {
+              value = <a href={"https://eunis.eea.europa.eu/species/" + value} target="blank">{value}</a>
+            }
+            else if((field === "Species" || field === "OtherSpecies") && cell === "Code" && value !== "-") {
+              value = <a href={"https://eunis.eea.europa.eu/species_code2000/" + value} target="blank">{value}</a>
+            }
+            return value;
+          }
           let body = value.map((row, i) => {
             return (
               <tr key={"tr_"+i}>
                 {Object.keys(value[0]).map((cell, ii) => {
-                  return <CTableDataCell key={"tc_"+i+ii}><span>{row[cell]}</span></CTableDataCell>
+                  return <CTableDataCell key={"tc_"+i+ii}><span>{checkCellLink(cell, row[cell])}</span></CTableDataCell>
                 })}
               </tr>
             )
           });
           
           return (
-          <>
-            {type === "combo" && indicators}
-            <div className="sdf-row-field">
-              <CTable>
-                <CTableHead>
-                  <CTableRow>
-                    {header}
-                  </CTableRow>
-                </CTableHead>
-                <CTableBody>
-                  {body}
-                </CTableBody>
-              </CTable>
-            </div>
-          </>
+            <>
+              <div className="sdf-row-field">
+                <CTable>
+                  <CTableHead>
+                    <CTableRow>
+                      {header}
+                    </CTableRow>
+                  </CTableHead>
+                  <CTableBody>
+                    {body}
+                  </CTableBody>
+                </CTable>
+              </div>
+              {legend &&
+                <div className="sdf-legend mt-2">
+                  {Object.keys(legend).map(a => <div key={a}><b>{a}: </b>{legend[a]}</div>)}
+                </div>
+              }
+            </>
           )
         case "double-table":
           let tables = [];
-          let indicator;
-          let color;
-          Object.entries(value).map( a => {
-            if(a[0] === "Negative") {
-              indicator = {"Threats and pressures":a[1].length};
-              color = "red"
-            }
-            else if (a[0] === "Positive") {
-              indicator = {"Activities and Management":a[1].length};
-              color = "green";
-            }
+          Object.entries(value).map(a => {
             a[1] = a[1].map(obj => ({...obj, "Origin": ConfigSDF.Origin[obj.Origin]}));
 
-            let header = Object.keys(a[1][0]).map(b => {return(<CTableHeaderCell scope="col" key={b}> {b} </CTableHeaderCell>)});
+            let header = a[1].length > 0 ? Object.keys(a[1][0]).map(b => {return(<CTableHeaderCell scope="col" key={b}> {b} </CTableHeaderCell>)}) : "";
             let body = a[1].map((row, i) => {
               return (
                 <tr key={"tr_"+i}>
@@ -556,23 +542,25 @@ const tabStructure = (activekey, data) => {
               )
             });
             tables.push(
-              <CCol xs={12} md={6} lg={6} xl={6}>
+              <CCol xs={12} md={6} lg={6} xl={6} key={a[0]}>
                 <div className="indicators-container">
-                    <div className={"indicators-item " + color}>
-                      <div className="indicators-number">{Object.values(indicator)}</div>
-                      <div className="indicators-title">{Object.keys(indicator)}</div>
-                    </div>
+                  <b>
+                    {a[0] === "NegativeThreats" ? "Threats and pressures" : "Activities and Management"}
+                  </b>
                   <div className="sdf-row-field">
-                    <CTable>
-                      <CTableHead>
-                        <CTableRow>
-                          {header}
-                        </CTableRow>
-                      </CTableHead>
-                      <CTableBody>
-                        {body}
-                      </CTableBody>
-                    </CTable>
+                    {a[1].length > 0 ?
+                      <CTable>
+                        <CTableHead>
+                          <CTableRow>
+                            {header}
+                          </CTableRow>
+                        </CTableHead>
+                        <CTableBody>
+                          {body}
+                        </CTableBody>
+                      </CTable>
+                      : "No information provided"
+                    }
                   </div>
                 </div>
               </CCol>
@@ -580,17 +568,22 @@ const tabStructure = (activekey, data) => {
           });
           return (
             <CRow>
-                {tables}
+              {tables}
+              {legend &&
+                <div className="sdf-legend mt-2">
+                  {Object.keys(legend).map(a => <div key={a}><b>{a}: </b>{legend[a]}</div>)}
+                </div>
+              }
             </CRow>
           );
       }
     }
     
     fields.push(
-      <CRow className={"sdf-row" + (layout === 2 ? " col-md-6 col-12" : "")}>
+      <CRow className={"sdf-row" + (layout === 2 ? " col-md-6 col-12" : "")} key={index}>
         <CCol>
           <div className='sdf-row-title'>{index + ' ' + title}</div>
-            {dataType(field[0], type, value)}
+          {dataType(field[0], type, value)}
         </CCol>
       </CRow>
     );
@@ -598,15 +591,14 @@ const tabStructure = (activekey, data) => {
   return fields;
 }
 
-const renderTab = (activekey, data) => {
-  let mData = transformData(activekey, data);
+const renderSections = (index, data) => {
   return (
-    <CTabPane role="tabpanel" aria-labelledby="home-tab" visible>
-      <CRow className="p-4">
-        <h2>{activekey}.{ConfigSDF.Titles[activekey-1]}</h2>
-        {tabStructure(activekey, mData)}
-      </CRow>
-    </CTabPane>
+    <CRow className="p-4" key={index}>
+      <div id={index}>
+        <h2>{index}. {ConfigSDF.Titles[index-1]}</h2>
+        {sectionsContent(index, data)}
+      </div>
+    </CRow>
   );
 }
 
