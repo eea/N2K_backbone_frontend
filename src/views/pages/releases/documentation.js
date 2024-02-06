@@ -34,9 +34,9 @@ const Releases = () => {
   }
 
   const openModal = (data) => {
-    setModalItem({"country": "AT2208000", "version": 2})
+    // setModalItem({"country": "AT2208000", "version": 2})
+    setModalItem({"country": "AT3309000", "version": 1})
     setShowModal(!showModal)
-    console.log(showModal)
   }
 
   return (
@@ -91,12 +91,14 @@ const Releases = () => {
 
       <CButton onClick={openModal}>Open modal</CButton>
 
-      <ModalDocumentation 
-        visible={showModal}
-        setVisible={setShowModal}
-        modalItem={modalItem}
-        setModalItem={setModalItem}
-      />
+      {showModal &&
+        <ModalDocumentation 
+          visible={showModal}
+          setVisible={setShowModal}
+          country={modalItem.country}
+          version={modalItem.version}
+        />
+      }
     </div>
   )
 }
