@@ -3,7 +3,7 @@ import ConfigData from '../config.json';
 export class DataLoader {
     constructor(){
         this.token = localStorage.getItem("token");
-        if (!this.token){
+        if (!this.token && document.location.href.includes("localhost")){
             this.token = ConfigData.token;
         } 
     }
