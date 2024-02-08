@@ -60,30 +60,33 @@ const ModalDocumentation = (props) => {
     props.setVisible(false)
   }
 
-  const loadData = ({ country, version }) => {
+  const showError = (e) => {
+    setError("Something went wrong: " + e);
+    setTimeout(() => { setError('') }, ConfigData.MessageTimeout);
+  }
+
+  const loadData = (country) => {
     let promises = []
-    promises.push(dl.fetch(ConfigData.GET_SITE_COMMENTS + `siteCode=${country}&version=${version}`)
+    promises.push(dl.fetch(ConfigData.RELEASES_ATTACHMENTS_COMMENTS + `?country=${country}`)
       .then(response => response.json())
       .then(data => {
         if (data?.Success)
           if (data.Data.length == 0) {
             setComments("noData")
           } else {
-            // let countryComs = data.Data.filter(d => d.Release)
             setComments(sortComments(data.Data))
           }
         else throw "Error loading comments"
       })
     )
 
-    promises.push(dl.fetch(ConfigData.GET_ATTACHED_FILES + `siteCode=${country}&version=${version}`)
+    promises.push(dl.fetch(ConfigData.RELEASES_ATTACHMENTS_DOCUMENTS + `?country=${country}`)
       .then(response => response.json())
       .then(data => {
         if (data?.Success)
           if (data.Data.length == 0) {
             setDocuments("noData")
           } else {
-            // let countryDocs = data.Data.filter(d => d.Release)
             setDocuments(sortDocuments(data.Data))
           }
         else throw "Error loading documents"
@@ -95,13 +98,9 @@ const ModalDocumentation = (props) => {
 
   useEffect(() => {
     try {
-      if (props.visible) {
-        loadData(props)
-      }
-    } catch (e) {
-      console.log(e)
-      setError(e)
-    }
+      if (props.visible)
+        loadData(props.item.Code)
+    } catch (e) { console.log("error loading"); showError(e) }
   }, [props.visible])
 
   const renderComments = (target) => {
@@ -149,7 +148,6 @@ const ModalDocumentation = (props) => {
     let docs = [];
     if (documents !== "noData") {
       documents.forEach(d => {
-        // original name may be null until the backend part it's finished
         const name = d.OriginalName ?? d.Path
         docs.push(
           createDocumentElement(d.Id, name, d.Path, d.ImportDate, d.Username)
@@ -159,7 +157,7 @@ const ModalDocumentation = (props) => {
     return (
       <div id="changes_documents">
         {docs}
-        {documents && documents.length == 0 && !newDocument &&
+        {documents == "noData" && !newDocument &&
           <em>No documents</em>
         }
       </div>
@@ -196,42 +194,38 @@ const ModalDocumentation = (props) => {
     return (
       <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={true}>
         <CRow className="py-3">
+
           <CCol className="mb-3" xs={12} lg={6}>
             <b>Attached documents</b>
             <CCard className="document--list">
               <div className="d-flex justify-content-between align-items-center pb-2">
                 <b>Country Level</b>
+                <CButton color="link" className="btn-link--dark" onClick={() => addNewDocument()}>Add Document</CButton>
               </div>
               {renderDocuments("country")}
             </CCard>
           </CCol>
+
           <CCol className="mb-3" xs={12} lg={6}>
             <b>Comments</b>
-            {error.length > 0 ?
-              <CAlert color="danger">Error loading comments</CAlert>
-              :
-              <CCard className="comment--list">
-                {error.length > 0 &&
-                  <CAlert color="danger">
-                    {error}
-                  </CAlert>
-                }
-                <div className="d-flex justify-content-between align-items-center pb-2">
-                  <b>Country Level</b>
-                </div>
-                {renderComments("country")}
-              </CCard>
-            }
+            <CCard className="document--list">
+              <div className="d-flex justify-content-between align-items-center pb-2">
+                <b>Country Level</b>
+                <CButton color="link" className="btn-link--dark" onClick={() => addNewDocument()}>Add Comment</CButton>
+              </div>
+              {renderComments("country")}
+            </CCard>
           </CCol>
+
         </CRow>
-      </CTabPane>
+      </CTabPane >
     )
   }
 
   return (
     <CModal scrollable size="xl" visible={props.visible} backdrop="static" onClose={closeModal}>
       <CModalHeader>
-        <CModalTitle>{props.country}</CModalTitle>
+        <CModalTitle>{props.item.Country}</CModalTitle>
       </CModalHeader>
       <CModalBody>
         <CNav variant="tabs" role="tablist">
@@ -245,6 +239,7 @@ const ModalDocumentation = (props) => {
           </CNavItem>
         </CNav>
         <CTabContent>
+          <CAlert color="danger" visible={error.length > 0}>{error}</CAlert>
           {isLoading ?
             <div className="loading-container"><em>Loading...</em></div>
             : renderAttachments()

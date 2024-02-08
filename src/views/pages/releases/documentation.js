@@ -14,29 +14,32 @@ import {
   CPagination,
   CPaginationItem,
   CFormSelect,
+  CAlert,
 } from '@coreui/react'
 
 import ModalDocumentation from './ModalDocumentation';
+import TableDocumentation from './TableDocumentation';
 
 const Releases = () => {
-  const [data, setData] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState()
   const [showModal, setShowModal] = useState(false)
   const [modalItem, setModalItem] = useState({})
+  const [error, setError] = useState('')
 
   let dl = new DataLoader()
 
-  // useEffect(() => loadData(), [])
-
-  const loadData = () => {
-    dl.fetch()
+  const openModal = (data) => {
+    setModalItem(data)
+    setShowModal(true)
   }
 
-  const openModal = (data) => {
-    // setModalItem({"country": "AT2208000", "version": 2})
-    setModalItem({"country": "AT3309000", "version": 1})
-    setShowModal(!showModal)
+  const closeModal = () => {
+    setModalItem({})
+    setShowModal(false)
+  }
+
+  const showError = (e) => {
+    setError("Something went wrong: " + e);
+    setTimeout(() => { setError('') }, ConfigData.MessageTimeout);
   }
 
   return (
@@ -84,21 +87,25 @@ const Releases = () => {
               <div className="page-title">
                 <h1 className="h1">Release Documentation</h1>
               </div>
+
             </div>
+            <CAlert color="danger" visible={error.length > 0}>{error}</CAlert>
+
+            <TableDocumentation
+              openModal={openModal}
+              showError={showError}
+            />
+            {showModal &&
+              <ModalDocumentation
+                visible={showModal}
+                setVisible={setShowModal}
+                item={modalItem}
+              />
+            }
           </CContainer>
         </div>
       </div>
 
-      <CButton onClick={openModal}>Open modal</CButton>
-
-      {showModal &&
-        <ModalDocumentation 
-          visible={showModal}
-          setVisible={setShowModal}
-          country={modalItem.country}
-          version={modalItem.version}
-        />
-      }
     </div>
   )
 }
