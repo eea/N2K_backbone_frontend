@@ -52,9 +52,10 @@ const ModalDocumentation = (props) => {
   const [documents, setDocuments] = useState([])
   const [comments, setComments] = useState([])
   const [isLoading, setIsLoading] = useState(true)
+  const [newDocument, setNewDocument] = useState(false)
+  const [newComment, setNewComment] = useState(false)
+  const [selectedFile, setSelectedFile] = useState()
   const [error, setError] = useState("")
-
-  const newComment = false, newDocument = false
 
   const closeModal = () => {
     props.setVisible(false)
@@ -96,6 +97,17 @@ const ModalDocumentation = (props) => {
     Promise.all(promises).then(() => setIsLoading(false))
   }
 
+  const sendRequest = (url, method, body, path) => {
+    const options = {
+      method: method,
+      headers: {
+        'Content-Type': path ? 'multipart/form-data' : 'application/json',
+      },
+      body: path ? body : JSON.stringify(body),
+    };
+    return dl.fetch(url, options)
+  }
+
   useEffect(() => {
     try {
       if (props.visible)
@@ -103,8 +115,109 @@ const ModalDocumentation = (props) => {
     } catch (e) { console.log("error loading"); showError(e) }
   }, [props.visible])
 
+  const addComment = (target) => {
+    let input = target.closest(".comment--item").querySelector("textarea");
+    let comment = input.value;
+    if (!comment.trim()) {
+      showErrorMessage("comment", "Add a comment");
+    }
+    else {
+      let body = {
+        "CountryCode": props.item.Code,
+        "Comments": comment,
+      }
+
+      sendRequest(ConfigData.RELEASES_ATTACHMENTS_COMMENT_ADD, "POST", body)
+        .then(response => response.json())
+        .then((data) => {
+          if (data?.Success) {
+            setNewComment(false)
+            loadData(props.item.Code)
+          }
+        });
+    }
+  }
+
+  const deleteCommentMessage = (target) => {
+    if (!target && newComment && document.querySelector(".comment--item.new textarea")?.value.trim() === "") {
+      deleteComment();
+    }
+    else {
+      props.updateModalValues("Delete Comment", "Are you sure you want to delete this comment?", "Continue", () => deleteComment(target), "Cancel", () => { })
+    }
+  }
+
+  const deleteComment = (target) => {
+    if (target) {
+      let input = target.closest(".comment--item").querySelector("textarea");
+      let id = input.getAttribute("id");
+      let body = parseInt(id);
+      sendRequest(ConfigData.RELEASES_ATTACHMENTS_COMMENT_DELETE, "DELETE", body)
+        .then((data) => {
+          if (data?.ok) {
+            loadData(props.item.Code)
+          } else { showErrorMessage("comment", "Error deleting comment") }
+        });
+    }
+    else {
+      setNewComment(false)
+    }
+  }
+
+  const updateComment = (target) => {
+    let input = target.closest(".comment--item").querySelector("textarea");
+    let id = parseInt(input.id);
+    if (target.firstChild.classList.contains("fa-pencil")) {
+      input.disabled = false;
+      input.readOnly = false;
+      input.focus();
+      target.firstChild.classList.replace("fa-pencil", "fa-floppy-disk");
+    } else {
+      if (!input.value.trim()) {
+        showErrorMessage("comment", "Add comment");
+      }
+      else {
+        saveComment(id, input, input.value, target);
+      }
+    }
+  }
+
+  const saveComment = (id, input, comment, target) => {
+    let body = comments.find(a => a.Id === id);
+    body.Comments = comment;
+    sendRequest(ConfigData.RELEASES_ATTACHMENTS_COMMENT_UPDATE, "PUT", body)
+      .then((data) => {
+        if (data?.ok) {
+          input.disabled = true;
+          input.readOnly = true;
+          target.firstChild.classList.replace("fa-floppy-disk", "fa-pencil");
+          loadData(props.item.Code);
+        } else { showErrorMessage("comment", "Error saving comment") }
+      })
+  }
+
   const renderComments = (target) => {
     let cmts = [];
+    cmts.push(
+      newComment &&
+      <div className="comment--item new" key={"cmtItem_new"}>
+        <div className="comment--text">
+          <TextareaAutosize
+            minRows={3}
+            placeholder="Add a comment"
+            className="comment--input"
+          ></TextareaAutosize>
+        </div>
+        <div>
+          <CButton color="link" className="btn-icon" onClick={(e) => addComment(e.currentTarget)}>
+            <i className="fa-solid fa-floppy-disk"></i>
+          </CButton>
+          <CButton color="link" className="btn-icon" onClick={() => deleteCommentMessage()}>
+            <i className="fa-regular fa-trash-can"></i>
+          </CButton>
+        </div>
+      </div>
+    )
     if (comments && comments !== "noData") {
       comments.forEach(c => {
         cmts.push(
@@ -140,12 +253,89 @@ const ModalDocumentation = (props) => {
             }
           </label>
         </div>
+        <div className="comment--icons">
+          <CButton color="link" className="btn-icon" onClick={(e) => updateComment(e.currentTarget)} key={"cmtUpdate_" + id}>
+            <i className="fa-solid fa-pencil"></i>
+          </CButton>
+          <CButton color="link" className="btn-icon" onClick={(e) => deleteCommentMessage(e.currentTarget)} key={"cmtDelete_" + id}>
+            <i className="fa-regular fa-trash-can"></i>
+          </CButton>
+        </div>
       </div>
     )
   }
 
+  const deleteDocumentMessage = (target) => {
+    if (!target && newDocument && !selectedFile) {
+      deleteDocument();
+    }
+    else {
+      props.updateModalValues("Delete Document", "Are you sure you want to delete this document?", "Continue", () => deleteDocument(target), "Cancel", () => { })
+    }
+  }
+
+  const deleteDocument = (target) => {
+    if (target) {
+      let doc = target.closest(".document--item");
+      let id = doc.getAttribute("doc_id");
+      sendRequest(ConfigData.RELEASES_ATTACHMENTS_DOCUMENT_DELETE + "?justificationId=" + id, "DELETE", "")
+        .then((data) => {
+          if (data?.ok) {
+            loadData(props.item.Code)
+          } else { showErrorMessage("document", "Error deleting document") }
+        });
+    }
+    else {
+      setNewDocument(false)
+    }
+  }
+
+  const uploadFile = (data) => {
+    let siteCode = this.state.data.SiteCode;
+    let version = this.state.data.Version;
+    return this.dl.xmlHttpRequest(ConfigData.UPLOAD_ATTACHED_FILE + '?sitecode=' + siteCode + '&version=' + version, data);
+  }
+
+  const changeHandler = (e) => {
+    let formats = ConfigData.ACCEPTED_DOCUMENT_FORMATS;
+    let file = e.currentTarget.closest("input").value;
+    let extension = file.substring(file.lastIndexOf('.'), file.length) || file;
+    if (formats.includes(extension)) {
+      setSelectedFile(e.target.files[0])
+    }
+    else {
+      e.currentTarget.closest("#uploadBtn").value = "";
+      showErrorMessage("document", "File not valid, use a valid format: " + ConfigData.ACCEPTED_DOCUMENT_FORMATS);
+    }
+  }
+
+  const handleSubmission = () => {
+  }
+
   const renderDocuments = (target) => {
     let docs = [];
+    docs.push(
+      newDocument &&
+      <div className="document--item new" key={"docItem_new"}>
+        <div className="input-file">
+          <label htmlFor="uploadBtn">
+            Select file
+          </label>
+          <input id="uploadBtn" type="file" name="Files" onChange={(e) => changeHandler(e)} accept={ConfigData.ACCEPTED_DOCUMENT_FORMATS} />
+          {selectedFile ? (
+            <input id="uploadFile" placeholder={selectedFile.name} disabled="disabled" />
+          ) : (<input id="uploadFile" placeholder="No file selected" disabled="disabled" />)}
+        </div>
+        <div className="document--icons">
+          <CButton color="link" className="btn-icon" onClick={() => handleSubmission()}>
+            <i className="fa-solid fa-floppy-disk"></i>
+          </CButton>
+          <CButton color="link" className="btn-icon" onClick={() => deleteDocumentMessage()}>
+            <i className="fa-regular fa-trash-can"></i>
+          </CButton>
+        </div>
+      </div>
+    )
     if (documents !== "noData") {
       documents.forEach(d => {
         const name = d.OriginalName ?? d.Path
@@ -185,6 +375,9 @@ const ModalDocumentation = (props) => {
           <CButton color="link" className="btn-link--dark">
             <a href={path} target="_blank">View</a>
           </CButton>
+          <CButton color="link" className="btn-icon" onClick={(e) => deleteDocumentMessage(e.currentTarget)}>
+            <i className="fa-regular fa-trash-can"></i>
+          </CButton>
         </div>
       </div>
     )
@@ -200,7 +393,7 @@ const ModalDocumentation = (props) => {
             <CCard className="document--list">
               <div className="d-flex justify-content-between align-items-center pb-2">
                 <b>Country Level</b>
-                <CButton color="link" className="btn-link--dark" onClick={() => addNewDocument()}>Add Document</CButton>
+                <CButton color="link" className="btn-link--dark" onClick={() => setNewDocument(true)}>Add Document</CButton>
               </div>
               {renderDocuments("country")}
             </CCard>
@@ -211,7 +404,7 @@ const ModalDocumentation = (props) => {
             <CCard className="document--list">
               <div className="d-flex justify-content-between align-items-center pb-2">
                 <b>Country Level</b>
-                <CButton color="link" className="btn-link--dark" onClick={() => addNewDocument()}>Add Comment</CButton>
+                <CButton color="link" className="btn-link--dark" onClick={() => setNewComment(true)}>Add Comment</CButton>
               </div>
               {renderComments("country")}
             </CCard>

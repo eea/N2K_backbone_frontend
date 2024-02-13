@@ -17,6 +17,7 @@ import {
   CAlert,
 } from '@coreui/react'
 
+import { ConfirmationModal } from './../sitechanges/components/ConfirmationModal';
 import ModalDocumentation from './ModalDocumentation';
 import TableDocumentation from './TableDocumentation';
 
@@ -40,6 +41,39 @@ const Releases = () => {
   const showError = (e) => {
     setError("Something went wrong: " + e);
     setTimeout(() => { setError('') }, ConfigData.MessageTimeout);
+  }
+
+  const [modalValues, setModalValues] = useState({
+    visibility: false,
+    close: () => {
+      setModalValues((prevState) => ({
+        ...prevState,
+        visibility: false
+      }));
+    }
+  });
+
+  function updateModalValues(title, text, primaryButtonText, primaryButtonFunction, secondaryButtonText, secondaryButtonFunction, keepOpen) {
+    setModalValues({
+      visibility: true,
+      title: title,
+      text: text,
+      primaryButton: (
+        primaryButtonText && primaryButtonFunction ? {
+          text: primaryButtonText,
+          function: () => primaryButtonFunction(),
+        }
+          : ''
+      ),
+      secondaryButton: (
+        secondaryButtonText && secondaryButtonFunction ? {
+          text: secondaryButtonText,
+          function: () => secondaryButtonFunction(),
+        }
+          : ''
+      ),
+      keepOpen: keepOpen ? true : false,
+    });
   }
 
   return (
@@ -100,12 +134,14 @@ const Releases = () => {
                 visible={showModal}
                 setVisible={setShowModal}
                 item={modalItem}
+                updateModalValues={updateModalValues}
               />
             }
           </CContainer>
         </div>
       </div>
 
+      <ConfirmationModal modalValues={modalValues} />
     </div>
   )
 }
