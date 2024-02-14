@@ -228,7 +228,7 @@ const ModalDocumentation = (props) => {
       })
     }
     return (
-      <div id="changes_comments">
+      <div className="attachments--group" id={"changes_comments_" + target}>
         {cmts}
         {comments == "noData" && !newComment &&
           <em>No comments</em>
@@ -360,7 +360,7 @@ const ModalDocumentation = (props) => {
       })
     }
     return (
-      <div id="changes_documents">
+      <div className="attachments--group" id={"changes_documents_" + target}>
         {docs}
         {documents == "noData" && !newDocument &&
           <em>No documents</em>
@@ -404,7 +404,9 @@ const ModalDocumentation = (props) => {
         <CRow className="py-3">
 
           <CCol className="mb-3" xs={12} lg={6}>
-            <b>Attached documents</b>
+            <div className="attachments--title">
+              <b>Attached documents</b>
+            </div>
             <CCard className="document--list">
               <div className="d-flex justify-content-between align-items-center pb-2">
                 <b>Country Level</b>
@@ -415,7 +417,9 @@ const ModalDocumentation = (props) => {
           </CCol>
 
           <CCol className="mb-3" xs={12} lg={6}>
-            <b>Comments</b>
+            <div className="attachments--title">
+              <b>Comments</b>
+            </div>
             <CCard className="document--list">
               <div className="d-flex justify-content-between align-items-center pb-2">
                 <b>Country Level</b>
