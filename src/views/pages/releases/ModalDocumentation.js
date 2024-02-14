@@ -131,6 +131,7 @@ const ModalDocumentation = (props) => {
         .then(response => response.json())
         .then((data) => {
           if (data?.Success) {
+            setIsLoading(true)
             setNewComment(false)
             loadData(props.item.Code)
           }
@@ -151,10 +152,10 @@ const ModalDocumentation = (props) => {
     if (target) {
       let input = target.closest(".comment--item").querySelector("textarea");
       let id = input.getAttribute("id");
-      let body = parseInt(id);
-      sendRequest(ConfigData.RELEASES_ATTACHMENTS_COMMENT_DELETE, "DELETE", body)
+      sendRequest(ConfigData.RELEASES_ATTACHMENTS_COMMENT_DELETE + "?commentId=" + parseInt(id), "DELETE", "")
         .then((data) => {
           if (data?.ok) {
+            setIsLoading(true)
             loadData(props.item.Code)
           } else { showErrorMessage("comment", "Error deleting comment") }
         });
@@ -191,6 +192,7 @@ const ModalDocumentation = (props) => {
           input.disabled = true;
           input.readOnly = true;
           target.firstChild.classList.replace("fa-floppy-disk", "fa-pencil");
+          setIsLoading(true)
           loadData(props.item.Code);
         } else { showErrorMessage("comment", "Error saving comment") }
       })
@@ -278,9 +280,10 @@ const ModalDocumentation = (props) => {
     if (target) {
       let doc = target.closest(".document--item");
       let id = doc.getAttribute("doc_id");
-      sendRequest(ConfigData.RELEASES_ATTACHMENTS_DOCUMENT_DELETE + "?justificationId=" + id, "DELETE", "")
+      sendRequest(ConfigData.RELEASES_ATTACHMENTS_DOCUMENT_DELETE + "?documentId=" + id, "DELETE", "")
         .then((data) => {
           if (data?.ok) {
+            setIsLoading(true)
             loadData(props.item.Code)
           } else { showErrorMessage("document", "Error deleting document") }
         });
@@ -291,15 +294,14 @@ const ModalDocumentation = (props) => {
   }
 
   const uploadFile = (data) => {
-    let siteCode = this.state.data.SiteCode;
-    let version = this.state.data.Version;
-    return this.dl.xmlHttpRequest(ConfigData.UPLOAD_ATTACHED_FILE + '?sitecode=' + siteCode + '&version=' + version, data);
+    let country = props.item.Code
+    return dl.xmlHttpRequest(ConfigData.RELEASES_ATTACHMENTS_DOCUMENT_ADD + '?Country=' + country, data)
   }
 
   const changeHandler = (e) => {
-    let formats = ConfigData.ACCEPTED_DOCUMENT_FORMATS;
-    let file = e.currentTarget.closest("input").value;
-    let extension = file.substring(file.lastIndexOf('.'), file.length) || file;
+    let formats = ConfigData.ACCEPTED_DOCUMENT_FORMATS
+    let file = e.currentTarget.closest("input").value
+    let extension = file.substring(file.lastIndexOf('.'), file.length) || file
     if (formats.includes(extension)) {
       setSelectedFile(e.target.files[0])
     }
@@ -310,6 +312,19 @@ const ModalDocumentation = (props) => {
   }
 
   const handleSubmission = () => {
+    if (selectedFile) {
+      let formData = new FormData();
+      formData.append("Files", selectedFile, selectedFile.name);
+
+      return uploadFile(formData)
+        .then(data => {
+          if (data?.Success) {
+            setIsLoading(true)
+            setNewDocument(false)
+            loadData(props.item.Code)
+          }
+        })
+    }
   }
 
   const renderDocuments = (target) => {
@@ -340,7 +355,7 @@ const ModalDocumentation = (props) => {
       documents.forEach(d => {
         const name = d.OriginalName ?? d.Path
         docs.push(
-          createDocumentElement(d.Id, name, d.Path, d.ImportDate, d.Username)
+          createDocumentElement(d.ID, name, d.Path, d.ImportDate, d.Username)
         )
       })
     }

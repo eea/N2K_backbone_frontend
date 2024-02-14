@@ -37,7 +37,7 @@
   "RELEASES_ATTACHMENTS_COUNT": "https://n2kbackboneback-dev.azurewebsites.net/api/Release/GetAttachmentsCount",
   "RELEASES_ATTACHMENTS_DOCUMENTS": "https://n2kbackboneback-dev.azurewebsites.net/api/Release/GetCountryDocuments",
   "RELEASES_ATTACHMENTS_DOCUMENT_ADD": "https://n2kbackboneback-dev.azurewebsites.net/api/Release/AddCountryDocument",
-  "RELEASES_ATTACHMENTS_DOCUMENT_DELTE": "https://n2kbackboneback-dev.azurewebsites.net/api/Release/DeleteCountryDocument",
+  "RELEASES_ATTACHMENTS_DOCUMENT_DELETE": "https://n2kbackboneback-dev.azurewebsites.net/api/Release/DeleteCountryDocument",
   "RELEASES_ATTACHMENTS_COMMENTS": "https://n2kbackboneback-dev.azurewebsites.net/api/Release/GetCountryComments",
   "RELEASES_ATTACHMENTS_COMMENT_ADD": "https://n2kbackboneback-dev.azurewebsites.net/api/Release/AddCountryComment",
   "RELEASES_ATTACHMENTS_COMMENT_UPDATE": "https://n2kbackboneback-dev.azurewebsites.net/api/Release/UpdateCountryComment",
