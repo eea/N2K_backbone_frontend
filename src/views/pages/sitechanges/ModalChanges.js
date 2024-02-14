@@ -107,21 +107,6 @@ export class ModalChanges extends Component {
     };
   }
 
-  componentDidMount() {
-    window.addEventListener('beforeunload', (e) => this.handleLeavePage(e));
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('beforeunload', (e) => this.handleLeavePage(e));
-  }
-
-  handleLeavePage(e) {
-    if (this.isVisible() && this.checkUnsavedChanges()) {
-      e.preventDefault();
-      e.returnValue = '';
-    }
-  }
-
   setActiveKey(val) {
     this.setState({ activeKey: val })
   }
@@ -509,6 +494,7 @@ export class ModalChanges extends Component {
   renderChangeList() {
     let levels = this.state.levels;
     let list = [];
+    const lineageTypeList = ["Site Added", "Site Deleted", "Site Merged", "Site Split", "Site Recoded"];
     for (let l in levels) {
       let changes = this.state.data[levels[l]][this.state.bookmark];
       let level = levels[l];
@@ -527,9 +513,9 @@ export class ModalChanges extends Component {
                 </div>
                 <div>
                   {this.state.data.Status === "Pending"
-                    && ((changes[i][j].ChangeCategory == "Lineage" || changes[i][j].ChangeType == "Site Added" || changes[i][j].ChangeType == "Site Deleted")
-                      && this.props.lineageChangeType !== "NoChanges" && this.props.lineageChangeType !== "NoGeometryReported"
-                      && this.props.lineageChangeType !== "NewGeometryReported")
+                    && ((changes[i][j].ChangeCategory == "Lineage" || lineageTypeList.includes(changes[i][j].ChangeType))
+                    && this.props.lineageChangeType !== "NoChanges" && this.props.lineageChangeType !== "NoGeometryReported"
+                    && this.props.lineageChangeType !== "NewGeometryReported")
                     &&
                     <>
                       <CButton color="link" href={"/#/sitelineage/management?country=" + this.props.country + "&siteCode=" + this.props.item} className="btn-link--dark text-nowrap">
@@ -706,6 +692,7 @@ export class ModalChanges extends Component {
             minRows={3}
             placeholder="Add a comment"
             className="comment--input"
+            onChange={({target}) => this.props.setHasChanges(target.value.length > 0)}
           ></TextareaAutosize>
         </div>
         <div>
@@ -1228,7 +1215,13 @@ export class ModalChanges extends Component {
   }
 
   checkUnsavedChanges() {
-    return this.state.loading === false && ((this.state.newComment && document.querySelector(".comment--item.new textarea")?.value.trim() !== "") || (this.state.newDocument && this.state.isSelected) || (this.state.comments !== "noData" && document.querySelectorAll(".comment--item:not(.new) textarea[disabled]").length !== this.state.comments.length));
+    const check = this.state.loading === false
+      && (
+        (this.state.newComment && document.querySelector(".comment--item.new textarea")?.value.trim() !== "")
+        || (this.state.newDocument && this.state.isSelected)
+        || (this.state.comments !== "noData" && document.querySelectorAll(".comment--item:not(.new) textarea[disabled]").length !== this.state.comments.length));
+    this.props.setHasChanges(check)
+    return check
   }
 
   warningUnsavedChanges(activeKey) {
@@ -1284,8 +1277,8 @@ export class ModalChanges extends Component {
   }
 
   checkForChanges(e) {
-    let body = this.getBody();
-    let errorMargin = 0.00000001;
+    const body = this.getBody();
+    const errorMargin = 0.00000001;
     if (this.state.fields.SiteName != body.SiteName
       || this.state.fields.Area != body.Area
       || this.state.fields.Length != body.Length
@@ -1295,9 +1288,11 @@ export class ModalChanges extends Component {
       || e.value ? this.state.fields.SiteType !== e.value : false
     ) {
       this.setState({ fieldChanged: true });
+      this.props.setHasChanges(true)
       return true;
     } else {
       this.setState({ fieldChanged: false });
+      this.props.setHasChanges(false)
       return false;
     }
   }
@@ -1448,19 +1443,25 @@ export class ModalChanges extends Component {
                   Documents & Comments
                 </CNavLink>
               </CNavItem>
-              <CButton color="link" className="ms-auto" onClick={() => this.copyLink()}>
-                {this.state.showCopyTooltip ?
-                  <CTooltip
-                    content="Link copied"
-                    trigger="focus"
-                    visible={true}
-                  >
-                    <span><i className="far fa-copy me-2"></i>Share site</span>
-                  </CTooltip>
-                  :
-                  <><i className="far fa-copy me-2"></i>Share site</>
-                }
-              </CButton>
+              <div className="ms-auto">
+                <CButton color="link" href={"/#/sdf?sitecode=" + data.ReferenceSiteCode} target="_blank" className={!data.ReferenceSiteCode ? "disabled" : ""}>
+                  <i class="fas fa-arrow-up-right-from-square me-2"></i>
+                  SDF
+                </CButton>
+                <CButton color="link" onClick={() => this.copyLink()}>
+                  {this.state.showCopyTooltip ?
+                    <CTooltip
+                      content="Link copied"
+                      trigger="focus"
+                      visible={true}
+                    >
+                      <span><i className="far fa-copy me-2"></i>Share site</span>
+                    </CTooltip>
+                    :
+                    <><i className="far fa-copy me-2"></i>Share site</>
+                  }
+                </CButton>
+              </div>
             </CNav>
             <CTabContent>
               {this.renderChanges()}
@@ -1558,20 +1559,18 @@ export class ModalChanges extends Component {
             return response.json();
           else
             return this.setState({ errorLoading: true, loading: false });
-        })
-        .then(data => {
-          if (!data.Success)
-            this.setState({ errorLoading: true, loading: false });
-          else
-            if (this.isSiteDeleted())
-              this.setState({ fields: "noData", isDeleted: true })
-          this.setState({
-            data: data.Data, loading: false
-            , justificationRequired: data.Data?.JustificationRequired
-            , justificationProvided: data.Data?.JustificationProvided
-            , activeKey: this.props.activeKey ? this.props.activeKey : this.state.activeKey
-          })
-        });
+      })
+      .then(data => {
+        if (!data.Success)
+          this.setState({ errorLoading: true, loading: false });
+        else
+          if(data.Data.LineageChangeType === "Deletion")
+            this.setState({ fields: "noData", isDeleted: true })
+          this.setState({ data: data.Data, loading: false
+          , justificationRequired: data.Data?.JustificationRequired
+          , justificationProvided: data.Data?.JustificationProvided
+          , activeKey: this.props.activeKey ? this.props.activeKey : this.state.activeKey })
+      });
     }
   }
 
@@ -1700,17 +1699,22 @@ export class ModalChanges extends Component {
     if (clean) {
       this.cleanUnsavedChanges();
     }
-    this.props.updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", () => this.acceptChanges(), "Cancel", () => { this.changingStatus = false });
+    this.props.updateModalValues("Accept Changes",
+      "This will accept all the site changes" + (this.state.data.AffectedSites ? ", including lineage changes. Those sites related to this by lineage changes will also be accepted: " + this.state.data.AffectedSites : ""),
+      "Continue", () => this.acceptChanges()?.catch(e => {this.showErrorMessage("general", "Error accepting changes"); console.log(e)}),
+      "Cancel", () => { this.changingStatus = false });
   }
 
   acceptChanges() {
-    this.props.accept()
+    return this.props.accept()
       .then((data) => {
+        this.changingStatus = false;
         if (data?.Success) {
-          this.changingStatus = false;
           this.resetLoading();
           this.setState({ data: {}, fields: {}, loading: true, siteTypeValue: "", siteRegionValue: "" });
-        } else { this.showErrorMessage("general", "Error accepting changes") }
+        } else {
+          throw("The service returned Success: false")
+        }
       });
   }
 
@@ -1719,17 +1723,22 @@ export class ModalChanges extends Component {
     if (clean) {
       this.cleanUnsavedChanges();
     }
-    this.props.updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", () => this.rejectChanges(), "Cancel", () => { this.changingStatus = false });
+    this.props.updateModalValues("Reject Changes",
+      "This will reject all the site changes" + (this.state.data.AffectedSites ? ", including lineage changes. Those sites related to this by lineage changes will also be rejected: " + this.state.data.AffectedSites : ""),
+      "Continue", () => this.rejectChanges()?.catch(e => {this.showErrorMessage("general", "Error rejecting changes"); console.log(e)}),
+      "Cancel", () => { this.changingStatus = false })
   }
 
   rejectChanges() {
-    this.props.reject()
+    return this.props.reject()
       .then(data => {
+        this.changingStatus = false;
         if (data?.Success) {
-          this.changingStatus = false;
           this.resetLoading();
           this.setState({ data: {}, fields: {}, loading: true, siteTypeValue: "", siteRegionValue: "" });
-        } else { this.showErrorMessage("general", "Error rejecting changes") }
+        } else {
+          throw("The service returned Success: false")
+        }
       });
   }
 
@@ -1738,10 +1747,13 @@ export class ModalChanges extends Component {
     if (clean) {
       this.cleanUnsavedChanges();
     }
-    this.props.updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", () => this.setBackToPending(), "Cancel", () => { this.changingStatus = false });
+    this.props.updateModalValues("Back to Pending",
+      "This will set the changes back to Pending" + (this.state.data.AffectedSites ? ", including lineage changes. Those sites related to this by lineage changes will also be set back to pending: " + this.state.data.AffectedSites : ""),
+      "Continue", () => this.setBackToPending()?.catch(e => {this.showErrorMessage("general", "Error setting changes back to pending"); console.log(e)}),
+      "Cancel", () => { this.changingStatus = false })
   }
 
-  getCurrentVersion() {
+  async getCurrentVersion() {
     return this.dl.fetch(ConfigData.SITEDETAIL_GET + "?siteCode=" + this.props.item)
       .then(response => response.json())
       .then(data => {
@@ -1758,28 +1770,30 @@ export class ModalChanges extends Component {
 
   setBackToPending() {
     let controlResult = (data) => {
+      this.changingStatus = false;
       if (data?.Success) {
-        this.changingStatus = false;
         this.versionChanged = true;
         this.currentVersion = data.Data[0].VersionId;
         this.resetLoading();
         this.setState({ data: {}, fields: {}, loading: true, siteTypeValue: "", siteRegionValue: "" });
-      } else { this.showErrorMessage("general", "Error setting changes back to pending") }
+      } else {
+          throw("The service returned Success: false")
+      }
     }
 
-    if (this.state.data.Status === "Accepted" && !this.isSiteDeleted())
-      this.getCurrentVersion()
-        .then(version => {
-          this.props.backToPending(version)
-            .then((data) => {
-              controlResult(data);
-            })
-        });
-    else
-      this.props.backToPending(this.props.version)
+    if(this.state.data.Status === "Accepted" && !this.isSiteDeleted()) {
+      this.getCurrentVersion().then(version => {
+        return this.props.backToPending(version)
+          .then((data) => {
+            controlResult(data);
+          })
+        })
+    } else {
+      return this.props.backToPending(this.props.version)
         .then((data) => {
           controlResult(data);
         })
+    }
   }
 
   sendRequest(url, method, body, path) {

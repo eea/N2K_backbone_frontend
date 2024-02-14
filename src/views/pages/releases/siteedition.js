@@ -1,6 +1,7 @@
 import React, { lazy, useState, useRef } from 'react'
 import { CAlert } from '@coreui/react';
 import { AppFooter, AppHeader } from '../../../components/index'
+import TableEdition from './TableEdition';
 import ConfigData from '../../../config.json';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import Turnstone from 'turnstone';
@@ -47,7 +48,7 @@ const Releases = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalItem, setModalItem] = useState({});
   const [siteCodes, setSitecodes] = useState([]);
-  const [errorLoading, setErrorLoading] = useState(false);
+  const [filterEdited, setFilterEdited] = useState(false);
   const [searchList, setSearchList] = useState({});
   const [selectOption, setSelectOption] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -58,9 +59,7 @@ const Releases = () => {
   const [bioRegions, setBioRegions] = useState([]);
   const [siteTypes, setSiteTypes] = useState([]);
   const turnstoneRef = useRef();
-  const [pageSize, setPageSize] = useState(30);
-  const [pageIndex, setPageIndex] = useState(1);
-  const [pageCount, setPageCount] = useState(0);
+  const [refresh,setRefresh] = useState(false);
   const [modalValues, setModalValues] = useState({
     visibility: false,
     close: () => {
@@ -74,6 +73,7 @@ const Releases = () => {
   
   let changeCountry = (country) => {
     setCountry(country);
+    setSitecodes({});
     setSearchList({});
     turnstoneRef.current?.clear();
     turnstoneRef.current?.blur();
@@ -104,7 +104,7 @@ const Releases = () => {
         if(countriesList[0]) {
           setIsLoading(false);
         }
-      } else { setErrorLoading(true) }
+      }
     });
   }
 
@@ -134,12 +134,29 @@ const Releases = () => {
     });
   }
 
+  let setCodes = (data) => {
+    if(data) {
+      setSitecodes(data);
+      setSearchList(getSitesList(data));
+      setIsLoading(false);
+    }
+    else if (country){
+      setIsLoading(false);
+    }
+  }
+
   let getSitesList = (data) => {
     return {
       name: "sites",
       data: data.map?data.map(x=>({"search":x.SiteCode+" - "+x.Name,...x})):[],
       searchType: "contains",
     }
+  }
+
+  let changeFilterEdited = (edited) => {
+    setFilterEdited(edited);
+    clearSearch();
+    forceRefreshData();
   }
 
   let showModalSitechanges = (data) => {
@@ -158,6 +175,12 @@ const Releases = () => {
     setModalItem({});
     clearSearch();
     forceRefreshData();
+  }
+
+  let modalProps = {
+    showEditModal(data){
+      showModalSitechanges(data)
+    }
   }
 
   let forceRefreshData = () => setSitecodes([]);
@@ -190,28 +213,6 @@ const Releases = () => {
     )
   }
 
-  let loadData = () => {
-    if(siteCodes.length !== 0) return;
-    if(country && country !=="" && !isLoading && siteCodes!=="nodata" && siteCodes.length === 0 && !errorLoading){
-      setIsLoading(true);
-      dl.fetch(ConfigData.SITEEDITION_NON_PENDING_GET+"country="+country)
-      .then(response =>response.json())
-      .then(data => {
-        if(data?.Success) {
-          if(Object.keys(data.Data).length === 0){
-            setSitecodes("nodata");
-          }
-          else {
-            setSitecodes(data.Data);
-            setSearchList(getSitesList(data.Data));
-            setPageCount(Math.ceil(data.Data.length / Number(pageSize)));
-          }
-        } else { setErrorLoading(true) }
-        setIsLoading(false);
-      });
-    }
-  }
-
   function updateModalValues(title, text, primaryButtonText, primaryButtonFunction, secondaryButtonText, secondaryButtonFunction, keepOpen) {
     setModalValues({
       visibility: true,
@@ -235,55 +236,6 @@ const Releases = () => {
       keepOpen: keepOpen ? true : false,
     });
   }
-
-  let loadCards = () => {
-    let cards = [];
-    if(countries.length > 0){
-      let countryName = countries.find(a=>a.code===country).name;
-      let sites = siteCodes.slice(pageIndex*pageSize-pageSize,pageIndex*pageSize);
-      for(let i in sites){
-        let siteName = sites[i].Name;
-        let siteCode = sites[i].SiteCode;
-        let version = sites[i].Version;
-        let date = sites[i].EditedDate;
-        let user = sites[i].EditedBy;
-        cards.push(
-          <CCol xs={12} md={6} lg={4} xl={3} key={"card_"+i}>
-            <CCard className="search-card">
-              <div className="search-card-header">
-                <span className="search-card-title">{siteName}</span>
-              </div>
-              <div className="search-card-body">
-                <span className="search-card-description"><b>{siteCode}</b> | {countryName}</span>
-              </div>
-              <div className="search-card-button">
-                <CButton color="link" className="btn-link--dark" onClick={()=>openModal({SiteCode:siteCode, Version:version})}>
-                  Edit
-                </CButton>
-                {date && user &&
-                <CTooltip 
-                  content={"Edited"
-                    + (date && " on " + date.slice(0,10).split('-').reverse().join('/'))
-                    + (user && " by " + user)}>
-                  <div className="btn-icon btn-hover btn-editinfo">
-                    <i className="fa-solid fa-pen-to-square"></i>
-                  </div>
-                </CTooltip>
-              }
-              </div>
-            </CCard>
-          </CCol>
-        )
-      }
-    }
-    return(
-      <>
-        {cards}
-      </>
-    )
-  }
-
-  loadData();
 
   return (
     <div className="container--main min-vh-100">
@@ -311,6 +263,12 @@ const Releases = () => {
               </a>
             </li>
             <li className="nav-item">
+              <a className="nav-link" href="/#/releases/siteeditionoverview">
+                <i className="fa-solid fa-bookmark"></i>
+                Site Edition Overview
+              </a>
+            </li>
+            <li className="nav-item">
               <a className="nav-link active" href="/#/releases/siteedition">
                 <i className="fa-solid fa-bookmark"></i>
                 Site Edition
@@ -331,6 +289,22 @@ const Releases = () => {
                 <h1 className="h1">Site Edition</h1>
               </div>
             </div>
+            <div className="d-flex flex-start align-items-center p-3 card-lineage-type">
+                <div className="me-5">
+                  <h2 className="card-lineage-type-title">Filter by</h2>
+                </div>
+                <div>
+                  <ul className="btn--list">
+                    <li>
+                      <div className="checkbox" disabled={Object.keys(siteCodes).length === 0}>
+                        <input type="checkbox" className="input-checkbox" id="edition_check" checked={filterEdited} onClick={(e)=>changeFilterEdited(e.currentTarget.checked)} />
+                        <label htmlFor="edition_check" className="input-label badge color--default">Edited
+                        </label>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              </div>
             <CRow>
               <CCol sm={12} md={6} lg={6} className="d-flex mb-4">
                 <div className="search--input">
@@ -346,7 +320,7 @@ const Releases = () => {
                     ref={turnstoneRef}
                     Item={item}
                     typeahead={false}
-                    disabled={isLoading || !country}
+                    disabled={Object.keys(siteCodes).length === 0}
                   />
                   {Object.keys(selectOption).length !== 0 &&
                     <span className="btn-icon" onClick={()=>clearSearch(true)}>
@@ -362,13 +336,8 @@ const Releases = () => {
                   <div className="select--right">
                     <CFormLabel className="form-label form-label-reporting col-md-4 col-form-label">
                       Country
-                      <CTooltip content="Only countries with complete envelopes can be edited">
-                        <div className="btn-icon btn-hover ms-2">
-                          <i className="fa-solid fa-circle-info"></i>
-                        </div>
-                      </CTooltip>
                     </CFormLabel>
-                    <CFormSelect aria-label="Default select example" className='form-select-reporting' disabled={isLoading || !country} value={country} onChange={(e)=>changeCountry(e.target.value)}>
+                    <CFormSelect aria-label="Default select example" className='form-select-reporting' disabled={Object.keys(siteCodes).length === 0} value={country} onChange={(e)=>changeCountry(e.target.value)}>
                       {
                         countries.map((e)=><option value={e.code} key={e.code}>{e.name}</option>)
                       }
@@ -377,58 +346,19 @@ const Releases = () => {
                 </CCol>
             </CRow>
             <CRow className="grid">
-              {(errorLoading && !isLoading) &&
-                <CAlert color="danger">Error loading data</CAlert>
-              }
-              {(!errorLoading && isLoading) ?
-                <div className="loading-container"><em>Loading...</em></div>
-              : (siteCodes === "nodata" || !country ?
-                <div className="nodata-container"><em>No Data</em></div>
-                : siteCodes.length > 0 &&
-                  <>
-                    {loadCards()}
-                    <CPagination className="mt-3">
-                      <CPaginationItem onClick={() => setPageIndex(1)} disabled={pageIndex===1}>
-                        <i className="fa-solid fa-angles-left"></i>
-                      </CPaginationItem>
-                      <CPaginationItem onClick={() => setPageIndex(pageIndex-1)} disabled={pageIndex===1}>
-                        <i className="fa-solid fa-angle-left"></i>
-                      </CPaginationItem>
-                      <span>
-                        Page{' '}
-                        <strong>
-                          {pageIndex} of {pageCount}
-                        </strong>{' '}
-                      </span>
-                      <CPaginationItem onClick={() => {setPageIndex(pageIndex+1);loadCards()}} disabled={pageIndex===pageCount}>
-                        <i className="fa-solid fa-angle-right"></i>
-                      </CPaginationItem>
-                      <CPaginationItem onClick={() => setPageIndex(pageCount)} disabled={pageIndex===pageCount}>
-                        <i className="fa-solid fa-angles-right"></i>
-                      </CPaginationItem>
-
-                      <div className='pagination-rows'>
-                        <label className='form-label'>Rows per page</label>
-                        <select
-                          className='form-select'
-                          value={pageSize}
-                          onChange={e => {
-                            setPageCount(Math.ceil(siteCodes.length / Number(e.target.value)));
-                            setPageSize(Number(e.target.value));
-                            setPageIndex(1);
-                          }}
-                        >
-                          {[10, 20, 30, 40, 50].map(pageSize => (
-                            <option key={pageSize} value={pageSize}>
-                              {pageSize}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </CPagination>
-                  </>
-                )
-              }
+              <>
+                <TableEdition
+                  updateModalValues={updateModalValues}
+                  modalProps={modalProps}
+                  refresh = {refresh}
+                  setRefresh = {(v)=>{setRefresh(v)}}
+                  country={country}
+                  setSitecodes={setCodes}
+                  siteCodes={siteCodes}
+                  onlyEdited={filterEdited}
+                  types={siteTypes}
+                />
+              </>
             </CRow>
           </CContainer>
           <ModalEdition

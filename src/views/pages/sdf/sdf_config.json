@@ -13,7 +13,25 @@
     "B": "Habitats Directive",
     "C": "Birds and Habitats Directive"
   },
-  "HabitatTypes": {
+  "Respondent": {
+    "Name": "Name/Organisation",
+    "Address": "Address",
+    "Email": "Email"
+  },
+  "SiteDesignation": {
+    "ClassifiedSPA": "Date site classified as SPA",
+    "ReferenceSPA": "National legal reference of SPA designation",
+    "ProposedSCI": "Date site proposed as SCI",
+    "ConfirmedSCI": "Date site confirmed as SCI",
+    "DesignatedSAC": "Date site designated as SAC",
+    "ReferenceSAC": "National legal reference of SAC designation",
+    "Explanations": "Explanations"
+  },
+  "Region": {
+    "NUTSLevel2Code": "NUTS level 2 code",
+    "RegionName": "Region Name"
+  },
+  "HabitatTypess": {
     "1":"Coastal and halophytic habitats",
     "2":"Coastal sand dunes and inland dunes",
     "3":"Freshwater habitats",
@@ -24,7 +42,37 @@
     "8":"Rocky habitats and caves",
     "9":"Forests"
   },
+  "HabitatTypes": {
+    "HabitatName": "Habitat Name",
+    "Code": "Code",
+    "PF": "PF",
+    "NP": "NP",
+    "Cover": "Cover [ha]",
+    "Cave": "Cave",
+    "DataQuality": "Data Quality",
+    "Representativity": "Representativity",
+    "RelativeSurface": "Relative Surface",
+    "Conservation": "Conservation",
+    "Global": "Global"
+  },
   "Species": {
+    "SpeciesName": "Species Name",
+    "Code": "Code",
+    "Group": "Group",
+    "Sensitive": "S",
+    "NP": "NP",
+    "Type": "Type",
+    "Min": "Min",
+    "Max": "Max",
+    "Unit": "Unit",
+    "Category": "Cat.",
+    "DataQuality": "D.qual.",
+    "Population": "Pop.",
+    "Conservation": "Con.",
+    "Isolation": "Iso.",
+    "Global": "Glo."
+  },
+  "SpeciesTypes": {
     "A": "Amphibians",
     "B": "Birds",
     "F": "Fish",
@@ -32,6 +80,24 @@
     "M": "Mammals", 
     "P": "Plants", 
     "R": "Reptiles"
+  },
+  "OtherSpecies": {
+    "SpeciesName": "Species Name",
+    "Code": "Code",
+    "Group": "Group",
+    "Sensitive": "S",
+    "NP": "NP",
+    "Type": "Type",
+    "Min": "Min",
+    "Max": "Max",
+    "Unit": "Unit",
+    "Category": "Cat.",
+    "AnnexIV": "Annex IV",
+    "AnnexV": "Annex V",
+    "OtherCategoriesA": "Other Cat. A",
+    "OtherCategoriesB": "Other Cat. B",
+    "OtherCategoriesC": "Other Cat. C",
+    "OtherCategoriesD": "Other Cat. D"
   },
   "HabitatClasses": {
     "N01": "Marine areas, Sea inlets",
@@ -62,38 +128,113 @@
     "N26": "Woodland habitats (general)",
     "N27": "Agricultural habitats (general)"
   },
+  "GeneralCharacter": {
+    "HabitatClass": "Habitat Class",
+    "Code": "Code",
+    "Cover": "Cover [ha]"
+  },
+  "NegativeThreats": {
+    "Rank": "Rank",
+    "Impacts": "Threats and pressures [code]",
+    "Pollution": "Pollution (optional) [code]",
+    "Origin": "Origin"
+  },
+  "PositiveThreats": {
+    "Rank": "Rank",
+    "Impacts": "Activities, management [code]",
+    "Pollution": "Pollution (optional) [code]",
+    "Origin": "Origin"
+  },
   "Origin": {
     "i":"Inside",
     "o":"Outside",
     "b": "Both"
+  },
+  "Ownership": {
+    "Types": "Type",
+    "Percent": "[%]"
+  },
+  "OwnershipType": {
+    "Private": "Private",
+    "publicNational": "Public - National/Federal",
+    "publicState": "Public - State/Province",
+    "publicLocal": "Public - Local/Municipal",
+    "publicAny": "Public - Any Public",
+
+    "joint": "Joint or Co-Ownership",
+    "unknown": "Unknown"
+  },
+  "DesignationTypes": {
+    "Code": "Code",
+    "Cover": "Cover [ha]"
+  },
+  "RelationSites": {
+    "DesignationLevel": "Designation Level",
+    "TypeCode": "Type Code",
+    "SiteName": "Site Name",
+    "Type": "Type",
+    "Percent": "Cover [%]"
+  },
+  "Legend": {
+    "HabitatTypes": {
+      "PF": "For the habitat types that can have a non-priority as well as a priority form (6210, 7130, 9430) enter 'X' in the column PF to indicate the priority form.",
+      "NP": "In case that a habitat type no longer exists in the site enter: x (optional)",
+      "Cover [ha]": "Decimal values can be entered",
+      "Caves": "For habitat types 8310, 8330 (caves) enter the number of caves if estimated surface is not available.",
+      "Data Quality": "G = 'Good' (e.g. based on surveys), M = 'Moderate' (e.g. based on partial data with some extrapolation), P = 'Poor' (e.g. rough estimation)"
+    },
+    "Species": {
+      "Group": "A = Amphibians, B = Birds, F = Fish, I = Invertebrates, M = Mammals, P = Plants, R = Reptiles",
+      "S": "In case that the data on species are sensitive and therefore have to be blocked for any public access enter: yes",
+      "NP": "In case that a species is no longer present in the site enter: x (optional)",
+      "Type": "p = permanent, r = reproducing, c = concentration, w = wintering (for plant and non-migratory species use permanent)",
+      "Min": "Minimum population size in the site",
+      "Max": "Maximum population size in the site",
+      "Unit": "i = individuals, p = pairs or other units according to the Standard list of population units and codes in accordance with Article 12 and 17 reporting (see reference portal)",
+      "Abundance categories (Cat.)": "C = common, R = rare, V = very rare, P = present - to fill if data are deficient (DD) or in addition to population size information",
+      "Data quality": "G = 'Good' (e.g. based on surveys), M = 'Moderate' (e.g. based on partial data with some extrapolation), P = 'Poor' (e.g. rough estimation), VP = 'Very poor' (use this category only, if not even a rough estimation of the population size can be made, in this case the fields for population size can remain empty, but the field 'Abundance categories' has to be filled in)"
+    },
+    "OtherSpecies": {
+      "Group": "A = Amphibians, B = Birds, F = Fish, Fu = Fungi, I = Invertebrates, L = Lichens, M = Mammals, P = Plants, R = Reptiles",
+      "Code": "For Birds, Annex IV and V species the code as provided in the reference portal should be used in addition to the scientific name",
+      "S": "In case that the data on species are sensitive and therefore have to be blocked for any public access enter: yes",
+      "NP": "In case that a species is no longer present in the site enter: x (optional)",
+      "Unit": "i = individuals, p = pairs or other units according to the Standard list of population units and codes in accordance with Article 12 and 17 reporting (see reference portal)",
+      "Abundance categories (Cat.)": "C = common, R = rare, V = very rare, P = present - to fill if data are deficient (DD) or in addition to population size information",
+      "Motivation categories": "IV, V: Annex Species (Habitats Directive), A: National Red List data, B: Endemics, C: International Conventions, D: other reasons"
+    },
+    "Threats": {
+      "Rank": "H = high, M = medium, L = low",
+      "Pollution": "N = Nitrogen input, P = Phosphor/Phosphate input, A = Acid input/acidification, T = toxic inorganic chemicals, O = toxic organic chemicals, X = Mixed pollutions, i = inside, o = outside, b = both"
+    }
   },
   "Tooltips": {
     "HabitatTypes": {
       "PF": "For the habitat types that can have a non-priority as well as a priority form (6210, 7130, 9430) enter 'X' in the column PF to indicate the priority form.",
       "NP": "In case that a habitat type no longer exists in the site enter: x (optional)",
       "Cover [ha]": "Decimal values can be entered",
-      "Cave": "For habitat types 8310, 8330 (caves) enter the number of caves if estimated surface is not available.",
-      "Data Quality": "G = 'Good' (e.g. based on surveys); M = 'Moderate' (e.g. based on partial data with some extrapolation); P = 'Poor' (e.g. rough estimation)"
+      "Caves": "For habitat types 8310, 8330 (caves) enter the number of caves if estimated surface is not available.",
+      "Data Quality": "G = 'Good' (e.g. based on surveys), M = 'Moderate' (e.g. based on partial data with some extrapolation), P = 'Poor' (e.g. rough estimation)"
     },
     "Species": {
+      "Group": "A = Amphibians, B = Birds, F = Fish, I = Invertebrates, M = Mammals, P = Plants, R = Reptiles",
       "S": "In case that the data on species are sensitive and therefore have to be blocked for any public access enter: yes",
       "NP": "In case that a species is no longer present in the site enter: x (optional)",
       "Type": "p = permanent, r = reproducing, c = concentration, w = wintering (for plant and non-migratory species use permanent)",
-      "Min": "Minimum population size in the site",
-      "Max": "Maximum population size in the site",
       "Unit": "i = individuals, p = pairs or other units according to the Standard list of population units and codes in accordance with Article 12 and 17 reporting (see reference portal)",
-      "Cat.": "Abundance categories. C = common, R = rare, V = very rare, P = present - to fill if data are deficient (DD) or in addition to population size information",
-      "Data quality": "G = 'Good' (e.g. based on surveys); M = 'Moderate' (e.g. based on partial data with some extrapolation); P = 'Poor' (e.g. rough estimation); VP = 'Very poor' (use this category only, if not even a rough estimation of the population size can be made, in this case the fields for population size can remain empty, but the field 'Abundance categories' has to be filled in)"
+      "Abundance categories (Cat.)": "C = common, R = rare, V = very rare, P = present - to fill if data are deficient (DD) or in addition to population size information",
+      "Data quality": "G = 'Good' (e.g. based on surveys), M = 'Moderate' (e.g. based on partial data with some extrapolation), P = 'Poor' (e.g. rough estimation), VP = 'Very poor' (use this category only, if not even a rough estimation of the population size can be made, in this case the fields for population size can remain empty, but the field 'Abundance categories' has to be filled in)"
     },
     "OtherSpecies": {
+      "Group": "A = Amphibians, B = Birds, F = Fish, Fu = Fungi, I = Invertebrates, L = Lichens, M = Mammals, P = Plants, R = Reptiles",
+      "CODE": "For Birds, Annex IV and V species the code as provided in the reference portal should be used in addition to the scientific name",
       "S": "In case that the data on species are sensitive and therefore have to be blocked for any public access enter: yes",
       "NP": "In case that a species is no longer present in the site enter: x (optional)",
-      "Type": "p = permanent, r = reproducing, c = concentration, w = wintering (for plant and non-migratory species use permanent)",
       "Min": "Minimum population size in the site",
       "Max": "Maximum population size in the site",
       "Unit": "i = individuals, p = pairs or other units according to the Standard list of population units and codes in accordance with Article 12 and 17 reporting (see reference portal)",
-      "Cat.": "Abundance categories. C = common, R = rare, V = very rare, P = present - to fill if data are deficient (DD) or in addition to population size information",
-      "Motivation categories": "IV, V: Annex Species (Habitats Directive), A: National Red List data; B: Endemics; C: International Conventions; D: other reasons"
+      "Abundance categories (Cat.)": "C = common, R = rare, V = very rare, P = present - to fill if data are deficient (DD) or in addition to population size information",
+      "Motivation categories": "IV, V: Annex Species (Habitats Directive), A: National Red List data, B: Endemics, C: International Conventions, D: other reasons"
     }
   }
 }

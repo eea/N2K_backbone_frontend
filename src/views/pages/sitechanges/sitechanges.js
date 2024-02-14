@@ -89,6 +89,7 @@ const Sitechanges = () => {
   const [searchList, setSearchList] = useState({});
   const [selectOption, setSelectOption] = useState({});
   const [showModal, setShowModal] = useState(false);
+  const [modalHasChanges, setModalHasChanges] = useState(false);
   const [updatingData, setUpdatingData] = useState(false);
   const [completingEnvelope, setCompletingEnvelope] = useState(false);
   const [accepting, setAccepting] = useState(false);
@@ -96,6 +97,22 @@ const Sitechanges = () => {
   const [backing, setBacking] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const turnstoneRef = useRef();
+
+  useEffect(() => {
+    if(!modalHasChanges) return;
+
+    function handleBeforeUnload(e) {
+      e.preventDefault();
+      return (e.returnValue = '');
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      setModalHasChanges(false)
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+    }
+  }, [modalHasChanges])
 
   let setCodes = (status,data) => {
     if(data) {
@@ -135,14 +152,12 @@ const Sitechanges = () => {
     setTimeout(() => {setErrorMessage('')}, ConfigData.MessageTimeout);
   }
 
-  let selectedCodes = [],
-  setSelectedCodes = (v) => {
+  let selectedCodes = []
+  let setSelectedCodes = (v) => {
     if(!isLoading){
-      let checkAll = document.querySelector('.tab-pane.active [id^=sitechanges_check_all]');
-      if(document.querySelectorAll('input[sitecode]:checked').length !== 0 && v.length === 0) {
-        if(!checkAll) {
-          setDisabledBtn(true);
-        }
+      v = v.filter(s => s.LineageChangeType == "NoChanges")
+      if(v.length === 0 && document.querySelectorAll('tbody input[sitecode]:checked:not([disabled])').length !== 0) {
+        setDisabledBtn(true)
         return;
       }
       selectedCodes = v;
@@ -161,6 +176,7 @@ const Sitechanges = () => {
       cleanSiteParm();
     } 
     setShowModal(false);
+    setModalHasChanges(false);
     clearSearch();
     forceRefreshData();
     setForceRefresh(forceRefresh+1);
@@ -205,10 +221,30 @@ const Sitechanges = () => {
     });
   }
 
+  let getChangesBody = (changes) => {
+    const changeTypes = ["Site Merged", "Site Split", "Site Recoded"]
+    try {
+      if(!Array.isArray(changes)) {
+        if(changeTypes.includes(changes.LineageChangeType)) {
+          let siteList = [].concat(siteCodes.pending).concat(siteCodes.accepted).concat(siteCodes.rejected)
+          return changes.AffectedSites.split(",")
+            .flatMap(s => [{"SiteCode": s, "VersionId": siteList.find(a => a.SiteCode == s)?.Version}])
+            .filter(o => o.VersionId != null || o.VersionId != undefined)
+        } else {
+          return [{"SiteCode": changes.SiteCode, "VersionId": changes.Version}]
+        }
+      } else {
+        return changes.filter(a => a.LineageChangeType === "NoChanges").map(b => ({"SiteCode": b.SiteCode, "VersionId": b.VersionId}));
+      }
+    } catch(e) {
+      throw "Data error"
+    }
+  }
+
   let setBackToPending = (changes, refresh)=>{
     setBacking(true);
     setUpdatingData(true);
-    let rBody = !Array.isArray(changes)?[changes]:changes
+    let rBody = getChangesBody(changes);
 
     return postRequest(ConfigData.MOVE_TO_PENDING, rBody)
     .then(data => {
@@ -221,18 +257,18 @@ const Sitechanges = () => {
           setForceRefresh(forceRefresh+1);
         }
         return response;
-      } else showErrorMessage("Back To Pending");
-      setBacking(false);
-    }).catch(e => {
-      showErrorMessage("Back To Pending");
-      console.error(e)
+      } else {
+        setBacking(false);
+        setUpdatingData(false);
+        throw("Service returned Success: false")
+      }
     });
   }
 
   let acceptChanges = (changes, refresh)=>{
     setAccepting(true);
     setUpdatingData(true);
-    let rBody = !Array.isArray(changes)?[changes]:changes
+    let rBody = getChangesBody(changes);
 
     return postRequest(ConfigData.ACCEPT_CHANGES, rBody)
     .then(data => {
@@ -245,18 +281,18 @@ const Sitechanges = () => {
           setForceRefresh(forceRefresh+1);
         }
         return response;
-      } else showErrorMessage("Accept Changes");
-      setAccepting(false);
-    }).catch(e => {
-      showErrorMessage("Accept Changes");
-      console.error(e);
+      } else {
+        setAccepting(false);
+        setUpdatingData(false);
+        throw "Service returned Success: false"
+      }
     });
   }
 
   let rejectChanges = (changes, refresh)=>{
     setRejecting(true);
     setUpdatingData(true);
-    let rBody = !Array.isArray(changes)?[changes]:changes
+    let rBody = getChangesBody(changes);
 
     return postRequest(ConfigData.REJECT_CHANGES, rBody)
     .then(data => {
@@ -269,11 +305,11 @@ const Sitechanges = () => {
           setForceRefresh(forceRefresh+1);
         }
         return response;
-      } else showErrorMessage("Reject Changes");
-      setRejecting(false);
-    }).catch(e => {
-      showErrorMessage("Reject Changes");
-      console.error(e);
+      } else {
+        setRejecting(false);
+        setUpdatingData(false);
+        throw("Service returned Success: false")
+      }
     });
   }
 
@@ -420,9 +456,10 @@ const Sitechanges = () => {
   }
 
   let changeCountry = (country)=>{
-    setCountry(country)
+    setCountry(country);
     setSitecodes({});
     setSearchList({});
+    setDisabledBtn(true);
     turnstoneRef.current?.clear();
     turnstoneRef.current?.blur();
     if(country !== "") {
@@ -480,12 +517,6 @@ const Sitechanges = () => {
                   No Changes
                 </a>
               </li>
-              <li className="nav-item">
-                <a className="nav-link">
-                  <i className="fa-solid fa-bookmark"></i>
-                  Changes History
-                </a>
-              </li>
             </CSidebarNav>
           </CSidebar>
           <div className="main-content">
@@ -499,13 +530,19 @@ const Sitechanges = () => {
                     {!isLoading && country && activeTab === 1 &&
                       <>
                         <li>
-                          <CButton color="secondary" onClick={()=>updateModalValues("Reject Changes", "This will reject all the site changes", "Continue", ()=>rejectChanges(selectedCodes, true), "Cancel", ()=>{})} disabled={updatingData || disabledBtn || activeTab!==1}>
+                          <CButton color="secondary" disabled={updatingData || disabledBtn || activeTab!==1}
+                            onClick={()=>updateModalValues("Reject Changes", "This will reject all the site changes",
+                              "Continue", ()=>rejectChanges(selectedCodes, true).catch(e => {showErrorMessage("Reject changes"); console.log(e)}),
+                              "Cancel", ()=>{})}>
                             {rejecting && <CSpinner size="sm"/>}
                             {rejecting ? " Rejecting Changes" : "Reject Changes"}
                           </CButton>
                         </li>
                         <li>
-                          <CButton color="primary" onClick={()=>updateModalValues("Accept Changes", "This will accept all the site changes", "Continue", ()=>acceptChanges(selectedCodes, true), "Cancel", ()=>{})} disabled={updatingData || disabledBtn || activeTab!==1}>
+                          <CButton color="primary" disabled={updatingData || disabledBtn || activeTab!==1}
+                            onClick={()=>updateModalValues("Accept Changes", "This will accept all the site changes",
+                              "Continue", ()=>acceptChanges(selectedCodes, true).catch(e => {showErrorMessage("Accept changes"); console.log(e)}),
+                              "Cancel", ()=>{})}>
                             {accepting && <CSpinner size="sm"/>}
                             {accepting ? " Accepting Changes" : "Accept Changes"}
                           </CButton>
@@ -514,7 +551,10 @@ const Sitechanges = () => {
                     }
                     {!isLoading && country && activeTab !== 1 &&
                       <li>
-                        <CButton color="primary" onClick={()=>updateModalValues("Back to Pending", "This will set the changes back to Pending", "Continue", ()=>setBackToPending(selectedCodes, true), "Cancel", ()=>{})} disabled={updatingData || disabledBtn || activeTab===1}>
+                        <CButton color="primary" disabled={updatingData || disabledBtn || activeTab===1}
+                          onClick={()=>updateModalValues("Back to Pending", "This will set the changes back to Pending",
+                            "Continue", ()=>setBackToPending(selectedCodes, true).catch(e => {showErrorMessage("Back to pending");console.log(e)}),
+                            "Cancel", ()=>{})}>
                           {backing && <CSpinner size="sm"/>}
                           {backing ? " Sending Back to Pending" : "Back to Pending"}
                         </CButton>
@@ -652,7 +692,7 @@ const Sitechanges = () => {
                         country = {country}
                         level = {level}
                         onlyEdited = {false}
-                        setSelected={setSelectedCodes} 
+                        setSelected={(v) => {if(activeTab===1) setSelectedCodes(v)}} 
                         getRefresh={()=>getRefreshSitechanges("pending")} 
                         setRefresh={setRefreshSitechanges}
                         accept={acceptChanges}
@@ -668,7 +708,10 @@ const Sitechanges = () => {
                         site={site}
                         setSite={setSite}
                         closeModal={closeModal}
+                        modalHasChanges = {modalHasChanges}
+                        setModalHasChanges = {setModalHasChanges}
                         setLoadingSites={setLoadingSites}
+                        showErrorMessage={showErrorMessage}
                       />
                     </CTabPane>
                     <CTabPane role="tabpanel" aria-labelledby="accepted-tab" visible={activeTab === 2}>
@@ -677,7 +720,7 @@ const Sitechanges = () => {
                         country = {country}
                         level = {level}
                         onlyEdited = {filterEdited}
-                        setSelected={setSelectedCodes} 
+                        setSelected={(v) => {if(activeTab===2) setSelectedCodes(v)}} 
                         getRefresh={()=>getRefreshSitechanges("accepted")} 
                         setRefresh={setRefreshSitechanges}
                         accept={acceptChanges}
@@ -692,7 +735,10 @@ const Sitechanges = () => {
                         site={site}
                         setSite={setSite}
                         closeModal={closeModal}
+                        modalHasChanges = {modalHasChanges}
+                        setModalHasChanges = {setModalHasChanges}
                         setLoadingSites={setLoadingSites}
+                        showErrorMessage={showErrorMessage}
                       />
                     </CTabPane>
                     <CTabPane role="tabpanel" aria-labelledby="rejected-tab" visible={activeTab === 3}>
@@ -701,7 +747,7 @@ const Sitechanges = () => {
                         country = {country}
                         level = {level}
                         onlyEdited = {false}
-                        setSelected={setSelectedCodes} 
+                        setSelected={(v) => {if(activeTab===3) setSelectedCodes(v)}} 
                         getRefresh={()=>getRefreshSitechanges("rejected")} 
                         setRefresh={setRefreshSitechanges}
                         accept={acceptChanges}
@@ -716,7 +762,10 @@ const Sitechanges = () => {
                         site={site}
                         setSite={setSite}
                         closeModal={closeModal}
+                        modalHasChanges = {modalHasChanges}
+                        setModalHasChanges = {setModalHasChanges}
                         setLoadingSites={setLoadingSites}
+                        showErrorMessage={showErrorMessage}
                       />
                     </CTabPane>
                     </CTabContent>

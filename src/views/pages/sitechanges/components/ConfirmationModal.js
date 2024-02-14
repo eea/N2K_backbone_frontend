@@ -33,8 +33,8 @@ export class ConfirmationModal extends Component {
   render() {
     let modal = this.props.modalValues;
     return (
-      <CModal alignment="center" visible={modal.visibility} backdrop="static" onClose={()=>this.closeFunction()} className="modal--confirmation">
-        <CModalHeader onClose={()=>this.closeFunction()}>
+      <CModal alignment="center" visible={modal.visibility} backdrop="static" onClose={()=>{this.closeFunction();this.secondaryFunction()}} className="modal--confirmation">
+        <CModalHeader>
           <CModalTitle>{modal.title}</CModalTitle>
         </CModalHeader>
         <CModalBody>{modal.text}</CModalBody>
