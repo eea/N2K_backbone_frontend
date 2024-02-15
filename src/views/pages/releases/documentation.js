@@ -102,6 +102,12 @@ const Releases = () => {
               </a>
             </li>
             <li className="nav-item">
+              <a className="nav-link" href="/#/releases/siteeditionoverview">
+                <i className="fa-solid fa-bookmark"></i>
+                Site Edition Overview
+              </a>
+            </li>
+            <li className="nav-item">
               <a className="nav-link" href="/#/releases/siteedition">
                 <i className="fa-solid fa-bookmark"></i>
                 Site Edition
