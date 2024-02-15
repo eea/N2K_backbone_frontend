@@ -152,7 +152,7 @@ const Releases = () => {
         else {
           modalValues.close();
           setErrorRequest(true);
-          setTimeout(() => setErrorRequest(false), ConfiData.MessageTimeout);
+          setTimeout(() => setErrorRequest(false), ConfigData.MessageTimeout);
         }
       })
     }
