@@ -1427,7 +1427,8 @@ export class ModalChanges extends Component {
                 </CNavLink>
               </CNavItem>
               <div className="ms-auto">
-                <CButton color="link" href={"/#/sdf?sitecode=" + data.ReferenceSiteCode} target="_blank" className={!data.ReferenceSiteCode ? "disabled" : ""}>
+                <CButton color="link" href={"/#/sdf?sitecode=" + data.ReferenceSiteCode} target="_blank"
+                  className={!data.ReferenceSiteCode || (this.props.lineageChangeType == "Creation") ? "disabled" : ""}>
                   <i class="fas fa-arrow-up-right-from-square me-2"></i>
                   SDF
                 </CButton>
