@@ -89,9 +89,10 @@ function Table({ columns, data, setSelected, modalProps, updateModalValues }) {
           id: 'unionListEdit',
           cellWidth: "48px",
           Cell: ({ row }) => (
-            <div className="btn-icon" onClick={() => modalProps.showEditModal(row.original.ID, row.original.Title, row.original.Final === "Yes" ? true : false)}>
-              <i className="fa-solid fa-pencil"></i>
-            </div>
+            row.original.Active === "Current" &&
+              <div className="btn-icon" onClick={() => modalProps.showEditModal(row.original.Id, row.original.InitDate, row.original.EndDate)}>
+                <i className="fa-solid fa-pencil"></i>
+              </div>
           )
         },
       ])
@@ -119,7 +120,7 @@ function Table({ columns, data, setSelected, modalProps, updateModalValues }) {
           {page.map((row, i) => {
             prepareRow(row)
             return (
-              <tr {...row.getRowProps()}>
+              <tr {...row.getRowProps()} style={{background: row.values.Active === "Current" ? "#E3F2FD" : ""}}>
                 {row.cells.map(cell => {
                   return <td {...cell.getCellProps()} key={cell.column.id + "_" + cell.row.id}>{cell.render('Cell')}</td>
                 })}
@@ -186,29 +187,48 @@ function TablePeriod(props) {
     return date;
   };
 
+  const customFilter = (rows, columnIds, filterValue) => {
+    if(columnIds[0] === "Releases") {
+      return filterValue.length === 0 ? rows : rows.filter((row) => row.values[columnIds].map(a=>a.Name).join().toLowerCase().includes(filterValue.toLowerCase()));
+    }
+    else if(columnIds[0] === "InitDate" || columnIds[0] === "EndDate") {
+      return rows.filter((row) => formatDate(row.values[columnIds]).includes(filterValue));
+    }
+  }
+
   const columns = React.useMemo(
     () => [
       {
         Header: 'Period',
-        accessor: 'Title',
+        accessor: 'Active',
       },
       {
         Header: 'Start Date',
-        accessor: 'CreateDate',
+        accessor: 'InitDate',
         Cell: ({ cell }) => (
           formatDate(cell.value)
-        )
+        ),
+        filter: customFilter,
       },
       {
         Header: 'End Date',
-        accessor: 'ModifyDate',
+        accessor: 'EndDate',
         Cell: ({ cell }) => (
           formatDate(cell.value)
-        )
+        ),
+        filter: customFilter,
       },
       {
         Header: 'Release',
-        accessor: 'Author',
+        accessor: 'Releases',
+        Cell: ({ row }) => {
+          return (
+            row.original.Releases.map(a =>
+              <div>{a?.Name}</div>
+            )
+          )
+        },
+        filter: customFilter,
       },
     ],
     []
@@ -220,7 +240,8 @@ function TablePeriod(props) {
         props.setRefresh(false);
       } 
       setIsLoading(true);
-      dl.fetch(ConfigData.RELEASES_GET)
+      props.setIsloading(true);
+      dl.fetch(ConfigData.REPORTING_PERIOD_GET)
       .then(response =>response.json())
       .then(data => {
         if(data?.Success) {
@@ -228,10 +249,12 @@ function TablePeriod(props) {
             setReleasesDate("nodata");
           }
           else {
-            data.Data = data.Data.map(a=>{a.Final = a.Final? "Yes":"No"; return a});
-            setReleasesDate(data.Data.sort((a,b)=>new Date(b.CreateDate)-new Date(a.CreateDate)));
+            data.Data = data.Data.reverse().map(a=>{a.Active = a.Active? "Current":"Passed"; return a});
+            setReleasesDate(data.Data);
+            props.setIsCurrent(data.Data.some(a=>a.Active==="Current"));
           }
           setIsLoading(false);
+          props.setIsloading(false);
         }
       });
     }

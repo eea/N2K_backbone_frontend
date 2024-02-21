@@ -12,17 +12,15 @@ import {
   CButton,
   CForm,
   CAlert,
-  CSpinner
 } from '@coreui/react'
 
 import { ConfirmationModal } from './components/ConfirmationModal';
 
 const ReportingPeriod = () => {
   const [refresh,setRefresh] = useState(false);
-  const [periods,setPeriods] = useState(["current", "passed"]);
-  const [updating, setUpdating] = useState(false);
+  const [isLoading, setIsloading] = useState(true);
+  const [isCurrent, setIsCurrent] = useState(true);
   const [errorMessage, setErrorMessage]  = useState("");
-  const [modalVisible, setModalVisible] = useState(false);
   const [modalValues, setModalValues] = useState({
     visibility: false,
     message: {
@@ -62,18 +60,6 @@ const ReportingPeriod = () => {
     }, ConfigData.MessageTimeout);
   };
 
-  let changePeriod = (period) => {
-    let values;
-    if(periods.includes(period)){
-      values = periods.filter((a)=>a !== period);
-    }
-    else {
-      values = periods.concat(period);
-    }
-    setPeriods(period);
-    forceRefreshData();
-  }
-
   function updateModalValues(title, text, primaryButtonText, primaryButtonFunction, secondaryButtonText, secondaryButtonFunction, keepOpen) {
     setModalValues({
       visibility: true,
@@ -104,95 +90,93 @@ const ReportingPeriod = () => {
     });
   }
 
-  let openModal = (type) => {
+  let openModal = (type, start, end) => {
     if(type === "close") {
       updateModalValues("Close Reporting Period", renderModalContent(type), "Continue", ()=>closePeriod(), "Cancel", ()=>{}, true);
     }
     else if(type === "create") {
-      updateModalValues("Create Reporting Period", renderModalContent(type), "Continue", ()=>createPeriod(), "Cancel", ()=>{}, true);
+      updateModalValues("Create Reporting Period", renderModalContent(type, start, end), "Continue", ()=>createPeriod(), "Cancel", ()=>{}, true);
     }
   }
 
   let modalProps = {
     showEditModal(id, start, end) {
-      updateModalValues("Edit Reporting Period", renderModalContent("edit", start, end), "Continue", ()=>editPeriod(id, start, end), "Cancel", ()=>{}, true);
+      updateModalValues("Edit Reporting Period", renderModalContent("edit", formatDate(start), formatDate(end)), "Continue", ()=>editPeriod(id), "Cancel", ()=>{}, true);
     },
   }
 
-  let forceRefreshData = () => {
-    setRefresh(true);
-  };
-
   const closePeriod = () => {
-    // let body = id;
-    // setModalValues((prevState) => ({
-    //   ...prevState,
-    //   primaryButton:{
-    //     text: <><CSpinner size="sm"/> Closing</>
-    //   },
-    // }));
-    // sendRequest(ConfigData.UNIONLIST_DELETE,"POST",body)
-    // .then(response => response.json())
-    // .then(data => {
-    //   if(data?.Success) {
-    //     setRefresh(true);
-    //   }
-    //   else {
-    //     showErrorMessage(data.Message);
-    //   }
-    //   modalValues.close();
-    // })
+    sendRequest(ConfigData.REPORTING_PERIOD_CLOSE,"POST")
+    .then(response => response.json())
+    .then(data => {
+      if(data?.Success) {
+        setRefresh(true);
+        setIsCurrent(false);
+      }
+      else {
+        showErrorMessage(data.Message);
+      }
+      modalValues.close();
+    })
   }
 
   const createPeriod = () => {
-    // let body = Object.fromEntries(new FormData(document.getElementById("create_form")));
-    // if(!body.periodStart || !body.periodEnd) {
-    //   if(!body.periodStart && !body.periodEnd) {
-    //     showMessage("Select a period");
-    //   }
-    //   else {
-    //     if(!body.periodStart) {
-    //       showMessage("Add period start date");
-    //     }
-    //     else {
-    //       showMessage("Add period end date");
-    //     }
-    //   }
-    // }
-    // else {
-    //   sendRequest(ConfigData.UNIONLIST_UPDATE,"POST",body)
-    //   .then(response => response.json())
-    //   .then(data => {
-    //     if(data?.Success) {
-    //       setRefresh(true);
-    //     }
-    //     else {
-    //       showErrorMessage(data.Message);
-    //     }
-    //     modalValues.close();
-    //   })
-    // }
+    let body = Object.fromEntries(new FormData(document.getElementById("create_form")));
+    if(!body.periodStart || !body.periodEnd) {
+      if(!body.periodStart && !body.periodEnd) {
+        showMessage("Select a period");
+      }
+      else {
+        if(!body.periodStart) {
+          showMessage("Add period start date");
+        }
+        else {
+          showMessage("Add period end date");
+        }
+      }
+    }
+    else {
+      body = {
+        InitDate: new Date(body.periodStart.split("/").reverse().join("-")).toISOString(),
+        EndDate: new Date(body.periodEnd.split("/").reverse().join("-")).toISOString(),
+      }
+      sendRequest(ConfigData.REPORTING_PERIOD_CREATE,"POST",body)
+      .then(response => response.json())
+      .then(data => {
+        if(data?.Success) {
+          setRefresh(true);
+          setIsCurrent(false);
+        }
+        else {
+          showErrorMessage(data.Message);
+        }
+        modalValues.close();
+      })
+    }
   }
 
   const editPeriod = (id) => {
-    // let body = Object.fromEntries(new FormData(document.getElementById("edit_form")));
-    // body.Id = id;
-    // if(!body.periodEnd) {
-    //   showMessage("Add period end date");
-    // }
-    // else {
-    //   sendRequest(ConfigData.UNIONLIST_UPDATE,"PUT",body)
-    //   .then(response => response.json())
-    //   .then(data => {
-    //     if(data?.Success) {
-    //       setRefresh(true);
-    //     }
-    //     else {
-    //       showErrorMessage(data.Message);
-    //     }
-    //     modalValues.close();
-    //   })
-    // }
+    let body = Object.fromEntries(new FormData(document.getElementById("edit_form")));
+    if(!body.periodEnd) {
+      showMessage("Add period end date");
+    }
+    else {
+      body = {
+        EndDate: new Date(body.periodEnd.split("/").reverse().join("-")).toISOString(),
+        Id: id
+      }
+      sendRequest(ConfigData.REPORTING_PERIOD_EDIT,"PUT", body)
+      .then(response => response.json())
+      .then(data => {
+        if(data?.Success) {
+          setRefresh(true);
+        }
+        else {
+          showErrorMessage(data.Message);
+        }
+        modalValues.close();
+      })
+    }
   }
 
   const showErrorMessage = (message) => {
@@ -211,6 +195,15 @@ const ReportingPeriod = () => {
     return dl.fetch(url, options)
   }
 
+  const formatDate = (date) => {
+    date = new Date(date);
+    var d = date.getDate();
+    var m = date.getMonth() + 1;
+    var y = date.getFullYear();
+    date = y + '-' + (m <= 9 ? '0' + m : m) + '-' + (d <= 9 ? '0' + d : d);
+    return date;
+  };
+
   const renderModalContent = (type, start, end) => {
     if(type === "close") {
       return (
@@ -227,13 +220,13 @@ const ReportingPeriod = () => {
               <CCol xs={12} md={6} className="mb-2">
                 <label className="mb-3">Start Date</label>
                 <div className="input-date">
-                  <input type="date" name="periodStart" placeholder="dd/mm/yyyy"/>
+                  <input type="date" name="periodStart" placeholder="dd/mm/yyyy" defaultValue={start} max={end} onChange={(e)=>{openModal("create", e.currentTarget.value, end)}}/>
                 </div>
               </CCol>
               <CCol xs={12} md={6} className="mb-2">
                 <label className="mb-3">End Date</label>
                 <div className="input-date">
-                  <input type="date" name="periodEnd" placeholder="dd/mm/yyyy"/>
+                  <input type="date" name="periodEnd" placeholder="dd/mm/yyyy" defaultValue={end} min={start} onChange={(e)=>{openModal("create", start, e.currentTarget.value)}}/>
                 </div>
               </CCol>
             </CRow>
@@ -249,13 +242,13 @@ const ReportingPeriod = () => {
                 <CCol xs={12} md={6} className="mb-2">
                   <label className="mb-3">Start Date</label>
                   <div className="input-date">
-                    <input type="date" name="periodStart" placeholder="dd/mm/yyyy" value={start} disabled="disabled"/>
+                    <input type="date" name="periodStart" placeholder="dd/mm/yyyy" disabled="disabled" defaultValue={start}/>
                   </div>
                 </CCol>
                 <CCol xs={12} md={6}>
                   <label className="mb-3">End Date</label>
                   <div className="input-date">
-                    <input type="date" name="periodEnd" placeholder="dd/mm/yyyy" value={end}/>
+                    <input type="date" name="periodEnd" placeholder="dd/mm/yyyy" defaultValue={end} min={start}/>
                   </div>
                 </CCol>
               </CRow>
@@ -278,12 +271,12 @@ const ReportingPeriod = () => {
               <div>
                 <ul className="btn--list">
                   <li>
-                    <CButton color="secondary" onClick={()=>openModal("close")}>
+                    <CButton color="secondary" onClick={()=>openModal("close")} disabled={isLoading || (!isLoading && !isCurrent)}>
                       Close Current Reporting Period
                     </CButton>
                   </li>
                   <li>
-                    <CButton color="primary" onClick={()=>openModal("create")}>
+                    <CButton color="primary" onClick={()=>openModal("create")} disabled={isLoading || (!isLoading && isCurrent)}>
                       Create Reporting Period
                     </CButton>
                   </li>
@@ -293,25 +286,6 @@ const ReportingPeriod = () => {
             <div>
               <CAlert color="danger" visible={errorMessage.length > 0}>{errorMessage}</CAlert>
             </div>
-            <div className="d-flex flex-start align-items-center p-3 card-site-level">
-              <div className="me-5"><h2 className="card-site-level-title">Period</h2></div>
-              <div>
-                <ul className="btn--list">
-                  <li>
-                    <div className="checkbox">
-                      <input type="checkbox" className="input-checkbox" id="period_check_current" checked={periods.includes("current")} onClick={()=>changePeriod("Current")} readOnly/>
-                      <label htmlFor="period_check_current" className="input-label badge color--default">Current</label>
-                    </div>
-                  </li>
-                  <li>
-                    <div className="checkbox">
-                      <input type="checkbox" className="input-checkbox" id="period_check_passed" checked={periods.includes("passed")} onClick={()=>changePeriod("Passed")} readOnly/>
-                      <label htmlFor="period_check_passed" className="input-label badge color--default">Passed</label>
-                    </div>
-                  </li>
-                </ul>
-              </div>
-            </div>
             <CRow>
               <CCol>
                 <TablePeriod
@@ -319,6 +293,8 @@ const ReportingPeriod = () => {
                   modalProps={modalProps}
                   refresh = {refresh}
                   setRefresh = {(v)=>{setRefresh(v)}}
+                  setIsloading = {(v)=>setIsloading(v)}
+                  setIsCurrent = {setIsCurrent}
                 />
               </CCol>
             </CRow>
