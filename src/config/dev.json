@@ -60,6 +60,10 @@
   "LINEAGE_GET_REFERENCE_SITES": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteLineage/GetLineageReferenceSites",
   "LINEAGE_SAVE_CHANGES": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteLineage/SaveEdition",
   "GET_SDF_DATA": "https://n2kbackboneback-dev.azurewebsites.net/api/SDF/GetData",
+  "REPORTING_PERIOD_GET": "https://n2kbackboneback-dev.azurewebsites.net/api/ReportingPeriod/Get",
+  "REPORTING_PERIOD_EDIT": "https://n2kbackboneback-dev.azurewebsites.net/api/ReportingPeriod/Edit",
+  "REPORTING_PERIOD_CREATE": "https://n2kbackboneback-dev.azurewebsites.net/api/ReportingPeriod/Create",
+  "REPORTING_PERIOD_CLOSE": "https://n2kbackboneback-dev.azurewebsites.net/api/ReportingPeriod/Close",
   "REPORTED_SPATIAL": "https://bio.discomap.eea.europa.eu/arcgis/rest/services/N2K_Backbone/N2KBackbone_stg/MapServer/0",
   "LATEST_RELEASE": "https://bio.discomap.eea.europa.eu/arcgis/rest/services/N2K_Backbone/N2KBackbone_stg/MapServer/1",
   "THEME_COLORS": {
