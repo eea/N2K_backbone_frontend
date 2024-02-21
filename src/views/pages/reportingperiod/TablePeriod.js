@@ -224,7 +224,7 @@ function TablePeriod(props) {
         Cell: ({ row }) => {
           return (
             row.original.Releases.map(a =>
-              <div>{a?.Name}</div>
+              <div>{a.Name + " (" + formatDate(a.Date) + ")"}</div>
             )
           )
         },
