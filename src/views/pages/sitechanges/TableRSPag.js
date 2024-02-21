@@ -650,7 +650,7 @@ const IndeterminateCheckbox = React.forwardRef(
               const toggleMark = row.values.JustificationRequired ? "Unmark" : "Mark";
               return row.canExpand ? (
                 <DropdownSiteChanges actions={getContextActions(row, toggleMark)} siteCode={row.values.SiteCode} toggleMark={toggleMark}
-                  referenceSiteCode={row.original.LineageChangeType != "Creation" ? row.original.ReferenceSiteCode : null}/>
+                  referenceSiteCode={(row.original.LineageChangeType == "Creation" && props.status != "accepted") ? null : row.original.ReferenceSiteCode}/>
               ) : null
           }
         },
