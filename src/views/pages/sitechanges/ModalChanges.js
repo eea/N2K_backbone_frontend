@@ -37,7 +37,7 @@ import TextareaAutosize from 'react-textarea-autosize';
 
 import { ConfirmationModal } from './components/ConfirmationModal';
 import justificationRequiredImg from './../../../assets/images/exclamation.svg'
-import justificationProvidedImg from './../../../assets/images/file-text.svg'
+import documentImg from './../../../assets/images/file-text.svg'
 
 import MapViewer from '../../../components/MapViewer'
 
@@ -75,7 +75,6 @@ export class ModalChanges extends Component {
       newComment: false,
       newDocument: false,
       justificationRequired: false,
-      justificationProvided: false,
       updateOnClose: false,
       selectedFile: "",
       isSelected: false,
@@ -381,33 +380,12 @@ export class ModalChanges extends Component {
       .then((data) => {
         if (data?.ok) {
           if (this.state.justificationRequired)
-            this.setState({ justificationRequired: !this.state.justificationRequired, justificationProvided: false })
-          else
-            this.setState({ justificationRequired: !this.state.justificationRequired })
+            this.setState({ justificationRequired: !this.state.justificationRequired})
           this.state.updateOnClose = true;
           return data;
         }
         else {
-          this.showErrorMessage("Justification Required", "Update failed");
-          return data;
-        }
-      });
-  }
-
-  handleJustProvided() {
-    let body = [{
-      "SiteCode": this.state.data.SiteCode,
-      "VersionId": this.state.data.Version,
-      "Justification": !this.state.justificationProvided,
-    }];
-    this.sendRequest(ConfigData.PROVIDE_JUSTIFICATION, "POST", body)
-      .then((data) => {
-        if (data?.ok) {
-          this.setState({ justificationProvided: !this.state.justificationProvided })
-          this.state.updateOnClose = true;
-        }
-        else {
-          this.showErrorMessage("Justification Provided", "Update failed");
+          this.showErrorMessage("Justification Missing", "Update failed");
           return data;
         }
       });
@@ -817,8 +795,8 @@ export class ModalChanges extends Component {
     return (
       <div className="document--item" key={"docItem_" + id} id={"docItem_" + id} doc_id={id}>
         <div className="my-auto document--text">
-          <CImage src={justificationProvidedImg} className="ico--md me-3"></CImage>
-          <span>{name?.replace(/^.*[\\\/]/, '')}</span>
+          <CImage src={documentImg} className="ico--md me-3"></CImage>
+          <span>{path.replace(/^.*[\\\/]/, '')}</span>
         </div>
         <div className="document--icons">
           {(date || user) &&
@@ -901,19 +879,11 @@ export class ModalChanges extends Component {
           <CCol className="d-flex">
             <div className="checkbox">
               <input type="checkbox" className="input-checkbox" id="modal_justification_req"
-                onClick={() => this.props.updateModalValues("Changes", `This will ${this.state.justificationRequired ? "unmark" : "mark"} change as justification required`, "Continue", () => this.handleJustRequired(), "Cancel", () => { })}
+                onClick={() => this.props.updateModalValues("Changes", `This will ${this.state.justificationRequired ? "unmark" : "mark"} change as justification missing`, "Continue", () => this.handleJustRequired(), "Cancel", () => { })}
                 checked={this.state.justificationRequired}
                 readOnly
               />
-              <label htmlFor="modal_justification_req" className="input-label">Justification required</label>
-            </div>
-            <div className="checkbox" disabled={(this.state.justificationRequired ? false : true)}>
-              <input type="checkbox" className="input-checkbox" id="modal_justification_prov"
-                onClick={() => this.props.updateModalValues("Changes", `This will ${this.state.justificationProvided ? "unmark" : "mark"} change as justification provided`, "Continue", () => this.handleJustProvided(), "Cancel", () => { })}
-                checked={this.state.justificationProvided}
-                readOnly
-              />
-              <label htmlFor="modal_justification_prov" className="input-label" disabled={(this.state.justificationRequired ? false : true)}>Justification provided</label>
+              <label htmlFor="modal_justification_req" className="input-label">Justification missing</label>
             </div>
           </CCol>
         </CRow>
@@ -1318,7 +1288,6 @@ export class ModalChanges extends Component {
   }
 
   saveChanges(body) {
-    body.JustificationProvided = this.state.justificationProvided;
     body.JustificationRequired = this.state.justificationRequired;
     this.sendRequest(ConfigData.SITEDETAIL_SAVE, "POST", body)
       .then((data) => {
@@ -1389,17 +1358,11 @@ export class ModalChanges extends Component {
             <CCloseButton onClick={() => this.closeModal()} />
           </CModalHeader>
           <CModalBody>
-            <CAlert color="primary" className="d-flex align-items-center" visible={this.state.justificationProvided || this.state.justificationRequired}>
-              {this.state.justificationRequired && !this.state.justificationProvided &&
+            <CAlert color="primary" className="d-flex align-items-center" visible={this.state.justificationRequired}>
+              {this.state.justificationRequired &&
                 <>
                   <CImage src={justificationRequiredImg} className="ico--md me-3"></CImage>
-                  Justification required
-                </>
-              }
-              {this.state.justificationProvided &&
-                <>
-                  <CImage src={justificationProvidedImg} className="ico--md me-3"></CImage>
-                  Justification provided
+                  Justification missing
                 </>
               }
             </CAlert>
@@ -1572,7 +1535,6 @@ export class ModalChanges extends Component {
             this.setState({ fields: "noData", isDeleted: true })
           this.setState({ data: data.Data, loading: false
           , justificationRequired: data.Data?.JustificationRequired
-          , justificationProvided: data.Data?.JustificationProvided
           , activeKey: this.props.activeKey ? this.props.activeKey : this.state.activeKey })
       });
     }

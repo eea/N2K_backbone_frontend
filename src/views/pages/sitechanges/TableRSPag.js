@@ -15,7 +15,6 @@ import {matchSorter} from 'match-sorter'
 
 import { ModalChanges } from './ModalChanges';
 import justificationrequired from './../../../assets/images/exclamation.svg'
-import justificationprovided from './../../../assets/images/file-text.svg'
 import merge from './../../../assets/images/merge.svg'
 import split from './../../../assets/images/split.svg'
 import creation from './../../../assets/images/creation.svg'
@@ -172,7 +171,7 @@ const IndeterminateCheckbox = React.forwardRef(
         data,
         defaultColumn,
         filterTypes,
-        initialState: {pageSize: currentSize, pageIndex:currentPage, hiddenColumns: ["EditedDate", "EditedBy", "JustificationRequired", "JustificationProvided"]},
+        initialState: {pageSize: currentSize, pageIndex:currentPage, hiddenColumns: ["EditedDate", "EditedBy", "JustificationRequired"]},
         manualPagination:true,
         pageCount: pgCount,
         paginateExpandedRows: false
@@ -582,31 +581,20 @@ const IndeterminateCheckbox = React.forwardRef(
         {
           Header: () => null,          
           accessor: 'Justification',          
-          Cell: ({row}) => (<>
-            {row.values.JustificationRequired ? 
-            row.canExpand ? <> {row.values.JustificationRequired && !row.values.JustificationProvided ? 
-              <CTooltip
-                content="Justification Required"
-                placement="top"
-              > 
-                <div className="btn-icon btn-hover">
-                  <CImage src={justificationrequired} className="ico--md "></CImage>
-                </div>
-              </CTooltip>
-            : null } </> : null : null } 
-            
-            {row.values.JustificationProvided ?
-              row.canExpand ? <> {row.values.JustificationRequired && row.values.JustificationProvided ?
+          Cell: ({row}) => (
+            <>
+              {row.values.JustificationRequired ? 
                 <CTooltip
-                  content="Justification Provided"
+                  content="Justification Missing"
                   placement="top"
-                >
+                > 
                   <div className="btn-icon btn-hover">
-                    <CImage src={justificationprovided} className="ico--md "></CImage>
+                    <CImage src={justificationrequired} className="ico--md "></CImage>
                   </div>
                 </CTooltip>
-              : null } </> : null : null }
-            </>)
+              : null }
+            </>
+          )
         },
         {
           Header: () => null,
@@ -629,10 +617,6 @@ const IndeterminateCheckbox = React.forwardRef(
         {
           Header: () => null,
           accessor: "JustificationRequired",                            
-        },
-        {
-          Header: () => null,
-          accessor: "JustificationProvided",         
         },
         {
           Header: () => null,
@@ -700,6 +684,7 @@ const IndeterminateCheckbox = React.forwardRef(
       url += '&status='+props.status;
       url += '&level='+props.level;
       url += '&onlyedited='+props.onlyEdited;
+      url += '&onlyjustreq='+props.onlyJustReq;
       return dl.fetch(url)
       .then(response => response.json())
       .then(data => {
@@ -737,6 +722,7 @@ const IndeterminateCheckbox = React.forwardRef(
         url += '&page='+(page+1);
         url += '&limit='+size;
         url += '&onlyedited='+props.onlyEdited;
+        url += '&onlyjustreq='+props.onlyJustReq;
         promises.push(
           dl.fetch(url)
           .then(response => response.json())
@@ -817,7 +803,6 @@ const IndeterminateCheckbox = React.forwardRef(
             country={props.country}
             updateModalValues = {props.updateModalValues}
             justificationRequired={modalItem.JustificationRequired}
-            justificationProvided={modalItem.JustificationProvided}
             activeKey={modalItem.ActiveKey}
             lineageChangeType={modalItem.LineageChangeType}
             hasChanges = {props.modalHasChanges}
