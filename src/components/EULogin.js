@@ -81,7 +81,7 @@ export class EULogin {
 
     generateLoginUrl() {	
         var codeChallenge = this.base64URL(CryptoJS.SHA256(this.codeVerifier));
-        let redirectionUrl = encodeURIComponent(document.location.origin.replace("http://", "https://").replace(/\//g, "##"));
+        let redirectionUrl = encodeURIComponent(document.location.origin.replace("https://redneckedswan", "http://redneckedswan").replace(/\//g, "##"));
         var cUrl = ConfigData.EULoginServiceUrl + "EULogin/GetLoginUrlByCodeChallenge/redirectionUrl=" + 
             redirectionUrl +"&code_challenge=" + codeChallenge;
 
