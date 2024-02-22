@@ -111,7 +111,7 @@ export class EULogin {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                "RedirectionUrl": document.location.originreplace("https://redneckedswan", "http://redneckedswan"),
+                "RedirectionUrl": document.location.origin.replace("https://redneckedswan", "http://redneckedswan"),
                 "Code": localStorage.getItem("code"),
                 "Code_Verifier": localStorage.getItem("codeVerifier")
             }),
