@@ -80,11 +80,11 @@ export class EULogin {
     }
 
     generateLoginUrl() {	
-        var codeChallenge= this.base64URL(CryptoJS.SHA256(this.codeVerifier));
-        let redirectionUrl = encodeURIComponent(document.location.origin.replace(/\//g, "##"));
-        var cUrl=   ConfigData.EULoginServiceUrl +  "EULogin/GetLoginUrlByCodeChallenge/redirectionUrl=" + 
-                    redirectionUrl +"&code_challenge=" +  codeChallenge;
-        
+        var codeChallenge = this.base64URL(CryptoJS.SHA256(this.codeVerifier));
+        let redirectionUrl = encodeURIComponent(document.location.origin.replace("http://", "https://").replace(/\//g, "##"));
+        var cUrl = ConfigData.EULoginServiceUrl + "EULogin/GetLoginUrlByCodeChallenge/redirectionUrl=" + 
+            redirectionUrl +"&code_challenge=" + codeChallenge;
+
         return this.dl.fetch(cUrl)
         .then(response => response.json())
         .then((a) => {
