@@ -27,7 +27,7 @@ import {
 
 import TextareaAutosize from 'react-textarea-autosize';
 import justificationRequiredImg from './../../../assets/images/exclamation.svg'
-import justificationProvidedImg from './../../../assets/images/file-text.svg'
+import documentImg from './../../../assets/images/file-text.svg'
 import {DataLoader} from '../../../components/DataLoader';
 
 export class ModalEdition extends Component {
@@ -54,7 +54,6 @@ export class ModalEdition extends Component {
       newComment: false,
       newDocument: false,
       justificationRequired: false,
-      justificationProvided: false,
       selectedFile: "",
       isSelected: false,
       notValidComment: "",
@@ -314,7 +313,7 @@ export class ModalEdition extends Component {
     return (
       <div className="document--item" key={"docItem_"+id} id={"docItem_"+id} doc_id={id}>
         <div className="my-auto document--text">
-          <CImage src={justificationProvidedImg} className="ico--md me-3"></CImage>
+          <CImage src={documentImg} className="ico--md me-3"></CImage>
           <span>{path.replace(/^.*[\\\/]/, '')}</span>
         </div>
         <div className="document--icons">
@@ -384,19 +383,11 @@ export class ModalEdition extends Component {
           <CCol className="d-flex">
             <div className="checkbox">
               <input type="checkbox" className="input-checkbox" id="modal_justification_req"
-                onClick={()=>this.props.updateModalValues("Changes", `This will ${this.state.justificationRequired ? "unmark" : "mark"} change as justification required`, "Continue", ()=>this.handleJustRequired(), "Cancel", () => {})}
+                onClick={()=>this.props.updateModalValues("Changes", `This will ${this.state.justificationRequired ? "unmark" : "mark"} change as justification missing`, "Continue", ()=>this.handleJustRequired(), "Cancel", () => {})}
                 checked={this.state.justificationRequired}
                 readOnly
               />
-              <label htmlFor="modal_justification_req" className="input-label">Justification required</label>
-            </div>
-            <div className="checkbox" disabled={(this.state.justificationRequired ? false : true)}>
-              <input type="checkbox" className="input-checkbox" id="modal_justification_prov"
-                onClick={()=>this.props.updateModalValues("Changes", `This will ${this.state.justificationProvided ? "unmark": "mark"} change as justification provided`, "Continue", ()=>this.handleJustProvided(), "Cancel", () => {})}
-                checked={this.state.justificationProvided} 
-                readOnly
-              />
-              <label htmlFor="modal_justification_prov" className="input-label" disabled={(this.state.justificationRequired ? false : true)}>Justification provided</label>
+              <label htmlFor="modal_justification_req" className="input-label">Justification missing</label>
             </div>
           </CCol>
         </CRow>
@@ -635,31 +626,13 @@ export class ModalEdition extends Component {
     .then((data)=> {
       if(data?.ok){
         if(this.state.justificationRequired)
-          this.setState({justificationRequired: !this.state.justificationRequired, justificationProvided: false})
+          this.setState({justificationRequired: !this.state.justificationRequired})
         else
           this.setState({justificationRequired: !this.state.justificationRequired})
         return data;
       }
       else {
-        this.showErrorMessage("Justification Required", "Update failed");
-        return data;
-      }
-    });
-  }
-  
-  handleJustProvided(){
-    let body = [{
-      "SiteCode": this.state.data.SiteCode,
-      "VersionId": this.state.data.Version,
-      "Justification": !this.state.justificationProvided,
-    }];  
-    this.sendRequest(ConfigData.PROVIDE_JUSTIFICATION, "POST", body)
-    .then((data)=> {
-      if(data?.ok){
-        this.setState({justificationProvided: !this.state.justificationProvided})
-      }
-      else {
-        this.showErrorMessage("Justification Provided", "Update failed");
+        this.showErrorMessage("Justification Missing", "Update failed");
         return data;
       }
     });
@@ -868,17 +841,11 @@ export class ModalEdition extends Component {
           <CCloseButton onClick={()=>this.closeModal()}/>
         </CModalHeader>
         <CModalBody >
-          <CAlert color="primary" className="d-flex align-items-center" visible={this.state.justificationProvided || this.state.justificationRequired}>
-            {this.state.justificationRequired && !this.state.justificationProvided &&
+          <CAlert color="primary" className="d-flex align-items-center" visible={this.state.justificationRequired}>
+            {this.state.justificationRequired &&
               <>
                 <CImage src={justificationRequiredImg} className="ico--md me-3"></CImage>
-                Justification required
-              </>
-            }
-            {this.state.justificationProvided &&
-              <>
-                <CImage src={justificationProvidedImg} className="ico--md me-3"></CImage>
-                Justification provided
+                Justification missing
               </>
             }
           </CAlert>
@@ -970,7 +937,7 @@ export class ModalEdition extends Component {
       .then(data =>{
         if(data?.Success) {
           if(data.Data.SiteCode === this.props.item && Object.keys(this.state.data).length === 0) {
-            this.setState({data: data.Data, loading: false, justificationRequired: data.Data.JustificationRequired, justificationProvided: data.Data.JustificationProvided})
+            this.setState({data: data.Data, loading: false, justificationRequired: data.Data.JustificationRequired})
           }
         } else { this.errorLoadingData = true; this.setState({loading: false}) }
       });
@@ -1115,7 +1082,6 @@ export class ModalEdition extends Component {
     if(Object.values(body).some(val => val === null || val === "")){
       this.showErrorMessage("fields", "Empty fields are not allowed");
     } else {
-      body.JustificationProvided = this.state.justificationProvided;
       body.JustificationRequired = this.state.justificationRequired;
       this.sendRequest(ConfigData.SITEDETAIL_SAVE, "POST", body)
       .then((data)=> {

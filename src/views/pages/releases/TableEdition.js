@@ -7,7 +7,9 @@ import {
   CTooltip,
   CPagination,
   CPaginationItem,
+  CImage
 } from '@coreui/react'
+import justificationrequired from './../../../assets/images/exclamation.svg'
 import {DataLoader} from '../../../components/DataLoader';
 
 function DefaultColumnFilter({
@@ -76,7 +78,7 @@ function Table({ columns, data, setSelected, modalProps, updateModalValues }) {
       data,
       defaultColumn,
       filterTypes,
-      initialState: {hiddenColumns: ["EditedDate", "EditedBy"]},
+      initialState: {hiddenColumns: ["EditedDate", "EditedBy", "JustificationRequired"]},
     },
     useFilters,
     useGlobalFilter,
@@ -87,6 +89,24 @@ function Table({ columns, data, setSelected, modalProps, updateModalValues }) {
     hooks => {
       hooks.visibleColumns.push(columns => [
         ...columns,
+        {
+          Header: () => null,
+          id: 'siteJustified',
+          Cell: ({row}) => (
+            <>
+              {row.values.JustificationRequired ? 
+                <CTooltip
+                  content="Justification Missing"
+                  placement="top"
+                > 
+                  <div className="btn-icon btn-hover">
+                    <CImage src={justificationrequired} className="ico--md "></CImage>
+                  </div>
+                </CTooltip>
+              : null }
+            </>
+          )
+        },
         {
           Header: () => null,
           id: 'siteEdited',
@@ -233,6 +253,10 @@ function TableEdition(props) {
         accessor: 'Type',
       },
       {
+        Header: 'Justification',
+        accessor: 'JustificationRequired',
+      },
+      {
         Header: 'Edited By',
         accessor: 'EditedBy',
       },
@@ -250,7 +274,7 @@ function TableEdition(props) {
         props.setRefresh(false);
       } 
       setIsLoading(true);
-      dl.fetch(ConfigData.SITEEDITION_NON_PENDING_GET+"country="+props.country+'&onlyedited='+props.onlyEdited)
+      dl.fetch(ConfigData.SITEEDITION_NON_PENDING_GET+"country="+props.country+'&onlyedited='+props.onlyEdited+'&onlyjustreq='+props.onlyJustReq)
       .then(response =>response.json())
       .then(data => {
         if(data?.Success) {
