@@ -29,9 +29,9 @@ const AppHeader = (props) => {
     
 
   const logout = (e) => {
-                          e.preventDefault();
-                          EULogin.logout();
-                        }
+    e.preventDefault();
+    EULogin.logout();
+  }
   const getUser = () => EULogin.getUserName();
 
   return (
@@ -86,7 +86,7 @@ const AppHeader = (props) => {
                   </CDropdownToggle>
                   <CDropdownMenu>
                     <CDropdownItemPlain><i className="fa-solid fa-user"></i>{getUser()}</CDropdownItemPlain>
-                    <CDropdownDivider />
+                    <CDropdownItem href="/#/reportingperiod"><i className="fa-regular fa-calendar-days"></i>Reporting Period</CDropdownItem>
                     <CDropdownItem href="/#/" onClick={(e)=>logout(e)}><i className="fa-solid fa-arrow-right-from-bracket"></i>Log Out</CDropdownItem>
                   </CDropdownMenu>
                 </CDropdown>
