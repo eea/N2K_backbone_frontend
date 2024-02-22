@@ -28,6 +28,15 @@
   }
 }
 
+.attachments {
+  &--title {
+    padding-bottom: 0.5rem;
+  }
+  &--group {
+    padding-bottom: 1rem;
+  }
+}
+
 .document {
   &--list {
     padding: 1rem;
