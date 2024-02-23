@@ -379,8 +379,7 @@ export class ModalChanges extends Component {
     this.sendRequest(ConfigData.MARK_AS_JUSTIFICATION_REQUIRED, "POST", body)
       .then((data) => {
         if (data?.ok) {
-          if (this.state.justificationRequired)
-            this.setState({ justificationRequired: !this.state.justificationRequired})
+          this.setState({ justificationRequired: !this.state.justificationRequired})
           this.state.updateOnClose = true;
           return data;
         }

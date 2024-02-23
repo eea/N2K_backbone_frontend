@@ -632,7 +632,6 @@ const IndeterminateCheckbox = React.forwardRef(
           cellWidth: '48px',
           Cell: ({ row }) => {
               const toggleMark = row.values.JustificationRequired ? "Unmark" : "Mark";
-              console.log(row.original.LineageChangeType, row.original.ReferenceSiteCode)
               const hasReference = !(row.original.LineageChangeType == "Creation" && props.status != "accepted"
                                   || row.original.LineageChangeType == "Deletion" && props.status == "accepted");
               return row.canExpand ? (
