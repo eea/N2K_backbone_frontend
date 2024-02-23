@@ -49,6 +49,7 @@ const Releases = () => {
   const [modalItem, setModalItem] = useState({});
   const [siteCodes, setSitecodes] = useState([]);
   const [filterEdited, setFilterEdited] = useState(false);
+  const [filterJustification, setFilterJustification] = useState(false);
   const [searchList, setSearchList] = useState({});
   const [selectOption, setSelectOption] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -153,8 +154,13 @@ const Releases = () => {
     }
   }
 
-  let changeFilterEdited = (edited) => {
-    setFilterEdited(edited);
+  let changeFilter = (type, value) => {
+    if (type === "edited") {
+      setFilterEdited(value);
+    }
+    else if (type === "justification") {
+      setFilterJustification(value);
+    }
     clearSearch();
     forceRefreshData();
   }
@@ -251,6 +257,12 @@ const Releases = () => {
               </a>
             </li>
             <li className="nav-item">
+              <a className="nav-link" href="/#/releases/documentation">
+                <i className="fa-solid fa-bookmark"></i>
+                Release Documentation
+              </a>
+            </li>
+            <li className="nav-item">
               <a className="nav-link" href="/#/releases/comparer">
                 <i className="fa-solid fa-bookmark"></i>
                 Release Comparer
@@ -291,7 +303,13 @@ const Releases = () => {
                   <ul className="btn--list">
                     <li>
                       <div className="checkbox" disabled={Object.keys(siteCodes).length === 0}>
-                        <input type="checkbox" className="input-checkbox" id="edition_check" checked={filterEdited} onClick={(e)=>changeFilterEdited(e.currentTarget.checked)} />
+                        <input type="checkbox" className="input-checkbox" id="edition_check_justification" checked={filterJustification} onClick={(e)=>changeFilter("justification", e.currentTarget.checked)} />
+                        <label htmlFor="edition_check_justification" className="input-label badge color--default">Justification missing</label>
+                      </div>
+                    </li>
+                    <li>
+                      <div className="checkbox" disabled={Object.keys(siteCodes).length === 0}>
+                        <input type="checkbox" className="input-checkbox" id="edition_check" checked={filterEdited} onClick={(e)=>changeFilter("edited", e.currentTarget.checked)} />
                         <label htmlFor="edition_check" className="input-label badge color--default">Edited
                         </label>
                       </div>
@@ -350,6 +368,7 @@ const Releases = () => {
                   setSitecodes={setCodes}
                   siteCodes={siteCodes}
                   onlyEdited={filterEdited}
+                  onlyJustReq = {filterJustification}
                   types={siteTypes}
                 />
               </>
