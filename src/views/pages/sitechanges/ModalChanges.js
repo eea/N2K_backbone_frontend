@@ -355,7 +355,8 @@ export class ModalChanges extends Component {
                 Version: this.state.data.Version,
                 Path: path,
                 Username: document.Username,
-                ImportDate: document.ImportDate
+                ImportDate: document.ImportDate,
+                OriginalName: document.OriginalName
               })
             }
             this.setState({ documents: docs, newDocument: false, isSelected: false, selectedFile: "" })
@@ -796,7 +797,7 @@ export class ModalChanges extends Component {
       <div className="document--item" key={"docItem_" + id} id={"docItem_" + id} doc_id={id}>
         <div className="my-auto document--text">
           <CImage src={documentImg} className="ico--md me-3"></CImage>
-          <span>{path.replace(/^.*[\\\/]/, '')}</span>
+          <span>{name}</span>
         </div>
         <div className="document--icons">
           {(date || user) &&
