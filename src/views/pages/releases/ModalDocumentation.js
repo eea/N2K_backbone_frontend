@@ -387,7 +387,7 @@ const ModalDocumentation = (props) => {
               </div>
             </CTooltip>
           }
-          <CButton color="link" className="btn-link--dark" onClick={()=>{this.downloadAttachments(path, name)}}>
+          <CButton color="link" className="btn-link--dark" onClick={()=>{downloadAttachments(path, name)}}>
             View
           </CButton>
           <CButton color="link" className="btn-icon" onClick={(e) => deleteDocumentMessage(e.currentTarget)}>
@@ -434,7 +434,7 @@ const ModalDocumentation = (props) => {
     )
   }
 
-  downloadAttachments = (path, name) => {
+  const downloadAttachments = (path, name) => {
     fetch(path).then((response) => response.blob())
     .then((blobresp) => {
       var blob = new Blob([blobresp], {type: "octet/stream"});
