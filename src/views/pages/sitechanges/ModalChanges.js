@@ -445,11 +445,11 @@ export class ModalChanges extends Component {
         <CTableRow key={"row_" + i}>
           {values.map((v, index) => {
             if (fields.includes("Difference") || fields.includes("Percentage"))
-              return (<CTableDataCell key={v}
+              return (<CTableDataCell key={v + "_" + index}
                 style={{ backgroundColor: (pos.includes(index) ? colorizeValue(v) : "") }}>
                 {v == 0 ? 0 : v} </CTableDataCell>)
             else
-              return (<CTableDataCell key={v}>{v} </CTableDataCell>)
+              return (<CTableDataCell key={v + "_" + index}>{v} </CTableDataCell>)
           })}
 
         </CTableRow>
@@ -1418,7 +1418,7 @@ export class ModalChanges extends Component {
                     || (this.props.lineageChangeType == "Deletion" && this.state.data.Status == "Accepted")
                     || (this.props.lineageChangeType == "Creation" && this.state.data.Status != "Accepted")
                   ? "disabled" : ""}>
-                  <i class="fas fa-arrow-up-right-from-square me-2"></i>
+                  <i className="fas fa-arrow-up-right-from-square me-2"></i>
                   SDF
                 </CButton>
                 <CButton color="link" onClick={() => this.copyLink()}>
