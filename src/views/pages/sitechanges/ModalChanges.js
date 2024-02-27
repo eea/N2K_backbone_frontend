@@ -355,7 +355,8 @@ export class ModalChanges extends Component {
                 Version: this.state.data.Version,
                 Path: path,
                 Username: document.Username,
-                ImportDate: document.ImportDate
+                ImportDate: document.ImportDate,
+                OriginalName: document.OriginalName
               })
             }
             this.setState({ documents: docs, newDocument: false, isSelected: false, selectedFile: "" })
@@ -774,7 +775,7 @@ export class ModalChanges extends Component {
     if (this.state.documents !== "noData") {
       filteredDocuments.forEach(d => {
         // original name may be null until the backend part it's finished
-        const name = d.OriginalName ?? d.Path
+        const name = d.OriginalName ?? d.Path;
         docs.push(
           this.createDocumentElement(d.Id, name, d.Path, d.ImportDate, d.Username, target)
         )
@@ -795,7 +796,7 @@ export class ModalChanges extends Component {
       <div className="document--item" key={"docItem_" + id} id={"docItem_" + id} doc_id={id}>
         <div className="my-auto document--text">
           <CImage src={documentImg} className="ico--md me-3"></CImage>
-          <span>{path.replace(/^.*[\\\/]/, '')}</span>
+          <span>{name?.replace(/^.*[\\\/]/, '')}</span>
         </div>
         <div className="document--icons">
           {(date || user) &&
@@ -808,8 +809,8 @@ export class ModalChanges extends Component {
               </div>
             </CTooltip>
           }
-          <CButton color="link" className="btn-link--dark">
-            <a href={path} target="_blank">View</a>
+          <CButton color="link" className="btn-link--dark" onClick={()=>{this.downloadAttachments(path, name)}}>
+            View
           </CButton>
           {level == "site" &&
             <CButton color="link" className="btn-icon" onClick={(e) => this.deleteDocumentMessage(e.currentTarget)}>
@@ -888,6 +889,20 @@ export class ModalChanges extends Component {
         </CRow>
       </CTabPane>
     )
+  }
+  
+  downloadAttachments = (path, name) => {
+    fetch(path).then((response) => response.blob())
+    .then((blobresp) => {
+      var blob = new Blob([blobresp], {type: "octet/stream"});
+      var url = window.URL.createObjectURL(blob);
+      let link = document.createElement("a");
+      link.download = name;
+      link.href = url;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
   }
 
   renderGeometry() {

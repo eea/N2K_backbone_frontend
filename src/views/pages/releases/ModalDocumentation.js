@@ -353,7 +353,7 @@ const ModalDocumentation = (props) => {
     )
     if (documents !== "noData") {
       documents.forEach(d => {
-        const name = d.OriginalName ?? d.Path
+        const name = d.OriginalName ?? d.Path;
         docs.push(
           createDocumentElement(d.ID, name, d.Path, d.ImportDate, d.Username)
         )
@@ -387,8 +387,8 @@ const ModalDocumentation = (props) => {
               </div>
             </CTooltip>
           }
-          <CButton color="link" className="btn-link--dark">
-            <a href={path} target="_blank">View</a>
+          <CButton color="link" className="btn-link--dark" onClick={()=>{downloadAttachments(path, name)}}>
+            View
           </CButton>
           <CButton color="link" className="btn-icon" onClick={(e) => deleteDocumentMessage(e.currentTarget)}>
             <i className="fa-regular fa-trash-can"></i>
@@ -432,6 +432,20 @@ const ModalDocumentation = (props) => {
         </CRow>
       </CTabPane >
     )
+  }
+
+  const downloadAttachments = (path, name) => {
+    fetch(path).then((response) => response.blob())
+    .then((blobresp) => {
+      var blob = new Blob([blobresp], {type: "octet/stream"});
+      var url = window.URL.createObjectURL(blob);
+      let link = document.createElement("a");
+      link.download = name;
+      link.href = url;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
   }
 
   return (
