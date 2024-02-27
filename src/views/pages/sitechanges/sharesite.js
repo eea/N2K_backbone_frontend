@@ -38,7 +38,6 @@ const defaultParams = () => {
   const paramSitecode = searchParams.get('sitecode');
   const paramVersion = !searchParams.get('version') ? null : +searchParams.get('version');
   let params = (paramSitecode) || paramVersion ? {paramSitecode, paramVersion} : {paramSitecode: null, paramVersion: null};
-  console.log(params.paramVersion);
   return params;
 }  
 
@@ -47,7 +46,6 @@ class ModalChanges extends Component {
     super(props);
     this.dl = new(DataLoader);
 
-    this.errorLoadingData = false;
     this.errorLoadingComments = false;
     this.errorLoadingDocuments = false;
 
@@ -65,9 +63,10 @@ class ModalChanges extends Component {
       documents:[],
       showDetail: [],
       justificationRequired: false,
+      errorLoading: false
     }
   }
-  
+
   toggleDetail(key) {
     if (this.state.showDetail.includes(key)) {
       this.setState({ showDetail: this.state.showDetail.filter((a) => a !== key) });
@@ -136,7 +135,6 @@ class ModalChanges extends Component {
             else
               return (<CTableDataCell key={v}>{v} </CTableDataCell>)
           })}
-
         </CTableRow>
       )
     }
@@ -500,30 +498,22 @@ class ModalChanges extends Component {
 
   renderGeometry() {
     return (
-      this.state.errorLoading ?
-        <>
-          <div className="loading-container">
-            <CAlert color="danger">Error loading data</CAlert>
-          </div>
-        </>
-        :
-        <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 2}>
-          {this.state.errorLoading &&
-            <CAlert color="danger">Error loading data</CAlert>
-          }
-          {!this.state.errorLoading &&
-            <CRow >
-              <MapViewer
-                siteCode={this.state.sitecode}
-                version={this.state.version}
-                noGeometry={this.state.data?.Critical?.SiteInfo?.ChangesByCategory?.some(a => a.ChangeType === "No geometry reported")}
-                lineageChangeType={this.state.data.lineageChangeType}
-                latestRelease={ConfigData.LATEST_RELEASE}
-                reportedSpatial={ConfigData.REPORTED_SPATIAL}
-              />
-            </CRow>
-          }
-        </CTabPane>
+      <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 2}>
+        {this.state.errorLoading ?
+          <CAlert color="danger">Error loading data</CAlert>
+          :
+          <CRow >
+            <MapViewer
+              siteCode={this.state.sitecode}
+              version={this.state.version}
+              noGeometry={this.state.data?.Critical?.SiteInfo?.ChangesByCategory?.some(a => a.ChangeType === "No geometry reported")}
+              lineageChangeType={this.state.data.lineageChangeType}
+              latestRelease={ConfigData.LATEST_RELEASE}
+              reportedSpatial={ConfigData.REPORTED_SPATIAL}
+            />
+          </CRow>
+        }
+      </CTabPane>
     )
   }
 
@@ -543,7 +533,6 @@ class ModalChanges extends Component {
                 </>
               }
             </h1>
-            
           </div>
         </div>
         <CAlert color="primary" className="d-flex align-items-center" visible={this.state.justificationRequired}>
@@ -600,15 +589,21 @@ class ModalChanges extends Component {
   }
 
   renderData() {
-    this.loadData();
-    this.loadComments();
-    this.loadDocuments();
+    if(this.state.data !== "noData" && this.state.sitecode && this.state.version !== null && !this.state.errorLoading) {
+      this.loadData();
+      this.loadComments();
+      this.loadDocuments();
+    }
 
-    let contents = (!this.state.sitecode || this.state.version === null)
+    let contents = (this.state.data === "noData" || (!this.state.sitecode || this.state.version === null))
       ? <div className="nodata-container"><em>No Data</em></div>
       : this.state.loading
         ? <div className="loading-container"><em>Loading...</em></div>
-        : this.renderContent();
+        : this.state.errorLoading ?
+            <CRow className="p-4">
+              <CAlert color="danger">Error loading data</CAlert>
+            </CRow>
+          : this.renderContent();
 
     return (
       <>
@@ -623,7 +618,7 @@ class ModalChanges extends Component {
         <AppHeader page="share"/>
         <div className="content--wrapper">
           <div className="main-content">
-            <CContainer fluid className={this.state.loading ? "h-100" : ""}>
+            <CContainer fluid>
               {this.renderData()}
             </CContainer>
           </div>
@@ -639,14 +634,19 @@ class ModalChanges extends Component {
           if (response.status === 200)
             return response.json();
           else
-            return this.setState({ errorLoadingData: true });
+            return this.setState({ errorLoading: true });
       })
       .then(data => {
         if(data?.Success) {
           if(data.Data.SiteCode === this.state.sitecode && Object.keys(this.state.data).length === 0) {
             this.setState({data: data.Data, loading: false, justificationRequired: data.Data?.JustificationRequired, activeKey: this.props.activeKey ? this.props.activeKey : this.state.activeKey})
           }
-        } else { this.errorLoadingData = true }
+          else if(Object.keys(this.state.data).length === 0) {
+            this.setState({data: "noData", loading: false});
+          }
+        } else {
+          this.setState({ loading: false, errorLoading: true });
+        }
       });
     }
   }
