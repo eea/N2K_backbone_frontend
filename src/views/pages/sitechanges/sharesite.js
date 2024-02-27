@@ -155,7 +155,6 @@ class ModalChanges extends Component {
   renderChangeList() {
     let levels = this.state.levels;
     let list = [];
-    const lineageTypeList = ["Site Added", "Site Deleted", "Site Merged", "Site Split", "Site Recoded"];
     for (let l in levels) {
       let changes = this.state.data[levels[l]][this.state.bookmark];
       let level = levels[l];

@@ -28,6 +28,15 @@
   }
 }
 
+.attachments {
+  &--title {
+    padding-bottom: 0.5rem;
+  }
+  &--group {
+    padding-bottom: 1rem;
+  }
+}
+
 .document {
   &--list {
     padding: 1rem;
@@ -78,7 +87,6 @@
     input {
       flex: 1 1;
       height: 100%;
-      border: solid 1px $gray-100;
       border-radius: 0.25rem;
       padding: 0.25rem 0.5rem;
       width: 100%;
@@ -94,7 +102,6 @@
   }
   &--input {
       height: 100%;
-      border: solid 1px $gray-100;
       border-radius: 0.25rem;
       padding: 0.25rem 0.5rem;
       width: 100%;

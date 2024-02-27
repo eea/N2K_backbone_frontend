@@ -89,6 +89,12 @@ const SiteEditionOverView = () => {
               </a>
             </li>
             <li className="nav-item">
+              <a className="nav-link" href="/#/releases/documentation">
+                <i className="fa-solid fa-bookmark"></i>
+                Release Documentation
+              </a>
+            </li>
+            <li className="nav-item">
               <a className="nav-link" href="/#/releases/comparer">
                 <i className="fa-solid fa-bookmark"></i>
                 Release Comparer
