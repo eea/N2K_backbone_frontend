@@ -1342,7 +1342,8 @@ export class ModalChanges extends Component {
       || data.LineageChangeType == "Deletion" && data.Status == "Accepted") {
       sdfSiteCode = null
     }
-    if(data.LineageChangeType == "Recode" && data.Status == "Accepted") {
+    if(data.LineageChangeType == "Recode" && data.Status == "Accepted"
+      || data.LineageChangeType == "Creation" && props.Status == "Accepted") {
       sdfSiteCode = data.SiteCode
     }
           
