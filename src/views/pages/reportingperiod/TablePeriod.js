@@ -3,13 +3,9 @@ import { useTable, usePagination, useFilters,useGlobalFilter, useRowSelect, useA
 import {matchSorter} from 'match-sorter'
 import ConfigData from '../../../config.json';
 import {
-  CButton,
-  CTooltip,
   CPagination,
   CPaginationItem,
-  CImage
 } from '@coreui/react'
-import justificationrequired from './../../../assets/images/exclamation.svg'
 import {DataLoader} from '../../../components/DataLoader';
 
 function DefaultColumnFilter({
@@ -78,7 +74,6 @@ function Table({ columns, data, setSelected, modalProps, updateModalValues }) {
       data,
       defaultColumn,
       filterTypes,
-      initialState: {hiddenColumns: ["EditedDate", "EditedBy", "JustificationRequired"]},
     },
     useFilters,
     useGlobalFilter,
@@ -91,51 +86,14 @@ function Table({ columns, data, setSelected, modalProps, updateModalValues }) {
         ...columns,
         {
           Header: () => null,
-          id: 'siteJustified',
-          Cell: ({row}) => (
-            <>
-              {row.values.JustificationRequired ? 
-                <CTooltip
-                  content="Justification Missing"
-                  placement="top"
-                > 
-                  <div className="btn-icon btn-hover">
-                    <CImage src={justificationrequired} className="ico--md "></CImage>
-                  </div>
-                </CTooltip>
-              : null }
-            </>
+          id: 'unionListEdit',
+          cellWidth: "48px",
+          Cell: ({ row }) => (
+            row.original.Active === "Current" &&
+              <div className="btn-icon" onClick={() => modalProps.showEditModal(row.original.Id, row.original.InitDate, row.original.EndDate)}>
+                <i className="fa-solid fa-pencil"></i>
+              </div>
           )
-        },
-        {
-          Header: () => null,
-          id: 'siteEdited',
-          Cell: ({ row }) => {
-            return (
-              row.values.EditedDate && row.values.EditedBy ? (
-                  <CTooltip 
-                    content={"Edited"
-                      + (row.values.EditedDate && " on " + row.values.EditedDate.slice(0,10).split('-').reverse().join('/'))
-                      + (row.values.EditedBy && " by " + row.values.EditedBy)}>
-                    <div className="btn-icon btn-hover">
-                      <i className="fa-solid fa-pen-to-square"></i>
-                    </div>
-                  </CTooltip>
-              ) : null
-            )
-          },
-        },
-        {
-          Header: () => null,
-          id: 'siteEdit',
-          Cell: ({ row }) => {
-            return (
-              <CButton color="link" onClick={() => modalProps.showEditModal(row.original)}>
-                Edit
-              </CButton>
-            )
-          },
-          canFilter: false
         },
       ])
     }
@@ -162,7 +120,7 @@ function Table({ columns, data, setSelected, modalProps, updateModalValues }) {
           {page.map((row, i) => {
             prepareRow(row)
             return (
-              <tr {...row.getRowProps()}>
+              <tr {...row.getRowProps()} style={{background: row.values.Active === "Current" ? "#E3F2FD" : ""}}>
                 {row.cells.map(cell => {
                   return <td {...cell.getCellProps()} key={cell.column.id + "_" + cell.row.id}>{cell.render('Cell')}</td>
                 })}
@@ -215,107 +173,113 @@ function Table({ columns, data, setSelected, modalProps, updateModalValues }) {
   )
 }
 
-function TableEdition(props) {
+function TablePeriod(props) {
   const [isLoading, setIsLoading] = useState(props.isLoading);
-  const [sitesData, setSitesData] = useState([]);
+  const [releasesData, setReleasesDate] = useState([]);
   let dl = new(DataLoader);
 
-  
+  const formatDate = (date) => {
+    date = new Date(date);
+    var d = date.getDate();
+    var m = date.getMonth() + 1;
+    var y = date.getFullYear();
+    date = (d <= 9 ? '0' + d : d) + '/' + (m <= 9 ? '0' + m : m) + '/' + y;
+    return date;
+  };
+
   const customFilter = (rows, columnIds, filterValue) => {
-    let result = filterValue.length === 0 ? rows : rows.filter((row) => row.original.SiteCode.toLowerCase().includes(filterValue.toLowerCase()) || row.original.Name.toLowerCase().includes(filterValue.toLowerCase()))
-    return result;
+    if(columnIds[0] === "Releases") {
+      return filterValue.length === 0 ? rows : rows.filter((row) => row.values[columnIds].map(a=>a.Name).join().toLowerCase().includes(filterValue.toLowerCase()));
+    }
+    else if(columnIds[0] === "InitDate" || columnIds[0] === "EndDate") {
+      return rows.filter((row) => formatDate(row.values[columnIds]).includes(filterValue));
+    }
   }
 
   const columns = React.useMemo(
     () => [
       {
-        Header: 'Site Code',
-        accessor: 'SiteCode',
-        className:"cell-sitecode",
-        Cell: ({ row }) => {
-          return (
-            row.values.SiteCode ? (
-              <CTooltip
-                content={row.original.Name}
-                placement="top"
-              >
-                <div>
-                  {row.values.SiteCode + " - " + row.original.Name}
-                </div>
-              </CTooltip>
-            ) : null
-          )
-        },
+        Header: 'Period',
+        accessor: 'Active',
+      },
+      {
+        Header: 'Start Date',
+        accessor: 'InitDate',
+        Cell: ({ cell }) => (
+          formatDate(cell.value)
+        ),
         filter: customFilter,
       },
       {
-        Header: 'Site Type',
-        accessor: 'Type',
+        Header: 'End Date',
+        accessor: 'EndDate',
+        Cell: ({ cell }) => (
+          formatDate(cell.value)
+        ),
+        filter: customFilter,
       },
       {
-        Header: 'Justification',
-        accessor: 'JustificationRequired',
-      },
-      {
-        Header: 'Edited By',
-        accessor: 'EditedBy',
-      },
-      {
-        Header: 'Edited Date',
-        accessor: 'EditedDate',
+        Header: 'Release',
+        accessor: 'Releases',
+        Cell: ({ row }) => {
+          return (
+            row.original.Releases.map(a =>
+              <div>{a.Name + " (" + formatDate(a.Date) + ")"}</div>
+            )
+          )
+        },
+        filter: customFilter,
       },
     ],
     []
   )
 
   let loadData = () => {
-    if((!isLoading && props.refresh) || (!isLoading && props.siteCodes !== "nodata" && Object.keys(props.siteCodes).length===0)){
+    if((!isLoading && props.refresh) || (!isLoading && releasesData !== "nodata" && Object.keys(releasesData).length===0)){
       if(props.refresh){
         props.setRefresh(false);
       } 
       setIsLoading(true);
-      dl.fetch(ConfigData.SITEEDITION_NON_PENDING_GET+"country="+props.country+'&onlyedited='+props.onlyEdited+'&onlyjustreq='+props.onlyJustReq)
+      props.setIsloading(true);
+      dl.fetch(ConfigData.REPORTING_PERIOD_GET)
       .then(response =>response.json())
       .then(data => {
         if(data?.Success) {
           if(Object.keys(data.Data).length === 0){
-            setSitesData("nodata");
-            props.setSitecodes("nodata");
+            setReleasesDate("nodata");
           }
           else {
-            data.Data.map(a => {let row = a; a.Type = props.types.find(b => b.Code === a.Type).Classification; return row});
-            setSitesData(data.Data);
-            props.setSitecodes(data.Data);
+            data.Data = data.Data.reverse().map(a=>{a.Active = a.Active? "Current":"Passed"; return a});
+            setReleasesDate(data.Data);
+            props.setIsCurrent(data.Data.some(a=>a.Active==="Current"));
           }
           setIsLoading(false);
+          props.setIsloading(false);
         }
       });
     }
   }
 
-  if(!props.country) {
-    if(sitesData !== "nodata") {
-      setSitesData("nodata");
-      props.setSitecodes({});
-      setIsLoading(false);
-    }
+  if(props.hasOwnProperty('getRefresh') && props.getRefresh()){
+    props.setRefresh(false);
+    setEnvelopsData([]);
+    loadData();
   }
   else {
-    if(props.types.length > 0)
-      loadData();
+    loadData();
   }
 
   if(isLoading)
     return (<div className="loading-container"><em>Loading...</em></div>)
   else
-    if(sitesData==="nodata")
+    if(releasesData==="nodata")
       return (<div className="nodata-container"><em>No Data</em></div>)
     else
     return (
       <>
         <Table
           columns={columns}
-          data={sitesData}
+          data={releasesData}
           modalProps={props.modalProps}
           updateModalValues={props.updateModalValues}
         />
@@ -323,4 +287,4 @@ function TableEdition(props) {
     )
 }
 
-export default TableEdition
+export default TablePeriod

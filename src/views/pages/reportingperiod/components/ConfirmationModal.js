@@ -6,6 +6,8 @@ import {
   CModalFooter,
   CModalHeader,
   CModalTitle,
+  CSpinner,
+  CAlert
 } from '@coreui/react'
 
 export class ConfirmationModal extends Component {
@@ -33,11 +35,14 @@ export class ConfirmationModal extends Component {
   render() {
     let modal = this.props.modalValues;
     return (
-      <CModal alignment="center" visible={modal.visibility} backdrop="static" onClose={()=>{this.closeFunction();this.secondaryFunction()}} className="modal--confirmation">
-        <CModalHeader>
+      <CModal alignment="center" visible={modal.visibility} backdrop="static" onClose={()=>this.closeFunction()} className="modal--confirmation">
+        <CModalHeader onClose={()=>this.closeFunction()}>
           <CModalTitle>{modal.title}</CModalTitle>
         </CModalHeader>
-        <CModalBody>{modal.text}</CModalBody>
+        <CModalBody>
+          {modal.message?.text && <CAlert color={modal.message.type} dismissible={modal.message.canClose} onClose={() =>modal.closeMessage}>{modal.message.text}</CAlert>}
+          {modal.text}
+        </CModalBody>
         <CModalFooter className={modal.secondaryButton ? "justify-content-between" : "justify-content-end"}>
           {modal.secondaryButton &&
             <CButton color="secondary" onClick={() => this.secondaryFunction()}>
