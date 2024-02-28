@@ -632,11 +632,20 @@ const IndeterminateCheckbox = React.forwardRef(
           cellWidth: '48px',
           Cell: ({ row }) => {
               const toggleMark = row.values.JustificationRequired ? "Unmark" : "Mark";
-              const hasReference = !(row.original.LineageChangeType == "Creation" && props.status != "accepted"
-                                  || row.original.LineageChangeType == "Deletion" && props.status == "accepted");
+          
+              let sdfSiteCode = row.original.ReferenceSiteCode
+              if(row.original.LineageChangeType == "Creation" && props.status != "accepted"
+                || row.original.LineageChangeType == "Deletion" && props.status == "accepted") {
+                sdfSiteCode = null
+              }
+              if(row.original.LineageChangeType == "Recode" && props.status == "accepted"
+                || row.original.LineageChangeType == "Creation" && props.status == "accepted") {
+                sdfSiteCode = row.values.SiteCode
+              }
+
               return row.canExpand ? (
                 <DropdownSiteChanges actions={getContextActions(row, toggleMark)} siteCode={row.values.SiteCode} toggleMark={toggleMark}
-                  referenceSiteCode={hasReference ? row.original.ReferenceSiteCode : null}/>
+                  referenceSiteCode={sdfSiteCode}/>
               ) : null
           }
         },

@@ -1336,6 +1336,17 @@ export class ModalChanges extends Component {
 
   renderModal() {
     let data = this.state.data;
+    
+    let sdfSiteCode = data.ReferenceSiteCode;
+    if(data.LineageChangeType == "Creation" && data.Status != "Accepted"
+      || data.LineageChangeType == "Deletion" && data.Status == "Accepted") {
+      sdfSiteCode = null
+    }
+    if(data.LineageChangeType == "Recode" && data.Status == "Accepted"
+      || data.LineageChangeType == "Creation" && data.Status == "Accepted") {
+      sdfSiteCode = data.SiteCode
+    }
+          
     return (
       this.state.errorLoading ?
         <>
@@ -1413,11 +1424,8 @@ export class ModalChanges extends Component {
                 </CNavLink>
               </CNavItem>
               <div className="ms-auto">
-                <CButton color="link" href={"/#/sdf?sitecode=" + data.ReferenceSiteCode} target="_blank"
-                  className={!data.ReferenceSiteCode
-                    || (this.props.lineageChangeType == "Deletion" && this.state.data.Status == "Accepted")
-                    || (this.props.lineageChangeType == "Creation" && this.state.data.Status != "Accepted")
-                  ? "disabled" : ""}>
+                <CButton color="link" href={"/#/sdf?sitecode=" + sdfSiteCode} target="_blank"
+                  className={sdfSiteCode == null ? "disabled" : ""}>
                   <i className="fas fa-arrow-up-right-from-square me-2"></i>
                   SDF
                 </CButton>
