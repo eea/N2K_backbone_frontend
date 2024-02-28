@@ -196,6 +196,12 @@ function TableManagement(props) {
     return date;
   };
 
+  const customFilter = (rows, columnIds, filterValue) => {
+    if(columnIds[0] === "CreateDate") {
+      return rows.filter((row) => formatDate(row.values[columnIds]).includes(filterValue));
+    }
+  }
+
   const columns = React.useMemo(
     () => [
       {
@@ -215,7 +221,8 @@ function TableManagement(props) {
         accessor: 'CreateDate',
         Cell: ({ cell }) => (
           formatDate(cell.value)
-        )
+        ),
+        filter: customFilter,
       },
     ],
     []
