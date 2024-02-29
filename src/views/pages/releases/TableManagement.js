@@ -3,6 +3,7 @@ import { useTable, usePagination, useFilters,useGlobalFilter, useRowSelect, useA
 import {matchSorter} from 'match-sorter'
 import ConfigData from '../../../config.json';
 import {
+  CButton,
   CPagination,
   CPaginationItem,
 } from '@coreui/react'
@@ -87,11 +88,10 @@ function Table({ columns, data, setSelected, modalProps, updateModalValues }) {
         {
           Header: () => null,
           id: 'unionListEdit',
-          cellWidth: "48px",
           Cell: ({ row }) => (
-            <div className="btn-icon" onClick={() => modalProps.showEditModal(row.original.ID, row.original.Title, row.original.Final === "Yes" ? true : false)}>
-              <i className="fa-solid fa-pencil"></i>
-            </div>
+            <CButton color="link" onClick={() => modalProps.showEditModal(row.original.ID, row.original.Title, row.original.Final === "Yes" ? true : false)}>
+              Edit
+            </CButton>
           )
         },
         {
