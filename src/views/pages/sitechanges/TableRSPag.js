@@ -517,6 +517,10 @@ const IndeterminateCheckbox = React.forwardRef(
           accessor: 'ChangeType',
         },
         {
+          Header: 'Site Type',
+          accessor: 'SiteType',
+        },
+        {
           Header: () => null,
           accessor: "LineageChangeType",
           Cell: ({ row }) => {
