@@ -366,7 +366,7 @@ const Sitelineage = () => {
                 </div>
               </div>
               <div>
-                <CAlert color='danger' visible={error.length > 0}>{error}</CAlert>
+                <CAlert color="danger" visible={error.length > 0}>{error}</CAlert>
               </div>
               <div className="d-flex flex-start align-items-center p-3 card-lineage-type">
                 <div className="me-5">

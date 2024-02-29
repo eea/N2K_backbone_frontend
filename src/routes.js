@@ -14,6 +14,7 @@ const ReportsStatus = React.lazy(() => import('./views/pages/reports/status'))
 const ReportsManual = React.lazy(() => import('./views/pages/reports/manual'))
 const ReportsUnion = React.lazy(() => import('./views/pages/reports/unionlists'))
 const ReleasesManagement = React.lazy(() => import('./views/pages/releases/management'))
+const ReleasesDocumentation = React.lazy(() => import('./views/pages/releases/documentation'))
 const ReleasesComparer = React.lazy(() => import('./views/pages/releases/comparer'))
 const UnionLists = React.lazy(() => import('./views/pages/releases/unionlists'))
 const SiteEditionOverview = React.lazy(() => import('./views/pages/releases/siteeditionoverview'))
@@ -22,6 +23,7 @@ const LineageOverview = React.lazy(() => import('./views/pages/sitelineage/overv
 const LineageManagement = React.lazy(() => import('./views/pages/sitelineage/management'))
 const LineageHistory = React.lazy(() => import('./views/pages/sitelineage/history'))
 const ShareSite = React.lazy(() => import('./views/pages/sitechanges/sharesite'))
+const ReportingPeriod = React.lazy(() => import('./views/pages/reportingperiod/reportingperiod'))
 const SDF = React.lazy(() => import('./views/pages/sdf/sdf'))
 const NotFound = React.lazy(() => import('./views/other/notfound'))
 //const NotAuthorized = React.lazy(() => import('./views/other/notauthorized')) 
@@ -41,6 +43,7 @@ const routes = [
   { path: '/reports/manual', exact: true, name: 'Reports', component: ReportsManual },
   { path: '/reports/unionlists', exact: true, name: 'Reports', component: ReportsUnion },
   { path: '/releases/management', exact: true, name: 'Releases', component: ReleasesManagement },
+  { path: '/releases/documentation', exact: true, name: 'Releases', component: ReleasesDocumentation },
   { path: '/releases/comparer', exact: true, name: 'Releases', component: ReleasesComparer },
   { path: '/releases/unionlists', exact: true, name: 'Releases', component: UnionLists },
   { path: '/releases/siteeditionoverview', exact: true, name: 'Releases', component: SiteEditionOverview },
@@ -49,6 +52,7 @@ const routes = [
   { path: '/sitelineage/management', exact: true, name: 'SiteLineage', component: LineageManagement },
   { path: '/sitelineage/history', exact: true, name: 'SiteLineage', component: LineageHistory },
   { path: '/sharesite', exact: true, name: 'Share', component: ShareSite },
+  { path: '/reportingperiod', exact: true, name: 'ReportingPeriod', component: ReportingPeriod },
   { path: '/sdf', exact: true, name: 'SDF', component: SDF},
   { path: '/*', name: 'Not Found', component: NotFound },
 ]

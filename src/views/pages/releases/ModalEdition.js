@@ -27,14 +27,14 @@ import {
 
 import TextareaAutosize from 'react-textarea-autosize';
 import justificationRequiredImg from './../../../assets/images/exclamation.svg'
-import justificationProvidedImg from './../../../assets/images/file-text.svg'
+import documentImg from './../../../assets/images/file-text.svg'
 import {DataLoader} from '../../../components/DataLoader';
 
 export class ModalEdition extends Component {
 
   constructor(props) {
     super(props);
-    this.dl = new(DataLoader);
+    this.dl = new (DataLoader);
 
     this.isDataLoaded = false;
     this.isDocumentsLoaded = false;
@@ -46,21 +46,20 @@ export class ModalEdition extends Component {
 
     this.state = {
       activeKey: 1,
-      loading: true, 
-      data: {}, 
+      loading: true,
+      data: {},
       notValidField: [],
-      comments:[],
-      documents:[],
+      comments: [],
+      documents: [],
       newComment: false,
       newDocument: false,
       justificationRequired: false,
-      justificationProvided: false,
       selectedFile: "",
       isSelected: false,
       notValidComment: "",
       notValidDocument: "",
       fieldChanged: false,
-      modalValues : {
+      modalValues: {
         visibility: false,
         close: () => {
           this.setState({
@@ -76,33 +75,33 @@ export class ModalEdition extends Component {
     };
   }
 
-  componentDidMount(){
+  componentDidMount() {
     window.addEventListener('beforeunload', (e) => this.handleLeavePage(e));
   }
 
-  componentWillUnmount(){
+  componentWillUnmount() {
     window.removeEventListener('beforeunload', (e) => this.handleLeavePage(e));
   }
 
-  handleLeavePage(e){
-    if(this.isVisible() && this.checkUnsavedChanges()) {
+  handleLeavePage(e) {
+    if (this.isVisible() && this.checkUnsavedChanges()) {
       e.preventDefault();
       e.returnValue = '';
     }
   }
 
-  setActiveKey(val){
-    this.setState({activeKey: val})
+  setActiveKey(val) {
+    this.setState({ activeKey: val })
   }
 
-  close(){
+  close() {
     this.resetLoading();
     this.setActiveKey(1);
     this.setState({
       data: {},
       loading: true,
-      comments:[],
-      documents:[],
+      comments: [],
+      documents: [],
       newComment: false,
       newDocument: false,
       isSelected: false,
@@ -115,12 +114,12 @@ export class ModalEdition extends Component {
     this.props.close();
   }
 
-  isVisible(){
+  isVisible() {
     return this.props.visible;
   }
 
-  renderFields(){
-    return(
+  renderFields() {
+    return (
       <CTabPane role="tabpanel" aria-labelledby="home-tab" visible={this.state.activeKey === 1}>
         <CForm id="siteedition_form">
           <CRow className="p-3">
@@ -138,15 +137,15 @@ export class ModalEdition extends Component {
       </CTabPane>
     )
   }
-  
+
   fieldValidator() {
     let body = Object.fromEntries(new FormData(document.querySelector("form")));
-    let data = JSON.parse(JSON.stringify( body, ["SiteCode","SiteName","SiteType","BioRegion","Area","Length","CentreY","CentreX"]));
+    let data = JSON.parse(JSON.stringify(body, ["SiteCode", "SiteName", "SiteType", "BioRegion", "Area", "Length", "CentreY", "CentreX"]));
     this.state.notValidField = [];
-    for(let i in Object.keys(data)){
+    for (let i in Object.keys(data)) {
       let field = Object.keys(data)[i]
       let value = data[field];
-      if(!value)
+      if (!value)
         this.state.notValidField.push(field);
     }
     this.state.notValidField.forEach((e) => {
@@ -158,13 +157,13 @@ export class ModalEdition extends Component {
     this.state.notValidField.length > 0 && this.showErrorMessage("fields", "Empty fields are not allowed");
     return this.state.notValidField.length == 0;
   }
-  
+
   onChangeField(e, field) {
-    if(field === "SiteType") {
-      this.setState({siteTypeValue: e}, () => this.checkForChanges(e))
+    if (field === "SiteType") {
+      this.setState({ siteTypeValue: e }, () => this.checkForChanges(e))
     }
-    else if(field === "BioRegion") {
-      this.setState({siteRegionValue: e}, () => this.checkForChanges(e))
+    else if (field === "BioRegion") {
+      this.setState({ siteRegionValue: e }, () => this.checkForChanges(e))
     }
     else {
       this.checkForChanges()
@@ -173,27 +172,36 @@ export class ModalEdition extends Component {
 
   sortComments() {
     this.state.comments.sort(
-      (a,b) => b.Date && a.Date ?
+      (a, b) => b.Date && a.Date ?
         b.Date.localeCompare(a.Date)
         : {}
     );
   }
 
-  renderComments(){
+  renderComments(target) {
     let cmts = [];
-    this.state.comments !== "noData" && this.sortComments();
+    let filteredComments = [];
+    if (this.state.comments !== "noData") {
+      this.sortComments();
+      if (target == "country") {
+        filteredComments = this.state.comments?.filter(c => c.Release)
+      } else {
+        filteredComments = this.state.comments?.filter(c => !c.Release)
+      }
+    }
     cmts.push(
-      this.state.newComment &&
+      target == "site" && this.state.newComment &&
       <div className="comment--item new" key={"cmtItem_new"}>
         <div className="comment--text">
           <TextareaAutosize
             minRows={3}
             placeholder="Add a comment"
             className="comment--input"
+            onChange={({ target }) => this.props.setHasChanges(target.value.length > 0)}
           ></TextareaAutosize>
         </div>
         <div>
-          <CButton color="link" className="btn-icon" onClick={(e) => this.addComment(e.currentTarget)}> 
+          <CButton color="link" className="btn-icon" onClick={(e) => this.addComment(e.currentTarget)}>
             <i className="fa-solid fa-floppy-disk"></i>
           </CButton>
           <CButton color="link" className="btn-icon" onClick={() => this.deleteCommentMessage()}>
@@ -202,33 +210,26 @@ export class ModalEdition extends Component {
         </div>
       </div>
     )
-    if(this.state.comments !== "noData") {
-      for(let i in this.state.comments){
+    if (this.state.comments !== "noData") {
+      filteredComments.forEach(c => {
         cmts.push(
-          this.createCommentElement(
-            this.state.comments[i].Id
-            ,this.state.comments[i].Comments
-            ,this.state.comments[i].Date
-            ,this.state.comments[i].Owner
-            ,this.state.comments[i].Edited
-            ,this.state.comments[i].EditedDate
-            ,this.state.comments[i].Editedby)
+          this.createCommentElement(c.Id, c.Comments, c.Date, c.Owner, c.Edited, c.EditedDate, c.EditedBy, target)
         )
-      }
+      })
     }
-    return(
-      <div id="changes_comments">
+    return (
+      <div className="attachments--group" id={"changes_comments_" + target}>
         {cmts}
-        {this.state.comments === "noData" && !this.state.newComment &&
+        {filteredComments.length == 0 && !this.state.newComment &&
           <em>No comments</em>
         }
       </div>
     )
   }
 
-  createCommentElement(id,comment,date,owner,edited,editeddate,editedby){
+  createCommentElement(id, comment, date, owner, edited, editeddate, editedby, level) {
     return (
-      <div className="comment--item" key={"cmtItem_"+id} id={"cmtItem_"+id}>
+      <div className="comment--item" key={"cmtItem_" + id} id={"cmtItem_" + id}>
         <div className="comment--text">
           <TextareaAutosize
             id={id}
@@ -237,46 +238,55 @@ export class ModalEdition extends Component {
             className="comment--input" />
           <label className="comment--date" htmlFor={id}>
             {date && owner &&
-              "Commented on " + date.slice(0,10).split('-').reverse().join('/') + " by " + owner + "."
+              "Commented on " + date.slice(0, 10).split('-').reverse().join('/') + " by " + owner + "."
             }
             {((edited >= 1) && (editeddate && editeddate !== undefined) && (editedby && editedby !== undefined)) &&
-              " Last edited on " + editeddate.slice(0,10).split('-').reverse().join('/') + " by " + editedby + "."
+              " Last edited on " + editeddate.slice(0, 10).split('-').reverse().join('/') + " by " + editedby + "."
             }
           </label>
         </div>
-        <div className="comment--icons">
-          <CButton color="link" className="btn-icon" onClick={(e) => this.updateComment(e.currentTarget)} key={"cmtUpdate_"+id}>
-            <i className="fa-solid fa-pencil"></i>
-          </CButton>
-          <CButton color="link" className="btn-icon" onClick={(e) => this.deleteCommentMessage(e.currentTarget)} key={"cmtDelete_"+id}>
-            <i className="fa-regular fa-trash-can"></i>
-          </CButton>
-        </div>
+        {level == "site" &&
+          <div className="comment--icons">
+            <CButton color="link" className="btn-icon" onClick={(e) => this.updateComment(e.currentTarget)} key={"cmtUpdate_" + id}>
+              <i className="fa-solid fa-pencil"></i>
+            </CButton>
+            <CButton color="link" className="btn-icon" onClick={(e) => this.deleteCommentMessage(e.currentTarget)} key={"cmtDelete_" + id}>
+              <i className="fa-regular fa-trash-can"></i>
+            </CButton>
+          </div>
+        }
       </div>
     )
   }
 
   sortDocuments() {
     this.state.documents.sort(
-      (a,b) => b.ImportDate && a.ImportDate ?
+      (a, b) => b.ImportDate && a.ImportDate ?
         b.ImportDate.localeCompare(a.ImportDate)
         : {}
     );
   }
 
-  renderDocuments(){
+  renderDocuments(target) {
     let docs = [];
-    this.state.documents !== "noData" && this.sortDocuments();
+    let filteredDocuments = [];
+    if (this.state.documents !== "noData") {
+      this.sortDocuments();
+      if (target == "country")
+        filteredDocuments = this.state.documents?.filter(d => d.Release)
+      else
+        filteredDocuments = this.state.documents?.filter(d => !d.Release)
+    }
     docs.push(
-      this.state.newDocument &&
+      target == "site" && this.state.newDocument &&
       <div className="document--item new" key={"docItem_new"}>
         <div className="input-file">
           <label htmlFor="uploadBtn">
             Select file
           </label>
-          <input id="uploadBtn" type="file" name="Files" onChange={(e) => this.changeHandler(e)} accept={ConfigData.ACCEPTED_DOCUMENT_FORMATS}/>
+          <input id="uploadBtn" type="file" name="Files" onChange={(e) => this.changeHandler(e)} accept={ConfigData.ACCEPTED_DOCUMENT_FORMATS} />
           {this.state.isSelected ? (
-            <input id="uploadFile" placeholder={this.state.selectedFile.name} disabled="disabled"/>
+            <input id="uploadFile" placeholder={this.state.selectedFile.name} disabled="disabled" />
           ) : (<input id="uploadFile" placeholder="No file selected" disabled="disabled" />)}
         </div>
         <div className="document--icons">
@@ -289,62 +299,67 @@ export class ModalEdition extends Component {
         </div>
       </div>
     )
-    if(this.state.documents !== "noData") {
-      for(let i in this.state.documents){
+    if (this.state.documents !== "noData") {
+      filteredDocuments.forEach(d => {
+        // original name may be null until the backend part it's finished
+        const name = d.OriginalName ?? d.Path;
         docs.push(
-          this.createDocumentElement(
-            this.state.documents[i].Id
-            ,this.state.documents[i].Path
-            ,this.state.documents[i].ImportDate
-            ,this.state.documents[i].Username)
+          this.createDocumentElement(d.Id, name, d.Path, d.ImportDate, d.Username, target)
         )
-      }
+      })
     }
-    return(
-      <div id="changes_documents">
+    return (
+      <div className="attachments--group" id={"changes_documents_" + target}>
         {docs}
-        {this.state.documents === "noData" && !this.state.newDocument &&
+        {filteredDocuments.length == 0 && !this.state.newDocument &&
           <em>No documents</em>
         }
       </div>
     )
   }
 
-  createDocumentElement(id,path,date,user){
+  createDocumentElement(id, name, path, date, user, level) {
     return (
-      <div className="document--item" key={"docItem_"+id} id={"docItem_"+id} doc_id={id}>
+      <div className="document--item" key={"docItem_" + id} id={"docItem_" + id} doc_id={id}>
         <div className="my-auto document--text">
-          <CImage src={justificationProvidedImg} className="ico--md me-3"></CImage>
-          <span>{path.replace(/^.*[\\\/]/, '')}</span>
+          <CImage src={documentImg} className="ico--md me-3"></CImage>
+          <span>{name?.replace(/^.*[\\\/]/, '')}</span>
         </div>
         <div className="document--icons">
-          { (date||user) &&
-            <CTooltip 
+          {(date || user) &&
+            <CTooltip
               content={"Uploaded"
-                + (date && " on " + date.slice(0,10).split('-').reverse().join('/'))
+                + (date && " on " + date.slice(0, 10).split('-').reverse().join('/'))
                 + (user && " by " + user)}>
               <div className="btn-icon btn-hover">
                 <i className="fa-solid fa-circle-info"></i>
               </div>
             </CTooltip>
           }
-          <CButton color="link" className="btn-link--dark">
-            <a href={path} target="_blank">View</a>
+          <CButton color="link" className="btn-link--dark" onClick={()=>{this.downloadAttachments(path, name)}}>
+            View
           </CButton>
-          <CButton color="link" className="btn-icon" onClick={(e) => this.deleteDocumentMessage(e.currentTarget)}>
-            <i className="fa-regular fa-trash-can"></i>
-          </CButton>
+          {level == "site" &&
+            <CButton color="link" className="btn-icon" onClick={(e) => this.deleteDocumentMessage(e.currentTarget)}>
+              <i className="fa-regular fa-trash-can"></i>
+            </CButton>
+          }
         </div>
       </div>
     )
   }
 
-  renderAttachments(){
-    return(
+  renderAttachments() {
+    return (
       <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 2}>
         <CRow className="py-3">
           <CCol className="mb-3" xs={12} lg={6}>
-            {!this.errorLoadingDocuments &&
+            <div className="attachments--title">
+              <b>Attached documents</b>
+            </div>
+            {this.errorLoadingDocuments ?
+              <CAlert color="danger">Error loading documents</CAlert>
+              :
               <CCard className="document--list">
                 {this.state.notValidDocument &&
                   <CAlert color="danger">
@@ -352,18 +367,24 @@ export class ModalEdition extends Component {
                   </CAlert>
                 }
                 <div className="d-flex justify-content-between align-items-center pb-2">
-                  <b>Attached documents</b>
+                  <b>Country Level</b>
+                </div>
+                {this.renderDocuments("country")}
+                <div className="d-flex justify-content-between align-items-center pb-2">
+                  <b>Site Level</b>
                   <CButton color="link" className="btn-link--dark" onClick={() => this.addNewDocument()}>Add Document</CButton>
                 </div>
-                {this.renderDocuments()}
+                {this.renderDocuments("site")}
               </CCard>
-            }
-            {this.errorLoadingDocuments &&
-              <CAlert color="danger">Error loading documents</CAlert>
             }
           </CCol>
           <CCol className="mb-3" xs={12} lg={6}>
-            {!this.errorLoadingComments &&
+            <div className="attachments--title">
+              <b>Comments</b>
+            </div>
+            {this.errorLoadingComments ?
+              <CAlert color="danger">Error loading comments</CAlert>
+              :
               <CCard className="comment--list">
                 {this.state.notValidComment &&
                   <CAlert color="danger">
@@ -371,32 +392,25 @@ export class ModalEdition extends Component {
                   </CAlert>
                 }
                 <div className="d-flex justify-content-between align-items-center pb-2">
-                  <b>Comments</b>
+                  <b>Country Level</b>
+                </div>
+                {this.renderComments("country")}
+                <div className="d-flex justify-content-between align-items-center pb-2">
+                  <b>Site Level</b>
                   <CButton color="link" className="btn-link--dark" onClick={() => this.addNewComment()}>Add Comment</CButton>
                 </div>
-                {this.renderComments()}
+                {this.renderComments("site")}
               </CCard>
-            }
-            {this.errorLoadingComments &&
-              <CAlert color="danger">Error loading comments</CAlert>
             }
           </CCol>
           <CCol className="d-flex">
             <div className="checkbox">
               <input type="checkbox" className="input-checkbox" id="modal_justification_req"
-                onClick={()=>this.props.updateModalValues("Changes", `This will ${this.state.justificationRequired ? "unmark" : "mark"} change as justification required`, "Continue", ()=>this.handleJustRequired(), "Cancel", () => {})}
+                onClick={()=>this.props.updateModalValues("Changes", `This will ${this.state.justificationRequired ? "unmark" : "mark"} change as justification missing`, "Continue", ()=>this.handleJustRequired(), "Cancel", () => {})}
                 checked={this.state.justificationRequired}
                 readOnly
               />
-              <label htmlFor="modal_justification_req" className="input-label">Justification required</label>
-            </div>
-            <div className="checkbox" disabled={(this.state.justificationRequired ? false : true)}>
-              <input type="checkbox" className="input-checkbox" id="modal_justification_prov"
-                onClick={()=>this.props.updateModalValues("Changes", `This will ${this.state.justificationProvided ? "unmark": "mark"} change as justification provided`, "Continue", ()=>this.handleJustProvided(), "Cancel", () => {})}
-                checked={this.state.justificationProvided} 
-                readOnly
-              />
-              <label htmlFor="modal_justification_prov" className="input-label" disabled={(this.state.justificationRequired ? false : true)}>Justification provided</label>
+              <label htmlFor="modal_justification_req" className="input-label">Justification missing</label>
             </div>
           </CCol>
         </CRow>
@@ -404,32 +418,46 @@ export class ModalEdition extends Component {
     )
   }
 
+  downloadAttachments = (path, name) => {
+    fetch(path).then((response) => response.blob())
+    .then((blobresp) => {
+      var blob = new Blob([blobresp], {type: "octet/stream"});
+      var url = window.URL.createObjectURL(blob);
+      let link = document.createElement("a");
+      link.download = name;
+      link.href = url;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+  }
+
   showErrorMessage(target, message) {
     if (target === "comment") {
-      this.setState({notValidComment: message});
+      this.setState({ notValidComment: message });
       setTimeout(() => {
-        this.setState({notValidComment: ""});
+        this.setState({ notValidComment: "" });
       }, ConfigData.MessageTimeout);
     }
     else if (target === "document") {
-      this.setState({notValidDocument: message});
+      this.setState({ notValidDocument: message });
       setTimeout(() => {
-        this.setState({notValidDocument: ""});
+        this.setState({ notValidDocument: "" });
       }, ConfigData.MessageTimeout);
     }
     else if (target === "fields") {
-      this.setState({notValidField: message});
+      this.setState({ notValidField: message });
       setTimeout(() => {
-        this.setState({notValidField: ""});
+        this.setState({ notValidField: "" });
       }, ConfigData.MessageTimeout);
     }
   }
 
   addNewComment() {
-    this.setState({newComment: true})
+    this.setState({ newComment: true })
   }
 
-  updateComment(target){
+  updateComment(target) {
     let input = target.closest(".comment--item").querySelector("textarea");
     let id = parseInt(input.id);
     if (target.firstChild.classList.contains("fa-pencil")) {
@@ -442,12 +470,12 @@ export class ModalEdition extends Component {
         this.showErrorMessage("comment", "Add comment");
       }
       else {
-        this.saveComment(id,input,input.value,target);
+        this.saveComment(id, input, input.value, target);
       }
     }
   }
 
-  addComment(target){
+  addComment(target) {
     let input = target.closest(".comment--item").querySelector("textarea");
     let comment = input.value;
     let currentDate = new Date().toISOString();
@@ -461,121 +489,121 @@ export class ModalEdition extends Component {
         "Comments": comment,
         "Date": currentDate,
       }
-      
-      this.sendRequest(ConfigData.ADD_COMMENT,"POST",body)
-      .then(response => response.json())
-      .then((data) => {
-        if(data?.Success){
-          let commentId = data.Data[data.Data.length-1].Id;
-          let cmts = this.state.comments === "noData" ? [] : this.state.comments;
-          cmts.push({
-            Comments: comment,
-            SiteCode: this.state.data.SiteCode,
-            Version: this.state.data.Version,
-            Id: commentId,
-            Date: currentDate,
-            Owner: data.Data.find(a=>a.Id===commentId).Owner,
-          })
-          this.setState({comments: cmts, newComment: false})
-        } else { this.showErrorMessage("comment", "Error adding comment")}
-      });
+
+      this.sendRequest(ConfigData.ADD_COMMENT, "POST", body)
+        .then(response => response.json())
+        .then((data) => {
+          if (data?.Success) {
+            let commentId = data.Data[data.Data.length - 1].Id;
+            let cmts = this.state.comments === "noData" ? [] : this.state.comments;
+            cmts.push({
+              Comments: comment,
+              SiteCode: this.state.data.SiteCode,
+              Version: this.state.data.Version,
+              Id: commentId,
+              Date: currentDate,
+              Owner: data.Data.find(a => a.Id === commentId).Owner,
+            })
+            this.setState({ comments: cmts, newComment: false })
+          } else { this.showErrorMessage("comment", "Error adding comment") }
+        });
       this.loadComments();
     }
   }
 
-  saveComment(id,input,comment,target){
-    let body = this.state.comments.find(a=>a.Id===id);
+  saveComment(id, input, comment, target) {
+    let body = this.state.comments.find(a => a.Id === id);
     body.Comments = comment;
-    
-    this.sendRequest(ConfigData.UPDATE_COMMENT,"PUT",body)
-    .then((data) => {
-      let reader = data.body.getReader();
-      let txt = "";
-      let readData = (data) => {
-        if(data.done)
-          return JSON.parse(txt);
-        else{
-          txt += new TextDecoder().decode(data.value);
-          return reader.read().then(readData);
+
+    this.sendRequest(ConfigData.UPDATE_COMMENT, "PUT", body)
+      .then((data) => {
+        let reader = data.body.getReader();
+        let txt = "";
+        let readData = (data) => {
+          if (data.done)
+            return JSON.parse(txt);
+          else {
+            txt += new TextDecoder().decode(data.value);
+            return reader.read().then(readData);
+          }
         }
-      }
 
-      reader.read().then(readData).then((data) => {
-        this.setState({comments: data.Data})
-      });
+        reader.read().then(readData).then((data) => {
+          this.setState({ comments: data.Data })
+        });
 
-      if(data?.ok){
-        input.disabled = true;
-        input.readOnly = true;
-        target.firstChild.classList.replace("fa-floppy-disk", "fa-pencil");
-      } else { this.showErrorMessage("comment", "Error saving comment")}
-    })
+        if (data?.ok) {
+          input.disabled = true;
+          input.readOnly = true;
+          target.firstChild.classList.replace("fa-floppy-disk", "fa-pencil");
+        } else { this.showErrorMessage("comment", "Error saving comment") }
+      })
     this.loadComments();
   }
 
-  deleteCommentMessage(target){
-    if(!target && this.state.newComment && document.querySelector(".comment--item.new textarea")?.value.trim() === "") {
+  deleteCommentMessage(target) {
+    if (!target && this.state.newComment && document.querySelector(".comment--item.new textarea")?.value.trim() === "") {
       this.deleteComment();
     }
     else {
-      this.props.updateModalValues("Delete Comment", "Are you sure you want to delete this comment?", "Continue", () => this.deleteComment(target), "Cancel", () => {})
+      this.props.updateModalValues("Delete Comment", "Are you sure you want to delete this comment?", "Continue", () => this.deleteComment(target), "Cancel", () => { })
     }
   }
 
-  deleteComment(target){
-    if(target) {
+  deleteComment(target) {
+    if (target) {
       let input = target.closest(".comment--item").querySelector("textarea");
       let id = input.getAttribute("id");
       let body = id;
-      this.sendRequest(ConfigData.DELETE_COMMENT,"DELETE",body)
-      .then((data) => {
-        if(data?.ok){
-          let cmts = this.state.comments.filter(e => e.Id !== parseInt(id));
-          this.setState({comments: cmts.length > 0 ? cmts : "noData"});
-        } else { this.showErrorMessage("comment", "Error deleting comment") }
-      });
+      this.sendRequest(ConfigData.DELETE_COMMENT, "DELETE", body)
+        .then((data) => {
+          if (data?.ok) {
+            let cmts = this.state.comments.filter(e => e.Id !== parseInt(id));
+            this.setState({ comments: cmts.length > 0 ? cmts : "noData" });
+          } else { this.showErrorMessage("comment", "Error deleting comment") }
+        });
     }
     else {
-      this.setState({newComment: false});
+      this.setState({ newComment: false });
     }
   }
 
-  addNewDocument(){
-    this.setState({newDocument: true})
+  addNewDocument() {
+    this.setState({ newDocument: true })
   }
 
-  deleteDocumentMessage(target){
-    if(!target && this.state.newDocument && !this.state.isSelected) {
+  deleteDocumentMessage(target) {
+    if (!target && this.state.newDocument && !this.state.isSelected) {
       this.deleteDocument();
     }
     else {
-      this.props.updateModalValues("Delete Document", "Are you sure you want to delete this document?", "Continue", () => this.deleteDocument(target), "Cancel", () => {})
+      this.props.updateModalValues("Delete Document", "Are you sure you want to delete this document?", "Continue", () => this.deleteDocument(target), "Cancel", () => { })
     }
   }
 
-  deleteDocument(target){
-    if(target) {
+  deleteDocument(target) {
+    if (target) {
       let doc = target.closest(".document--item");
       let id = doc.getAttribute("doc_id");
-      this.sendRequest(ConfigData.DELETE_ATTACHED_FILE+"?justificationId="+id,"DELETE","")
-      .then((data) => {
-        if(data?.ok){
-          let docs = this.state.documents.filter(e => e.Id !== parseInt(id));
-          this.setState({documents: docs.length > 0 ? docs : "noData"});
-        } else { this.showErrorMessage("document", "Error deleting document") }
-      });
+      this.sendRequest(ConfigData.DELETE_ATTACHED_FILE + "?justificationId=" + id, "DELETE", "")
+        .then((data) => {
+          if (data?.ok) {
+            let docs = this.state.documents.filter(e => e.Id !== parseInt(id));
+            this.setState({ documents: docs.length > 0 ? docs : "noData" });
+          } else { this.showErrorMessage("document", "Error deleting document") }
+        });
     }
     else {
-      this.setState({newDocument: false, isSelected: false, selectedFile: "", notValidDocument: ""});
+      this.setState({ newDocument: false, isSelected: false, selectedFile: "", notValidDocument: "" });
     }
   }
 
-  changeHandler (e) {
+  changeHandler(e) {
     let formats = ConfigData.ACCEPTED_DOCUMENT_FORMATS;
     let file = e.currentTarget.closest("input").value;
     let extension = file.substring(file.lastIndexOf('.'), file.length) || file;
     if (formats.includes(extension)) {
-      this.setState({selectedFile: e.target.files[0],isSelected: true});
+      this.setState({ selectedFile: e.target.files[0], isSelected: true });
     }
     else {
       e.currentTarget.closest("#uploadBtn").value = "";
@@ -583,49 +611,50 @@ export class ModalEdition extends Component {
     }
   }
 
-  uploadFile(data){
+  uploadFile(data) {
     let siteCode = this.state.data.SiteCode;
     let version = this.state.data.Version;
-    return this.dl.xmlHttpRequest(ConfigData.UPLOAD_ATTACHED_FILE+'?sitecode='+siteCode+'&version='+version,data);
+    return this.dl.xmlHttpRequest(ConfigData.UPLOAD_ATTACHED_FILE + '?sitecode=' + siteCode + '&version=' + version, data);
   }
 
-  handleSubmission () {
+  handleSubmission() {
     if (this.state.selectedFile) {
-      this.setState({notValidDocument:""});
+      this.setState({ notValidDocument: "" });
       let formData = new FormData();
-      formData.append("Files",this.state.selectedFile, this.state.selectedFile.name);
+      formData.append("Files", this.state.selectedFile, this.state.selectedFile.name);
 
       return this.uploadFile(formData)
-      .then(data => {
-        if(data?.Success){
-          let docs = this.state.documents === "noData" ? [] : this.state.documents;
-          let newDocs = data.Data.filter(({ Id: id1 }) => !docs.some(({ Id: id2 }) => id2 === id1));
-          for(let i in newDocs){
-            let document = newDocs[i];
-            let documentId = document.Id;
-            let path = document.Path;
-            docs.push({
-              Id: documentId,
-              SiteCode: this.state.data.SiteCode,
-              Version: this.state.data.Version,
-              Path: path,
-              Username: document.Username,
-              ImportDate: document.ImportDate
-            })
+        .then(data => {
+          if (data?.Success) {
+            let docs = this.state.documents === "noData" ? [] : this.state.documents;
+            let newDocs = data.Data.filter(({ Id: id1 }) => !docs.some(({ Id: id2 }) => id2 === id1));
+            for (let i in newDocs) {
+              let document = newDocs[i];
+              let documentId = document.Id;
+              let path = document.Path;
+              docs.push({
+                Id: documentId,
+                SiteCode: this.state.data.SiteCode,
+                Version: this.state.data.Version,
+                Path: path,
+                Username: document.Username,
+                ImportDate: document.ImportDate,
+                OriginalName: document.OriginalName
+              })
+            }
+            this.setState({ documents: docs, newDocument: false, isSelected: false, selectedFile: "" })
           }
-          this.setState({documents: docs, newDocument: false, isSelected: false, selectedFile: ""})
-        }
-        else {
-          this.showErrorMessage("document", "File upload failed - " + data.Message);
-        }
-      });
+          else {
+            this.showErrorMessage("document", "File upload failed - " + data.Message);
+          }
+        });
     }
     else {
       this.showErrorMessage("document", "Add a file");
     }
   }
 
-  handleJustRequired(){
+  handleJustRequired() {
     let body = [{
       "SiteCode": this.state.data.SiteCode,
       "VersionId": this.state.data.Version,
@@ -634,42 +663,21 @@ export class ModalEdition extends Component {
     this.sendRequest(ConfigData.MARK_AS_JUSTIFICATION_REQUIRED, "POST", body)  
     .then((data)=> {
       if(data?.ok){
-        if(this.state.justificationRequired)
-          this.setState({justificationRequired: !this.state.justificationRequired, justificationProvided: false})
-        else
-          this.setState({justificationRequired: !this.state.justificationRequired})
+        this.setState({justificationRequired: !this.state.justificationRequired})
         return data;
       }
       else {
-        this.showErrorMessage("Justification Required", "Update failed");
-        return data;
-      }
-    });
-  }
-  
-  handleJustProvided(){
-    let body = [{
-      "SiteCode": this.state.data.SiteCode,
-      "VersionId": this.state.data.Version,
-      "Justification": !this.state.justificationProvided,
-    }];  
-    this.sendRequest(ConfigData.PROVIDE_JUSTIFICATION, "POST", body)
-    .then((data)=> {
-      if(data?.ok){
-        this.setState({justificationProvided: !this.state.justificationProvided})
-      }
-      else {
-        this.showErrorMessage("Justification Provided", "Update failed");
+        this.showErrorMessage("Justification Missing", "Update failed");
         return data;
       }
     });
   }
 
-  createFieldElement(){
+  createFieldElement() {
     let fields = [];
     let data = this.state.data;
-    data = JSON.parse(JSON.stringify( data, ["SiteCode","SiteName","SiteType","BioRegion","Area","Length","CentreY","CentreX"]));
-    for(let i in Object.keys(data)){
+    data = JSON.parse(JSON.stringify(data, ["SiteCode", "SiteName", "SiteType", "BioRegion", "Area", "Length", "CentreY", "CentreX"]));
+    for (let i in Object.keys(data)) {
       let field = Object.keys(data)[i]
       let id = "field_" + field;
       let value = data[field];
@@ -690,22 +698,22 @@ export class ModalEdition extends Component {
         case "SiteType":
           label = "Site Type";
           placeholder = "Select site type";
-          options = this.props.types.map(x => x = {label:x.Classification, value:x.Code});
+          options = this.props.types.map(x => x = { label: x.Classification, value: x.Code });
           value = options.find(y => y.value === value);
           this.siteTypeDefault = value;
-          if(this.state.siteTypeValue === "") {
-            this.setState({siteTypeValue: value})
+          if (this.state.siteTypeValue === "") {
+            this.setState({ siteTypeValue: value })
           }
           original = original && this.props.types.find(y => y.Code === original).Classification;
           break;
         case "BioRegion":
           label = "Biogeographical Region";
           placeholder = "Select a region";
-          options = this.props.regions.map(x => x = {label:x.RefBioGeoName, value:x.Code});
+          options = this.props.regions.map(x => x = { label: x.RefBioGeoName, value: x.Code });
           value = value.map(x => options.find(y => y.value === x));
           this.siteRegionDefault = value;
-          if(this.state.siteRegionValue === "") {
-            this.setState({siteRegionValue: value})
+          if (this.state.siteRegionValue === "") {
+            this.setState({ siteRegionValue: value })
           }
           original = original && original.map(x => this.props.regions.find(y => y.Code === x).RefBioGeoName).join(", ");
           break;
@@ -727,11 +735,11 @@ export class ModalEdition extends Component {
           break;
       }
       fields.push(
-        <CCol xs={12} md={12} lg={6} key={"fd_"+field} className="mb-4">
+        <CCol xs={12} md={12} lg={6} key={"fd_" + field} className="mb-4">
           {field === "SiteCode" &&
             <>
               <label>{label}</label>
-                <CFormInput
+              <CFormInput
                 id={id}
                 name={name}
                 type="text"
@@ -746,7 +754,7 @@ export class ModalEdition extends Component {
           {field === "SiteName" &&
             <>
               <label>{label}</label>
-                <CFormInput
+              <CFormInput
                 id={id}
                 name={name}
                 type="text"
@@ -858,32 +866,26 @@ export class ModalEdition extends Component {
 
   renderModal() {
     let data = this.state.data;
-    return(
+    return (
       <>
         <CModalHeader closeButton={false}>
           <CModalTitle>
             {data.SiteCode} - {data.SiteName}
             <span className="ms-2 fw-normal">({this.props.types.find(a => a.Code === data.SiteType).Classification})</span>
           </CModalTitle>
-          <CCloseButton onClick={()=>this.closeModal()}/>
+          <CCloseButton onClick={() => this.closeModal()} />
         </CModalHeader>
         <CModalBody >
-          <CAlert color="primary" className="d-flex align-items-center" visible={this.state.justificationProvided || this.state.justificationRequired}>
-            {this.state.justificationRequired && !this.state.justificationProvided &&
+          <CAlert color="primary" className="d-flex align-items-center" visible={this.state.justificationRequired}>
+            {this.state.justificationRequired &&
               <>
                 <CImage src={justificationRequiredImg} className="ico--md me-3"></CImage>
-                Justification required
-              </>
-            }
-            {this.state.justificationProvided &&
-              <>
-                <CImage src={justificationProvidedImg} className="ico--md me-3"></CImage>
-                Justification provided
+                Justification missing
               </>
             }
           </CAlert>
           <CNav variant="tabs" role="tablist">
-          <CNavItem>
+            <CNavItem>
               <CNavLink
                 active={this.state.activeKey === 1}
                 onClick={() => this.warningUnsavedChanges(1)}
@@ -907,10 +909,10 @@ export class ModalEdition extends Component {
         </CModalBody>
         <CModalFooter>
           <div className="d-flex w-100 justify-content-between">
-            <CButton color="secondary" disabled= {this.state.updatingData} onClick={()=>this.closeModal()}>Cancel</CButton>
-            <CButton color="primary" disabled= {this.state.updatingData || !this.state.fieldChanged} onClick={() => this.saveChangesModal() }>
-              {this.state.updatingData && <CSpinner size="sm"/>}
-              {this.state.updatingData? " Saving":"Save"}
+            <CButton color="secondary" disabled={this.state.updatingData} onClick={() => this.closeModal()}>Cancel</CButton>
+            <CButton color="primary" disabled={this.state.updatingData || !this.state.fieldChanged} onClick={() => this.saveChangesModal()}>
+              {this.state.updatingData && <CSpinner size="sm" />}
+              {this.state.updatingData ? " Saving" : "Save"}
             </CButton>
           </div>
         </CModalFooter>
@@ -918,12 +920,12 @@ export class ModalEdition extends Component {
     )
   }
 
-  renderData(){
-    if(!this.isDataLoaded)
+  renderData() {
+    if (!this.isDataLoaded)
       this.loadData();
-    if(!this.isCommentsLoaded)
+    if (!this.isCommentsLoaded)
       this.loadComments();
-    if(!this.isDocumentsLoaded)
+    if (!this.isDocumentsLoaded)
       this.loadDocuments();
 
     let contents = this.state.loading
@@ -937,8 +939,8 @@ export class ModalEdition extends Component {
     )
   }
 
-  closeModal(){
-    if (this.checkUnsavedChanges()){
+  closeModal() {
+    if (this.checkUnsavedChanges()) {
       this.messageBeforeClose(() => this.close())
     }
     else {
@@ -947,9 +949,9 @@ export class ModalEdition extends Component {
   }
 
   render() {
-    return(
+    return (
       <>
-        <CModal scrollable size="xl" visible={this.isVisible()} backdrop="static" onClose={()=>this.closeModal()}>
+        <CModal scrollable size="xl" visible={this.isVisible()} backdrop="static" onClose={() => this.closeModal()}>
           {this.renderData()}
         </CModal>
       </>
@@ -962,56 +964,56 @@ export class ModalEdition extends Component {
     this.isCommentsLoaded = false;
   }
 
-  loadData(){
-    if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
+  loadData() {
+    if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)) {
       this.isDataLoaded = true;
       this.dl.fetch(ConfigData.SITEDETAIL_GET+"?siteCode="+this.props.item)
       .then(response => response.json())
       .then(data =>{
         if(data?.Success) {
           if(data.Data.SiteCode === this.props.item && Object.keys(this.state.data).length === 0) {
-            this.setState({data: data.Data, loading: false, justificationRequired: data.Data.JustificationRequired, justificationProvided: data.Data.JustificationProvided})
+            this.setState({data: data.Data, loading: false, justificationRequired: data.Data.JustificationRequired})
           }
         } else { this.errorLoadingData = true; this.setState({loading: false}) }
       });
     }
   }
 
-  loadComments(){
-    if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
+  loadComments() {
+    if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)) {
       this.isCommentsLoaded = true;
-      this.dl.fetch(ConfigData.GET_SITE_COMMENTS+`siteCode=${this.props.item}&version=${this.props.version}`)
-      .then(response => response.json())
-      .then(data => {
-        if(data?.Success) {
-          if (data.Data.length > 0) {
-            if(data.Data[0]?.SiteCode === this.props.item && (this.state.comments.length === 0 || this.state.comments === "noData"))
-            this.setState({comments: data.Data});
-          }
-          else {
-            this.setState({comments: "noData"});
-          }
-        } else { this.errorLoadingComments = true }
-      });
+      this.dl.fetch(ConfigData.GET_SITE_COMMENTS + `siteCode=${this.props.item}&version=${this.props.version}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data?.Success) {
+            if (data.Data.length > 0) {
+              if (data.Data[0]?.SiteCode === this.props.item && (this.state.comments.length === 0 || this.state.comments === "noData"))
+                this.setState({ comments: data.Data });
+            }
+            else {
+              this.setState({ comments: "noData" });
+            }
+          } else { this.errorLoadingComments = true }
+        });
     }
   }
 
-  loadDocuments(){
-    if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)){
+  loadDocuments() {
+    if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)) {
       this.isDocumentsLoaded = true;
-      this.dl.fetch(ConfigData.GET_ATTACHED_FILES+`siteCode=${this.props.item}&version=${this.props.version}`)
-      .then(response => response.json())
-      .then(data => {
-        if(data?.Success) {
-          if (data.Data.length > 0) {
-            if(data.Data[0]?.SiteCode === this.props.item && (this.state.documents.length === 0 || this.state.documents === "noData"))
-            this.setState({documents: data.Data});
-          }
-          else {
-            this.setState({documents: "noData"});
-          }
-        } else { this.errorLoadingDocuments = true }
-      });
+      this.dl.fetch(ConfigData.GET_ATTACHED_FILES + `siteCode=${this.props.item}&version=${this.props.version}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data?.Success) {
+            if (data.Data.length > 0) {
+              if (data.Data[0]?.SiteCode === this.props.item && (this.state.documents.length === 0 || this.state.documents === "noData"))
+                this.setState({ documents: data.Data });
+            }
+            else {
+              this.setState({ documents: "noData" });
+            }
+          } else { this.errorLoadingDocuments = true }
+        });
     }
   }
 
@@ -1025,17 +1027,17 @@ export class ModalEdition extends Component {
   }
 
   warningUnsavedChanges(activeKey) {
-    if(this.state.fieldChanged && this.state.activeKey === 1) {
+    if (this.state.fieldChanged && this.state.activeKey === 1) {
       this.props.updateModalValues("Edit fields",
         "There are unsaved changes. Do you want to continue?",
-        "Continue", () => {this.cleanEditFields(); this.setActiveKey(activeKey)},
-        "Cancel", () => {});
+        "Continue", () => { this.cleanEditFields(); this.setActiveKey(activeKey) },
+        "Cancel", () => { });
     }
-    else if(this.checkUnsavedChanges() && this.state.activeKey === 2) {
+    else if (this.checkUnsavedChanges() && this.state.activeKey === 2) {
       this.props.updateModalValues("Documents & Comments",
         "There are unsaved changes. Do you want to continue?",
-        "Continue", () => {this.cleanUnsavedChanges(); this.setActiveKey(activeKey)},
-        "Cancel", () => {});
+        "Continue", () => { this.cleanUnsavedChanges(); this.setActiveKey(activeKey) },
+        "Cancel", () => { });
     }
     else {
       this.setActiveKey(activeKey)
@@ -1043,7 +1045,7 @@ export class ModalEdition extends Component {
   }
 
   messageBeforeClose(action, keepOpen) {
-    this.props.updateModalValues("Site Edition", "There are unsaved changes. Do you want to continue?", "Continue", action, "Cancel", () => {}, keepOpen);
+    this.props.updateModalValues("Site Edition", "There are unsaved changes. Do you want to continue?", "Continue", action, "Cancel", () => { }, keepOpen);
   }
 
   cleanUnsavedChanges() {
@@ -1058,10 +1060,10 @@ export class ModalEdition extends Component {
   cleanEditFields() {
     let fields = this.getBody();
     delete fields.Version;
-    for(let i in fields) {
+    for (let i in fields) {
       document.getElementsByName(i)[0].value = this.state.data[i];
     }
-    this.setState({siteTypeValue: this.siteTypeDefault, siteRegionValue: this.siteRegionDefault, fieldChanged: false})
+    this.setState({ siteTypeValue: this.siteTypeDefault, siteRegionValue: this.siteRegionDefault, fieldChanged: false })
     this.siteTypeDefault = this.state.siteTypeValue;
     this.siteRegionDefault = this.state.siteRegionValue;
   }
@@ -1069,7 +1071,7 @@ export class ModalEdition extends Component {
   checkForChanges(e) {
     let body = this.getBody();
     let errorMargin = 0.00000001;
-    if(this.state.data.SiteName !== body.SiteName
+    if (this.state.data.SiteName !== body.SiteName
       || this.state.data.Area !== body.Area
       || this.state.data.Length !== body.Length
       || (Math.abs(this.state.data.CentreX - body.CentreX) > errorMargin)
@@ -1077,15 +1079,15 @@ export class ModalEdition extends Component {
       || JSON.stringify(this.state.siteTypeValue) !== JSON.stringify(this.siteTypeDefault)
       || JSON.stringify(this.state.siteRegionValue) !== JSON.stringify(this.siteRegionDefault)
     ) {
-      this.setState({fieldChanged: true});
+      this.setState({ fieldChanged: true });
     } else {
-      this.setState({fieldChanged: false});
+      this.setState({ fieldChanged: false });
     }
-    if(typeof e !== 'undefined') {
-      if(e && e.target)
+    if (typeof e !== 'undefined') {
+      if (e && e.target)
         e.target.classList.contains('invalidField') ?
           e.target.classList.remove('invalidField')
-        : {}
+          : {}
     }
 
     return this.state.fieldChanged;
@@ -1106,62 +1108,61 @@ export class ModalEdition extends Component {
 
   saveChangesModal() {
     let body = this.getBody();
-    if(this.fieldValidator()) {
-      this.props.updateModalValues("Save changes", "This will save the site changes", "Continue", ()=>this.saveChanges(body), "Cancel", ()=>{});
+    if (this.fieldValidator()) {
+      this.props.updateModalValues("Save changes", "This will save the site changes", "Continue", () => this.saveChanges(body), "Cancel", () => { });
     }
   }
 
-  saveChanges(body){
-    if(Object.values(body).some(val => val === null || val === "")){
+  saveChanges(body) {
+    if (Object.values(body).some(val => val === null || val === "")) {
       this.showErrorMessage("fields", "Empty fields are not allowed");
     } else {
-      body.JustificationProvided = this.state.justificationProvided;
       body.JustificationRequired = this.state.justificationRequired;
       this.sendRequest(ConfigData.SITEDETAIL_SAVE, "POST", body)
-      .then((data)=> {
-        if(data?.ok){
-          body = {
-            ...body,
-            BioRegion: body.BioRegion.split(",").map(Number),
-          }
-          let newFields = Object.keys(this.state.data).filter(a=>!body.hasOwnProperty(a));
-          for(let i in newFields){
-            let field = newFields[i];
-            let value = this.state.data[field];
-            let ref = field.replace('Original','');
-            if(field === "OriginalBioRegion"){
-              if(!value && JSON.stringify(body[ref]) !== JSON.stringify(this.state.data[ref])){
-                value = this.state.data[ref];
-              }
-              else if(value && JSON.stringify(body[ref]) === JSON.stringify(value)){
-                value = null;
-              }
+        .then((data) => {
+          if (data?.ok) {
+            body = {
+              ...body,
+              BioRegion: body.BioRegion.split(",").map(Number),
             }
-            else {
-              if(!value?.toString() && body[ref] !== this.state.data[ref]){
-                value = this.state.data[ref];
+            let newFields = Object.keys(this.state.data).filter(a => !body.hasOwnProperty(a));
+            for (let i in newFields) {
+              let field = newFields[i];
+              let value = this.state.data[field];
+              let ref = field.replace('Original', '');
+              if (field === "OriginalBioRegion") {
+                if (!value && JSON.stringify(body[ref]) !== JSON.stringify(this.state.data[ref])) {
+                  value = this.state.data[ref];
+                }
+                else if (value && JSON.stringify(body[ref]) === JSON.stringify(value)) {
+                  value = null;
+                }
               }
-              else if(value?.toString() && body[ref] === value){
-                value = null;
+              else {
+                if (!value?.toString() && body[ref] !== this.state.data[ref]) {
+                  value = this.state.data[ref];
+                }
+                else if (value?.toString() && body[ref] === value) {
+                  value = null;
+                }
               }
+              body[field] = value;
             }
-            body[field] = value;
+            this.setState({ data: body, fieldChanged: false, updatingData: false });
           }
-          this.setState({data: body, fieldChanged: false, updatingData: false});
-        }
-        else {
-          this.showErrorMessage("fields", "Something went wrong");
-        }
-      });
-      this.setState({updatingData:true});
+          else {
+            this.showErrorMessage("fields", "Something went wrong");
+          }
+        });
+      this.setState({ updatingData: true });
     }
   }
 
-  sendRequest(url,method,body,path){
+  sendRequest(url, method, body, path) {
     const options = {
       method: method,
       headers: {
-      'Content-Type': path? 'multipart/form-data' :'application/json',
+        'Content-Type': path ? 'multipart/form-data' : 'application/json',
       },
       body: JSON.stringify(body),
     };
