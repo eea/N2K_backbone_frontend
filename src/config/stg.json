@@ -60,6 +60,10 @@
   "LINEAGE_GET_REFERENCE_SITES": "https://redneckedswan/n2kbackbone_back/api/SiteLineage/GetLineageReferenceSites",
   "LINEAGE_SAVE_CHANGES": "https://redneckedswan/n2kbackbone_back/api/SiteLineage/SaveEdition",
   "GET_SDF_DATA": "https://redneckedswan/n2kbackbone_back/api/SDF/GetData",
+  "REPORTING_PERIOD_GET": "https://redneckedswan/n2kbackbone_back/api/ReportingPeriod/Get",
+  "REPORTING_PERIOD_EDIT": "https://redneckedswan/n2kbackbone_back/api/ReportingPeriod/Edit",
+  "REPORTING_PERIOD_CREATE": "https://redneckedswan/n2kbackbone_back/api/ReportingPeriod/Create",
+  "REPORTING_PERIOD_CLOSE": "https://redneckedswan/n2kbackbone_back/api/ReportingPeriod/Close",
   "REPORTED_SPATIAL": "https://bio.discomap.eea.europa.eu/arcgis/rest/services/N2K_Backbone/N2KBackbone_stg/MapServer/0",
   "LATEST_RELEASE": "https://bio.discomap.eea.europa.eu/arcgis/rest/services/N2K_Backbone/N2KBackbone_stg/MapServer/1",
   "THEME_COLORS": {
