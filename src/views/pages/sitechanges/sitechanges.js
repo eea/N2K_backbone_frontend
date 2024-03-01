@@ -77,12 +77,14 @@ const Sitechanges = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [forceRefresh, setForceRefresh] = useState(0);
   const [countries, setCountries] = useState([]);
-  const [loadingCountries, setLoadingCountries] = useState(false);
+  const [countriesLoaded, setCountriesLoaded] = useState(false);
   const [loadingSites, setLoadingSites] = useState(true);
   const [country, setCountry] = useState(defaultCountry);
   const [level, setLevel] = useState('Critical');
   const [filterEdited, setFilterEdited] = useState(false);
   const [filterJustification, setFilterJustification] = useState(false);
+  const [filterSCI, setFilterSCI] = useState(false);
+  const [siteTypes, setSiteTypes] = useState([]);
   const [disabledBtn, setDisabledBtn] = useState(true);
   const [disabledSearchBtn, setDisabledSearchBtn] = useState(true);
   const [site, setSite] = useState(openSite())
@@ -457,6 +459,9 @@ const Sitechanges = () => {
     else if (type === "justification") {
       setFilterJustification(value);
     }
+    else if (type == "sci") {
+      setFilterSCI(value);
+    }
     clearSearch();
     forceRefreshData();
   }
@@ -475,7 +480,7 @@ const Sitechanges = () => {
   }
 
   let loadCountries = () => {
-    setLoadingCountries(true);
+    setCountriesLoaded(true);
     dl.fetch(ConfigData.COUNTRIES_WITH_DATA)
     .then(response => response.json())
     .then(data => {
@@ -491,15 +496,24 @@ const Sitechanges = () => {
         if(country === "" || !countriesList.some(a => a.code === country)) {
           changeCountry(countriesList[0]?.code);
         }
-        if(countriesList[0]) {
-          setIsLoading(false);
-        }
+        setIsLoading(false);
       }
     });
   }
 
+  let loadSiteTypes = () => {
+    dl.fetch(ConfigData.SITETYPES_GET)
+      .then(response => response.json())
+      .then(data => {
+        if(data?.Success) {
+          setSiteTypes(data.Data)
+        }
+    });
+  }
+
   //Initial set for countries
-  if(countries.length === 0 && !loadingCountries){
+  if(countries.length === 0 && !countriesLoaded){
+    loadSiteTypes();
     loadCountries();
   }
 
@@ -695,6 +709,12 @@ const Sitechanges = () => {
                             </div>
                           </li>
                         }
+                        <li>
+                          <div className="checkbox" disabled={loadingSites}>
+                            <input type="checkbox" className="input-checkbox" id="site_check_sci" checked={filterSCI===true} onClick={(e)=>changeFilter("sci", e.currentTarget.checked)} />
+                            <label htmlFor="site_check_sci" className="input-label badge color--default">SCI</label>
+                          </div>
+                        </li>
                       </ul>
                     </div>
                     <CTabContent>
@@ -705,6 +725,8 @@ const Sitechanges = () => {
                         level = {level}
                         onlyEdited = {false}
                         onlyJustReq = {filterJustification}
+                        onlysci={filterSCI}
+                        siteTypes={siteTypes}
                         setSelected={(v) => {if(activeTab===1) setSelectedCodes(v)}} 
                         getRefresh={()=>getRefreshSitechanges("pending")} 
                         setRefresh={setRefreshSitechanges}
@@ -734,6 +756,8 @@ const Sitechanges = () => {
                         level = {level}
                         onlyEdited = {filterEdited}
                         onlyJustReq = {filterJustification}
+                        onlysci={filterSCI}
+                        siteTypes={siteTypes}
                         setSelected={(v) => {if(activeTab===2) setSelectedCodes(v)}} 
                         getRefresh={()=>getRefreshSitechanges("accepted")} 
                         setRefresh={setRefreshSitechanges}
@@ -762,6 +786,8 @@ const Sitechanges = () => {
                         level = {level}
                         onlyEdited = {false}
                         onlyJustReq = {filterJustification}
+                        onlysci={filterSCI}
+                        siteTypes={siteTypes}
                         setSelected={(v) => {if(activeTab===3) setSelectedCodes(v)}} 
                         getRefresh={()=>getRefreshSitechanges("rejected")} 
                         setRefresh={setRefreshSitechanges}
