@@ -5,10 +5,6 @@ import {
   CButton,
   CCol,
   CRow,
-  CDropdown,
-  CDropdownItem,
-  CDropdownMenu,
-  CDropdownToggle,
   CNav,
   CNavItem,
   CNavLink,
@@ -19,10 +15,7 @@ import {
   CTableHead,
   CTableHeaderCell,
   CTableRow,
-  CFormCheck,
   CImage,
-  CPagination,
-  CPaginationItem,
   CModal,
   CModalBody,
   CModalFooter,
@@ -44,7 +37,7 @@ import TextareaAutosize from 'react-textarea-autosize';
 
 import { ConfirmationModal } from './components/ConfirmationModal';
 import justificationRequiredImg from './../../../assets/images/exclamation.svg'
-import justificationProvidedImg from './../../../assets/images/file-text.svg'
+import documentImg from './../../../assets/images/file-text.svg'
 
 import MapViewer from '../../../components/MapViewer'
 
@@ -82,7 +75,6 @@ export class ModalChanges extends Component {
       newComment: false,
       newDocument: false,
       justificationRequired: false,
-      justificationProvided: false,
       updateOnClose: false,
       selectedFile: "",
       isSelected: false,
@@ -240,15 +232,15 @@ export class ModalChanges extends Component {
   saveComment(id, input, comment, target) {
     let body = this.state.comments.find(a => a.Id === id);
     body.Comments = comment;
-    this.sendRequest(ConfigData.UPDATE_COMMENT,"PUT",body)
+    this.sendRequest(ConfigData.UPDATE_COMMENT, "PUT", body)
       .then((data) => {
-        if(data?.ok) {
+        if (data?.ok) {
           let reader = data.body.getReader();
           let txt = "";
           let readData = (data) => {
-            if(data.done)
+            if (data.done)
               return JSON.parse(txt);
-            else{
+            else {
               txt += new TextDecoder().decode(data.value);
               return reader.read().then(readData);
             }
@@ -387,34 +379,12 @@ export class ModalChanges extends Component {
     this.sendRequest(ConfigData.MARK_AS_JUSTIFICATION_REQUIRED, "POST", body)
       .then((data) => {
         if (data?.ok) {
-          if (this.state.justificationRequired)
-            this.setState({ justificationRequired: !this.state.justificationRequired, justificationProvided: false })
-          else
-            this.setState({ justificationRequired: !this.state.justificationRequired })
+          this.setState({ justificationRequired: !this.state.justificationRequired})
           this.state.updateOnClose = true;
           return data;
         }
         else {
-          this.showErrorMessage("Justification Required", "Update failed");
-          return data;
-        }
-      });
-  }
-
-  handleJustProvided() {
-    let body = [{
-      "SiteCode": this.state.data.SiteCode,
-      "VersionId": this.state.data.Version,
-      "Justification": !this.state.justificationProvided,
-    }];
-    this.sendRequest(ConfigData.PROVIDE_JUSTIFICATION, "POST", body)
-      .then((data) => {
-        if (data?.ok) {
-          this.setState({ justificationProvided: !this.state.justificationProvided })
-          this.state.updateOnClose = true;
-        }
-        else {
-          this.showErrorMessage("Justification Provided", "Update failed");
+          this.showErrorMessage("Justification Missing", "Update failed");
           return data;
         }
       });
@@ -423,17 +393,17 @@ export class ModalChanges extends Component {
   filteredValuesTable(changes) {
     let informedFields = [];
     changes.map(c => {
-      for(let key in c) {
-        if(key === "Fields")
+      for (let key in c) {
+        if (key === "Fields")
           informedFields.push(key)
         else
-          if(c[key] != null)
+          if (c[key] != null)
             informedFields.push(key)
       }
     })
     let filteredChanges = changes.map(c => {
-      for(let key in c) {
-        if(!informedFields.includes(key))
+      for (let key in c) {
+        if (!informedFields.includes(key))
           delete c[key]
       }
       return c
@@ -441,46 +411,46 @@ export class ModalChanges extends Component {
     return filteredChanges;
   }
 
-  checkTableUnits(type,field) {
-    if(type.toLowerCase().includes("area") || type.toLowerCase().includes("length")) {
+  checkTableUnits(type, field) {
+    if (type.toLowerCase().includes("area") || type.toLowerCase().includes("length")) {
       let unit = type.toLowerCase().includes("area") ? " (ha)" : " (km)"
       field = (field === "Reference" || field === "Submission") ? field + unit : field;
     }
-    if(type.toLowerCase().includes("population")) {
+    if (type.toLowerCase().includes("population")) {
       const populationFields = ["reference", "submission"]
       field = populationFields.includes(field.toLowerCase()) ? field + " (pop)" : field;
     }
     return field;
   }
 
-  renderValuesTable(changes,type) {
+  renderValuesTable(changes, type) {
     const colorizeValue = (num) => {
-      if(Number(num) > 0)
+      if (Number(num) > 0)
         return ConfigData.Colors.Green
-      if(Number(num) < 0)
+      if (Number(num) < 0)
         return ConfigData.Colors.Red
-      if(Number(num) == 0)
+      if (Number(num) == 0)
         return ConfigData.Colors.White
     }
     changes = this.filteredValuesTable(changes);
     let heads = Object.keys(changes[0]).filter(v => v !== "ChangeId" && v !== "Fields");
     let fields = Object.keys(changes[0]["Fields"]);
-    let titles = heads.concat(fields).map(v => { return (<CTableHeaderCell scope="col" key={v}> {this.checkTableUnits(type,v)} </CTableHeaderCell>) });
+    let titles = heads.concat(fields).map(v => { return (<CTableHeaderCell scope="col" key={v}> {this.checkTableUnits(type, v)} </CTableHeaderCell>) });
     let rows = [];
     for (let i in changes) {
       let values = heads.map(v => changes[i][v]).concat(fields.map(v => changes[i]["Fields"][v]));
       let pos = [fields.indexOf("Difference"), fields.indexOf("Percentage")]
       rows.push(
         <CTableRow key={"row_" + i}>
-            {values.map((v, index) => {
-              if(fields.includes("Difference") || fields.includes("Percentage"))
-                return (<CTableDataCell key={v}
-                  style={{backgroundColor: (pos.includes(index) ? colorizeValue(v) : "")}}>
-                  {v == 0 ? 0 : v} </CTableDataCell>)
-              else
-                return (<CTableDataCell key={v}>{v} </CTableDataCell>)
-            })}
-                  
+          {values.map((v, index) => {
+            if (fields.includes("Difference") || fields.includes("Percentage"))
+              return (<CTableDataCell key={v}
+                style={{ backgroundColor: (pos.includes(index) ? colorizeValue(v) : "") }}>
+                {v == 0 ? 0 : v} </CTableDataCell>)
+            else
+              return (<CTableDataCell key={v}>{v} </CTableDataCell>)
+          })}
+
         </CTableRow>
       )
     }
@@ -516,7 +486,7 @@ export class ModalChanges extends Component {
               <div className="d-flex gap-2 align-items-center justify-content-between" key={i + "_" + j}>
                 <div>
                   <span className={"badge badge--" + level.toLocaleLowerCase() + " me-2"}>{level}</span>
-                  <span className="me-3"> {title} {(changes[i][j].ChangeCategory === "Species" || changes[i][j].ChangeCategory === "Habitats") && " ("+changes[i][j].ChangedCodesDetail.length+")"}</span>
+                  <span className="me-3"> {title} {(changes[i][j].ChangeCategory === "Species" || changes[i][j].ChangeCategory === "Habitats") && " (" + changes[i][j].ChangedCodesDetail.length + ")"}</span>
                 </div>
                 <div>
                   {this.state.data.Status === "Pending"
@@ -526,7 +496,7 @@ export class ModalChanges extends Component {
                     &&
                     <>
                       <CButton color="link" href={"/#/sitelineage/management?country=" + this.props.country + "&siteCode=" + this.props.item} className="btn-link--dark text-nowrap">
-                        Review Lineage 
+                        Review Lineage
                       </CButton>
                       <span>|</span>
                     </>
@@ -538,7 +508,7 @@ export class ModalChanges extends Component {
               </div>
               <CCollapse visible={this.state.showDetail.includes(changes[i][j].ChangeCategory + title)}>
                 <CCard>
-                  {this.state.showDetail && this.renderValuesTable(changes[i][j].ChangedCodesDetail,changes[i][j].ChangeType)}
+                  {this.state.showDetail && this.renderValuesTable(changes[i][j].ChangedCodesDetail, changes[i][j].ChangeType)}
                 </CCard>
               </CCollapse>
             </div>
@@ -680,11 +650,19 @@ export class ModalChanges extends Component {
     );
   }
 
-  renderComments() {
+  renderComments(target) {
     let cmts = [];
-    this.state.comments !== "noData" && this.sortComments();
+    let filteredComments = [];
+    if (this.state.comments !== "noData") {
+      this.sortComments();
+      if (target == "country") {
+        filteredComments = this.state.comments?.filter(c => c.Release)
+      } else {
+        filteredComments = this.state.comments?.filter(c => !c.Release)
+      }
+    }
     cmts.push(
-      this.state.newComment &&
+      target == "site" && this.state.newComment &&
       <div className="comment--item new" key={"cmtItem_new"}>
         <div className="comment--text">
           <TextareaAutosize
@@ -705,30 +683,23 @@ export class ModalChanges extends Component {
       </div>
     )
     if (this.state.comments !== "noData") {
-      for (let i in this.state.comments) {
+      filteredComments.forEach(c => {
         cmts.push(
-          this.createCommentElement(
-            this.state.comments[i].Id
-            , this.state.comments[i].Comments
-            , this.state.comments[i].Date
-            , this.state.comments[i].Owner
-            , this.state.comments[i].Edited
-            , this.state.comments[i].EditedDate
-            , this.state.comments[i].Editedby)
+          this.createCommentElement(c.Id, c.Comments, c.Date, c.Owner, c.Edited, c.EditedDate, c.EditedBy, target)
         )
-      }
+      })
     }
     return (
-      <div id="changes_comments">
+      <div className="attachments--group" id={"changes_comments_" + target}>
         {cmts}
-        {this.state.comments === "noData" && !this.state.newComment &&
+        {filteredComments.length == 0 && !this.state.newComment &&
           <em>No comments</em>
         }
       </div>
     )
   }
 
-  createCommentElement(id, comment, date, owner, edited, editeddate, editedby) {
+  createCommentElement(id, comment, date, owner, edited, editeddate, editedby, level) {
     return (
       <div className="comment--item" key={"cmtItem_" + id} id={"cmtItem_" + id}>
         <div className="comment--text">
@@ -746,14 +717,16 @@ export class ModalChanges extends Component {
             }
           </label>
         </div>
-        <div className="comment--icons">
-          <CButton color="link" className="btn-icon" onClick={(e) => this.updateComment(e.currentTarget)} key={"cmtUpdate_" + id}>
-            <i className="fa-solid fa-pencil"></i>
-          </CButton>
-          <CButton color="link" className="btn-icon" onClick={(e) => this.deleteCommentMessage(e.currentTarget)} key={"cmtDelete_" + id}>
-            <i className="fa-regular fa-trash-can"></i>
-          </CButton>
-        </div>
+        {level == "site" &&
+          <div className="comment--icons">
+            <CButton color="link" className="btn-icon" onClick={(e) => this.updateComment(e.currentTarget)} key={"cmtUpdate_" + id}>
+              <i className="fa-solid fa-pencil"></i>
+            </CButton>
+            <CButton color="link" className="btn-icon" onClick={(e) => this.deleteCommentMessage(e.currentTarget)} key={"cmtDelete_" + id}>
+              <i className="fa-regular fa-trash-can"></i>
+            </CButton>
+          </div>
+        }
       </div>
     )
   }
@@ -766,11 +739,18 @@ export class ModalChanges extends Component {
     );
   }
 
-  renderDocuments() {
+  renderDocuments(target) {
     let docs = [];
-    this.state.documents !== "noData" && this.sortDocuments();
+    let filteredDocuments = [];
+    if (this.state.documents !== "noData") {
+      this.sortDocuments();
+      if (target == "country")
+        filteredDocuments = this.state.documents?.filter(d => d.Release)
+      else
+        filteredDocuments = this.state.documents?.filter(d => !d.Release)
+    }
     docs.push(
-      this.state.newDocument &&
+      target == "site" && this.state.newDocument &&
       <div className="document--item new" key={"docItem_new"}>
         <div className="input-file">
           <label htmlFor="uploadBtn">
@@ -792,31 +772,29 @@ export class ModalChanges extends Component {
       </div>
     )
     if (this.state.documents !== "noData") {
-      for (let i in this.state.documents) {
+      filteredDocuments.forEach(d => {
+        // original name may be null until the backend part it's finished
+        const name = d.OriginalName ?? d.Path
         docs.push(
-          this.createDocumentElement(
-            this.state.documents[i].Id
-            , this.state.documents[i].Path
-            , this.state.documents[i].ImportDate
-            , this.state.documents[i].Username)
+          this.createDocumentElement(d.Id, name, d.Path, d.ImportDate, d.Username, target)
         )
-      }
+      })
     }
     return (
-      <div id="changes_documents">
+      <div className="attachments--group" id={"changes_documents_" + target}>
         {docs}
-        {this.state.documents === "noData" && !this.state.newDocument &&
+        {filteredDocuments.length == 0 && !this.state.newDocument &&
           <em>No documents</em>
         }
       </div>
     )
   }
 
-  createDocumentElement(id, path, date, user) {
+  createDocumentElement(id, name, path, date, user, level) {
     return (
       <div className="document--item" key={"docItem_" + id} id={"docItem_" + id} doc_id={id}>
         <div className="my-auto document--text">
-          <CImage src={justificationProvidedImg} className="ico--md me-3"></CImage>
+          <CImage src={documentImg} className="ico--md me-3"></CImage>
           <span>{path.replace(/^.*[\\\/]/, '')}</span>
         </div>
         <div className="document--icons">
@@ -833,9 +811,11 @@ export class ModalChanges extends Component {
           <CButton color="link" className="btn-link--dark">
             <a href={path} target="_blank">View</a>
           </CButton>
-          <CButton color="link" className="btn-icon" onClick={(e) => this.deleteDocumentMessage(e.currentTarget)}>
-            <i className="fa-regular fa-trash-can"></i>
-          </CButton>
+          {level == "site" &&
+            <CButton color="link" className="btn-icon" onClick={(e) => this.deleteDocumentMessage(e.currentTarget)}>
+              <i className="fa-regular fa-trash-can"></i>
+            </CButton>
+          }
         </div>
       </div>
     )
@@ -846,6 +826,9 @@ export class ModalChanges extends Component {
       <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 4}>
         <CRow className="py-3">
           <CCol className="mb-3" xs={12} lg={6}>
+            <div className="attachments--title">
+              <b>Attached documents</b>
+            </div>
             {this.errorLoadingDocuments ?
               <CAlert color="danger">Error loading documents</CAlert>
               :
@@ -856,14 +839,21 @@ export class ModalChanges extends Component {
                   </CAlert>
                 }
                 <div className="d-flex justify-content-between align-items-center pb-2">
-                  <b>Attached documents</b>
+                  <b>Country Level</b>
+                </div>
+                {this.renderDocuments("country")}
+                <div className="d-flex justify-content-between align-items-center pb-2">
+                  <b>Site Level</b>
                   <CButton color="link" className="btn-link--dark" onClick={() => this.addNewDocument()}>Add Document</CButton>
                 </div>
-                {this.renderDocuments()}
+                {this.renderDocuments("site")}
               </CCard>
             }
           </CCol>
           <CCol className="mb-3" xs={12} lg={6}>
+            <div className="attachments--title">
+              <b>Comments</b>
+            </div>
             {this.errorLoadingComments ?
               <CAlert color="danger">Error loading comments</CAlert>
               :
@@ -874,29 +864,25 @@ export class ModalChanges extends Component {
                   </CAlert>
                 }
                 <div className="d-flex justify-content-between align-items-center pb-2">
-                  <b>Comments</b>
+                  <b>Country Level</b>
+                </div>
+                {this.renderComments("country")}
+                <div className="d-flex justify-content-between align-items-center pb-2">
+                  <b>Site Level</b>
                   <CButton color="link" className="btn-link--dark" onClick={() => this.addNewComment()}>Add Comment</CButton>
                 </div>
-                {this.renderComments()}
+                {this.renderComments("site")}
               </CCard>
             }
           </CCol>
           <CCol className="d-flex">
             <div className="checkbox">
               <input type="checkbox" className="input-checkbox" id="modal_justification_req"
-                onClick={() => this.props.updateModalValues("Changes", `This will ${this.state.justificationRequired ? "unmark" : "mark"} change as justification required`, "Continue", () => this.handleJustRequired(), "Cancel", () => { })}
+                onClick={() => this.props.updateModalValues("Changes", `This will ${this.state.justificationRequired ? "unmark" : "mark"} change as justification missing`, "Continue", () => this.handleJustRequired(), "Cancel", () => { })}
                 checked={this.state.justificationRequired}
                 readOnly
               />
-              <label htmlFor="modal_justification_req" className="input-label">Justification required</label>
-            </div>
-            <div className="checkbox" disabled={(this.state.justificationRequired ? false : true)}>
-              <input type="checkbox" className="input-checkbox" id="modal_justification_prov"
-                onClick={() => this.props.updateModalValues("Changes", `This will ${this.state.justificationProvided ? "unmark" : "mark"} change as justification provided`, "Continue", () => this.handleJustProvided(), "Cancel", () => { })}
-                checked={this.state.justificationProvided}
-                readOnly
-              />
-              <label htmlFor="modal_justification_prov" className="input-label" disabled={(this.state.justificationRequired ? false : true)}>Justification provided</label>
+              <label htmlFor="modal_justification_req" className="input-label">Justification missing</label>
             </div>
           </CCol>
         </CRow>
@@ -922,7 +908,7 @@ export class ModalChanges extends Component {
               <MapViewer
                 siteCode={this.props.item}
                 version={this.props.version}
-                noGeometry={this.state.data?.Critical?.SiteInfo?.ChangesByCategory?.some(a => a.ChangeType==="No geometry reported")}
+                noGeometry={this.state.data?.Critical?.SiteInfo?.ChangesByCategory?.some(a => a.ChangeType === "No geometry reported")}
                 lineageChangeType={this.props.lineageChangeType}
                 latestRelease={ConfigData.LATEST_RELEASE}
                 reportedSpatial={ConfigData.REPORTED_SPATIAL}
@@ -939,10 +925,10 @@ export class ModalChanges extends Component {
         {this.state.data.Status !== "Accepted" ?
           <CRow className="p-3">
             <CCol>
-              {this.state.data.Status === "Pending" && 
+              {this.state.data.Status === "Pending" &&
                 <p className="text-center mt-5">Accept site changes before editing the site</p>
               }
-              {this.state.data.Status === "Rejected" && 
+              {this.state.data.Status === "Rejected" &&
                 <p className="text-center mt-5">Rejected sites cannot be edited</p>
               }
             </CCol>
@@ -1301,11 +1287,10 @@ export class ModalChanges extends Component {
   }
 
   saveChanges(body) {
-    body.JustificationProvided = this.state.justificationProvided;
     body.JustificationRequired = this.state.justificationRequired;
     this.sendRequest(ConfigData.SITEDETAIL_SAVE, "POST", body)
       .then((data) => {
-        if(data?.ok) {
+        if (data?.ok) {
           body = {
             ...body,
             BioRegion: body.BioRegion.split(",").map(Number),
@@ -1372,21 +1357,15 @@ export class ModalChanges extends Component {
             <CCloseButton onClick={() => this.closeModal()} />
           </CModalHeader>
           <CModalBody>
-            <CAlert color="primary" className="d-flex align-items-center" visible={this.state.justificationProvided || this.state.justificationRequired}>
-              {this.state.justificationRequired && !this.state.justificationProvided &&
+            <CAlert color="primary" className="d-flex align-items-center" visible={this.state.justificationRequired}>
+              {this.state.justificationRequired &&
                 <>
                   <CImage src={justificationRequiredImg} className="ico--md me-3"></CImage>
-                  Justification required
-                </>
-              }
-              {this.state.justificationProvided &&
-                <>
-                  <CImage src={justificationProvidedImg} className="ico--md me-3"></CImage>
-                  Justification provided
+                  Justification missing
                 </>
               }
             </CAlert>
-            { this.state.generalError !== "" &&
+            {this.state.generalError !== "" &&
               <CAlert color="danger">{this.state.generalError}</CAlert>
             }
             <CNav variant="tabs" role="tablist">
@@ -1427,7 +1406,11 @@ export class ModalChanges extends Component {
                 </CNavLink>
               </CNavItem>
               <div className="ms-auto">
-                <CButton color="link" href={"/#/sdf?sitecode=" + data.ReferenceSiteCode} target="_blank" className={!data.ReferenceSiteCode ? "disabled" : ""}>
+                <CButton color="link" href={"/#/sdf?sitecode=" + data.ReferenceSiteCode} target="_blank"
+                  className={!data.ReferenceSiteCode
+                    || (this.props.lineageChangeType == "Deletion" && this.state.data.Status == "Accepted")
+                    || (this.props.lineageChangeType == "Creation" && this.state.data.Status != "Accepted")
+                  ? "disabled" : ""}>
                   <i class="fas fa-arrow-up-right-from-square me-2"></i>
                   SDF
                 </CButton>
@@ -1537,7 +1520,7 @@ export class ModalChanges extends Component {
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)) {
       this.isLoadingData = true;
       this.dl.fetch(ConfigData.SITECHANGES_DETAIL + `siteCode=${this.props.item}&version=${this.versionChanged ? this.currentVersion : this.props.version}`)
-      .then(response => {
+        .then(response => {
           if (response.status === 200)
             return response.json();
           else
@@ -1551,7 +1534,6 @@ export class ModalChanges extends Component {
             this.setState({ fields: "noData", isDeleted: true })
           this.setState({ data: data.Data, loading: false
           , justificationRequired: data.Data?.JustificationRequired
-          , justificationProvided: data.Data?.JustificationProvided
           , activeKey: this.props.activeKey ? this.props.activeKey : this.state.activeKey })
       });
     }
@@ -1620,7 +1602,7 @@ export class ModalChanges extends Component {
         .then(data => {
           if (!data.Success) {
             this.errorLoadingFields = true;
-          } else if(data.Data == null) {
+          } else if (data.Data == null) {
             this.setState({ fields: "noData", informedFields: [] })
           } else if (data.Data.SiteCode === this.props.item && Object.keys(this.state.data).length === 0) {
             let informed = [];
@@ -1740,15 +1722,15 @@ export class ModalChanges extends Component {
     return this.dl.fetch(ConfigData.SITEDETAIL_GET + "?siteCode=" + this.props.item)
       .then(response => response.json())
       .then(data => {
-        if(data?.Success)
+        if (data?.Success)
           return data.Data.Version;
       })
   }
 
   isSiteDeleted() {
     return this.state.data.Critical?.SiteInfo.ChangesByCategory
-        .map(c => c.ChangeType === "Site Deleted")
-        .reduce((result, next) => result || next, false);
+      .map(c => c.ChangeType === "Site Deleted")
+      .reduce((result, next) => result || next, false);
   }
 
   setBackToPending() {
@@ -1789,6 +1771,6 @@ export class ModalChanges extends Component {
     };
     return this.dl.fetch(url, options)
   }
-  
+
 }
 

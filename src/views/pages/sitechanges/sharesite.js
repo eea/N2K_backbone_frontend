@@ -30,7 +30,7 @@ import ConfigData from '../../../config.json';
 import {DataLoader} from '../../../components/DataLoader';
 import TextareaAutosize from 'react-textarea-autosize';
 import justificationRequiredImg from './../../../assets/images/exclamation.svg'
-import justificationProvidedImg from './../../../assets/images/file-text.svg'
+import documentImg from './../../../assets/images/file-text.svg'
 import MapViewer from '../../../components/MapViewer'
 
 const defaultParams = () => {
@@ -64,7 +64,6 @@ class ModalChanges extends Component {
       documents:[],
       showDetail: [],
       justificationRequired: false,
-      justificationProvided: false,
     }
   }
 
@@ -105,17 +104,11 @@ class ModalChanges extends Component {
             
           </div>
         </div>
-        <CAlert color="primary" className="d-flex align-items-center" visible={this.state.justificationProvided || this.state.justificationRequired}>
-          {this.state.justificationRequired && !this.state.justificationProvided &&
+        <CAlert color="primary" className="d-flex align-items-center" visible={this.state.justificationRequired}>
+          {this.state.justificationRequired &&
             <>
               <CImage src={justificationRequiredImg} className="ico--md me-3"></CImage>
-              Justification required
-            </>
-          }
-          {this.state.justificationProvided &&
-            <>
-              <CImage src={justificationProvidedImg} className="ico--md me-3"></CImage>
-              Justification provided
+              Justification missing
             </>
           }
         </CAlert>
@@ -449,7 +442,7 @@ class ModalChanges extends Component {
     return (
       <div className="document--item" key={"docItem_"+id} id={"docItem_"+id} doc_id={id}>
         <div className="my-auto document--text">
-          <CImage src={justificationProvidedImg} className="ico--md me-3"></CImage>
+          <CImage src={documentImg} className="ico--md me-3"></CImage>
           <span>{path.replace(/^.*[\\\/]/, '')}</span>
         </div>
         <div className="document--icons">
@@ -566,7 +559,7 @@ class ModalChanges extends Component {
       .then(data => {
         if(data?.Success) {
           if(data.Data.SiteCode === this.state.sitecode && Object.keys(this.state.data).length === 0) {
-            this.setState({data: data.Data, loading: false, justificationRequired: data.Data?.JustificationRequired, justificationProvided: data.Data?.JustificationProvided, activeKey: this.props.activeKey ? this.props.activeKey : this.state.activeKey})
+            this.setState({data: data.Data, loading: false, justificationRequired: data.Data?.JustificationRequired, activeKey: this.props.activeKey ? this.props.activeKey : this.state.activeKey})
           }
         } else { this.errorLoadingData = true }
       });

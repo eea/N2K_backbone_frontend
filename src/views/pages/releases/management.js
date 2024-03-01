@@ -152,7 +152,7 @@ const Releases = () => {
         else {
           modalValues.close();
           setErrorRequest(true);
-          setTimeout(() => setErrorRequest(false), ConfiData.MessageTimeout);
+          setTimeout(() => setErrorRequest(false), ConfigData.MessageTimeout);
         }
       })
     }
@@ -216,6 +216,12 @@ const Releases = () => {
               <a className="nav-link active" href="/#/releases/management">
                 <i className="fa-solid fa-bookmark"></i>
                 Release Management
+              </a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link" href="/#/releases/documentation">
+                <i className="fa-solid fa-bookmark"></i>
+                Release Documentation
               </a>
             </li>
             <li className="nav-item">
