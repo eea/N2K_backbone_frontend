@@ -14,12 +14,8 @@ import {
   CRow,
   CSidebar,
   CSidebarNav,
-  CCard,
   CFormLabel,
   CFormSelect,
-  CPagination,
-  CPaginationItem,
-  CTooltip,
 } from '@coreui/react'
 
 import { ModalEdition } from './ModalEdition';
