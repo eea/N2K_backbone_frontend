@@ -58,7 +58,28 @@ const ModalDocumentation = (props) => {
   const [error, setError] = useState("")
 
   const closeModal = () => {
+    let hasComment = (document.querySelector(".comment--item.new textarea")?.value ?? "").length > 0
+    let hasEditionComments = document.querySelectorAll(".comment--item:not(.new) textarea[disabled]").length != comments.length 
+    if((newDocument && selectedFile)
+      || ((newComment && hasComment) || hasEditionComments)
+    ) {
+      props.updateModalValues("Documents & Comments", "There are unsaved changes. Do you want to continue?",
+        "Continue", () => close(),
+        "Cancel", () => { })
+    }
+    else {
+      close()
+    }
+  }
+
+  const close = () => {
+    cleanUnsavedChanges()
     props.setVisible(false)
+  }
+
+  const cleanUnsavedChanges = () => {
+    setNewComment(false)
+    setNewDocument(false)
   }
 
   const showError = (e) => {
@@ -291,6 +312,7 @@ const ModalDocumentation = (props) => {
     else {
       setNewDocument(false)
     }
+    setSelectedFile()
   }
 
   const uploadFile = (data) => {
@@ -449,9 +471,10 @@ const ModalDocumentation = (props) => {
   }
 
   return (
-    <CModal scrollable size="xl" visible={props.visible} backdrop="static" onClose={closeModal}>
-      <CModalHeader>
+    <CModal scrollable size="xl" visible={props.visible} backdrop="static">
+      <CModalHeader closeButton={false}>
         <CModalTitle>{props.item.Country}</CModalTitle>
+        <CCloseButton onClick={() => closeModal()} />
       </CModalHeader>
       <CModalBody>
         <CNav variant="tabs" role="tablist">
