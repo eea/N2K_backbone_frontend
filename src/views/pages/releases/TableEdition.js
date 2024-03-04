@@ -280,7 +280,7 @@ function TableEdition(props) {
         'country='+props.country+
         '&onlyedited='+props.onlyEdited+
         '&onlyjustreq='+props.onlyJustReq+
-        '&onlysci=false')
+        '&onlysci='+props.onlySCI)
       .then(response =>response.json())
       .then(data => {
         if(data?.Success) {
