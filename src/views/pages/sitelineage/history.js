@@ -92,6 +92,7 @@ const Sitelineage = () => {
       dl.fetch(ConfigData.LINEAGE_GET_SITES+
         "country="+country+
         "&onlyedited=false"+
+        "&onlyjustreq=false"+
         "&onlysci=false")
       .then(response =>response.json())
       .then(data => {
