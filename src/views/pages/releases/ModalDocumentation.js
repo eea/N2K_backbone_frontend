@@ -58,7 +58,25 @@ const ModalDocumentation = (props) => {
   const [error, setError] = useState("")
 
   const closeModal = () => {
+    if(!newDocument
+      && !document.querySelector(".comment--item.new textarea")?.value.trim()) {
+      close()
+    }
+    else {
+      props.updateModalValues("Documents & Comments", "There are unsaved changes. Do you want to continue?",
+        "Continue", () => close(),
+        "Cancel", () => { })
+    }
+  }
+
+  const close = () => {
+    cleanUnsavedChanges()
     props.setVisible(false)
+  }
+
+  const cleanUnsavedChanges = () => {
+    setNewComment(false)
+    setNewDocument(false)
   }
 
   const showError = (e) => {
@@ -449,9 +467,10 @@ const ModalDocumentation = (props) => {
   }
 
   return (
-    <CModal scrollable size="xl" visible={props.visible} backdrop="static" onClose={closeModal}>
-      <CModalHeader>
+    <CModal scrollable size="xl" visible={props.visible} backdrop="static">
+      <CModalHeader closeButton={false}>
         <CModalTitle>{props.item.Country}</CModalTitle>
+        <CCloseButton onClick={() => closeModal()} />
       </CModalHeader>
       <CModalBody>
         <CNav variant="tabs" role="tablist">
