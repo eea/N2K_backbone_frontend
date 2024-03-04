@@ -58,14 +58,17 @@ const ModalDocumentation = (props) => {
   const [error, setError] = useState("")
 
   const closeModal = () => {
-    if(!newDocument
-      && !document.querySelector(".comment--item.new textarea")?.value.trim()) {
-      close()
-    }
-    else {
+    let hasComment = (document.querySelector(".comment--item.new textarea")?.value ?? "").length > 0
+    let hasEditionComments = document.querySelectorAll(".comment--item:not(.new) textarea[disabled]").length != comments.length 
+    if((newDocument && selectedFile)
+      || ((newComment && hasComment) || hasEditionComments)
+    ) {
       props.updateModalValues("Documents & Comments", "There are unsaved changes. Do you want to continue?",
         "Continue", () => close(),
         "Cancel", () => { })
+    }
+    else {
+      close()
     }
   }
 
@@ -309,6 +312,7 @@ const ModalDocumentation = (props) => {
     else {
       setNewDocument(false)
     }
+    setSelectedFile()
   }
 
   const uploadFile = (data) => {
