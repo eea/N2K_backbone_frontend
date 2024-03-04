@@ -697,6 +697,7 @@ const IndeterminateCheckbox = React.forwardRef(
       url += '&level='+props.level;
       url += '&onlyedited='+props.onlyEdited;
       url += '&onlyjustreq='+props.onlyJustReq;
+      url += '&onlysci='+props.onlysci;
       return dl.fetch(url)
       .then(response => response.json())
       .then(data => {
@@ -744,6 +745,7 @@ const IndeterminateCheckbox = React.forwardRef(
               if(Object.keys(data.Data).length===0)
                 setChangesData("nodata");
               else {
+                data.Data.map(a => {let row = a; a.SiteType = ["SPA","SCI","SPA/SCI"][['A','B','C'].indexOf(a.SiteType)]; return row});
                 setChangesData(data.Data);
               }
             }

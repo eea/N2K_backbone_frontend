@@ -501,19 +501,8 @@ const Sitechanges = () => {
     });
   }
 
-  let loadSiteTypes = () => {
-    dl.fetch(ConfigData.SITETYPES_GET)
-      .then(response => response.json())
-      .then(data => {
-        if(data?.Success) {
-          setSiteTypes(data.Data)
-        }
-    });
-  }
-
   //Initial set for countries
   if(countries.length === 0 && !countriesLoaded){
-    loadSiteTypes();
     loadCountries();
   }
 
