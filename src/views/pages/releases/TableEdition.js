@@ -274,7 +274,11 @@ function TableEdition(props) {
         props.setRefresh(false);
       } 
       setIsLoading(true);
-      dl.fetch(ConfigData.SITEEDITION_NON_PENDING_GET+"country="+props.country+'&onlyedited='+props.onlyEdited+'&onlyjustreq='+props.onlyJustReq)
+      dl.fetch(ConfigData.SITEEDITION_NON_PENDING_GET+
+        'country='+props.country+
+        '&onlyedited='+props.onlyEdited+
+        '&onlyjustreq='+props.onlyJustReq+
+        '&onlysci=false')
       .then(response =>response.json())
       .then(data => {
         if(data?.Success) {
