@@ -5,6 +5,7 @@ import ConfigData from '../../../config.json';
 import {
   CButton,
   CTooltip,
+  CAlert,
   CPagination,
   CPaginationItem,
   CImage
@@ -218,8 +219,9 @@ function Table({ columns, data, setSelected, modalProps, updateModalValues }) {
 function TableEdition(props) {
   const [isLoading, setIsLoading] = useState(props.isLoading);
   const [sitesData, setSitesData] = useState([]);
-  let dl = new(DataLoader);
+  const [errorRequest, setErrorRequest] = useState(false);
 
+  let dl = new(DataLoader);
   
   const customFilter = (rows, columnIds, filterValue) => {
     let result = filterValue.length === 0 ? rows : rows.filter((row) => row.original.SiteCode.toLowerCase().includes(filterValue.toLowerCase()) || row.original.Name.toLowerCase().includes(filterValue.toLowerCase()))
@@ -291,8 +293,13 @@ function TableEdition(props) {
             setSitesData(data.Data);
             props.setSitecodes(data.Data);
           }
-          setIsLoading(false);
         }
+        else {
+          setSitesData("nodata");
+          props.setSitecodes("nodata");
+          setErrorRequest(true);
+        }
+        setIsLoading(false);
       });
     }
   }
@@ -313,18 +320,21 @@ function TableEdition(props) {
     return (<div className="loading-container"><em>Loading...</em></div>)
   else
     if(sitesData==="nodata")
-      return (<div className="nodata-container"><em>No Data</em></div>)
+      if(errorRequest)
+        return (<CAlert color="danger" className="mt-3">Something went wrong</CAlert>)
+      else 
+        return (<div className="nodata-container"><em>No Data</em></div>)
     else
-    return (
-      <>
-        <Table
-          columns={columns}
-          data={sitesData}
-          modalProps={props.modalProps}
-          updateModalValues={props.updateModalValues}
-        />
-      </>
-    )
+      return (
+        <>
+          <Table
+            columns={columns}
+            data={sitesData}
+            modalProps={props.modalProps}
+            updateModalValues={props.updateModalValues}
+          />
+        </>
+      )
 }
 
 export default TableEdition
