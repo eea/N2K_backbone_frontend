@@ -495,6 +495,10 @@ const IndeterminateCheckbox = React.forwardRef(
           }
         },
         {
+          Header: 'Site Type',
+          accessor: 'SiteType',
+        },
+        {
           Header: 'Level',
           accessor: 'Level',
           Cell: ({ row }) => {
@@ -693,6 +697,7 @@ const IndeterminateCheckbox = React.forwardRef(
       url += '&level='+props.level;
       url += '&onlyedited='+props.onlyEdited;
       url += '&onlyjustreq='+props.onlyJustReq;
+      url += '&onlysci='+props.onlysci;
       return dl.fetch(url)
       .then(response => response.json())
       .then(data => {
@@ -731,6 +736,7 @@ const IndeterminateCheckbox = React.forwardRef(
         url += '&limit='+size;
         url += '&onlyedited='+props.onlyEdited;
         url += '&onlyjustreq='+props.onlyJustReq;
+        url += '&onlysci='+props.onlysci;
         promises.push(
           dl.fetch(url)
           .then(response => response.json())
@@ -738,8 +744,10 @@ const IndeterminateCheckbox = React.forwardRef(
             if(data?.Success) {
               if(Object.keys(data.Data).length===0)
                 setChangesData("nodata");
-              else
+              else {
+                data.Data.map(a => {let row = a; a.SiteType = ["SPA","SCI","SPA/SCI"][['A','B','C'].indexOf(a.SiteType)]; return row});
                 setChangesData(data.Data);
+              }
             }
             else {
               setChangesData("nodata");
@@ -747,7 +755,7 @@ const IndeterminateCheckbox = React.forwardRef(
             }
           })
         )
-        Promise.all(promises).then(v=>{
+        Promise.all(promises).then(() =>{
           setIsLoading(false);
           props.setLoadingSites(false);
         });

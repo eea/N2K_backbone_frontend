@@ -46,6 +46,7 @@ const Releases = () => {
   const [siteCodes, setSitecodes] = useState([]);
   const [filterEdited, setFilterEdited] = useState(false);
   const [filterJustification, setFilterJustification] = useState(false);
+  const [filterSCI, setFilterSCI] = useState(false);
   const [searchList, setSearchList] = useState({});
   const [selectOption, setSelectOption] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -156,6 +157,9 @@ const Releases = () => {
     }
     else if (type === "justification") {
       setFilterJustification(value);
+    }
+    else if (type === "sci") {
+      setFilterSCI(value);
     }
     clearSearch();
     forceRefreshData();
@@ -310,6 +314,13 @@ const Releases = () => {
                         </label>
                       </div>
                     </li>
+                    <li>
+                      <div className="checkbox" disabled={Object.keys(siteCodes).length === 0}>
+                        <input type="checkbox" className="input-checkbox" id="sci_check" checked={filterSCI} onClick={(e)=>changeFilter("sci", e.currentTarget.checked)} />
+                        <label htmlFor="sci_check" className="input-label badge color--default">SCI
+                        </label>
+                      </div>
+                    </li>
                   </ul>
                 </div>
               </div>
@@ -364,6 +375,7 @@ const Releases = () => {
                   setSitecodes={setCodes}
                   siteCodes={siteCodes}
                   onlyEdited={filterEdited}
+                  onlySCI={filterSCI}
                   onlyJustReq = {filterJustification}
                   types={siteTypes}
                 />
