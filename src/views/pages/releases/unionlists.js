@@ -41,7 +41,7 @@ const Releases = () => {
   const messageTimeOut = () => {
     setTimeout(() => {
       setDownloadError(false);
-    }, ConfigData.MessageTimeout);
+    }, UtilsData.MESSAGE_TIMEOUT);
   }
 
   let loadData = () => {

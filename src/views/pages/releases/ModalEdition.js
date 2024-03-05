@@ -437,19 +437,19 @@ export class ModalEdition extends Component {
       this.setState({ notValidComment: message });
       setTimeout(() => {
         this.setState({ notValidComment: "" });
-      }, ConfigData.MessageTimeout);
+      }, UtilsData.MESSAGE_TIMEOUT);
     }
     else if (target === "document") {
       this.setState({ notValidDocument: message });
       setTimeout(() => {
         this.setState({ notValidDocument: "" });
-      }, ConfigData.MessageTimeout);
+      }, UtilsData.MESSAGE_TIMEOUT);
     }
     else if (target === "fields") {
       this.setState({ notValidField: message });
       setTimeout(() => {
         this.setState({ notValidField: "" });
-      }, ConfigData.MessageTimeout);
+      }, UtilsData.MESSAGE_TIMEOUT);
     }
   }
 

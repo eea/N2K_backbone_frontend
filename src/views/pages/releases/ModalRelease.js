@@ -1,4 +1,5 @@
 import ConfigData from '../../../config.json';
+import UtilsData from '../../../data/utils.json';
 import React, { Component, useState } from 'react';
 import '@coreui/icons/css/flag.min.css';
 import {
@@ -287,7 +288,7 @@ export class ModalRelease extends Component {
     this.setState({message: text});
     setTimeout(() => {
       this.setState({message: null});
-    }, ConfigData.MessageTimeout);
+    }, UtilsData.MESSAGE_TIMEOUT);
   };
 
   createRelease(){

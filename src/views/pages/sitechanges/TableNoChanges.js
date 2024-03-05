@@ -237,7 +237,7 @@ function DefaultColumnFilter({
               props.setSitecodes("nodata");
             }
             else {
-              data.Data.map(a => {let row = a; a.Type = UtilsData.SITETYPES[a.Type]; return row});
+              data.Data.map(a => {let row = a; a.Type = UtilsData.SITE_TYPES[a.Type]; return row});
               setSitesData(data.Data);
               props.setSitecodes(data.Data);
             }

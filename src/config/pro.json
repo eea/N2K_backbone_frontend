@@ -72,6 +72,5 @@
   "TABLEAU_STATUS": "https://tableau-public.discomap.eea.europa.eu/views/N2K_Backbone_Status/Status",
   "TABLEAU_MANUAL": "https://tableau-public.discomap.eea.europa.eu/views/N2K_Backbone_Manual/Manual",
   "EULoginServiceUrl": "https://n2kbackbone.eea.europa.eu/n2kbackbone_back/api/",
-  "EULogoutURL": "https://ecas.ec.europa.eu/cas/oauth2/logout",
-  "MessageTimeout": 5000
+  "EULogoutURL": "https://ecas.ec.europa.eu/cas/oauth2/logout"
 }

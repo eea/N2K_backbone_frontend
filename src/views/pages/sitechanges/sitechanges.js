@@ -26,6 +26,7 @@ import {
 
 import { ConfirmationModal } from './components/ConfirmationModal';
 import ConfigData from '../../../config.json';
+import UtilsData from '../../../data/utils.json';
 import {DataLoader} from '../../../components/DataLoader';
 
 const xmlns = 'https://www.w3.org/2000/svg'
@@ -152,7 +153,7 @@ const Sitechanges = () => {
 
   const showErrorMessage = (message) => {
     setErrorMessage("Something went wrong: " + message);
-    setTimeout(() => {setErrorMessage('')}, ConfigData.MessageTimeout);
+    setTimeout(() => {setErrorMessage('')}, UtilsData.MESSAGE_TIMEOUT);
   }
 
   let selectedCodes = []

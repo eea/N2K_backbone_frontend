@@ -80,7 +80,7 @@ const ModalDocumentation = (props) => {
 
   const showError = (e) => {
     setError("Something went wrong: " + e);
-    setTimeout(() => { setError('') }, ConfigData.MessageTimeout);
+    setTimeout(() => { setError('') }, UtilsData.MESSAGE_TIMEOUT);
   }
 
   const loadData = (country) => {

@@ -1,5 +1,5 @@
 {
-  "SITETYPES": {
+  "SITE_TYPES": {
     "A": "SPA",
     "B": "SCI",
     "C": "SPA/SCI"
@@ -18,5 +18,5 @@
     "Green": "#daf5d6",
     "Red": "#f6cbcf"
   },
-  "MESSAGETIMEOUT": 5000
+  "MESSAGE_TIMEOUT": 5000
 }

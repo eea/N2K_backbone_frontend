@@ -20,6 +20,7 @@ import {
 
 import { ConfirmationModal } from './components/ConfirmationModal';
 import ConfigData from '../../../config.json';
+import UtilsData from '../../../data/utils.json';
 import {DataLoader} from '../../../components/DataLoader';
 
   const defaultCountry = () => {
@@ -95,7 +96,7 @@ const Sitechanges = () => {
 
   const showErrorMessage = (message) => {
     setErrorMessage("Something went wrong: " + message);
-    setTimeout(() => {setErrorMessage('')}, ConfigData.MessageTimeout);
+    setTimeout(() => {setErrorMessage('')}, UtilsData.MESSAGE_TIMEOUT);
   }
 
   let forceRefreshData = () => setSitecodes([]);

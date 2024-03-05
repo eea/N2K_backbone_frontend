@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { AppFooter, AppHeader } from '../../../components/index'
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import ConfigData from '../../../config.json';
+import UtilsData from '../../../data/utils.json';
 import { DataLoader } from '../../../components/DataLoader';
 
 import {
@@ -40,7 +41,7 @@ const Releases = () => {
 
   const showError = (e) => {
     setError("Something went wrong: " + e);
-    setTimeout(() => { setError('') }, ConfigData.MessageTimeout);
+    setTimeout(() => { setError('') }, UtilsData.MESSAGE_TIMEOUT);
   }
 
   const [modalValues, setModalValues] = useState({

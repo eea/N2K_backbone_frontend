@@ -3,6 +3,7 @@ import { AppFooter, AppHeader } from '../../../components/index'
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import TableManagement from './TableManagement';
 import ConfigData from '../../../config.json';
+import UtilsData from '../../../data/utils.json';
 import {DataLoader} from '../../../components/DataLoader';
 
 import {
@@ -62,7 +63,7 @@ const Releases = () => {
           text: null,
         }
       }));
-    }, ConfigData.MessageTimeout);
+    }, UtilsData.MESSAGE_TIMEOUT);
   };
 
   function updateModalValues(title, text, primaryButtonText, primaryButtonFunction, secondaryButtonText, secondaryButtonFunction, keepOpen) {
@@ -129,7 +130,7 @@ const Releases = () => {
       else {
         modalValues.close();
         setErrorRequest(true);
-        setTimeout(() => setErrorRequest(false), ConfigData.MessageTimeout);
+        setTimeout(() => setErrorRequest(false), UtilsData.MESSAGE_TIMEOUT);
       }
     })
   }
@@ -152,7 +153,7 @@ const Releases = () => {
         else {
           modalValues.close();
           setErrorRequest(true);
-          setTimeout(() => setErrorRequest(false), ConfigData.MessageTimeout);
+          setTimeout(() => setErrorRequest(false), UtilsData.MESSAGE_TIMEOUT);
         }
       })
     }

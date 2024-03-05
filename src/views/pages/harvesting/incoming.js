@@ -17,6 +17,7 @@ import {
 } from '@coreui/react'
 
 import ConfigData from '../../../config.json';
+import UtilsData from '../../../data/utils.json';
 
 import { ConfirmationModal } from './components/ConfirmationModal';
 
@@ -98,7 +99,7 @@ const Harvesting = () => {
   const messageTimeOut = () => {
     setTimeout(() => {
       setAlertValues({visible:false, text:'', color:'primary'});
-    }, ConfigData.MessageTimeout);
+    }, UtilsData.MESSAGE_TIMEOUT);
   }
 
   const sendRequest = (url,method,body,path) => {

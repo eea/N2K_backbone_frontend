@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { AppFooter, AppHeader } from '../../../components/index'
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import ConfigData from '../../../config.json';
+import UtilsData from '../../../data/utils.json';
 import {DataLoader} from '../../../components/DataLoader';
 import { ConfirmationModal } from './components/ConfirmationModal';
 import TableManagement from './TableManagement';
@@ -188,12 +189,12 @@ const Sitelineage = () => {
       setModalError(message)
       setTimeout(() => {
         setModalError("")
-      }, ConfigData.MessageTimeout);
+      }, UtilsData.MESSAGE_TIMEOUT);
     } else if (target === "management") {
       setError(message);
       setTimeout(() => {
         setError("")
-      }, ConfigData.MessageTimeout);
+      }, UtilsData.MESSAGE_TIMEOUT);
     }
   }
 

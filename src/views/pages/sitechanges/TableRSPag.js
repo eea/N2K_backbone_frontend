@@ -746,7 +746,7 @@ const IndeterminateCheckbox = React.forwardRef(
               if(Object.keys(data.Data).length===0)
                 setChangesData("nodata");
               else {
-                data.Data.map(a => {let row = a; a.SiteType = UtilsData.SITETYPES[a.SiteType]; return row});
+                data.Data.map(a => {let row = a; a.SiteType = UtilsData.SITE_TYPES[a.SiteType]; return row});
                 setChangesData(data.Data);
               }
             }

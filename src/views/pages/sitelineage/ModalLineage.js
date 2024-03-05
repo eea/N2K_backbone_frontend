@@ -156,7 +156,7 @@ export class ModalLineage extends Component {
         <CTableRow key={"row_"+i}>
           {Object.entries(changes[i]).map(([k,v]) => {
             if(k == "SiteType")
-              return (<CTableDataCell key={k + "_" + v}> {UtilsData.SITETYPES[v]} </CTableDataCell>) 
+              return (<CTableDataCell key={k + "_" + v}> {UtilsData.SITE_TYPES[v]} </CTableDataCell>) 
             else if(k !== "ReleaseDate")
               return (<CTableDataCell key={k + "_" + v}> {v} </CTableDataCell>) 
             })
@@ -421,7 +421,7 @@ export class ModalLineage extends Component {
           <CModalHeader closeButton={false}>
             <CModalTitle>
               {data.SiteCode ?? this.props.code} - {data.Name ??  this.props.name}
-              <span className="ms-2 fw-normal">({UtilsData.SITETYPES[data.SiteType]})</span>
+              <span className="ms-2 fw-normal">({UtilsData.SITE_TYPES[data.SiteType]})</span>
               <span className="mx-2"></span>
               <span className="badge badge--fill default">Release date: {this.state.releaseDate !== "" ? this.state.releaseDate : "--/--/----"}</span>
             </CModalTitle>
