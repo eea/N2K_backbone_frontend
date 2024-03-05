@@ -16,13 +16,11 @@ import {
   CTabPane,
   CCard,
   CAlert,
+  CCloseButton,
 } from '@coreui/react'
 
 import TextareaAutosize from 'react-textarea-autosize';
-
-import justificationRequiredImg from './../../../assets/images/exclamation.svg'
-import justificationProvidedImg from './../../../assets/images/file-text.svg'
-
+import documentImg from './../../../assets/images/file-text.svg'
 import { DataLoader } from '../../../components/DataLoader';
 
 const sortComments = (comments) => {
@@ -391,7 +389,7 @@ const ModalDocumentation = (props) => {
       <div className="document--item" key={"docItem_" + id} id={"docItem_" + id} doc_id={id}>
         <div className="my-auto document--text">
           <div className="document--file">
-            <CImage src={justificationProvidedImg} className="ico--md me-3"></CImage>
+            <CImage src={documentImg} className="ico--md me-3"></CImage>
             <span>{name?.replace(/^.*[\\\/]/, '')}</span>
           </div>  
           {(date || user) &&
