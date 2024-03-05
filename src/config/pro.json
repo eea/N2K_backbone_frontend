@@ -1,6 +1,7 @@
 {
   "SERVER_API_ENDPOINT": "https://n2kbackbone.eea.europa.eu/n2kbackbone_back/",
   "SITECHANGES_GET": "https://n2kbackbone.eea.europa.eu/n2kbackbone_back/api/sitechanges/get/",
+  "NOCHANGES_GET": "https://n2kbackbone.eea.europa.eu/n2kbackbone_back/api/sitechanges/GetNoChanges/",
   "SITECODES_GET": "https://n2kbackbone.eea.europa.eu/n2kbackbone_back/api/sitechanges/GetSiteCodes/",
   "SITECHANGES_DETAIL": "https://n2kbackbone.eea.europa.eu/n2kbackbone_back/api/SiteChanges/GetSiteChangesDetail/",
   "COUNTRIES_WITH_DATA": "https://n2kbackbone.eea.europa.eu/n2kbackbone_back/api/Countries/GetWithData",
