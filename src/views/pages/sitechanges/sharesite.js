@@ -27,6 +27,7 @@ import {
 } from '@coreui/react'
 
 import ConfigData from '../../../config.json';
+import UtilsData from '../../../data/utils.json';
 import {DataLoader} from '../../../components/DataLoader';
 import TextareaAutosize from 'react-textarea-autosize';
 import justificationRequiredImg from './../../../assets/images/exclamation.svg'
@@ -111,11 +112,11 @@ class ModalChanges extends Component {
   renderValuesTable(changes, type) {
     const colorizeValue = (num) => {
       if (Number(num) > 0)
-        return ConfigData.Colors.Green
+        return UtilsData.COLORS.Green
       if (Number(num) < 0)
-        return ConfigData.Colors.Red
+        return UtilsData.COLORS.Red
       if (Number(num) == 0)
-        return ConfigData.Colors.White
+        return UtilsData.COLORS.White
     }
     changes = this.filteredValuesTable(changes);
     let heads = Object.keys(changes[0]).filter(v => v !== "ChangeId" && v !== "Fields");

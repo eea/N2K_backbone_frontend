@@ -1,4 +1,5 @@
 import ConfigData from '../../../config.json';
+import UtilsData from '../../../data/utils.json';
 import React, { useState, useEffect } from 'react';
 import {
   CButton,
@@ -316,7 +317,7 @@ const ModalDocumentation = (props) => {
   }
 
   const changeHandler = (e) => {
-    let formats = ConfigData.ACCEPTED_DOCUMENT_FORMATS
+    let formats = UtilsData.ACCEPTED_DOCUMENT_FORMATS
     let file = e.currentTarget.closest("input").value
     let extension = file.substring(file.lastIndexOf('.'), file.length) || file
     if (formats.includes(extension)) {
@@ -324,7 +325,7 @@ const ModalDocumentation = (props) => {
     }
     else {
       e.currentTarget.closest("#uploadBtn").value = "";
-      showErrorMessage("document", "File not valid, use a valid format: " + ConfigData.ACCEPTED_DOCUMENT_FORMATS);
+      showErrorMessage("document", "File not valid, use a valid format: " + UtilsData.ACCEPTED_DOCUMENT_FORMATS);
     }
   }
 
@@ -353,7 +354,7 @@ const ModalDocumentation = (props) => {
           <label htmlFor="uploadBtn">
             Select file
           </label>
-          <input id="uploadBtn" type="file" name="Files" onChange={(e) => changeHandler(e)} accept={ConfigData.ACCEPTED_DOCUMENT_FORMATS} />
+          <input id="uploadBtn" type="file" name="Files" onChange={(e) => changeHandler(e)} accept={UtilsData.ACCEPTED_DOCUMENT_FORMATS} />
           {selectedFile ? (
             <input id="uploadFile" placeholder={selectedFile.name} disabled="disabled" />
           ) : (<input id="uploadFile" placeholder="No file selected" disabled="disabled" />)}

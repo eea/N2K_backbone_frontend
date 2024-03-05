@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { AppFooter, AppHeader } from '../../../components/index'
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import ConfigData from '../../../config.json';
+import UtilsData from '../../../data/utils.json';
 import {DataLoader} from '../../../components/DataLoader';
 import { dateFormatter } from 'src/components/DateUtils';
 import TableUnionLists from './TableUnionLists';
@@ -426,11 +427,11 @@ const Releases = () => {
                         <div className="table-footer mt-3">
                           <div className="table-legend">
                             <div className="table-legend--item">
-                              <span className="table-legend--color" style={{backgroundColor: ConfigData.Colors.Red}}></span>
+                              <span className="table-legend--color" style={{backgroundColor: UtilsData.COLORS.Red}}></span>
                               <span className="table-legend--label">Deleted/Decreased/Priority changed</span>
                             </div>
                             <div className="table-legend--item">
-                              <span className="table-legend--color" style={{backgroundColor: ConfigData.Colors.Green}}></span>
+                              <span className="table-legend--color" style={{backgroundColor: UtilsData.COLORS.Green}}></span>
                               <span className="table-legend--label">Added/Increased</span>
                             </div>
                           </div>

@@ -9,6 +9,7 @@ import {
 } from '@coreui/react'
 
 import ConfigData from '../../../config.json';
+import UtilsData from '../../../data/utils.json';
 
 import {DataLoader} from '../../../components/DataLoader';
 
@@ -236,7 +237,7 @@ function DefaultColumnFilter({
               props.setSitecodes("nodata");
             }
             else {
-              data.Data.map(a => {let row = a; a.Type = ["SPA","SCI","SPA/SCI"][['A','B','C'].indexOf(a.Type)]; return row});
+              data.Data.map(a => {let row = a; a.Type = UtilsData.SITETYPES[a.Type]; return row});
               setSitesData(data.Data);
               props.setSitecodes(data.Data);
             }

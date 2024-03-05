@@ -1,0 +1,22 @@
+{
+  "SITETYPES": {
+    "A": "SPA",
+    "B": "SCI",
+    "C": "SPA/SCI"
+  },
+  "ACCEPTED_DOCUMENT_FORMATS": ".pdf, .doc, .docx, .xls, .xlsx, .txt, .tif, .json, .kml, .gml, .xml, .zip, .7z",
+  "HARVESTING_STATUS": {
+    "DataLoaded": "Incoming",
+    "PreHarvested": "Ready to Use",
+    "Harvested": "In Progress",
+    "Closed": "Completed",
+    "Discarded": "Discarded"
+  },
+  "COLORS": {
+    "White": "#ffffff",
+    "Grey": "#e4e4e4",
+    "Green": "#daf5d6",
+    "Red": "#f6cbcf"
+  },
+  "MESSAGETIMEOUT": 5000
+}

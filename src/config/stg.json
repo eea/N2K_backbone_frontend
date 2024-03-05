@@ -66,29 +66,11 @@
   "REPORTING_PERIOD_CLOSE": "https://redneckedswan/n2kbackbone_back/api/ReportingPeriod/Close",
   "REPORTED_SPATIAL": "https://bio.discomap.eea.europa.eu/arcgis/rest/services/N2K_Backbone/N2KBackbone_stg/MapServer/0",
   "LATEST_RELEASE": "https://bio.discomap.eea.europa.eu/arcgis/rest/services/N2K_Backbone/N2KBackbone_stg/MapServer/1",
-  "THEME_COLORS": {
-    "PRIMARY": "#007bff",
-    "SECONDARY": "#fc3"
-  },
   "TABLEAU_CHANGES": "https://tableau-public.discomap.eea.europa.eu/views/N2K_Backbone_Changes_Stg/Changes",
   "TABLEAU_RELEASES": "https://tableau-public.discomap.eea.europa.eu/views/N2K_Backbone_Releases_Stg/Releases",
   "TABLEAU_SITES": "https://tableau-public.discomap.eea.europa.eu/views/N2K_Backbone_Sites_Stg/Sites",
   "TABLEAU_STATUS": "https://tableau-public.discomap.eea.europa.eu/views/N2K_Backbone_Status_Stg/Status",
   "TABLEAU_MANUAL": "https://tableau-public.discomap.eea.europa.eu/views/N2K_Backbone_Manual_Stg/Manual",
-  "ACCEPTED_DOCUMENT_FORMATS": ".pdf, .doc, .docx, .xls, .xlsx, .txt, .tif, .json, .kml, .gml, .xml, .zip, .7z",
-  "HARVESTING_STATUS": {
-    "DataLoaded": "Incoming",
-    "PreHarvested": "Ready to Use",
-    "Harvested": "In Progress",
-    "Closed": "Completed",
-    "Discarded": "Discarded"
-  },
-  "Colors": {
-    "White": "#ffffff",
-    "Grey": "#e4e4e4",
-    "Green": "#daf5d6",
-    "Red": "#f6cbcf"
-  },
   "EULoginServiceUrl": "https://redneckedswan/n2kbackbone_back/api/",
   "EULogoutURL": "https://ecas.acceptance.ec.europa.eu/cas/oauth2/logout",
   "MessageTimeout": 5000

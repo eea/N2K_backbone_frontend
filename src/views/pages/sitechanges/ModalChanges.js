@@ -1,4 +1,5 @@
 import ConfigData from '../../../config.json';
+import UtilsData from '../../../data/utils.json';
 import React, { Component } from 'react';
 import Select from 'react-select';
 import {
@@ -316,7 +317,7 @@ export class ModalChanges extends Component {
   }
 
   changeHandler(e) {
-    let formats = ConfigData.ACCEPTED_DOCUMENT_FORMATS;
+    let formats = UtilsData.ACCEPTED_DOCUMENT_FORMATS;
     let file = e.currentTarget.closest("input").value;
     let extension = file.substring(file.lastIndexOf('.'), file.length) || file;
     if (formats.includes(extension)) {
@@ -324,7 +325,7 @@ export class ModalChanges extends Component {
     }
     else {
       e.currentTarget.closest("#uploadBtn").value = "";
-      this.showErrorMessage("document", "File not valid, use a valid format: " + ConfigData.ACCEPTED_DOCUMENT_FORMATS);
+      this.showErrorMessage("document", "File not valid, use a valid format: " + UtilsData.ACCEPTED_DOCUMENT_FORMATS);
     }
   }
 
@@ -427,11 +428,11 @@ export class ModalChanges extends Component {
   renderValuesTable(changes, type) {
     const colorizeValue = (num) => {
       if (Number(num) > 0)
-        return ConfigData.Colors.Green
+        return UtilsData.COLORS.Green
       if (Number(num) < 0)
-        return ConfigData.Colors.Red
+        return UtilsData.COLORS.Red
       if (Number(num) == 0)
-        return ConfigData.Colors.White
+        return UtilsData.COLORS.White
     }
     changes = this.filteredValuesTable(changes);
     let heads = Object.keys(changes[0]).filter(v => v !== "ChangeId" && v !== "Fields");
@@ -757,7 +758,7 @@ export class ModalChanges extends Component {
           <label htmlFor="uploadBtn">
             Select file
           </label>
-          <input id="uploadBtn" type="file" name="Files" onChange={(e) => this.changeHandler(e)} accept={ConfigData.ACCEPTED_DOCUMENT_FORMATS} />
+          <input id="uploadBtn" type="file" name="Files" onChange={(e) => this.changeHandler(e)} accept={UtilsData.ACCEPTED_DOCUMENT_FORMATS} />
           {this.state.isSelected ? (
             <input id="uploadFile" placeholder={this.state.selectedFile.name} disabled="disabled" />
           ) : (<input id="uploadFile" placeholder="No file selected" disabled="disabled" />)}
