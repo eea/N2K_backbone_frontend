@@ -517,12 +517,12 @@ const Sitechanges = () => {
                   Changes Management
                 </a>
               </li>
-              <li className="nav-item">
+              {/* <li className="nav-item">
                 <a className="nav-link" href="/#/sitechanges/nochanges">
                   <i className="fa-solid fa-bookmark"></i>
                   No Changes
                 </a>
-              </li>
+              </li> */}
             </CSidebarNav>
           </CSidebar>
           <div className="main-content">
