@@ -7,18 +7,13 @@ import {
   CNav,
   CNavItem,
   CNavLink,
-  CSidebarNav,
   CImage,
   CModal,
   CModalBody,
-  CModalFooter,
   CModalHeader,
   CModalTitle,
-  CCloseButton,
   CTabContent,
   CTabPane,
-  CTooltip,
-  CCollapse,
   CCard,
   CAlert,
 } from '@coreui/react'
@@ -189,11 +184,11 @@ const ModalDocumentation = (props) => {
   const updateComment = (target) => {
     let input = target.closest(".comment--item").querySelector("textarea");
     let id = parseInt(input.id);
-    if (target.firstChild.classList.contains("fa-pencil")) {
+    if (target.innerText === "Edit") {
       input.disabled = false;
       input.readOnly = false;
       input.focus();
-      target.firstChild.classList.replace("fa-pencil", "fa-floppy-disk");
+      target.innerText = "Save";
     } else {
       if (!input.value.trim()) {
         showErrorMessage("comment", "Add comment");
@@ -212,8 +207,8 @@ const ModalDocumentation = (props) => {
         if (data?.ok) {
           input.disabled = true;
           input.readOnly = true;
-          target.firstChild.classList.replace("fa-floppy-disk", "fa-pencil");
-          setIsLoading(true)
+          target.innerText === "Edit";
+          setIsLoading(true);
           loadData(props.item.Code);
         } else { showErrorMessage("comment", "Error saving comment") }
       })
@@ -232,8 +227,8 @@ const ModalDocumentation = (props) => {
           ></TextareaAutosize>
         </div>
         <div>
-          <CButton color="link" className="btn-icon" onClick={(e) => addComment(e.currentTarget)}>
-            <i className="fa-solid fa-floppy-disk"></i>
+          <CButton color="link" className="btn-link" onClick={(e) => addComment(e.currentTarget)}>
+            Save
           </CButton>
           <CButton color="link" className="btn-icon" onClick={() => deleteCommentMessage()}>
             <i className="fa-regular fa-trash-can"></i>
@@ -277,8 +272,8 @@ const ModalDocumentation = (props) => {
           </label>
         </div>
         <div className="comment--icons">
-          <CButton color="link" className="btn-icon" onClick={(e) => updateComment(e.currentTarget)} key={"cmtUpdate_" + id}>
-            <i className="fa-solid fa-pencil"></i>
+          <CButton color="link" className="btn-link" onClick={(e) => updateComment(e.currentTarget)} key={"cmtUpdate_" + id}>
+            Edit
           </CButton>
           <CButton color="link" className="btn-icon" onClick={(e) => deleteCommentMessage(e.currentTarget)} key={"cmtDelete_" + id}>
             <i className="fa-regular fa-trash-can"></i>
@@ -364,8 +359,8 @@ const ModalDocumentation = (props) => {
           ) : (<input id="uploadFile" placeholder="No file selected" disabled="disabled" />)}
         </div>
         <div className="document--icons">
-          <CButton color="link" className="btn-icon" onClick={() => handleSubmission()}>
-            <i className="fa-solid fa-floppy-disk"></i>
+          <CButton color="link" className="btn-link" onClick={() => handleSubmission()}>
+            Save
           </CButton>
           <CButton color="link" className="btn-icon" onClick={() => deleteDocumentMessage()}>
             <i className="fa-regular fa-trash-can"></i>
@@ -395,21 +390,20 @@ const ModalDocumentation = (props) => {
     return (
       <div className="document--item" key={"docItem_" + id} id={"docItem_" + id} doc_id={id}>
         <div className="my-auto document--text">
-          <CImage src={justificationProvidedImg} className="ico--md me-3"></CImage>
-          <span>{name?.replace(/^.*[\\\/]/, '')}</span>
+          <div className="document--file">
+            <CImage src={justificationProvidedImg} className="ico--md me-3"></CImage>
+            <span>{name?.replace(/^.*[\\\/]/, '')}</span>
+          </div>  
+          {(date || user) &&
+            <label className="comment--date" htmlFor={"docItem_" + id}>
+              {"Uploaded"
+              + (date && " on " + date.slice(0, 10).split('-').reverse().join('/'))
+              + (user && " by " + user)}
+            </label>
+          }
         </div>
         <div className="document--icons">
-          {(date || user) &&
-            <CTooltip
-              content={"Uploaded"
-                + (date && " on " + date.slice(0, 10).split('-').reverse().join('/'))
-                + (user && " by " + user)}>
-              <div className="btn-icon btn-hover">
-                <i className="fa-solid fa-circle-info"></i>
-              </div>
-            </CTooltip>
-          }
-          <CButton color="link" className="btn-link--dark" onClick={()=>{downloadAttachments(path, name)}}>
+          <CButton color="link" className="btn-link" onClick={()=>{downloadAttachments(path, name)}}>
             View
           </CButton>
           <CButton color="link" className="btn-icon" onClick={(e) => deleteDocumentMessage(e.currentTarget)}>
