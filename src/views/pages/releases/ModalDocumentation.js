@@ -54,7 +54,7 @@ const ModalDocumentation = (props) => {
     let hasComment = (document.querySelector(".comment--item.new textarea")?.value ?? "").length > 0
     let hasEditionComments = document.querySelectorAll(".comment--item:not(.new) textarea[disabled]").length != comments.length 
     if((newDocument && selectedFile)
-      || ((newComment && hasComment) || hasEditionComments)
+    || ((newComment && hasComment) || (comments !== "nodata" && hasEditionComments))
     ) {
       props.updateModalValues("Documents & Comments", "There are unsaved changes. Do you want to continue?",
         "Continue", () => close(),
