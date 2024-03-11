@@ -25,6 +25,7 @@ const Releases = () => {
   const [showModal, setShowModal] = useState(false)
   const [modalItem, setModalItem] = useState({})
   const [error, setError] = useState('')
+  const [refresh, setRefresh] = useState(false)
 
   let dl = new DataLoader()
 
@@ -36,7 +37,12 @@ const Releases = () => {
   const closeModal = () => {
     setModalItem({})
     setShowModal(false)
+    forceRefreshData()
   }
+
+  let forceRefreshData = () => {
+    setRefresh(true);
+  };
 
   const showError = (e) => {
     setError("Something went wrong: " + e);
@@ -134,6 +140,8 @@ const Releases = () => {
             <TableDocumentation
               openModal={openModal}
               showError={showError}
+              refresh = {refresh}
+              setRefresh = {(v)=>{setRefresh(v)}}
             />
             {showModal &&
               <ModalDocumentation
@@ -141,6 +149,7 @@ const Releases = () => {
                 setVisible={setShowModal}
                 item={modalItem}
                 updateModalValues={updateModalValues}
+                close = {closeModal}
               />
             }
           </CContainer>
