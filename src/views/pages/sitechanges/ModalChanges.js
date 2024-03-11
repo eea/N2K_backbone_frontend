@@ -440,15 +440,15 @@ export class ModalChanges extends Component {
     let rows = [];
     for (let i in changes) {
       let values = heads.map(v => changes[i][v]).concat(fields.map(v => changes[i]["Fields"][v]));
-      let pos = [fields.indexOf("Difference"), fields.indexOf("Percentage")]
+      let pos = [fields.indexOf("Difference"), fields.indexOf("Percentage")].filter(p => p >= 0).map(p => p + heads.length)
       rows.push(
         <CTableRow key={"row_" + i}>
           {values.map((v, index) => {
-            if (fields.includes("Difference") || fields.includes("Percentage"))
+            if (fields.includes("Difference") || fields.includes("Percentage")) {
               return (<CTableDataCell key={v + "_" + index}
                 style={{ backgroundColor: (pos.includes(index) ? colorizeValue(v) : "") }}>
-                {v == 0 ? 0 : v} </CTableDataCell>)
-            else
+                {isNaN(v) ? v : Number(v)} </CTableDataCell>)
+            } else
               return (<CTableDataCell key={v + "_" + index}>{v} </CTableDataCell>)
           })}
 

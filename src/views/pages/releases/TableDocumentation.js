@@ -196,7 +196,7 @@ function Table({ columns, data, setSelected, modalProps, updateModalValues }) {
 }
 
 function TableDocumentation(props) {
-	const [isLoading, setIsLoading] = useState(true);
+	const [isLoading, setIsLoading] = useState(false);
 	const [data, setData] = useState([]);
 	
 	let dl = new (DataLoader);
@@ -229,22 +229,28 @@ function TableDocumentation(props) {
 		[]
 	)
 
-  const loadData = () => {
-    return dl.fetch(ConfigData.RELEASES_ATTACHMENTS_COUNT)
-      .then(response => response.json())
-      .then(data => {
-        if (data?.Success) {
+  	const loadData = () => {
+		if(props.refresh){
+			props.setRefresh(false);
+		} 
+		setIsLoading(true);
+		return dl.fetch(ConfigData.RELEASES_ATTACHMENTS_COUNT)
+			.then(response => response.json())
+			.then(data => {
+				if (data?.Success) {
 					setIsLoading(false)
-          if (data.Data.length == 0) {
-            setData("noData")
-          } else {
-            setData(data.Data)
-          }
-        } else throw "Error loading data"
-      })
-  }
+					if (data.Data.length == 0) {
+						setData("noData")
+					} else {
+						setData(data.Data)
+					}
+				} else throw "Error loading data"
+		})
+  	}
 
-  useEffect(() => loadData().catch(props.showError), [])
+  	useEffect(() => {
+		loadData().catch(props.showError)
+	}, [props.refresh])
 
 	if (isLoading)
 		return (<div className="loading-container"><em>Loading...</em></div>)
