@@ -136,13 +136,29 @@ const Sitelineage = () => {
     }
   }
 
-  let changeTypes = (type) => {
+  let changeTypes = (type, check) => {
     let values;
-    if(types.includes(type)){
-      values = types.filter((a)=>a !== type);
+    if(type === "All") {
+      if(check) {
+        values = ["Creation", "Deletion", "Split", "Merge", "Recode"];
+      }
+      else {
+        values = [];
+      }
     }
     else {
-      values = types.concat(type);
+      if(types.includes(type)) {
+        values = types.filter((a) => a !== type);
+      }
+      else {
+        values = types.concat(type);
+      }
+    }
+    if(values.length === 0 || values.length === 5) {
+      document.querySelector("#lineage_check_all").indeterminate = false;
+    }
+    else {
+      document.querySelector("#lineage_check_all").indeterminate = true;
     }
     setTypes(values);
     clearSearch();
@@ -374,6 +390,14 @@ const Sitelineage = () => {
                 </div>
                 <div>
                   <ul className="btn--list">
+                    <li>
+                      <div className="checkbox" disabled={Object.keys(siteCodes).length < 2}>
+                        <input type="checkbox" className="input-checkbox" id="lineage_check_all"
+                          checked={types.length === 5} onClick={(e)=>{changeTypes("All", e.currentTarget.checked)}} />
+                        <label htmlFor="lineage_check_all" className="input-label badge badge--default">All
+                        </label>
+                      </div>
+                    </li>
                     <li>
                       <div className="checkbox" disabled={Object.keys(siteCodes).length < 2}>
                         <input type="checkbox" className="input-checkbox" id="lineage_check_creation"

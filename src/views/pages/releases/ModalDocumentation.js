@@ -76,6 +76,11 @@ const ModalDocumentation = (props) => {
     setNewDocument(false)
   }
 
+  const cleanUnsavedChanges = () => {
+    setNewComment(false)
+    setNewDocument(false)
+  }
+
   const showError = (e) => {
     setError("Something went wrong: " + e);
     setTimeout(() => { setError('') }, ConfigData.MessageTimeout);
