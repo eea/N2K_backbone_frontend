@@ -52,7 +52,7 @@ jobs:
           name: node-app
 
       - name: Azure WebApp Node20-fix
-        uses: michealmueller/webapps-deploy@v3.0-node20
+        uses: michealmueller/webapps-deploy@v3-node20
         #uses: azure/webapps-deploy@v2
         id: deploy-to-webapp
         with:
