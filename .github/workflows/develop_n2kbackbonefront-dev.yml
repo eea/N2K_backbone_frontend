@@ -67,6 +67,7 @@ jobs:
     steps:
       - name: Delete Old Artifacts
         id: artifact
-        uses: geekyeggo/delete-artifact@v3
+        uses: geekyeggo/delete-artifact@v2
         with:
+          node-version: '20.x'
           name: node-app
