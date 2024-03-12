@@ -52,8 +52,8 @@ jobs:
           name: node-app
 
       - name: Azure WebApp Node20-fix
-        uses: michealmueller/webapps-deploy@v3-node20
-        #uses: azure/webapps-deploy@v2
+        #uses: michealmueller/webapps-deploy@v3-node20
+        uses: azure/webapps-deploy@v2
         id: deploy-to-webapp
         with:
           app-name: n2kbackbonefront-dev
