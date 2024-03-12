@@ -73,6 +73,7 @@
   },
   "TABLEAU_CHANGES": "https://tableau-public.discomap.eea.europa.eu/views/N2K_Backbone_Changes_Stg/Changes",
   "TABLEAU_RELEASES": "https://tableau-public.discomap.eea.europa.eu/views/N2K_Backbone_Releases_Stg/Releases",
+  "TABLEAU_RELEASES_OVERVIEW": "https://tableau-public.discomap.eea.europa.eu/views/N2K_Backbone_Releases_Overview_Stg/Releases",
   "TABLEAU_SITES": "https://tableau-public.discomap.eea.europa.eu/views/N2K_Backbone_Sites_Stg/Sites",
   "TABLEAU_STATUS": "https://tableau-public.discomap.eea.europa.eu/views/N2K_Backbone_Status_Stg/Status",
   "TABLEAU_MANUAL": "https://tableau-public.discomap.eea.europa.eu/views/N2K_Backbone_Manual_Stg/Manual",

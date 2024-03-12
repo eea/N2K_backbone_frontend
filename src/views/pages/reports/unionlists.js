@@ -38,6 +38,12 @@ const Reports = () => {
               </a>
             </li>
             <li className="nav-item">
+              <a className="nav-link" href="/#/reports/releasesoverview">
+                <i className="fa-solid fa-bookmark"></i>
+                Releases Dates Overview
+              </a>
+            </li>
+            <li className="nav-item">
               <a className="nav-link" href="/#/reports/sites">
                 <i className="fa-solid fa-bookmark"></i>
                 Reference Sites Details
