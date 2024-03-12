@@ -51,7 +51,7 @@ jobs:
           name: node-app
 
       - name: 'Deploy to Azure Web App'
-        uses: azure/webapps-deploy@v3
+        uses: azure/webapps-deploy@v4
         id: deploy-to-webapp
         with:
           app-name: 'n2kbackbonefront-dev'
@@ -66,6 +66,6 @@ jobs:
     steps:
       - name: Delete Old Artifacts
         id: artifact
-        uses: geekyeggo/delete-artifact@v2
+        uses: geekyeggo/delete-artifact@v3
         with:
           name: node-app
