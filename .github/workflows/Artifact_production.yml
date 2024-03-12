@@ -14,12 +14,12 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Set up Node.js version
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
-          node-version: '16.14.2'
+          node-version: '20.X'
 
       - name: npm install
         run: |
@@ -32,7 +32,7 @@ jobs:
           CI: false          
       
       - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: frontend-app_prod
           path: build
