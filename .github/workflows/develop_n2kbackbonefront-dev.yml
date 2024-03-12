@@ -42,7 +42,8 @@ jobs:
     needs: build
     environment:
       name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+      #url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+      url: https://n2kbackbonefront-dev.azurewebsites.net/
 
     steps:
       - name: Download artifact from build job
