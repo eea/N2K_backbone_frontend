@@ -224,6 +224,9 @@ export class ModalChanges extends Component {
             })
             this.setState({ comments: cmts, newComment: false })
           }
+          else {
+            this.showErrorMessage("comment", "Error adding comment");
+          }
         });
       this.loadComments();
     }
@@ -777,7 +780,7 @@ export class ModalChanges extends Component {
         // original name may be null until the backend part it's finished
         const name = d.OriginalName ?? d.Path;
         docs.push(
-          this.createDocumentElement(d.Id, name, d.Path, d.ImportDate, d.Username, target)
+          this.createDocumentElement(d.Id, name, d.ImportDate, d.Username, target)
         )
       })
     }
@@ -791,7 +794,7 @@ export class ModalChanges extends Component {
     )
   }
 
-  createDocumentElement(id, name, path, date, user, level) {
+  createDocumentElement(id, name, date, user, level) {
     return (
       <div className="document--item" key={"docItem_" + id} id={"docItem_" + id} doc_id={id}>
         <div className="my-auto document--text">
@@ -808,7 +811,7 @@ export class ModalChanges extends Component {
           }
         </div>
         <div className="document--icons">
-          <CButton color="link" className="btn-link" onClick={()=>{this.downloadAttachments(path, name)}}>
+          <CButton color="link" className="btn-link" onClick={()=>{this.downloadAttachments(id, name, level)}}>
             View
           </CButton>
           {level == "site" &&
@@ -889,19 +892,30 @@ export class ModalChanges extends Component {
       </CTabPane>
     )
   }
-  
-  downloadAttachments = (path, name) => {
-    fetch(path).then((response) => response.blob())
-    .then((blobresp) => {
-      var blob = new Blob([blobresp], {type: "octet/stream"});
-      var url = window.URL.createObjectURL(blob);
-      let link = document.createElement("a");
-      link.download = name;
-      link.href = url;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    });
+
+  downloadAttachments = (id, name, level) => {
+    let token = localStorage.getItem("token");
+    token = btoa(token).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    let type = level === "site" ? 0 : 1;
+    this.dl.fetch(ConfigData.ATTACHMENTS_DOWNLOAD + "id=" + id + "&docuType=" + type + "&token=" + token)
+    .then(data => {
+      if(data?.ok) {
+        data.blob()
+        .then(blobresp => {
+          var blob = new Blob([blobresp], {type: "octet/stream"});
+          var url = window.URL.createObjectURL(blob);
+          let link = document.createElement("a");
+          link.download = name;
+          link.href = url;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        })
+      }
+      else {
+        this.showErrorMessage("document", "Error downloading file");
+      }
+    })
   }
 
   renderGeometry() {
