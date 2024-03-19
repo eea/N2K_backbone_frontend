@@ -57,7 +57,7 @@ const AppHeader = (props) => {
                       </NavLink>
                     </li>
                     <li className="header__item">
-                      <NavLink to="/sitechanges/sitechanges" activeClassName='header-active' isActive={()=>{return props.page.includes('sitechanges')?true:false}}>
+                      <NavLink to="/sitechanges/changes" activeClassName='header-active' isActive={()=>{return props.page.includes('sitechanges')?true:false}}>
                         Site Changes
                       </NavLink>
                     </li>

@@ -196,7 +196,7 @@ const Sitechanges = () => {
             <CSidebarNav>
               <li className="nav-title">Site Changes</li>
               <li className="nav-item">
-                <a className="nav-link" href="/#/sitechanges/sitechanges">
+                <a className="nav-link" href="/#/sitechanges/changes">
                   <i className="fa-solid fa-bookmark"></i>
                   Changes Management
                 </a>
