@@ -145,6 +145,8 @@ export class ModalLineage extends Component {
         return "Area Geometry (ha)"
       if(v === "Length")
         return v + " (km)"
+      if(v === "Status")
+        return "Lineage Status"
       else
         return v.replace(/([A-Z])/g, ' $1')
     });
