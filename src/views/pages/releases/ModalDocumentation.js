@@ -47,6 +47,10 @@ const ModalDocumentation = (props) => {
   const [isLoading, setIsLoading] = useState(true)
   const [newDocument, setNewDocument] = useState(false)
   const [newComment, setNewComment] = useState(false)
+  const [notValidComment, setNotValidComment] = useState(false)
+  const [notValidDocument, setNotValidDocument] = useState(false)
+  const [errorLoadingComments, setErrorLoadingComments] = useState(false)
+  const [errorLoadingDocuments, setErrorLoadingDocuments] = useState(false)
   const [selectedFile, setSelectedFile] = useState()
   const [error, setError] = useState("")
 
@@ -89,10 +93,13 @@ const ModalDocumentation = (props) => {
         if (data?.Success)
           if (data.Data.length == 0) {
             setComments("noData")
-          } else {
+          }
+          else {
             setComments(sortComments(data.Data))
           }
-        else throw "Error loading comments"
+        else {
+          setErrorLoadingComments(true)
+        }
       })
     )
 
@@ -102,10 +109,13 @@ const ModalDocumentation = (props) => {
         if (data?.Success)
           if (data.Data.length == 0) {
             setDocuments("noData")
-          } else {
+          }
+          else {
             setDocuments(sortDocuments(data.Data))
           }
-        else throw "Error loading documents"
+        else {
+          setErrorLoadingDocuments(true)
+        }
       })
     )
 
@@ -150,6 +160,9 @@ const ModalDocumentation = (props) => {
             setNewComment(false)
             loadData(props.item.Code)
           }
+          else {
+            showErrorMessage("comment", "Error adding comment")
+          }
         });
     }
   }
@@ -172,7 +185,10 @@ const ModalDocumentation = (props) => {
           if (data?.ok) {
             setIsLoading(true)
             loadData(props.item.Code)
-          } else { showErrorMessage("comment", "Error deleting comment") }
+          }
+          else {
+            showErrorMessage("comment", "Error deleting comment")
+          }
         });
     }
     else {
@@ -188,7 +204,8 @@ const ModalDocumentation = (props) => {
       input.readOnly = false;
       input.focus();
       target.innerText = "Save";
-    } else {
+    }
+    else {
       if (!input.value.trim()) {
         showErrorMessage("comment", "Add comment");
       }
@@ -209,7 +226,10 @@ const ModalDocumentation = (props) => {
           target.innerText === "Edit";
           setIsLoading(true);
           loadData(props.item.Code);
-        } else { showErrorMessage("comment", "Error saving comment") }
+        }
+        else {
+          showErrorMessage("comment", "Error saving comment")
+        }
       })
   }
 
@@ -300,7 +320,10 @@ const ModalDocumentation = (props) => {
           if (data?.ok) {
             setIsLoading(true)
             loadData(props.item.Code)
-          } else { showErrorMessage("document", "Error deleting document") }
+          }
+          else {
+            showErrorMessage("document", "Error deleting document")
+          }
         });
     }
     else {
@@ -339,7 +362,13 @@ const ModalDocumentation = (props) => {
             setNewDocument(false)
             loadData(props.item.Code)
           }
+          else {
+            showErrorMessage("document", "Add a file")
+          }
         })
+    }
+    else {
+      showErrorMessage("document", "Add a file")
     }
   }
 
@@ -371,7 +400,7 @@ const ModalDocumentation = (props) => {
       documents.forEach(d => {
         const name = d.OriginalName ?? d.Path;
         docs.push(
-          createDocumentElement(d.ID, name, d.Path, d.ImportDate, d.Username)
+          createDocumentElement(d.ID, name, d.ImportDate, d.Username)
         )
       })
     }
@@ -385,7 +414,7 @@ const ModalDocumentation = (props) => {
     )
   }
 
-  const createDocumentElement = (id, name, path, date, user) => {
+  const createDocumentElement = (id, name, date, user) => {
     return (
       <div className="document--item" key={"docItem_" + id} id={"docItem_" + id} doc_id={id}>
         <div className="my-auto document--text">
@@ -402,7 +431,7 @@ const ModalDocumentation = (props) => {
           }
         </div>
         <div className="document--icons">
-          <CButton color="link" className="btn-link" onClick={()=>{downloadAttachments(path, name)}}>
+          <CButton color="link" className="btn-link" onClick={()=>{downloadAttachments(id, name)}}>
             View
           </CButton>
           <CButton color="link" className="btn-icon" onClick={(e) => deleteDocumentMessage(e.currentTarget)}>
@@ -417,50 +446,90 @@ const ModalDocumentation = (props) => {
     return (
       <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={true}>
         <CRow className="py-3">
-
           <CCol className="mb-3" xs={12} lg={6}>
             <div className="attachments--title">
               <b>Attached documents</b>
             </div>
-            <CCard className="document--list">
-              <div className="d-flex justify-content-between align-items-center pb-2">
-                <b>Country Level</b>
-                <CButton color="link" className="btn-link--dark" onClick={() => setNewDocument(true)}>Add Document</CButton>
-              </div>
-              {renderDocuments("country")}
-            </CCard>
+            {errorLoadingDocuments ?
+              <CAlert color="danger">Error loading documents</CAlert>
+              :
+              <CCard className="document--list">
+                {notValidDocument &&
+                  <CAlert color="danger">
+                    {notValidDocument}
+                  </CAlert>
+                }
+                <div className="d-flex justify-content-between align-items-center pb-2">
+                  <b>Country Level</b>
+                  <CButton color="link" className="btn-link--dark" onClick={() => setNewDocument(true)}>Add Document</CButton>
+                </div>
+                {renderDocuments("country")}
+              </CCard>
+            }
           </CCol>
-
           <CCol className="mb-3" xs={12} lg={6}>
             <div className="attachments--title">
               <b>Comments</b>
             </div>
-            <CCard className="document--list">
-              <div className="d-flex justify-content-between align-items-center pb-2">
-                <b>Country Level</b>
-                <CButton color="link" className="btn-link--dark" onClick={() => setNewComment(true)}>Add Comment</CButton>
-              </div>
-              {renderComments("country")}
-            </CCard>
+            {errorLoadingComments ?
+              <CAlert color="danger">Error loading comments</CAlert>
+              :
+              <CCard className="comment--list">
+                {notValidComment &&
+                  <CAlert color="danger">
+                    {notValidComment}
+                  </CAlert>
+                }
+                <div className="d-flex justify-content-between align-items-center pb-2">
+                  <b>Country Level</b>
+                  <CButton color="link" className="btn-link--dark" onClick={() => setNewComment(true)}>Add Comment</CButton>
+                </div>
+                {renderComments("country")}
+              </CCard>
+            }
           </CCol>
-
         </CRow>
       </CTabPane >
     )
   }
 
-  const downloadAttachments = (path, name) => {
-    fetch(path).then((response) => response.blob())
-    .then((blobresp) => {
-      var blob = new Blob([blobresp], {type: "octet/stream"});
-      var url = window.URL.createObjectURL(blob);
-      let link = document.createElement("a");
-      link.download = name;
-      link.href = url;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    });
+  const downloadAttachments = (id, name) => {
+    let token = localStorage.getItem("token");
+    token = btoa(token).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    dl.fetch(ConfigData.ATTACHMENTS_DOWNLOAD + "id=" + id + "&docuType=1&token=" + token)
+    .then(data => {
+      if(data?.ok) {
+        data.blob()
+        .then(blobresp => {
+          var blob = new Blob([blobresp], {type: "octet/stream"});
+          var url = window.URL.createObjectURL(blob);
+          let link = document.createElement("a");
+          link.download = name;
+          link.href = url;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        })
+      }
+      else {
+        showErrorMessage("document", "Error downloading file");
+      }
+    })
+  }
+
+  const showErrorMessage = (target, message) => {
+    if (target === "comment") {
+      setNotValidComment(message);
+      setTimeout(() => {
+        setNotValidComment("");
+      }, ConfigData.MessageTimeout);
+    }
+    else if (target === "document") {
+      setNotValidDocument(message);
+      setTimeout(() => {
+        setNotValidDocument("");
+      }, ConfigData.MessageTimeout);
+    }
   }
 
   return (
