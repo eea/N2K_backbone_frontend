@@ -1,9 +1,9 @@
 import React, {useCallback, useEffect, useState, useRef} from 'react'
-import { AppFooter, AppHeader } from './../../../components/index'
+import { AppFooter, AppHeader } from '../../../components/index'
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import Turnstone from 'turnstone';
 
-import TableRSPag from './TableRSPag';
+import TableChanges from './TableChanges';
 import {
   CButton,
   CCol,
@@ -515,7 +515,7 @@ const Sitechanges = () => {
             <CSidebarNav>
               <li className="nav-title">Site Changes</li>
               <li className="nav-item">
-                <a className="nav-link active" href="/#/sitechanges/sitechanges">
+                <a className="nav-link active" href="/#/sitechanges/changes">
                   <i className="fa-solid fa-bookmark"></i>
                   Changes Management
                 </a>
@@ -708,7 +708,7 @@ const Sitechanges = () => {
                     </div>
                     <CTabContent>
                     <CTabPane role="tabpanel" aria-labelledby="pending-tab" visible={activeTab === 1}>
-                      <TableRSPag 
+                      <TableChanges 
                         status="pending" 
                         country = {country}
                         level = {level}
@@ -739,7 +739,7 @@ const Sitechanges = () => {
                       />
                     </CTabPane>
                     <CTabPane role="tabpanel" aria-labelledby="accepted-tab" visible={activeTab === 2}>
-                      <TableRSPag 
+                      <TableChanges 
                         status="accepted" 
                         country = {country}
                         level = {level}
@@ -769,7 +769,7 @@ const Sitechanges = () => {
                       />
                     </CTabPane>
                     <CTabPane role="tabpanel" aria-labelledby="rejected-tab" visible={activeTab === 3}>
-                      <TableRSPag 
+                      <TableChanges 
                         status="rejected" 
                         country = {country}
                         level = {level}
