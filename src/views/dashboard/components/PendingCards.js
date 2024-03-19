@@ -86,7 +86,7 @@ const PendingCards = () => {
     pendingCountries.map((country) => {
       result.push(
         <CCol key={country.name + "Card"} xs={12} md={6} lg={4} xl={3}>
-          <a className="country-card-link" href={"/#/sitechanges/sitechanges?country=" + country.code}>
+          <a className="country-card-link" href={"/#/sitechanges/changes?country=" + country.code}>
             <CCard className="country-card">
               <div className="country-card-header">
                 <div className="country-card-left">
