@@ -494,9 +494,7 @@ const ModalDocumentation = (props) => {
   }
 
   const downloadAttachments = (id, name) => {
-    let token = localStorage.getItem("token");
-    token = btoa(token).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-    dl.fetch(ConfigData.ATTACHMENTS_DOWNLOAD + "id=" + id + "&docuType=1&token=" + token)
+    dl.fetch(ConfigData.ATTACHMENTS_DOWNLOAD + "id=" + id + "&docuType=1")
     .then(data => {
       if(data?.ok) {
         data.blob()
