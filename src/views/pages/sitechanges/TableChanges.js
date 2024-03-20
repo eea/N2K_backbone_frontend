@@ -347,7 +347,7 @@ const IndeterminateCheckbox = React.forwardRef(
     )
   }
   
-  function TableRSPag(props) {
+  function TableChanges(props) {
     const [modalItem, setModalItem] = useState({});
     const [modalVisible, setModalVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -830,4 +830,4 @@ const IndeterminateCheckbox = React.forwardRef(
   
   }
   
-export default TableRSPag
+export default TableChanges
