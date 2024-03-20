@@ -894,10 +894,8 @@ export class ModalChanges extends Component {
   }
 
   downloadAttachments = (id, name, level) => {
-    let token = localStorage.getItem("token");
-    token = btoa(token).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
     let type = level === "site" ? 0 : 1;
-    this.dl.fetch(ConfigData.ATTACHMENTS_DOWNLOAD + "id=" + id + "&docuType=" + type + "&token=" + token)
+    this.dl.fetch(ConfigData.ATTACHMENTS_DOWNLOAD + "id=" + id + "&docuType=" + type)
     .then(data => {
       if(data?.ok) {
         data.blob()
