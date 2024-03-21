@@ -97,7 +97,7 @@ export class ModalRelease extends Component {
       }
       cards.push(
         <CCol key={card.Country + "Card"} xs={12} md={12} lg={6} xl={4}>
-          <a className="country-card-link" href={"/#/sitechanges?country=" + card.Country}>
+          <a className="country-card-link" href={"/#/sitechanges/changes?country=" + card.Country}>
             <CCard className="country-card">
                 <div className="country-card-header">
                     <div className="country-card-left">

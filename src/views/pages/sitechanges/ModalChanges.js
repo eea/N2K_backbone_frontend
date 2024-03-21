@@ -225,6 +225,9 @@ export class ModalChanges extends Component {
             })
             this.setState({ comments: cmts, newComment: false })
           }
+          else {
+            this.showErrorMessage("comment", "Error adding comment");
+          }
         });
       this.loadComments();
     }
@@ -441,15 +444,15 @@ export class ModalChanges extends Component {
     let rows = [];
     for (let i in changes) {
       let values = heads.map(v => changes[i][v]).concat(fields.map(v => changes[i]["Fields"][v]));
-      let pos = [fields.indexOf("Difference"), fields.indexOf("Percentage")]
+      let pos = [fields.indexOf("Difference"), fields.indexOf("Percentage")].filter(p => p >= 0).map(p => p + heads.length)
       rows.push(
         <CTableRow key={"row_" + i}>
           {values.map((v, index) => {
-            if (fields.includes("Difference") || fields.includes("Percentage"))
+            if (fields.includes("Difference") || fields.includes("Percentage")) {
               return (<CTableDataCell key={v + "_" + index}
                 style={{ backgroundColor: (pos.includes(index) ? colorizeValue(v) : "") }}>
-                {v == 0 ? 0 : v} </CTableDataCell>)
-            else
+                {isNaN(v) ? v : Number(v)} </CTableDataCell>)
+            } else
               return (<CTableDataCell key={v + "_" + index}>{v} </CTableDataCell>)
           })}
 
@@ -778,7 +781,7 @@ export class ModalChanges extends Component {
         // original name may be null until the backend part it's finished
         const name = d.OriginalName ?? d.Path;
         docs.push(
-          this.createDocumentElement(d.Id, name, d.Path, d.ImportDate, d.Username, target)
+          this.createDocumentElement(d.Id, name, d.ImportDate, d.Username, target)
         )
       })
     }
@@ -792,7 +795,7 @@ export class ModalChanges extends Component {
     )
   }
 
-  createDocumentElement(id, name, path, date, user, level) {
+  createDocumentElement(id, name, date, user, level) {
     return (
       <div className="document--item" key={"docItem_" + id} id={"docItem_" + id} doc_id={id}>
         <div className="my-auto document--text">
@@ -809,7 +812,7 @@ export class ModalChanges extends Component {
           }
         </div>
         <div className="document--icons">
-          <CButton color="link" className="btn-link" onClick={()=>{this.downloadAttachments(path, name)}}>
+          <CButton color="link" className="btn-link" onClick={()=>{this.downloadAttachments(id, name, level)}}>
             View
           </CButton>
           {level == "site" &&
@@ -890,19 +893,28 @@ export class ModalChanges extends Component {
       </CTabPane>
     )
   }
-  
-  downloadAttachments = (path, name) => {
-    fetch(path).then((response) => response.blob())
-    .then((blobresp) => {
-      var blob = new Blob([blobresp], {type: "octet/stream"});
-      var url = window.URL.createObjectURL(blob);
-      let link = document.createElement("a");
-      link.download = name;
-      link.href = url;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    });
+
+  downloadAttachments = (id, name, level) => {
+    let type = level === "site" ? 0 : 1;
+    this.dl.fetch(ConfigData.ATTACHMENTS_DOWNLOAD + "id=" + id + "&docuType=" + type)
+    .then(data => {
+      if(data?.ok) {
+        data.blob()
+        .then(blobresp => {
+          var blob = new Blob([blobresp], {type: "octet/stream"});
+          var url = window.URL.createObjectURL(blob);
+          let link = document.createElement("a");
+          link.download = name;
+          link.href = url;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        })
+      }
+      else {
+        this.showErrorMessage("document", "Error downloading file");
+      }
+    })
   }
 
   renderGeometry() {

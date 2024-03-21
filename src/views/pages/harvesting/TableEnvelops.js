@@ -167,7 +167,7 @@ const IndeterminateCheckbox = React.forwardRef(
               id: 'dropdownEnvelops',
               cellWidth: "48px",
               Cell: ({ row }) => (
-                <a href={"/#/sitechanges?country=" + row.original.Country}>
+                <a href={"/#/sitechanges/changes?country=" + row.original.Country}>
                   <i className="fa-solid fa-arrow-right"></i>
                 </a>
               )
