@@ -1,6 +1,7 @@
 {
   "SERVER_API_ENDPOINT": "https://n2kbackboneback-dev.azurewebsites.net/",
   "SITECHANGES_GET": "https://n2kbackboneback-dev.azurewebsites.net/api/sitechanges/get/",
+  "NOCHANGES_GET": "https://n2kbackboneback-dev.azurewebsites.net/api/sitechanges/GetNoChanges/",
   "SITECODES_GET": "https://n2kbackboneback-dev.azurewebsites.net/api/sitechanges/GetSiteCodes/",
   "SITECHANGES_DETAIL": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteChanges/GetSiteChangesDetail/",
   "COUNTRIES_WITH_DATA": "https://n2kbackboneback-dev.azurewebsites.net/api/Countries/GetWithData",
