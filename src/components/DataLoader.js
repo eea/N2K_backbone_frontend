@@ -1,11 +1,16 @@
 import ConfigData from '../config.json';
 
 export class DataLoader {
-    constructor(){
+    constructor() {
         this.token = localStorage.getItem("token");
-        if (!this.token && document.location.href.includes("localhost")){
-            this.token = ConfigData.token;
-        } 
+        if (!this.token) {
+            if (window.location.href.includes("localhost")) {
+                this.token = ConfigData.token;
+            }
+            else {
+                window.location.href = window.location.origin + window.location.pathname;
+            }
+        }
     }
 
     fetch(url, parms) {
