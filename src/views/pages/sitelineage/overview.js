@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { AppFooter, AppHeader } from '../../../components/index';
+import { AppFooter, AppHeader, AppSidebar } from '../../../components/index';
 import '@coreui/icons/css/flag.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import ConfigData from '../../../config.json';
@@ -9,8 +9,6 @@ import {
   CCol,
   CContainer,
   CRow,
-  CSidebar,
-  CSidebarNav,
   CCard,
   CAlert
 } from '@coreui/react'
@@ -87,29 +85,14 @@ const Sitelineage = () => {
     <div className="container--main min-vh-100">
       <AppHeader page="sitelineage"/>
       <div className="content--wrapper">
-        <CSidebar className="sidebar--light">
-          <CSidebarNav>
-            <li className="nav-title">Site Lineage</li>
-            <li className="nav-item">
-              <a className="nav-link active" href="/#/sitelineage/overview">
-                <i className="fa-solid fa-bookmark"></i>
-                Lineage Overview
-              </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link" href="/#/sitelineage/management">
-                <i className="fa-solid fa-bookmark"></i>
-                Lineage Management
-              </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link" href="/#/sitelineage/history">
-                <i className="fa-solid fa-bookmark"></i>
-                Lineage History
-              </a>
-            </li>
-          </CSidebarNav>
-        </CSidebar>
+        <AppSidebar
+          title="Reports"
+          options={[
+            {"path": "/#/sitelineage/overview", "name":"Lineage Overview", "active": true},
+            {"path": "/#/sitelineage/management", "name":"Lineage Management", "active": false},
+            {"path": "/#/sitelineage/history", "name":"Lineage History", "active": false}
+          ]}
+        />
         <div className="main-content">
           <CContainer fluid>
             <div className="d-flex justify-content-between py-3">

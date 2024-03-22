@@ -9,7 +9,6 @@ import {
   CNav,
   CNavItem,
   CNavLink,
-  CSidebarNav,
   CTable,
   CTableBody,
   CTableDataCell,

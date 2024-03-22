@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { AppFooter, AppHeader } from '../../../components/index'
+import { AppFooter, AppHeader, AppSidebar } from '../../../components/index'
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import ConfigData from '../../../config.json';
 import UtilsData from '../../../data/utils.json';
@@ -12,8 +12,6 @@ import {
   CCol,
   CContainer,
   CRow,
-  CSidebar,
-  CSidebarNav,
   CButton,
   CPagination,
   CPaginationItem,
@@ -313,47 +311,17 @@ const Releases = () => {
     <div className="container--main min-vh-100">
       <AppHeader page="releases"/>
       <div className="content--wrapper">
-        <CSidebar className="sidebar--light">
-          <CSidebarNav>
-            <li className="nav-title">Releases</li>
-            <li className="nav-item">
-              <a className="nav-link" href="/#/releases/management">
-                <i className="fa-solid fa-bookmark"></i>
-                Release Management
-              </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link" href="/#/releases/documentation">
-                <i className="fa-solid fa-bookmark"></i>
-                Release Documentation
-              </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link active" href="/#/releases/comparer">
-                <i className="fa-solid fa-bookmark"></i>
-                Release Comparer
-              </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link" href="/#/releases/siteeditionoverview">
-                <i className="fa-solid fa-bookmark"></i>
-                Site Edition Overview
-              </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link" href="/#/releases/siteedition">
-                <i className="fa-solid fa-bookmark"></i>
-                Site Edition
-              </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link" href="/#/releases/unionlists">
-                <i className="fa-solid fa-bookmark"></i>
-                Union Lists
-              </a>
-            </li>
-          </CSidebarNav>
-        </CSidebar>
+        <AppSidebar
+          title="Releases"
+          options={[
+            {"path": "/#/releases/management", "name":"Release Management", "active": false},
+            {"path": "/#/releases/documentation", "name":"Release Documentation", "active": false},
+            {"path": "/#/releases/comparer", "name":"Release Comparer", "active": true},
+            {"path": "/#/releases/siteeditionoverview", "name":"Site Edition Overview", "active": false},
+            {"path": "/#/releases/siteedition", "name":"Site Edition", "active": false},
+            {"path": "/#/releases/unionlists", "name":"Union Lists", "active": false}
+          ]}
+        />
       <div className="main-content">
           <CContainer fluid>
             <div className="d-flex justify-content-between py-3">

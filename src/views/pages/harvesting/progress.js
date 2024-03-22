@@ -1,12 +1,10 @@
 import React, { lazy, useState } from 'react'
-import { AppFooter, AppHeader } from '../../../components/index'
+import { AppFooter, AppHeader, AppSidebar } from '../../../components/index'
 import TableEnvelops from './TableEnvelops';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import {ReactComponent as ReactLogo} from './../../../assets/images/harvesting.svg';
 
 import {
-  CSidebar,
-  CSidebarNav,
   CCol,
   CContainer,
   CRow,
@@ -17,41 +15,16 @@ const Harvesting = () => {
     <div className="container--main min-vh-100">
       <AppHeader page="harvesting"/>
       <div className="content--wrapper">
-        <CSidebar className="sidebar--light">
-          <CSidebarNav>
-            <li className="nav-title">Harvesting</li>
-            <li className="nav-item">
-              <a className="nav-link" href="/#/harvesting/incoming">
-                <i className="fa-solid fa-bookmark"></i>
-                Incoming
-              </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link" href="/#/harvesting/ready">
-                <i className="fa-solid fa-bookmark"></i>
-                Ready to Use
-              </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link active" href="/#/harvesting/progress">
-                <i className="fa-solid fa-bookmark"></i>
-                In Progress
-              </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link" href="/#/harvesting/processed">
-                <i className="fa-solid fa-bookmark"></i>
-                Processed
-              </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link" href="/#/harvesting/all">
-                <i className="fa-solid fa-bookmark"></i>
-                All
-              </a>
-            </li>
-          </CSidebarNav>
-        </CSidebar>
+        <AppSidebar
+          title="Harvesting"
+          options={[
+            {"path": "/#/harvesting/incoming", "name":"Incoming", "active": false},
+            {"path": "/#/harvesting/ready", "name":"Ready to Use", "active": false},
+            {"path": "/#/harvesting/progress", "name":"In Progress", "active": true},
+            {"path": "/#/harvesting/processed", "name":"Processed", "active": false},
+            {"path": "/#/harvesting/all", "name":"All", "active": false}
+          ]}
+        />
         <div className="main-content">
           <CContainer fluid>
             <div className="d-flex justify-content-between py-3">
