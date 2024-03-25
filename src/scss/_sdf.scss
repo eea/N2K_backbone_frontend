@@ -9,15 +9,29 @@
 }
 
 .sdf-general {
+  width: 100%;
   display: flex;
-  gap: 2rem;
   align-items: center;
-  h1 {
-    margin-bottom: 0;
+  .sdf-head {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+    h1 {
+      margin-bottom: 0;
+    }
+    b {
+      color: $blue;
+      font-size: 1.5rem;
+      margin-top: 0.25rem;
+    }
+    svg {
+      width: 8rem;
+      min-width: 8rem;
+    }
   }
-  svg {
-    width: 8rem;
-    min-width: 8rem;
+  .select--right {
+    width: auto;
+    margin-left: auto;
   }
 }
 
