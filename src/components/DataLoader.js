@@ -7,7 +7,7 @@ export class DataLoader {
             if (window.location.href.includes("localhost")) {
                 this.token = ConfigData.token;
             }
-            else {
+            else if (window.location.href !== window.location.origin + window.location.pathname + "#/") {
                 window.location.href = window.location.origin + window.location.pathname;
             }
         }
