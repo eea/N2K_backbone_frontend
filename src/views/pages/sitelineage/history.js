@@ -2,6 +2,7 @@ import React, { lazy, useState, useRef } from 'react'
 import { AppFooter, AppHeader, AppSidebar } from '../../../components/index'
 import TableLineage from './TableLineage';
 import ConfigData from '../../../config.json';
+import UtilsData from '../../../data/utils.json';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import Turnstone from 'turnstone';
 import {DataLoader} from '../../../components/DataLoader';
@@ -336,12 +337,9 @@ const Sitelineage = () => {
       <AppHeader page="sitelineage"/>
       <div className="content--wrapper">
         <AppSidebar
-          title="Reports"
-          options={[
-            {"path": "/#/sitelineage/overview", "name":"Lineage Overview", "active": false},
-            {"path": "/#/sitelineage/management", "name":"Lineage Management", "active": false},
-            {"path": "/#/sitelineage/history", "name":"Lineage History", "active": true}
-          ]}
+          title="Site Lineage"
+          options={UtilsData.SIDEBAR["sitelineage"]}
+          active="history"
         />
         <div className="main-content">
           <CContainer fluid>

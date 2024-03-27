@@ -150,13 +150,8 @@ const Harvesting = () => {
       <div className="content--wrapper">
         <AppSidebar
           title="Harvesting"
-          options={[
-            {"path": "/#/harvesting/incoming", "name":"Incoming", "active": true},
-            {"path": "/#/harvesting/ready", "name":"Ready to Use", "active": false},
-            {"path": "/#/harvesting/progress", "name":"In Progress", "active": false},
-            {"path": "/#/harvesting/processed", "name":"Processed", "active": false},
-            {"path": "/#/harvesting/all", "name":"All", "active": false}
-          ]}
+          options={UtilsData.SIDEBAR["harvesting"]}
+          active="incoming"
         />
         <div className="main-content">
           <CContainer fluid>

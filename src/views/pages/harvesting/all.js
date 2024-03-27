@@ -10,6 +10,8 @@ import {
   CRow,
 } from '@coreui/react'
 
+import UtilsData from '../../../data/utils.json';
+
 const Harvesting = () => {
   return (
     <div className="container--main min-vh-100">
@@ -17,13 +19,8 @@ const Harvesting = () => {
       <div className="content--wrapper">
         <AppSidebar
           title="Harvesting"
-          options={[
-            {"path": "/#/harvesting/incoming", "name":"Incoming", "active": false},
-            {"path": "/#/harvesting/ready", "name":"Ready to Use", "active": false},
-            {"path": "/#/harvesting/progress", "name":"In Progress", "active": false},
-            {"path": "/#/harvesting/processed", "name":"Processed", "active": false},
-            {"path": "/#/harvesting/all", "name":"All", "active": true}
-          ]}
+          options={UtilsData.SIDEBAR["harvesting"]}
+          active="all"
         />
         <div className="main-content">
           <CContainer fluid>

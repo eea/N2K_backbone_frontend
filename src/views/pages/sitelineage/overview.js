@@ -3,6 +3,7 @@ import { AppFooter, AppHeader, AppSidebar } from '../../../components/index';
 import '@coreui/icons/css/flag.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import ConfigData from '../../../config.json';
+import UtilsData from '../../../data/utils.json';
 import {DataLoader} from '../../../components/DataLoader';
 
 import {
@@ -86,12 +87,9 @@ const Sitelineage = () => {
       <AppHeader page="sitelineage"/>
       <div className="content--wrapper">
         <AppSidebar
-          title="Reports"
-          options={[
-            {"path": "/#/sitelineage/overview", "name":"Lineage Overview", "active": true},
-            {"path": "/#/sitelineage/management", "name":"Lineage Management", "active": false},
-            {"path": "/#/sitelineage/history", "name":"Lineage History", "active": false}
-          ]}
+          title="Site Lineage"
+          options={UtilsData.SIDEBAR["sitelineage"]}
+          active="overview"
         />
         <div className="main-content">
           <CContainer fluid>

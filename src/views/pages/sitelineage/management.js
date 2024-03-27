@@ -348,12 +348,9 @@ const Sitelineage = () => {
         <AppHeader page="sitelineage"/>
         <div className="content--wrapper">
         <AppSidebar
-          title="Reports"
-          options={[
-            {"path": "/#/sitelineage/overview", "name":"Lineage Overview", "active": false},
-            {"path": "/#/sitelineage/management", "name":"Lineage Management", "active": true},
-            {"path": "/#/sitelineage/history", "name":"Lineage History", "active": false}
-          ]}
+          title="Site Lineage"
+          options={UtilsData.SIDEBAR["sitelineage"]}
+          active="management"
         />
           <div className="main-content">
             <CContainer fluid>

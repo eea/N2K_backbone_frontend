@@ -512,10 +512,8 @@ const Sitechanges = () => {
         <div className="content--wrapper">
           <AppSidebar
             title="Site Changes"
-            options={[
-              {"path": "/#/sitechanges/changes", "name":"Changes Management", "active": true},
-              {"path": "/#/sitechanges/nochanges", "name":"No Changes", "active": false}
-            ]}
+            options={UtilsData.SIDEBAR["sitechanges"]}
+            active="changes"
           />
           <div className="main-content">
             <CContainer fluid>

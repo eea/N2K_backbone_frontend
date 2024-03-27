@@ -193,10 +193,8 @@ const Sitechanges = () => {
         <div className="content--wrapper">
           <AppSidebar
             title="Site Changes"
-            options={[
-              {"path": "/#/sitechanges/changes", "name":"Changes Management", "active": false},
-              {"path": "/#/sitechanges/nochanges", "name":"No Changes", "active": true}
-            ]}
+            options={UtilsData.SIDEBAR["sitechanges"]}
+            active="nochanges"
           />
           <div className="main-content">
             <CContainer fluid>

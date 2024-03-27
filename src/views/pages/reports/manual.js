@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { AppFooter, AppHeader, AppSidebar } from '../../../components/index'
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import ConfigData from '../../../config.json';
+import UtilsData from '../../../data/utils.json';
 
 import {
   CCol,
@@ -28,14 +29,8 @@ const Reports = () => {
       <div className="content--wrapper">
         <AppSidebar
           title="Reports"
-          options={[
-            {"path": "/#/reports/releases", "name":"Releases Dates", "active": false},
-            {"path": "/#/reports/releasesoverview", "name":"Releases Dates Overview", "active": false},
-            {"path": "/#/reports/sites", "name":"Reference Sites Details", "active": false},
-            {"path": "/#/reports/status", "name":"Site Status", "active": false},
-            {"path": "/#/reports/manual", "name":"Manual Updates", "active": true},
-            {"path": "/#/reports/unionlists", "name":"Union Lists Changes", "active": false}
-          ]}
+          options={UtilsData.SIDEBAR["reports"]}
+          active="manual"
         />
         <div className="main-content">
           <CContainer fluid>

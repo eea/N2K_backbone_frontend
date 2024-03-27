@@ -83,14 +83,8 @@ const Releases = () => {
       <div className="content--wrapper">
         <AppSidebar
           title="Releases"
-          options={[
-            {"path": "/#/releases/management", "name":"Release Management", "active": false},
-            {"path": "/#/releases/documentation", "name":"Release Documentation", "active": true},
-            {"path": "/#/releases/comparer", "name":"Release Comparer", "active": false},
-            {"path": "/#/releases/siteeditionoverview", "name":"Site Edition Overview", "active": false},
-            {"path": "/#/releases/siteedition", "name":"Site Edition", "active": false},
-            {"path": "/#/releases/unionlists", "name":"Union Lists", "active": false}
-          ]}
+          options={UtilsData.SIDEBAR["releases"]}
+          active="documentation"
         />
         <div className="main-content">
           <CContainer fluid>

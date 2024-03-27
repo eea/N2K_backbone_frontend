@@ -2,6 +2,7 @@ import React, { lazy, useState, useRef } from 'react'
 import { AppFooter, AppHeader, AppSidebar } from '../../../components/index'
 import TableEdition from './TableEdition';
 import ConfigData from '../../../config.json';
+import UtilsData from '../../../data/utils.json';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import Turnstone from 'turnstone';
 import {DataLoader} from '../../../components/DataLoader';
@@ -247,14 +248,8 @@ const Releases = () => {
       <div className="content--wrapper">
         <AppSidebar
           title="Releases"
-          options={[
-            {"path": "/#/releases/management", "name":"Release Management", "active": false},
-            {"path": "/#/releases/documentation", "name":"Release Documentation", "active": false},
-            {"path": "/#/releases/comparer", "name":"Release Comparer", "active": false},
-            {"path": "/#/releases/siteeditionoverview", "name":"Site Edition Overview", "active": false},
-            {"path": "/#/releases/siteedition", "name":"Site Edition", "active": true},
-            {"path": "/#/releases/unionlists", "name":"Union Lists", "active": false}
-          ]}
+          options={UtilsData.SIDEBAR["releases"]}
+          active="siteedition"
         />
         <div className="main-content">
           <CContainer fluid>
