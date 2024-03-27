@@ -31,7 +31,7 @@ const SDFVisualization = () => {
   const [siteCode, setSiteCode] = useState("");
   const [version, setVersion] = useState("");
   const [type, setType] = useState("");
-  const [types, setTypes] = useState([{"value":"submission", "name":"Submission"}, {"value":"reference", "name":"Reference"}]);
+  const [types, setTypes] = useState([{"value":"reference", "name":"Reference"}, {"value":"submission", "name":"Submission"}]);
   const [showScrollBtn, setShowScrollBtn] = useState(false);
 
   useEffect(() => {
