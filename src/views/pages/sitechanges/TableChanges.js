@@ -649,7 +649,7 @@ const IndeterminateCheckbox = React.forwardRef(
               }
 
               return row.canExpand ? (
-                <DropdownSiteChanges actions={getContextActions(row, toggleMark)} siteCode={row.values.SiteCode} toggleMark={toggleMark}
+                <DropdownSiteChanges actions={getContextActions(row, toggleMark)} siteCode={row.values.SiteCode} version={row.original.Version} toggleMark={toggleMark}
                   referenceSiteCode={sdfSiteCode}/>
               ) : null
           }
