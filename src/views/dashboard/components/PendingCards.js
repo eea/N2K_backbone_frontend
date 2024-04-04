@@ -121,13 +121,16 @@ const PendingCards = () => {
   return (
     <>
       <div className="dashboard-title">
-        <h1 className="h1-main me-5">Countries</h1>
+        <h1 className="h1-main me-2">Countries</h1>
         {!isLoading && !errorsLoading && pendingCountriesData.length > 0 &&
-          <div>
-            <span className="badge badge--critical radio me-2"><b>{totalPendingCountriesCritical}</b> Critical</span>
-            <span className="badge badge--warning me-2"><b>{totalPendingCountriesWarning}</b> Warning</span>
-            <span className="badge badge--info me-2"><b>{totalPendingCountriesInfo}</b> Info</span>
-          </div>
+          <>
+            <span className="badge badge--all active me-4"><b>{pendingCountriesData.length}</b></span>
+            <div>
+              <span className="badge badge--critical me-2"><b>{totalPendingCountriesCritical}</b> Critical</span>
+              <span className="badge badge--warning me-2"><b>{totalPendingCountriesWarning}</b> Warning</span>
+              <span className="badge badge--info me-2"><b>{totalPendingCountriesInfo}</b> Info</span>
+            </div>
+          </>
         }
       </div>
       <div className="bg-white rounded-2 mb-5">
