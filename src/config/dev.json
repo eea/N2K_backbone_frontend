@@ -8,7 +8,6 @@
   "MOVE_TO_PENDING": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteChanges/MoveToPending",
   "ACCEPT_CHANGES": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteChanges/AcceptChanges",
   "MARK_AS_JUSTIFICATION_REQUIRED": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteChanges/MarkAsJustificationRequired",
-  "PROVIDE_JUSTIFICATION": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteChanges/ProvideJustification",
   "REJECT_CHANGES": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteChanges/RejectChanges",
   "GET_SITE_COMMENTS": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteDetails/GetSiteComments/",
   "ADD_COMMENT": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteDetails/SiteComments/Add",
@@ -25,8 +24,6 @@
   "GET_SITE_LEVEL": "https://n2kbackboneback-dev.azurewebsites.net/api/Countries/GetSiteLevel",
   "GET_CLOSED_COUNTRIES": "https://n2kbackboneback-dev.azurewebsites.net/api/Countries/GetClosedAndDiscardedCountries",
   "GET_EDITION_COUNTRIES": "https://n2kbackboneback-dev.azurewebsites.net/api/Countries/GetEditionCountries",
-  "COUNTRIES_CONSOLIDATED": "https://n2kbackboneback-dev.azurewebsites.net/api/Countries/GetConsolidatedCountries",
-  "SITEEDITION_GET": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteChanges/GetSiteCodes/",
   "SITEEDITION_NON_PENDING_GET": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteChanges/GetNonPendingSiteCodes/",
   "SITEDETAIL_GET": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteDetails/GetReferenceEditInfo",
   "SITEDETAIL_SAVE": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteDetails/SaveEdition",
@@ -66,12 +63,8 @@
   "REPORTING_PERIOD_EDIT": "https://n2kbackboneback-dev.azurewebsites.net/api/ReportingPeriod/Edit",
   "REPORTING_PERIOD_CREATE": "https://n2kbackboneback-dev.azurewebsites.net/api/ReportingPeriod/Create",
   "REPORTING_PERIOD_CLOSE": "https://n2kbackboneback-dev.azurewebsites.net/api/ReportingPeriod/Close",
-  "REPORTED_SPATIAL": "https://bio.discomap.eea.europa.eu/arcgis/rest/services/N2K_Backbone/N2KBackbone/MapServer/0",
-  "LATEST_RELEASE": "https://bio.discomap.eea.europa.eu/arcgis/rest/services/N2K_Backbone/N2KBackbone/MapServer/1",
-  "THEME_COLORS": {
-    "PRIMARY": "#007bff",
-    "SECONDARY": "#fc3"
-  },
+  "MAP_SUBMISSION": "https://bio.discomap.eea.europa.eu/arcgis/rest/services/N2K_Backbone/N2KBackbone/MapServer/0",
+  "MAP_REFERENCE": "https://bio.discomap.eea.europa.eu/arcgis/rest/services/N2K_Backbone/N2KBackbone/MapServer/1",
   "token": "eyJraWQiOiJJTEp5VTQ5SEpNTXVodlNjVTJ0SUxfMGR4eENTa09OcEk4eElySzJnMWhrIiwiYWxnIjoiUlMyNTYifQ.eyJhdF9oYXNoIjoiUUE0Zmtsajd5X0hTRjRpTUxKeENiQSIsInN1YiI6Im4wMDA1YzA0IiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImFtciI6WyJwd2QiXSwiaXNzIjoiaHR0cHM6XC9cL2VjYXMuYWNjZXB0YW5jZS5lYy5ldXJvcGEuZXVcL2Nhc1wvb2F1dGgyIiwibm9uY2UiOiJhOWEwNWFlNC04MGUwLTQ4OWEtOTM5Zi04MzIzMzNlOWUwZTkiLCJhdWQiOiJnNXJKVVBxOTN1Z3pxN0pHOEJ0RTVsaUk5Y2F5dkhibUV6aEgxa0txTU94cVd4TkFsaVl6YmVlUGNKemUwem1WaWVpemZVRHdHTVpVNTFTekpKelhhbFNPLXpHcmNjN0dDT3k4WGJYYWxiS3gxcEMiLCJhY3IiOiJodHRwczpcL1wvZWNhcy5lYy5ldXJvcGEuZXVcL2xvYVwvYmFzaWMiLCJjX2hhc2giOiJURnJmMUJ5bHJMVWM0U01XZ1pVbkt3IiwiYXV0aF90aW1lIjoxNjYwNjQ0OTQ1LCJleHAiOjE2NjA2NTk0OTMsImlhdCI6MTY2MDY0NTA5MywiZW1haWwiOiJvZXNwYXJ6YUBiaWxib21hdGljYS5lcyJ9.X_9k2FJ7y9v_fc5SikM3sbaMkJljm9u57NTuBh9a7DuwhxrgmlymqRW9w0FhGURLWYxWJzTDqWGcT2CkHNHWbx5TxGCEyD2QynGtaJ8Zsi67UWCl6RqLy5YG09dL5a1EwHjhcKPClTC0RnkIkCMkVRQu8ktiT_wgCX3cXlcRqWj6jowDs78mX3dLOjVt0zVIlB3oyv_3yKdIHYNHphffOawtaX2U8jZF_VPoMvkESmfXwb1CZYn1xbRPtIOp_7cYdy7sHxZDtBeeM7tGX7_FVUTRPLGCEtR5vjPsqvLqaRwMu-J5Kw4LqcTl2iCax0lXV8dGkMDhViU8K5ywYx2U-WYGVdzaVrTZAPj2RMG3JJ34pbXFmM_UTcG7uXlI2vkOXsbjEm9DgzDshSuJvuWjBdpJDtQAHtaxQBlBRjwNRTCtpeqUBeHn_mtK_o8Mcr7ScFpK7guZBrSgi-QWdlxU8E3s7yyJxzlpsawKnx6HeJ_We0mYR8cCWZmzQSQ04Xu1",
   "TABLEAU_CHANGES": "https://tableau-public.discomap.eea.europa.eu/views/N2K_Backbone_Changes/Changes",
   "TABLEAU_RELEASES": "https://tableau-public.discomap.eea.europa.eu/views/N2K_Backbone_Releases/Releases",
@@ -79,21 +72,6 @@
   "TABLEAU_SITES": "https://tableau-public.discomap.eea.europa.eu/views/N2K_Backbone_Sites/Sites",
   "TABLEAU_STATUS": "https://tableau-public.discomap.eea.europa.eu/views/N2K_Backbone_Status/Status",
   "TABLEAU_MANUAL": "https://tableau-public.discomap.eea.europa.eu/views/N2K_Backbone_Manual/Manual",
-  "ACCEPTED_DOCUMENT_FORMATS": ".pdf, .doc, .docx, .xls, .xlsx, .txt, .tif, .json, .kml, .gml, .xml, .zip, .7z",
-  "HARVESTING_STATUS": {
-    "DataLoaded": "Incoming",
-    "PreHarvested": "Ready to Use",
-    "Harvested": "In Progress",
-    "Closed": "Completed",
-    "Discarded": "Discarded"
-  },
-  "Colors": {
-    "White": "#ffffff",
-    "Grey": "#e4e4e4",
-    "Green": "#daf5d6",
-    "Red": "#f6cbcf"
-  },
   "EULoginServiceUrl": "https://n2kbackboneback-dev.azurewebsites.net/api/",
-  "EULogoutURL": "https://ecas.acceptance.ec.europa.eu/cas/oauth2/logout",
-  "MessageTimeout": 5000
+  "EULogoutURL": "https://ecas.acceptance.ec.europa.eu/cas/oauth2/logout"
 }

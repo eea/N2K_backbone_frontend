@@ -1,5 +1,6 @@
 import React from 'react';
 import { loadModules } from "esri-loader";
+import UtilsData from '../data/utils.json';
 import {DataLoader} from './DataLoader';
 
 var GeoJSONLayer;
@@ -63,9 +64,9 @@ class MapViewer extends React.Component {
                 ]
             };
 
-            if(this.props.latestRelease){
+            if(this.props.mapReference){
                 let lastRelease = new FeatureLayer({
-                    url: this.props.latestRelease,
+                    url: this.props.mapReference,
                     id: 1,
                     popupEnabled: true,
                     title: "Reference",
@@ -75,7 +76,7 @@ class MapViewer extends React.Component {
                         type: "simple",
                         symbol: {
                             type: "simple-fill",
-                            color: "#4fc1c5",
+                            color: UtilsData.COLORS.Blue,
                             style: "solid",
                             outline: {
                                 width: 1,
@@ -91,10 +92,10 @@ class MapViewer extends React.Component {
                 layers.push(lastRelease);
             }
 
-            let reportedSpatial = new FeatureLayer({
-                url: this.props.reportedSpatial,
+            let mapSubmission = new FeatureLayer({
+                url: this.props.mapSubmission,
                 id: 0,
-                popupEnabled: this.props.latestRelease,
+                popupEnabled: this.props.mapReference,
                 title: "Submission",
                 opacity: 0.5,
                 minScale : 577790.554289,
@@ -102,7 +103,7 @@ class MapViewer extends React.Component {
                     type: "simple",
                     symbol: {
                         type: "simple-fill",
-                        color: "#fed100",
+                        color: UtilsData.COLORS.Yellow,
                         style: "solid",
                         outline: {
                             width: 1,
@@ -115,17 +116,17 @@ class MapViewer extends React.Component {
                     content: [ popupTemplate ]
                 }
             });
-            if(this.props.latestRelease){
-                layers.push(reportedSpatial);
+            if(this.props.mapReference){
+                layers.push(mapSubmission);
             }
 
             this.map = new Map({
-                basemap: this.props.latestRelease ? "gray-vector" : "osm",
+                basemap: this.props.mapReference ? "gray-vector" : "osm",
                 layers: layers
             });
 
             let siteLayer = new FeatureLayer({
-                url: this.props.lineageChangeType === "Deletion" || this.props.noGeometry ? this.props.latestRelease : this.props.reportedSpatial,
+                url: this.props.lineageChangeType === "Deletion" || this.props.noGeometry ? this.props.mapReference : this.props.mapSubmission,
                 id: 3,
                 popupEnabled: false,
                 listMode: "hide",
@@ -152,7 +153,7 @@ class MapViewer extends React.Component {
                     components: ["attribution"]
                 }
             }
-            if(!this.props.latestRelease){
+            if(!this.props.mapReference){
                 mapFeats["navigation"] = {
                     mouseWheelZoomEnabled: false,
                     browserTouchPanEnabled: false
@@ -163,7 +164,7 @@ class MapViewer extends React.Component {
 
             //Code to disable all events if required
             this.view.when(()=>{
-                if(!this.props.latestRelease){
+                if(!this.props.mapReference){
                     let stopEvtPropagation= (event) => {
                         event.stopPropagation();
                     }
@@ -200,7 +201,7 @@ class MapViewer extends React.Component {
             });
             
             this.setState({});
-            if(this.props.latestRelease){
+            if(this.props.mapReference){
                 this.zoom = new Zoom({
                     view: this.view
                 });
@@ -219,7 +220,8 @@ class MapViewer extends React.Component {
             } 
 
             this.view.popup.visibleElements={closeButton:false};
-            this.view.popup.dockOptions={buttonEnabled: false};
+            this.view.popup.dockEnabled = true;
+            this.view.popup.dockOptions={buttonEnabled: false, breakpoint: false, position: "bottom-right"};
             this.view.popup.defaultPopupTemplateEnabled = true;
             this.view.popup.autoOpenEnabled = true;
 
