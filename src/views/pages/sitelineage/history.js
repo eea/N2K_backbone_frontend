@@ -173,20 +173,20 @@ const Sitelineage = () => {
     let edges = [];
     let edgeStyles = {
       green:{
-        style: {stroke: "#4FC1C5"},
+        style: {stroke: UtilsData.COLORS.Blue},
         markerEnd: {
           type: MarkerType.Arrow,
-          color: "#4FC1C5"
+          color: UtilsData.COLORS.Blue
         },
         className: "green-edge",
         focusable: false,
         type: 'straight',
       },
       yellow: {
-        style: {stroke: "#FED100"},
+        style: {stroke: UtilsData.COLORS.Yellow},
         markerEnd: {
           type: MarkerType.Arrow,
-          color: "#FED100"
+          color: UtilsData.COLORS.Yellow
         },
         className: "yellow-edge",
         focusable: false,

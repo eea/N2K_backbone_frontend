@@ -377,8 +377,8 @@ export class ModalLineage extends Component {
                 siteCode={this.props.code}
                 version={this.props.version}
                 lineageChangeType={this.props.type}
-                latestRelease={ConfigData.LATEST_RELEASE}
-                reportedSpatial={ConfigData.REPORTED_SPATIAL}
+                mapReference={ConfigData.MAP_REFERENCE}
+                mapSubmission={ConfigData.MAP_SUBMISSION}
               />
             </CRow>
           }

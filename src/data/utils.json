@@ -50,7 +50,9 @@
     "White": "#ffffff",
     "Grey": "#e4e4e4",
     "Green": "#daf5d6",
-    "Red": "#f6cbcf"
+    "Red": "#f6cbcf",
+    "Yellow": "#fed100",
+    "Blue": "#4fc1c5"
   },
   "MESSAGE_TIMEOUT": 5000
 }
