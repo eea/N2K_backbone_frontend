@@ -243,7 +243,7 @@ const Sitechanges = () => {
                       </span>
                     }
                   </div>
-                  <CButton disabled={disabledSearchBtn} onClick={()=>{window.open("/#/sdf?sitecode="+selectOption.SiteCode, "_blank"); clearSearch()}}>
+                  <CButton disabled={disabledSearchBtn} onClick={()=>{window.open("/#/sdf?sitecode="+selectOption.SiteCode + "&version=" + selectOption.Version + "&type=reference", "_blank"); clearSearch()}}>
                     <i className="fa-solid fa-magnifying-glass"></i>
                   </CButton>
                   <></>

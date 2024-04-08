@@ -1,6 +1,5 @@
 import ConfigData from '../../../config.json';
 import ConfigSDF from './sdf_config.json';
-import DataSDF from './sdf_data.json';
 import React, { useState, useEffect } from 'react'
 import { AppHeader } from '../../../components/index'
 import {ReactComponent as NaturaLogo} from './../../../../src/assets/images/natura2000_logo.svg';
@@ -10,11 +9,8 @@ import {
   CCol,
   CButton,
   CContainer,
-  CNav,
-  CNavItem,
-  CNavLink,
+  CFormSelect,
   CTabContent,
-  CTabPane,
   CTable,
   CTableBody,
   CTableDataCell,
@@ -33,6 +29,9 @@ const SDFVisualization = () => {
   const [data, setData] = useState([]);
   const [errorLoading, setErrorLoading] = useState(false);
   const [siteCode, setSiteCode] = useState("");
+  const [version, setVersion] = useState("");
+  const [type, setType] = useState("");
+  const [types, setTypes] = useState([{"value":"reference", "name":"Reference"}, {"value":"submission", "name":"Submission"}]);
   const [showScrollBtn, setShowScrollBtn] = useState(false);
 
   useEffect(() => {
@@ -51,8 +50,12 @@ const SDFVisualization = () => {
   const getSiteCode = () => {
     let query = window.location.hash.split("?")[1];
     let params = new URLSearchParams(query);
-    let sitecode = params.get("sitecode")
-    setSiteCode(sitecode ? sitecode : "nodata"); 
+    let sitecode = params.get("sitecode");
+    let version = params.get("version");
+    let type = params.get("type");
+    setSiteCode(sitecode && version && type ? sitecode : "nodata");
+    setVersion(version);
+    setType(type);
   }
 
   const showMap = () => {
@@ -69,7 +72,14 @@ const SDFVisualization = () => {
   const loadData = () => {
     if(siteCode !=="" && !isLoading) {
       setIsLoading(true);
-      dl.fetch(ConfigData.GET_SDF_DATA+"?siteCode="+siteCode)
+      let url = ConfigData.GET_SDF_DATA;
+      if(type === "submission") {
+        url +="?siteCode=" + siteCode + "&version=" + version;
+      }
+      else {
+        url += "?siteCode=" + siteCode;
+      }
+      dl.fetch(url)
       .then(response =>response.json())
       .then(data => {
         if(data?.Success) {
@@ -143,6 +153,14 @@ const SDFVisualization = () => {
     loadData();
   }
 
+  const changeType = (value) => {
+    window.location.hash = "#/sdf?sitecode=" + siteCode  + "&version=" + version + "&type=" + value;
+    setSiteCode("");
+    setVersion("");
+    setType("");
+    setData([]);
+  }
+
   return (
     <div className="container--main min-vh-100">
       <CHeader className='header--custom'>
@@ -154,12 +172,24 @@ const SDFVisualization = () => {
       </CHeader>
       <CContainer fluid>
         <CRow className="p-4">
-          <CContainer>
+          <CCol>
             <div className="sdf-general">
-              <NaturaLogo/>
-              <h1>NATURA 2000 - STANDARD DATA FORM</h1>
+              <div className="sdf-head">
+                <NaturaLogo/>
+                <div>
+                  <h1>NATURA 2000 - STANDARD DATA FORM</h1>
+                  <b>{type.toUpperCase()}</b>
+                </div>
+              </div>
+              <div className="select--right">
+              <CFormSelect aria-label="Select type" className="form-select-reporting" value={type} onChange={(e) => {changeType(e.currentTarget.value)}}>
+                {
+                  types.map((e)=><option value={e.value} key={e.value}>{e.name}</option>)
+                }
+              </CFormSelect>
+              </div>
             </div>
-          </CContainer>
+          </CCol>
         </CRow>
       </CContainer>
       {(errorLoading && !isLoading) &&
