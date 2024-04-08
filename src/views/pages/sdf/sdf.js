@@ -63,7 +63,7 @@ const SDFVisualization = () => {
       <div className='sdf-map px-4 pb-5'>
         <MapViewer  
           siteCode={siteCode}
-          reportedSpatial={ConfigData.REPORTED_SPATIAL}
+          mapSubmission={type === "submission" ? ConfigData.MAP_SUBMISSION : ConfigData.MAP_REFERENCE}
         />
       </div>
     )

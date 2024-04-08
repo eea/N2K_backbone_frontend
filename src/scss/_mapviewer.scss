@@ -46,10 +46,18 @@
     opacity: 0.5;
     margin-left: 0.5rem;
     &.legend-color-0 {
-      background-color: #fed100;
+      background-color: $submission;
     }
     &.legend-color-1 {
-      background-color: #4fc1c5;
+      background-color: $reference;
+    }
+  }
+  .esri-popup {
+    &__content {
+      margin: 0 0.25rem 0.25rem;
+    }
+    .esri-popup__main-container {
+      width: 300px !important;
     }
   }
 }
