@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState, useRef} from 'react'
-import { AppFooter, AppHeader } from '../../../components/index'
+import { AppFooter, AppHeader, AppSidebar } from '../../../components/index'
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import Turnstone from 'turnstone';
 
@@ -12,8 +12,6 @@ import {
   CNav,
   CNavItem,
   CNavLink,
-  CSidebar,
-  CSidebarNav,
   CFormLabel,
   CFormSelect,
   CTabContent,
@@ -26,6 +24,7 @@ import {
 
 import { ConfirmationModal } from './components/ConfirmationModal';
 import ConfigData from '../../../config.json';
+import UtilsData from '../../../data/utils.json';
 import {DataLoader} from '../../../components/DataLoader';
 
 const xmlns = 'https://www.w3.org/2000/svg'
@@ -152,7 +151,7 @@ const Sitechanges = () => {
 
   const showErrorMessage = (message) => {
     setErrorMessage("Something went wrong: " + message);
-    setTimeout(() => {setErrorMessage('')}, ConfigData.MessageTimeout);
+    setTimeout(() => {setErrorMessage('')}, UtilsData.MESSAGE_TIMEOUT);
   }
 
   let selectedCodes = []
@@ -511,23 +510,11 @@ const Sitechanges = () => {
       <div className="container--main min-vh-100">
         <AppHeader page="sitechanges"/>
         <div className="content--wrapper">
-          <CSidebar className="sidebar--light">
-            <CSidebarNav>
-              <li className="nav-title">Site Changes</li>
-              <li className="nav-item">
-                <a className="nav-link active" href="/#/sitechanges/changes">
-                  <i className="fa-solid fa-bookmark"></i>
-                  Changes Management
-                </a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="/#/sitechanges/nochanges">
-                  <i className="fa-solid fa-bookmark"></i>
-                  No Changes
-                </a>
-              </li>
-            </CSidebarNav>
-          </CSidebar>
+          <AppSidebar
+            title="Site Changes"
+            options={UtilsData.SIDEBAR["sitechanges"]}
+            active="changes"
+          />
           <div className="main-content">
             <CContainer fluid>
               <div className="d-flex  justify-content-between px-0 p-3">

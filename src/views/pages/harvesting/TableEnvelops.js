@@ -2,6 +2,7 @@ import React, {useState, useEffect} from 'react'
 import { useTable, usePagination, useFilters,useGlobalFilter, useRowSelect, useAsyncDebounce, useSortBy, useExpanded } from 'react-table'
 import {matchSorter} from 'match-sorter'
 import ConfigData from '../../../config.json';
+import UtilsData from '../../../data/utils.json';
 import {
   CPagination,
   CPaginationItem,
@@ -12,7 +13,7 @@ import {
 } from '@coreui/react'
 import {DataLoader} from '../../../components/DataLoader';
 
-const confStatus = ConfigData.HARVESTING_STATUS;
+const confStatus = UtilsData.HARVESTING_STATUS;
 
 const IndeterminateCheckbox = React.forwardRef(
     ({ indeterminate, ...rest }, ref) => {
@@ -306,7 +307,7 @@ const IndeterminateCheckbox = React.forwardRef(
           accessor: 'Name',
           Cell: ({ row }) => (
             <>
-              {row.original.Name} {row.values.Status === "PreHarvested" && row.original.DataLoaded > 0 && <span className="badge badge--dataloaded ms-1">{row.original.DataLoaded} Incoming</span>}
+              {row.original.Country + " - " + row.original.Name} {row.values.Status === "PreHarvested" && row.original.DataLoaded > 0 && <span className="badge badge--dataloaded">{row.original.DataLoaded} Incoming</span>}
             </>
           ),
         },
