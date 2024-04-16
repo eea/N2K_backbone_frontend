@@ -86,7 +86,7 @@ const PendingCards = () => {
     pendingCountries.map((country) => {
       result.push(
         <CCol key={country.name + "Card"} xs={12} md={6} lg={4} xl={3}>
-          <a className="country-card-link" href={"/#/sitechanges/sitechanges?country=" + country.code}>
+          <a className="country-card-link" href={"/#/sitechanges/changes?country=" + country.code}>
             <CCard className="country-card">
               <div className="country-card-header">
                 <div className="country-card-left">
@@ -121,13 +121,16 @@ const PendingCards = () => {
   return (
     <>
       <div className="dashboard-title">
-        <h1 className="h1-main me-5">Countries</h1>
+        <h1 className="h1-main me-2">Countries</h1>
         {!isLoading && !errorsLoading && pendingCountriesData.length > 0 &&
-          <div>
-            <span className="badge badge--critical radio me-2"><b>{totalPendingCountriesCritical}</b> Critical</span>
-            <span className="badge badge--warning me-2"><b>{totalPendingCountriesWarning}</b> Warning</span>
-            <span className="badge badge--info me-2"><b>{totalPendingCountriesInfo}</b> Info</span>
-          </div>
+          <>
+            <span className="badge badge--all active me-4"><b>{pendingCountriesData.length}</b></span>
+            <div>
+              <span className="badge badge--critical me-2"><b>{totalPendingCountriesCritical}</b> Critical</span>
+              <span className="badge badge--warning me-2"><b>{totalPendingCountriesWarning}</b> Warning</span>
+              <span className="badge badge--info me-2"><b>{totalPendingCountriesInfo}</b> Info</span>
+            </div>
+          </>
         }
       </div>
       <div className="bg-white rounded-2 mb-5">

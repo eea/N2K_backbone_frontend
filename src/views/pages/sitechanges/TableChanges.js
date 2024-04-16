@@ -10,6 +10,7 @@ import {
 } from '@coreui/react'
 
 import ConfigData from '../../../config.json';
+import UtilsData from '../../../data/utils.json';
 
 import {matchSorter} from 'match-sorter'
 
@@ -347,7 +348,7 @@ const IndeterminateCheckbox = React.forwardRef(
     )
   }
   
-  function TableRSPag(props) {
+  function TableChanges(props) {
     const [modalItem, setModalItem] = useState({});
     const [modalVisible, setModalVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -648,7 +649,7 @@ const IndeterminateCheckbox = React.forwardRef(
               }
 
               return row.canExpand ? (
-                <DropdownSiteChanges actions={getContextActions(row, toggleMark)} siteCode={row.values.SiteCode} toggleMark={toggleMark}
+                <DropdownSiteChanges actions={getContextActions(row, toggleMark)} siteCode={row.values.SiteCode} version={row.original.Version} toggleMark={toggleMark}
                   referenceSiteCode={sdfSiteCode}/>
               ) : null
           }
@@ -745,7 +746,7 @@ const IndeterminateCheckbox = React.forwardRef(
               if(Object.keys(data.Data).length===0)
                 setChangesData("nodata");
               else {
-                data.Data.map(a => {let row = a; a.SiteType = ["SPA","SCI","SPA/SCI"][['A','B','C'].indexOf(a.SiteType)]; return row});
+                data.Data.map(a => {let row = a; a.SiteType = UtilsData.SITE_TYPES[a.SiteType]; return row});
                 setChangesData(data.Data);
               }
             }
@@ -830,4 +831,4 @@ const IndeterminateCheckbox = React.forwardRef(
   
   }
   
-export default TableRSPag
+export default TableChanges

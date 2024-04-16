@@ -1,4 +1,5 @@
 import ConfigData from '../../../config.json';
+import UtilsData from '../../../data/utils.json';
 import React, { Component, useState } from 'react';
 import '@coreui/icons/css/flag.min.css';
 import {
@@ -96,7 +97,7 @@ export class ModalRelease extends Component {
       }
       cards.push(
         <CCol key={card.Country + "Card"} xs={12} md={12} lg={6} xl={4}>
-          <a className="country-card-link" href={"/#/sitechanges/sitechanges?country=" + card.Country}>
+          <a className="country-card-link" href={"/#/sitechanges/changes?country=" + card.Country}>
             <CCard className="country-card">
                 <div className="country-card-header">
                     <div className="country-card-left">
@@ -287,7 +288,7 @@ export class ModalRelease extends Component {
     this.setState({message: text});
     setTimeout(() => {
       this.setState({message: null});
-    }, ConfigData.MessageTimeout);
+    }, UtilsData.MESSAGE_TIMEOUT);
   };
 
   createRelease(){

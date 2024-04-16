@@ -1,7 +1,8 @@
 import React, { lazy, useState, useRef } from 'react'
-import { AppFooter, AppHeader } from '../../../components/index'
+import { AppFooter, AppHeader, AppSidebar } from '../../../components/index'
 import TableLineage from './TableLineage';
 import ConfigData from '../../../config.json';
+import UtilsData from '../../../data/utils.json';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import Turnstone from 'turnstone';
 import {DataLoader} from '../../../components/DataLoader';
@@ -16,9 +17,7 @@ import {
   CRow,
   CCard,
   CFormLabel,
-  CFormSelect,
-  CSidebar,
-  CSidebarNav
+  CFormSelect
 } from '@coreui/react'
 
 const defaultCountry = () => {
@@ -174,20 +173,20 @@ const Sitelineage = () => {
     let edges = [];
     let edgeStyles = {
       green:{
-        style: {stroke: "#4FC1C5"},
+        style: {stroke: UtilsData.COLORS.Blue},
         markerEnd: {
           type: MarkerType.Arrow,
-          color: "#4FC1C5"
+          color: UtilsData.COLORS.Blue
         },
         className: "green-edge",
         focusable: false,
         type: 'straight',
       },
       yellow: {
-        style: {stroke: "#FED100"},
+        style: {stroke: UtilsData.COLORS.Yellow},
         markerEnd: {
           type: MarkerType.Arrow,
-          color: "#FED100"
+          color: UtilsData.COLORS.Yellow
         },
         className: "yellow-edge",
         focusable: false,
@@ -337,29 +336,11 @@ const Sitelineage = () => {
     <div className="container--main min-vh-100">
       <AppHeader page="sitelineage"/>
       <div className="content--wrapper">
-      <CSidebar className="sidebar--light">
-          <CSidebarNav>
-            <li className="nav-title">Site Lineage</li>
-            <li className="nav-item">
-              <a className="nav-link" href="/#/sitelineage/overview">
-                <i className="fa-solid fa-bookmark"></i>
-                Lineage Overview
-              </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link" href="/#/sitelineage/management">
-                <i className="fa-solid fa-bookmark"></i>
-                Lineage Management
-              </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link active" href="/#/sitelineage/history">
-                <i className="fa-solid fa-bookmark"></i>
-                Lineage History
-              </a>
-            </li>
-          </CSidebarNav>
-        </CSidebar>
+        <AppSidebar
+          title="Site Lineage"
+          options={UtilsData.SIDEBAR["sitelineage"]}
+          active="history"
+        />
         <div className="main-content">
           <CContainer fluid>
             <div className="d-flex justify-content-between py-3">

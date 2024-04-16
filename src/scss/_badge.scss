@@ -101,13 +101,13 @@
     }
     &.green {
       color: $black;
-      border-color: #4FC1C5;
-      background-color: #CAF1EE;
+      border-color: $reference;
+      background-color: $referencelight;
     }
     &.yellow {
       color: $black;
-      border-color: #FED100;
-      background-color: #FFF1B3;
+      border-color: $submission;
+      background-color: $submissionlight;
     }
     &.recode {
       border-color: $gray-500;

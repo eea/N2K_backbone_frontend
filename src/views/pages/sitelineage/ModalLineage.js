@@ -1,4 +1,5 @@
 import ConfigData from '../../../config.json';
+import UtilsData from '../../../data/utils.json';
 import React, { Component } from 'react';
 import Select from 'react-select';
 import {
@@ -8,7 +9,6 @@ import {
   CNav,
   CNavItem,
   CNavLink,
-  CSidebarNav,
   CTable,
   CTableBody,
   CTableDataCell,
@@ -145,6 +145,8 @@ export class ModalLineage extends Component {
         return "Area Geometry (ha)"
       if(v === "Length")
         return v + " (km)"
+      if(v === "Status")
+        return "Lineage Status"
       else
         return v.replace(/([A-Z])/g, ' $1')
     });
@@ -155,7 +157,7 @@ export class ModalLineage extends Component {
         <CTableRow key={"row_"+i}>
           {Object.entries(changes[i]).map(([k,v]) => {
             if(k == "SiteType")
-              return (<CTableDataCell key={k + "_" + v}> {["SPA","SCI","SPA/SCI"][['A','B','C'].indexOf(v)]} </CTableDataCell>) 
+              return (<CTableDataCell key={k + "_" + v}> {UtilsData.SITE_TYPES[v]} </CTableDataCell>) 
             else if(k !== "ReleaseDate")
               return (<CTableDataCell key={k + "_" + v}> {v} </CTableDataCell>) 
             })
@@ -375,8 +377,8 @@ export class ModalLineage extends Component {
                 siteCode={this.props.code}
                 version={this.props.version}
                 lineageChangeType={this.props.type}
-                latestRelease={ConfigData.LATEST_RELEASE}
-                reportedSpatial={ConfigData.REPORTED_SPATIAL}
+                mapReference={ConfigData.MAP_REFERENCE}
+                mapSubmission={ConfigData.MAP_SUBMISSION}
               />
             </CRow>
           }
@@ -420,7 +422,7 @@ export class ModalLineage extends Component {
           <CModalHeader closeButton={false}>
             <CModalTitle>
               {data.SiteCode ?? this.props.code} - {data.Name ??  this.props.name}
-              <span className="ms-2 fw-normal">({["SPA","SCI","SPA/SCI"][['A','B','C'].indexOf(data.SiteType)]})</span>
+              <span className="ms-2 fw-normal">({UtilsData.SITE_TYPES[data.SiteType]})</span>
               <span className="mx-2"></span>
               <span className="badge badge--fill default">Release date: {this.state.releaseDate !== "" ? this.state.releaseDate : "--/--/----"}</span>
             </CModalTitle>
@@ -449,7 +451,7 @@ export class ModalLineage extends Component {
                   Spatial Changes
                 </CNavLink>
               </CNavItem>
-              <CButton color="link" className="ms-auto" href={"/#/sitechanges/sitechanges?country=" + this.props.country + "&siteCode=" + this.state.data.SiteCode}>
+              <CButton color="link" className="ms-auto" href={"/#/sitechanges/changes?country=" + this.props.country + "&siteCode=" + this.state.data.SiteCode}>
                 <span>Review site CHANGES</span>
               </CButton>
             </CNav>

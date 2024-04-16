@@ -3,6 +3,7 @@ import { AppFooter, AppHeader } from '../../../components/index'
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import TablePeriod from './TablePeriod';
 import ConfigData from '../../../config.json';
+import UtilsData from '../../../data/utils.json';
 import {DataLoader} from '../../../components/DataLoader';
 
 import {
@@ -57,7 +58,7 @@ const ReportingPeriod = () => {
           text: null,
         }
       }));
-    }, ConfigData.MessageTimeout);
+    }, UtilsData.MESSAGE_TIMEOUT);
   };
 
   function updateModalValues(title, text, primaryButtonText, primaryButtonFunction, secondaryButtonText, secondaryButtonFunction, keepOpen) {
@@ -181,7 +182,7 @@ const ReportingPeriod = () => {
 
   const showErrorMessage = (message) => {
     setErrorMessage("Something went wrong: " + message);
-    setTimeout(() => {setErrorMessage('')}, ConfigData.MessageTimeout);
+    setTimeout(() => {setErrorMessage('')}, UtilsData.MESSAGE_TIMEOUT);
   }
 
   const sendRequest = (url,method,body,path) => {
