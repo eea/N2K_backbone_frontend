@@ -30,13 +30,13 @@ const Reports = () => {
         <AppSidebar
           title="Reports"
           options={UtilsData.SIDEBAR["reports"]}
-          active="status"
+          active="releasesoverview"
         />
         <div className="main-content">
           <CContainer fluid>
             <div className="d-flex justify-content-between py-3">
               <div className="page-title">
-                <h1 className="h1">Site Status</h1>
+                <h1 className="h1">Releases Dates Overview</h1>
               </div>
             </div>
             <CRow>
@@ -48,7 +48,7 @@ const Reports = () => {
                   scrolling="no"
                   width="100%"
                   height={height}
-                  src={ConfigData.TABLEAU_STATUS + "?:showAppBanner=false&:display_count=n&:showVizHome=n&:origin=viz_share_link&:embed=y&:host_url=https://tableau-public.discomap.eea.europa.eu/&:refresh=true"}
+                  src={ConfigData.TABLEAU_RELEASES_OVERVIEW + "?:showAppBanner=false&:display_count=n&:showVizHome=n&:origin=viz_share_link&:embed=y&:host_url=https://tableau-public.discomap.eea.europa.eu/&:refresh=true"}
                 >
                 </iframe>
               </CCol>

@@ -49,7 +49,7 @@ const Dashboard = () => {
                 </a>
               </div>
               <div className="col-md-6 col-xl-3">
-                <a href="/#/sitechanges/sitechanges">
+                <a href="/#/sitechanges/changes">
                   <CCard className="card-dashboard-new">
                     <CCardBody>
                       <div className="card-icon-new">
@@ -77,7 +77,7 @@ const Dashboard = () => {
                 </a>
               </div>
               <div className="col-md-6 col-xl-3">
-                <a href="/#/reports/releases">
+                <a href="/#/reports/releasesoverview">
                   <CCard className="card-dashboard-new">
                     <CCardBody>
                       <div className="card-icon-new">

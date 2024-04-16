@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import ConfigData from '../../../config.json';
+import UtilsData from '../../../data/utils.json';
 import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
 import {DataLoader} from '../../../components/DataLoader';
@@ -64,9 +65,9 @@ const SiteGraph = () => {
         chngRejected.push(data[i].NumRejected);
     }
     seriesData = [
-        { name: 'Pending', index: 1, data: chngPending, color: ConfigData.Colors.Grey },
-        { name: 'Accepted', index: 2, data: chngAccepted, color: ConfigData.Colors.Green },
-        { name: 'Rejected', index: 3, data: chngRejected, color: ConfigData.Colors.Red }
+        { name: 'Pending', index: 1, data: chngPending, color: UtilsData.COLORS.Grey },
+        { name: 'Accepted', index: 2, data: chngAccepted, color: UtilsData.COLORS.Green },
+        { name: 'Rejected', index: 3, data: chngRejected, color: UtilsData.COLORS.Red }
     ];
 
     countryList = changesCountriesData.map((e) => e.Country);

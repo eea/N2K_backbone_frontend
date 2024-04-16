@@ -27,6 +27,7 @@ import {
 } from '@coreui/react'
 
 import ConfigData from '../../../config.json';
+import UtilsData from '../../../data/utils.json';
 import {DataLoader} from '../../../components/DataLoader';
 import TextareaAutosize from 'react-textarea-autosize';
 import justificationRequiredImg from './../../../assets/images/exclamation.svg'
@@ -63,6 +64,7 @@ class ModalChanges extends Component {
       documents:[],
       showDetail: [],
       justificationRequired: false,
+      notValidDocument: "",
       errorLoading: false
     }
   }
@@ -111,11 +113,11 @@ class ModalChanges extends Component {
   renderValuesTable(changes, type) {
     const colorizeValue = (num) => {
       if (Number(num) > 0)
-        return ConfigData.Colors.Green
+        return UtilsData.COLORS.Green
       if (Number(num) < 0)
-        return ConfigData.Colors.Red
+        return UtilsData.COLORS.Red
       if (Number(num) == 0)
-        return ConfigData.Colors.White
+        return UtilsData.COLORS.White
     }
     changes = this.filteredValuesTable(changes);
     let heads = Object.keys(changes[0]).filter(v => v !== "ChangeId" && v !== "Fields");
@@ -394,7 +396,7 @@ class ModalChanges extends Component {
         // original name may be null until the backend part it's finished
         const name = d.OriginalName ?? d.Path;
         docs.push(
-          this.createDocumentElement(d.Id, name, d.Path, d.ImportDate, d.Username, target)
+          this.createDocumentElement(d.Id, name, d.ImportDate, d.Username, target)
         )
       })
     }
@@ -408,25 +410,24 @@ class ModalChanges extends Component {
     )
   }
 
-  createDocumentElement(id, name, path, date, user, level) {
+  createDocumentElement(id, name, date, user, level) {
     return (
       <div className="document--item" key={"docItem_" + id} id={"docItem_" + id} doc_id={id}>
         <div className="my-auto document--text">
-          <CImage src={documentImg} className="ico--md me-3"></CImage>
-          <span>{name?.replace(/^.*[\\\/]/, '')}</span>
+          <div className="document--file">
+            <CImage src={documentImg} className="ico--md me-3"></CImage>
+            <span>{name?.replace(/^.*[\\\/]/, '')}</span>
+          </div>
+          {(date || user) &&
+            <label className="comment--date" htmlFor={"docItem_" + id}>
+              {"Uploaded"
+              + (date && " on " + date.slice(0, 10).split('-').reverse().join('/'))
+              + (user && " by " + user)}
+            </label>
+          }
         </div>
         <div className="document--icons">
-          {(date || user) &&
-            <CTooltip
-              content={"Uploaded"
-                + (date && " on " + date.slice(0, 10).split('-').reverse().join('/'))
-                + (user && " by " + user)}>
-              <div className="btn-icon btn-hover">
-                <i className="fa-solid fa-circle-info"></i>
-              </div>
-            </CTooltip>
-          }
-          <CButton color="link" className="btn-link--dark" onClick={()=>{this.downloadAttachments(path, name)}}>
+          <CButton color="link" className="btn-link" onClick={()=>{this.downloadAttachments(id, name, level)}}>
             View
           </CButton>
         </div>
@@ -446,6 +447,11 @@ class ModalChanges extends Component {
               <CAlert color="danger">Error loading documents</CAlert>
               :
               <CCard className="document--list">
+                {this.state.notValidDocument &&
+                  <CAlert color="danger">
+                    {this.state.notValidDocument}
+                  </CAlert>
+                }
                 <div className="d-flex justify-content-between align-items-center pb-2">
                   <b>Country Level</b>
                 </div>
@@ -481,18 +487,36 @@ class ModalChanges extends Component {
     )
   }
 
-  downloadAttachments = (path, name) => {
-    fetch(path).then((response) => response.blob())
-    .then((blobresp) => {
-      var blob = new Blob([blobresp], {type: "octet/stream"});
-      var url = window.URL.createObjectURL(blob);
-      let link = document.createElement("a");
-      link.download = name;
-      link.href = url;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    });
+  downloadAttachments = (id, name, level) => {
+    let type = level === "site" ? 0 : 1;
+    this.dl.fetch(ConfigData.ATTACHMENTS_DOWNLOAD + "id=" + id + "&docuType=" + type)
+    .then(data => {
+      if(data?.ok) {
+        data.blob()
+        .then(blobresp => {
+          var blob = new Blob([blobresp], {type: "octet/stream"});
+          var url = window.URL.createObjectURL(blob);
+          let link = document.createElement("a");
+          link.download = name;
+          link.href = url;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        })
+      }
+      else {
+        this.showErrorMessage("document", "Error downloading file");
+      }
+    })
+  }
+
+  showErrorMessage(target, message) {
+    if (target === "document") {
+      this.setState({ notValidDocument: message });
+      setTimeout(() => {
+        this.setState({ notValidDocument: "" });
+      }, ConfigData.MessageTimeout);
+    }
   }
 
   renderGeometry() {
@@ -507,8 +531,8 @@ class ModalChanges extends Component {
               version={this.state.version}
               noGeometry={this.state.data?.Critical?.SiteInfo?.ChangesByCategory?.some(a => a.ChangeType === "No geometry reported")}
               lineageChangeType={this.state.data.lineageChangeType}
-              latestRelease={ConfigData.LATEST_RELEASE}
-              reportedSpatial={ConfigData.REPORTED_SPATIAL}
+              mapReference={ConfigData.MAP_REFERENCE}
+              mapSubmission={ConfigData.MAP_SUBMISSION}
             />
           </CRow>
         }
@@ -568,7 +592,7 @@ class ModalChanges extends Component {
             </CNavLink>
           </CNavItem>
           <div className="ms-auto">
-            <CButton color="link" href={"/#/sdf?sitecode=" + data.ReferenceSiteCode} target="_blank"
+            <CButton color="link" href={"/#/sdf?sitecode=" + data.ReferenceSiteCode + "&version=" + data.Version + "&type=reference"} target="_blank"
               className={!data.ReferenceSiteCode
                 || (this.props.lineageChangeType == "Deletion" && this.state.data.Status == "Accepted")
                 || (this.props.lineageChangeType == "Creation" && this.state.data.Status != "Accepted")

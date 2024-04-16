@@ -1,0 +1,58 @@
+{
+  "SIDEBAR": {
+    "harvesting": [
+      {"path": "/#/harvesting/incoming", "name":"Incoming", "option": "incoming"},
+      {"path": "/#/harvesting/ready", "name":"Ready to Use", "option": "ready"},
+      {"path": "/#/harvesting/progress", "name":"In Progress", "option": "progress"},
+      {"path": "/#/harvesting/processed", "name":"Processed", "option": "processed"},
+      {"path": "/#/harvesting/all", "name":"All", "option": "all"}
+    ],
+    "sitechanges": [
+      {"path": "/#/sitechanges/changes", "name":"Changes Management", "option": "changes"},
+      {"path": "/#/sitechanges/nochanges", "name":"No Changes", "option": "nochanges"}
+    ],
+    "releases": [
+      {"path": "/#/releases/management", "name":"Release Management", "option": "management"},
+      {"path": "/#/releases/documentation", "name":"Release Documentation", "option": "documentation"},
+      {"path": "/#/releases/comparer", "name":"Release Comparer", "option": "comparer"},
+      {"path": "/#/releases/siteeditionoverview", "name":"Site Edition Overview", "option": "siteeditionoverview"},
+      {"path": "/#/releases/siteedition", "name":"Site Edition", "option": "siteedition"},
+      {"path": "/#/releases/unionlists", "name":"Union Lists", "option": "unionlists"}
+    ],
+    "sitelineage": [
+      {"path": "/#/sitelineage/overview", "name":"Lineage Overview", "option": "overview"},
+      {"path": "/#/sitelineage/management", "name":"Lineage Management", "option": "management"},
+      {"path": "/#/sitelineage/history", "name":"Lineage History", "option": "history"}
+    ],
+    "reports": [
+      {"path": "/#/reports/releasesoverview", "name":"Releases Dates Overview", "option": "releasesoverview"},
+      {"path": "/#/reports/releases", "name":"Releases Dates", "option": "releases"},
+      {"path": "/#/reports/sites", "name":"Reference Sites Details", "option": "sites"},
+      {"path": "/#/reports/status", "name":"Site Status", "option": "status"},
+      {"path": "/#/reports/manual", "name":"Manual Updates", "option": "manual"},
+      {"path": "/#/reports/unionlists", "name":"Union Lists Changes", "option": "unionlists"}
+    ]
+  },
+  "SITE_TYPES": {
+    "A": "SPA",
+    "B": "SCI",
+    "C": "SPA/SCI"
+  },
+  "ACCEPTED_DOCUMENT_FORMATS": ".pdf, .doc, .docx, .xls, .xlsx, .txt, .tif, .json, .kml, .gml, .xml, .zip, .7z",
+  "HARVESTING_STATUS": {
+    "DataLoaded": "Incoming",
+    "PreHarvested": "Ready to Use",
+    "Harvested": "In Progress",
+    "Closed": "Completed",
+    "Discarded": "Discarded"
+  },
+  "COLORS": {
+    "White": "#ffffff",
+    "Grey": "#e4e4e4",
+    "Green": "#daf5d6",
+    "Red": "#f6cbcf",
+    "Yellow": "#fed100",
+    "Blue": "#4fc1c5"
+  },
+  "MESSAGE_TIMEOUT": 5000
+}
