@@ -1,44 +1,10 @@
-import { useState, useEffect } from 'react';
-import ConfigData from '../../../config.json';
 import { CAlert, CRow, CCol, CCard } from '@coreui/react';
 import '@coreui/icons/css/flag.min.css';
-import { DataLoader } from '../../../components/DataLoader';
 
-const PendingCards = () => {
-  const [pendingCountriesData, setPendingCountriesData] = useState([]);
-  const [pendingSitesData, setPendindSitesData] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorsLoading, setErrorsLoading] = useState(false);
-
-  let dl = new (DataLoader);
-
-  useEffect(() => {
-    loadData();
-  }, [])
-
-  const loadData = (() => {
-    let promises = [];
-    setIsLoading(true);
-    promises.push(dl.fetch(ConfigData.GET_PENDING_LEVEL)
-      .then(response => response.json())
-      .then(data => {
-        if (data?.Success) {
-          data.Data.sort((a, b) => a.Country.localeCompare(b.Country));
-          setPendingCountriesData(data.Data);
-        } else { setErrorsLoading(true) }
-      }));
-    promises.push(dl.fetch(ConfigData.GET_SITE_LEVEL + '?status=Pending')
-      .then(response => response.json())
-      .then(data => {
-        if (data?.Success) {
-          setPendindSitesData(data.Data);
-        } else { setErrorsLoading(true) }
-      }));
-    Promise.all(promises).then(d => setIsLoading(false));
-  })
+const PendingCards = (props) => {
 
   const getPendingCountries = () => {
-    return pendingCountriesData.map((c) => ({
+    return props.countriesPendingData.map((c) => ({
       name: c.Country,
       code: c.Code,
       pendingInfo: c.NumInfo,
@@ -51,7 +17,7 @@ const PendingCards = () => {
   }
 
   const getPendingSites = () => {
-    return pendingSitesData.map((c) => ({
+    return props.sitesPendingData.map((c) => ({
       name: c.Country,
       code: c.Code,
       num: c.ModifiedSites,
@@ -121,30 +87,34 @@ const PendingCards = () => {
   return (
     <>
       <div className="dashboard-title">
-        <h1 className="h1-main me-5">Countries</h1>
-        {!isLoading && !errorsLoading && pendingCountriesData.length > 0 &&
-          <div>
-            <span className="badge badge--critical radio me-2"><b>{totalPendingCountriesCritical}</b> Critical</span>
-            <span className="badge badge--warning me-2"><b>{totalPendingCountriesWarning}</b> Warning</span>
-            <span className="badge badge--info me-2"><b>{totalPendingCountriesInfo}</b> Info</span>
-          </div>
+        <h1 className="h1-main me-2">Countries</h1>
+        {!props.isLoading && !props.errorsLoading && props.countriesPendingData.length > 0 &&
+          <>
+            <span className="badge badge--all active me-4"><b>{props.countriesPendingData.length}</b></span>
+            <div>
+              <span className="badge badge--critical me-2"><b>{totalPendingCountriesCritical}</b> Critical</span>
+              <span className="badge badge--warning me-2"><b>{totalPendingCountriesWarning}</b> Warning</span>
+              <span className="badge badge--info me-2"><b>{totalPendingCountriesInfo}</b> Info</span>
+            </div>
+          </>
         }
       </div>
-      <div className="bg-white rounded-2 mb-5">
+      <div className={"container-card-dashboard" + (!props.isLoading && !props.errorsLoading && props.countriesPendingData.length !== 0 ? " noborder" : "") + " mb-5" }>
         <CRow className="grid">
-          {isLoading ?
-            <div className="container-card-dashboard">
+          {props.isLoading ?
+            
+            <div className="bg-white rounded-2">
               <em className="loading-container">Loading...</em>
             </div>
-            : errorsLoading ? <></> : (pendingCountriesData.length === 0 ?
-              <div className="container-card-dashboard">
+            : props.errorsLoading ? <></> : (props.countriesPendingData.length === 0 ?
+              <div className="bg-white rounded-2">
                 <div className="nodata-container"><em>No Data</em></div>
               </div>
               : cards())
           }
-          {errorsLoading &&
+          {props.errorsLoading &&
             <div>
-              <CAlert color="danger">Error loading countries data</CAlert>
+              <CAlert color="danger m-0">Error loading countries data</CAlert>
             </div>
           }
         </CRow>
