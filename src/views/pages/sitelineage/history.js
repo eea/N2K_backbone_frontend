@@ -51,6 +51,7 @@ const Sitelineage = () => {
         let countriesList = [];
         if(data.Data.length > 0) {
           setLoadingCountries(false);
+          data.Data.sort((a,b) => a.Country > b.Country)
           for(let i in data.Data){
             countriesList.push({name:data.Data[i].Country,code:data.Data[i].Code});
           }
