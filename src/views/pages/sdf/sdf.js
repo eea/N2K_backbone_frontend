@@ -469,7 +469,7 @@ const sectionsContent = (activekey, data) => {
       if(Array.isArray(value)) {
         value = value.map(a=>{let b = {}; Object.keys(a).forEach(key => b[labels[key]] = a[key] ? (isNaN(a[key]) && !isNaN(Date.parse(a[key])) ? formatDate(a[key]) : a[key]) : a[key]); return b});
       }
-      else if (typeof value === 'object') {
+      else if (typeof value === 'object' && type !== "double-table") {
         let b = {};
         value = Object.keys(value).forEach(key => b[labels[key]] = value[key] ? (isNaN(value[key]) && !isNaN(Date.parse(value[key])) ? formatDate(value[key]) : value[key]) : value[key]);
         value = b;
