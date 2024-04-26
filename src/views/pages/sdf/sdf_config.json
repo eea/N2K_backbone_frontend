@@ -131,7 +131,7 @@
   "GeneralCharacter": {
     "HabitatClass": "Habitat Class",
     "Code": "Code",
-    "Cover": "Cover [ha]"
+    "Cover": "Cover [%]"
   },
   "NegativeThreats": {
     "Rank": "Rank",
@@ -166,7 +166,7 @@
   },
   "DesignationTypes": {
     "Code": "Code",
-    "Cover": "Cover [ha]"
+    "Cover": "Cover [%]"
   },
   "RelationSites": {
     "DesignationLevel": "Designation Level",

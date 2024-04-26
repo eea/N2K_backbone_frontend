@@ -374,7 +374,7 @@ const sectionsContent = (activekey, data) => {
             value = field[1];
             value = value.map(obj => ({"HabitatClass": ConfigSDF.HabitatClasses[obj.Code], ...obj}));
             let total = value.map(a => a["Cover"]).reduce((a, b) => a + b, 0);
-            value.push({"HabitatClass":"Total Habitat Code", "Code":"","Cover":total});
+            value.push({"HabitatClass":"Total Habitat Cover", "Code":"","Cover":total});
             type = "table";
             break;
           case "Quality":
