@@ -1,7 +1,6 @@
 import React, {useState, useEffect} from 'react'
 import { useTable, usePagination, useFilters,useGlobalFilter, useRowSelect, useAsyncDebounce, useSortBy, useExpanded } from 'react-table'
 import {matchSorter} from 'match-sorter'
-import ConfigData from '../../../config.json';
 import {
   CPagination,
   CPaginationItem,
@@ -10,9 +9,6 @@ import {
   CDropdownMenu,
   CDropdownItem,
 } from '@coreui/react'
-import {DataLoader} from '../../../components/DataLoader';
-
-const confStatus = ConfigData.HARVESTING_STATUS;
 
   function DefaultColumnFilter({
     column: { filterValue, preFilteredRows, setFilter },

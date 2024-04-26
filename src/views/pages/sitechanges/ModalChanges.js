@@ -1,4 +1,5 @@
 import ConfigData from '../../../config.json';
+import UtilsData from '../../../data/utils.json';
 import React, { Component } from 'react';
 import Select from 'react-select';
 import {
@@ -149,25 +150,25 @@ export class ModalChanges extends Component {
       this.setState({ notValidComment: message });
       setTimeout(() => {
         this.setState({ notValidComment: "" });
-      }, ConfigData.MessageTimeout);
+      }, UtilsData.MESSAGE_TIMEOUT);
     }
     else if (target === "document") {
       this.setState({ notValidDocument: message });
       setTimeout(() => {
         this.setState({ notValidDocument: "" });
-      }, ConfigData.MessageTimeout);
+      }, UtilsData.MESSAGE_TIMEOUT);
     }
     else if (target === "fields") {
       this.setState({ notValidField: message });
       setTimeout(() => {
         this.setState({ notValidField: "" });
-      }, ConfigData.MessageTimeout);
+      }, UtilsData.MESSAGE_TIMEOUT);
     }
     else if (target === "general") {
       this.setState({ generalError: message });
       setTimeout(() => {
         this.setState({ generalError: "" });
-      }, ConfigData.MessageTimeout);
+      }, UtilsData.MESSAGE_TIMEOUT);
     }
   }
 
@@ -319,7 +320,7 @@ export class ModalChanges extends Component {
   }
 
   changeHandler(e) {
-    let formats = ConfigData.ACCEPTED_DOCUMENT_FORMATS;
+    let formats = UtilsData.ACCEPTED_DOCUMENT_FORMATS;
     let file = e.currentTarget.closest("input").value;
     let extension = file.substring(file.lastIndexOf('.'), file.length) || file;
     if (formats.includes(extension)) {
@@ -327,7 +328,7 @@ export class ModalChanges extends Component {
     }
     else {
       e.currentTarget.closest("#uploadBtn").value = "";
-      this.showErrorMessage("document", "File not valid, use a valid format: " + ConfigData.ACCEPTED_DOCUMENT_FORMATS);
+      this.showErrorMessage("document", "File not valid, use a valid format: " + UtilsData.ACCEPTED_DOCUMENT_FORMATS);
     }
   }
 
@@ -430,11 +431,11 @@ export class ModalChanges extends Component {
   renderValuesTable(changes, type) {
     const colorizeValue = (num) => {
       if (Number(num) > 0)
-        return ConfigData.Colors.Green
+        return UtilsData.COLORS.Green
       if (Number(num) < 0)
-        return ConfigData.Colors.Red
+        return UtilsData.COLORS.Red
       if (Number(num) == 0)
-        return ConfigData.Colors.White
+        return UtilsData.COLORS.White
     }
     changes = this.filteredValuesTable(changes);
     let heads = Object.keys(changes[0]).filter(v => v !== "ChangeId" && v !== "Fields");
@@ -760,7 +761,7 @@ export class ModalChanges extends Component {
           <label htmlFor="uploadBtn">
             Select file
           </label>
-          <input id="uploadBtn" type="file" name="Files" onChange={(e) => this.changeHandler(e)} accept={ConfigData.ACCEPTED_DOCUMENT_FORMATS} />
+          <input id="uploadBtn" type="file" name="Files" onChange={(e) => this.changeHandler(e)} accept={UtilsData.ACCEPTED_DOCUMENT_FORMATS} />
           {this.state.isSelected ? (
             <input id="uploadFile" placeholder={this.state.selectedFile.name} disabled="disabled" />
           ) : (<input id="uploadFile" placeholder="No file selected" disabled="disabled" />)}
@@ -928,8 +929,8 @@ export class ModalChanges extends Component {
               version={this.props.version}
               noGeometry={this.state.data?.Critical?.SiteInfo?.ChangesByCategory?.some(a => a.ChangeType==="No geometry reported")}
               lineageChangeType={this.props.lineageChangeType}
-              latestRelease={ConfigData.LATEST_RELEASE}
-              reportedSpatial={ConfigData.REPORTED_SPATIAL}
+              mapReference={ConfigData.MAP_REFERENCE}
+              mapSubmission={ConfigData.MAP_SUBMISSION}
             />
           </CRow>
         }
@@ -1435,7 +1436,7 @@ export class ModalChanges extends Component {
                 </CNavLink>
               </CNavItem>
               <div className="ms-auto">
-                <CButton color="link" href={"/#/sdf?sitecode=" + sdfSiteCode} target="_blank"
+                <CButton color="link" href={"/#/sdf?sitecode=" + sdfSiteCode  + "&version=" + data.Version + "&type=reference"} target="_blank"
                   className={sdfSiteCode == null ? "disabled" : ""}>
                   <i className="fas fa-arrow-up-right-from-square me-2"></i>
                   SDF
@@ -1488,7 +1489,7 @@ export class ModalChanges extends Component {
     this.setState({ showCopyTooltip: true });
     setTimeout(() => {
       this.setState({ showCopyTooltip: false });
-    }, ConfigData.MessageTimeout);
+    }, UtilsData.MESSAGE_TIMEOUT);
   }
 
   renderData() {
