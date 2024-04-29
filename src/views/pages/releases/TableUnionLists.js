@@ -2,6 +2,7 @@ import React, {useState, useEffect} from 'react'
 import { useTable, usePagination, useFilters,useGlobalFilter, useRowSelect, useAsyncDebounce, useSortBy, useExpanded } from 'react-table'
 import {matchSorter} from 'match-sorter'
 import ConfigData from '../../../config.json';
+import UtilsData from '../../../data/utils.json';
 
   function DefaultColumnFilter({
     column: { filterValue, setFilter },
@@ -25,9 +26,9 @@ import ConfigData from '../../../config.json';
 
   function getRowColor(change) {
     if(change === "ADDED")
-      return ConfigData.Colors.Green;
+      return UtilsData.COLORS.Green;
     else if(change === "DELETED")
-      return ConfigData.Colors.Red;
+      return UtilsData.COLORS.Red;
     else
       return;
   }
@@ -36,13 +37,13 @@ import ConfigData from '../../../config.json';
     if(cell.row.original.Changes !== "ADDED" && cell.row.original.Changes !== "DELETED" && cell.value?.Change !== undefined && cell.value?.Change !== null) {
       let value = cell.value.Change;
       if(value === "AREA_INCREASED" || value === "LENGTH_INCREASED") {
-        return ConfigData.Colors.Green;
+        return UtilsData.COLORS.Green;
       }
       else if(value === "AREA_DECREASED" || value === "LENGTH_DECREASED") {
-        return ConfigData.Colors.Red;
+        return UtilsData.COLORS.Red;
       }
       else if(value.includes("SITENAME") || value.includes("PRIORITY") || value.includes("AREA") || value.includes("LENGTH") || value.includes("LATITUDE") || value.includes("LONGITUDE")) {
-        return ConfigData.Colors.Red;
+        return UtilsData.COLORS.Red;
       }
     }
   }

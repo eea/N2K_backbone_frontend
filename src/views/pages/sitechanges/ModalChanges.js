@@ -1,4 +1,5 @@
 import ConfigData from '../../../config.json';
+import UtilsData from '../../../data/utils.json';
 import React, { Component } from 'react';
 import Select from 'react-select';
 import {
@@ -149,25 +150,25 @@ export class ModalChanges extends Component {
       this.setState({ notValidComment: message });
       setTimeout(() => {
         this.setState({ notValidComment: "" });
-      }, ConfigData.MessageTimeout);
+      }, UtilsData.MESSAGE_TIMEOUT);
     }
     else if (target === "document") {
       this.setState({ notValidDocument: message });
       setTimeout(() => {
         this.setState({ notValidDocument: "" });
-      }, ConfigData.MessageTimeout);
+      }, UtilsData.MESSAGE_TIMEOUT);
     }
     else if (target === "fields") {
       this.setState({ notValidField: message });
       setTimeout(() => {
         this.setState({ notValidField: "" });
-      }, ConfigData.MessageTimeout);
+      }, UtilsData.MESSAGE_TIMEOUT);
     }
     else if (target === "general") {
       this.setState({ generalError: message });
       setTimeout(() => {
         this.setState({ generalError: "" });
-      }, ConfigData.MessageTimeout);
+      }, UtilsData.MESSAGE_TIMEOUT);
     }
   }
 
@@ -319,7 +320,7 @@ export class ModalChanges extends Component {
   }
 
   changeHandler(e) {
-    let formats = ConfigData.ACCEPTED_DOCUMENT_FORMATS;
+    let formats = UtilsData.ACCEPTED_DOCUMENT_FORMATS;
     let file = e.currentTarget.closest("input").value;
     let extension = file.substring(file.lastIndexOf('.'), file.length) || file;
     if (formats.includes(extension)) {
@@ -327,7 +328,7 @@ export class ModalChanges extends Component {
     }
     else {
       e.currentTarget.closest("#uploadBtn").value = "";
-      this.showErrorMessage("document", "File not valid, use a valid format: " + ConfigData.ACCEPTED_DOCUMENT_FORMATS);
+      this.showErrorMessage("document", "File not valid, use a valid format: " + UtilsData.ACCEPTED_DOCUMENT_FORMATS);
     }
   }
 
@@ -430,11 +431,11 @@ export class ModalChanges extends Component {
   renderValuesTable(changes, type) {
     const colorizeValue = (num) => {
       if (Number(num) > 0)
-        return ConfigData.Colors.Green
+        return UtilsData.COLORS.Green
       if (Number(num) < 0)
-        return ConfigData.Colors.Red
+        return UtilsData.COLORS.Red
       if (Number(num) == 0)
-        return ConfigData.Colors.White
+        return UtilsData.COLORS.White
     }
     changes = this.filteredValuesTable(changes);
     let heads = Object.keys(changes[0]).filter(v => v !== "ChangeId" && v !== "Fields");
@@ -760,7 +761,7 @@ export class ModalChanges extends Component {
           <label htmlFor="uploadBtn">
             Select file
           </label>
-          <input id="uploadBtn" type="file" name="Files" onChange={(e) => this.changeHandler(e)} accept={ConfigData.ACCEPTED_DOCUMENT_FORMATS} />
+          <input id="uploadBtn" type="file" name="Files" onChange={(e) => this.changeHandler(e)} accept={UtilsData.ACCEPTED_DOCUMENT_FORMATS} />
           {this.state.isSelected ? (
             <input id="uploadFile" placeholder={this.state.selectedFile.name} disabled="disabled" />
           ) : (<input id="uploadFile" placeholder="No file selected" disabled="disabled" />)}
@@ -928,8 +929,8 @@ export class ModalChanges extends Component {
               version={this.props.version}
               noGeometry={this.state.data?.Critical?.SiteInfo?.ChangesByCategory?.some(a => a.ChangeType==="No geometry reported")}
               lineageChangeType={this.props.lineageChangeType}
-              latestRelease={ConfigData.LATEST_RELEASE}
-              reportedSpatial={ConfigData.REPORTED_SPATIAL}
+              mapReference={ConfigData.MAP_REFERENCE}
+              mapSubmission={ConfigData.MAP_SUBMISSION}
             />
           </CRow>
         }
@@ -1336,7 +1337,12 @@ export class ModalChanges extends Component {
             }
             body[field] = value;
           }
-          this.setState({ fields: body, fieldChanged: false, updatingData: false });
+          this.getCurrentVersion().then(version => {
+            this.versionChanged = true;
+            this.currentVersion = version;
+            this.resetLoading();
+            this.setState({ data: {}, fields: {}, loading: true, fieldChanged: false, updatingData: false });
+          })
         }
         else {
           this.showErrorMessage("fields", "Something went wrong");
@@ -1435,7 +1441,7 @@ export class ModalChanges extends Component {
                 </CNavLink>
               </CNavItem>
               <div className="ms-auto">
-                <CButton color="link" href={"/#/sdf?sitecode=" + sdfSiteCode} target="_blank"
+                <CButton color="link" href={"/#/sdf?sitecode=" + sdfSiteCode  + "&version=" + data.Version + "&type=reference"} target="_blank"
                   className={sdfSiteCode == null ? "disabled" : ""}>
                   <i className="fas fa-arrow-up-right-from-square me-2"></i>
                   SDF
@@ -1483,12 +1489,12 @@ export class ModalChanges extends Component {
   }
 
   copyLink() {
-    let link = window.location.origin + "/#/sharesite?sitecode=" + this.props.item + "&version=" + this.props.version;
+    let link = window.location.origin + "/#/sharesite?sitecode=" + this.props.item + "&version=" +(this.versionChanged ? this.currentVersion : this.props.version);
     navigator.clipboard.writeText(link);
     this.setState({ showCopyTooltip: true });
     setTimeout(() => {
       this.setState({ showCopyTooltip: false });
-    }, ConfigData.MessageTimeout);
+    }, UtilsData.MESSAGE_TIMEOUT);
   }
 
   renderData() {
@@ -1568,7 +1574,7 @@ export class ModalChanges extends Component {
   loadComments() {
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)) {
       this.isLoadingComments = true;
-      this.dl.fetch(ConfigData.GET_SITE_COMMENTS + `siteCode=${this.props.item}&version=${this.props.version}`)
+      this.dl.fetch(ConfigData.GET_SITE_COMMENTS + `siteCode=${this.props.item}&version=${this.versionChanged ? this.currentVersion : this.props.version}`)
         .then(response => {
           if (response.status === 200)
             return response.json();
@@ -1593,7 +1599,7 @@ export class ModalChanges extends Component {
   loadDocuments() {
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)) {
       this.isLoadingDocuments = true;
-      this.dl.fetch(ConfigData.GET_ATTACHED_FILES + `siteCode=${this.props.item}&version=${this.props.version}`)
+      this.dl.fetch(ConfigData.GET_ATTACHED_FILES + `siteCode=${this.props.item}&version=${this.versionChanged ? this.currentVersion : this.props.version}`)
         .then(response => {
           if (response.status === 200)
             return response.json();
@@ -1692,12 +1698,12 @@ export class ModalChanges extends Component {
     }
     this.props.updateModalValues("Accept Changes",
       "This will accept all the site changes" + (this.state.data.AffectedSites ? ", including lineage changes. Those sites related to this by lineage changes will also be accepted: " + this.state.data.AffectedSites : ""),
-      "Continue", () => this.acceptChanges()?.catch(e => {this.showErrorMessage("general", "Error accepting changes"); console.log(e)}),
+      "Continue", () => this.acceptChanges({"SiteCode": this.props.item, "Version": this.versionChanged ? this.currentVersion : this.props.version})?.catch(e => {this.showErrorMessage("general", "Error accepting changes"); console.log(e)}),
       "Cancel", () => { this.changingStatus = false });
   }
 
-  acceptChanges() {
-    return this.props.accept()
+  acceptChanges(changes) {
+    return this.props.accept(changes)
       .then((data) => {
         this.changingStatus = false;
         if (data?.Success) {
@@ -1716,12 +1722,12 @@ export class ModalChanges extends Component {
     }
     this.props.updateModalValues("Reject Changes",
       "This will reject all the site changes" + (this.state.data.AffectedSites ? ", including lineage changes. Those sites related to this by lineage changes will also be rejected: " + this.state.data.AffectedSites : ""),
-      "Continue", () => this.rejectChanges()?.catch(e => {this.showErrorMessage("general", "Error rejecting changes"); console.log(e)}),
+      "Continue", () => this.rejectChanges({"SiteCode": this.props.item, "Version": this.versionChanged ? this.currentVersion : this.props.version})?.catch(e => {this.showErrorMessage("general", "Error rejecting changes"); console.log(e)}),
       "Cancel", () => { this.changingStatus = false })
   }
 
-  rejectChanges() {
-    return this.props.reject()
+  rejectChanges(changes) {
+    return this.props.reject(changes)
       .then(data => {
         this.changingStatus = false;
         if (data?.Success) {
@@ -1780,7 +1786,7 @@ export class ModalChanges extends Component {
           })
         })
     } else {
-      return this.props.backToPending(this.props.version)
+      return this.props.backToPending(this.versionChanged ? this.currentVersion : this.props.version)
         .then((data) => {
           controlResult(data);
         })

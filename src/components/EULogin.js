@@ -81,7 +81,7 @@ export class EULogin {
 
     generateLoginUrl() {	
         var codeChallenge = this.base64URL(CryptoJS.SHA256(this.codeVerifier));
-        let redirectionUrl = encodeURIComponent(document.location.origin.replace("https://redneckedswan", "http://redneckedswan").replace(/\//g, "##"));
+        let redirectionUrl = encodeURIComponent(document.location.origin.replace(/\//g, "##"));
         var cUrl = ConfigData.EULoginServiceUrl + "EULogin/GetLoginUrlByCodeChallenge/redirectionUrl=" + 
             redirectionUrl +"&code_challenge=" + codeChallenge;
 
@@ -111,7 +111,7 @@ export class EULogin {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                "RedirectionUrl": document.location.origin.replace("https://redneckedswan", "http://redneckedswan"),
+                "RedirectionUrl": document.location.origin,
                 "Code": localStorage.getItem("code"),
                 "Code_Verifier": localStorage.getItem("codeVerifier")
             }),
@@ -133,7 +133,7 @@ export class EULogin {
     }
 
     static logout() {
-        let redirectionUrl = document.location.origin.replace("https://redneckedswan", "http://redneckedswan");
+        let redirectionUrl = document.location.origin;
         
         var cUrl =  ConfigData.EULogoutURL + "?id_token_hint=" + localStorage.getItem("token") + 
                     "&state=loggout&post_logout_redirect_uri=" + redirectionUrl

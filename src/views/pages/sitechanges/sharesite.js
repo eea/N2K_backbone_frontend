@@ -27,6 +27,7 @@ import {
 } from '@coreui/react'
 
 import ConfigData from '../../../config.json';
+import UtilsData from '../../../data/utils.json';
 import {DataLoader} from '../../../components/DataLoader';
 import TextareaAutosize from 'react-textarea-autosize';
 import justificationRequiredImg from './../../../assets/images/exclamation.svg'
@@ -112,11 +113,11 @@ class ModalChanges extends Component {
   renderValuesTable(changes, type) {
     const colorizeValue = (num) => {
       if (Number(num) > 0)
-        return ConfigData.Colors.Green
+        return UtilsData.COLORS.Green
       if (Number(num) < 0)
-        return ConfigData.Colors.Red
+        return UtilsData.COLORS.Red
       if (Number(num) == 0)
-        return ConfigData.Colors.White
+        return UtilsData.COLORS.White
     }
     changes = this.filteredValuesTable(changes);
     let heads = Object.keys(changes[0]).filter(v => v !== "ChangeId" && v !== "Fields");
@@ -530,8 +531,8 @@ class ModalChanges extends Component {
               version={this.state.version}
               noGeometry={this.state.data?.Critical?.SiteInfo?.ChangesByCategory?.some(a => a.ChangeType === "No geometry reported")}
               lineageChangeType={this.state.data.lineageChangeType}
-              latestRelease={ConfigData.LATEST_RELEASE}
-              reportedSpatial={ConfigData.REPORTED_SPATIAL}
+              mapReference={ConfigData.MAP_REFERENCE}
+              mapSubmission={ConfigData.MAP_SUBMISSION}
             />
           </CRow>
         }
@@ -591,7 +592,7 @@ class ModalChanges extends Component {
             </CNavLink>
           </CNavItem>
           <div className="ms-auto">
-            <CButton color="link" href={"/#/sdf?sitecode=" + data.ReferenceSiteCode} target="_blank"
+            <CButton color="link" href={"/#/sdf?sitecode=" + data.ReferenceSiteCode + "&version=" + data.Version + "&type=reference"} target="_blank"
               className={!data.ReferenceSiteCode
                 || (this.props.lineageChangeType == "Deletion" && this.state.data.Status == "Accepted")
                 || (this.props.lineageChangeType == "Creation" && this.state.data.Status != "Accepted")
