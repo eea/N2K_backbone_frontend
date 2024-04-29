@@ -28,8 +28,12 @@
     "Explanations": "Explanations"
   },
   "Region": {
-    "NUTSLevel2Code": "NUTS level 2 code",
+    "NUTSLevel2Code": "NUTS Level 2 Code",
     "RegionName": "Region Name"
+  },
+  "BiogeographicalRegions": {
+    "Name": "Name",
+    "Value": "Cover [%]"
   },
   "HabitatTypess": {
     "1":"Coastal and halophytic habitats",

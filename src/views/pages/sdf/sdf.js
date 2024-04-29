@@ -332,12 +332,12 @@ const sectionsContent = (activekey, data) => {
           case "Region":
             title = "Administrative region code and name";
             value = field[1];
-            type = "array";
+            type = "table";
             break;
           case "BiogeographicalRegions":
             title = "Biogeographical Region(s)";
             value = field[1];
-            type = "array";
+            type = "table";
             break;
         }
         break;
@@ -413,7 +413,7 @@ const sectionsContent = (activekey, data) => {
           case "DesignationTypes":
             title = "Designation types at national and regional level (optional)";
             value = field[1];
-            type = "array";
+            type = "table";
             break;
           case "RelationSites":
             title = "Relation of the described site with other sites (optional)";
@@ -460,23 +460,23 @@ const sectionsContent = (activekey, data) => {
             break;
         }
     }
-    if (!value || value.length === 0) {
+    if ((!value || value.length === 0) && value !== 0) {
       value = "No information provided";
       type = "value";
     }
     let labels = ConfigSDF[field[0]]; 
     if(labels) {
       if(Array.isArray(value)) {
-        value = value.map(a=>{let b = {}; Object.keys(a).forEach(key => b[labels[key]] = a[key] ? (isNaN(a[key]) && !isNaN(Date.parse(a[key])) ? formatDate(a[key]) : a[key]) : a[key]); return b});
+        value = value.map(a=>{let b = {}; Object.keys(a).forEach(key => b[labels[key]] = a[key] ? (isNaN(a[key]) && !isNaN(Date.parse(a[key].replaceAll(' ',""))) ? formatDate(a[key]) : a[key]) : a[key]); return b});
       }
       else if (typeof value === 'object' && type !== "double-table") {
         let b = {};
-        value = Object.keys(value).forEach(key => b[labels[key]] = value[key] ? (isNaN(value[key]) && !isNaN(Date.parse(value[key])) ? formatDate(value[key]) : value[key]) : value[key]);
+        value = Object.keys(value).forEach(key => b[labels[key]] = value[key] ? (isNaN(value[key]) && !isNaN(Date.parse(value[key].replaceAll(' ',""))) ? formatDate(value[key]) : value[key]) : value[key]);
         value = b;
       }
     }
     else {
-      value = isNaN(value) && !isNaN(Date.parse(value)) ? formatDate(value) : value;
+      value = typeof value !== 'object' && isNaN(value) && !isNaN(Date.parse(value.replaceAll(' ',""))) ? formatDate(value) : value;
     }
 
     const parseLinks = (text) => {
