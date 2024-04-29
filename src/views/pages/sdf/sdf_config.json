@@ -155,17 +155,16 @@
     "b": "Both"
   },
   "Ownership": {
-    "Types": "Type",
+    "Type": "Type",
     "Percent": "[%]"
   },
   "OwnershipType": {
-    "Private": "Private",
     "publicNational": "Public - National/Federal",
     "publicState": "Public - State/Province",
     "publicLocal": "Public - Local/Municipal",
     "publicAny": "Public - Any Public",
-
     "joint": "Joint or Co-Ownership",
+    "private": "Private",
     "unknown": "Unknown"
   },
   "DesignationTypes": {

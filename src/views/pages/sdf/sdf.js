@@ -391,8 +391,12 @@ const sectionsContent = (activekey, data) => {
           case "Ownership":
             title = "Ownership (optional)";
             value = field[1];
-            let x = ConfigSDF.OwnershipType
-            value = value.map(obj => ({"Types": x[obj.Type], "Percent":obj.Percent}));
+            if(value.length) {
+              let x = ConfigSDF.OwnershipType;
+              value = Object.keys(x).map(a => ({"Type": x[a], "Percent": value.filter(b => b.Type===a).length ? value.find(b => b.Type === a).Percent : 0}))
+              let sum = value.map(a => a["Percent"]).reduce((a, b) => a + b, 0);
+              value.push({"Type":"Sum","Percent":sum});
+            }
             type = "table";
             break;
           case "Documents":
