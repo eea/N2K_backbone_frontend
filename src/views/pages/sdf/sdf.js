@@ -292,18 +292,16 @@ const sectionsContent = (activekey, data) => {
           case "SiteDesignation":
             title = "Site indication and designation / classification dates";
             value = field[1][0];
-            if(data.Type === "A") {
-              let filters = ["ProposedSCI", "ConfirmedSCI", "DesignatedSAC", "ReferenceSAC"];
-              filters.forEach(a => delete value[a]);
+            let a = ["ClassifiedSPA", "ReferenceSPA"];
+            let b = ["ProposedSCI", "ConfirmedSCI", "DesignatedSAC", "ReferenceSAC"];
+            let e = ["Explanations"];
+            let filter = (obj, keys) => keys.reduce((a, b) => (a[b] = obj[b], a), {});
+            let explanations = filter(value, e);
+            value = [filter(value, a), filter(value, b)];
+            if(explanations.Explanations) {
+              value.push(explanations);
             }
-            else if(data.Type === "B") {
-              let filters = ["ClassifiedSPA", "ReferenceSPA"];
-              filters.forEach(a => delete value[a]);
-            }
-            if(!value.Explanations) {
-              delete value.Explanations;
-            }
-            type = "value";
+            type = "array";
             break;
         }
         break;
@@ -360,7 +358,7 @@ const sectionsContent = (activekey, data) => {
           case "OtherSpecies":
             title = "Other important species of flora and fauna (optional)";
             value = field[1];
-            var filters = ["DataQuality", "Population", "Conservation", "Isolation", "Global"];
+            var filters = ["Type", "DataQuality", "Population", "Conservation", "Isolation", "Global"];
             value.map(a => filters.forEach(b => delete a[b]));
             type = "table";
             legend = ConfigSDF.Legend.OtherSpecies;
@@ -473,9 +471,14 @@ const sectionsContent = (activekey, data) => {
       if(Array.isArray(value)) {
         value = value.map(a=>{let b = {}; Object.keys(a).forEach(key => b[labels[key]] = a[key] ? (isNaN(a[key]) && !isNaN(Date.parse(a[key].replaceAll(' ',""))) ? formatDate(a[key]) : a[key]) : a[key]); return b});
       }
+      else if(type === "double-table") {
+        let c = {};
+        Object.keys(value).forEach(k => c[k] = value[k].map(a => {let b = {}; Object.keys(a).forEach(key => b[ConfigSDF[k][key]] = a[key]); return b}))
+        value = c;
+      }
       else if (typeof value === 'object' && type !== "double-table") {
         let b = {};
-        value = Object.keys(value).forEach(key => b[labels[key]] = value[key] ? (isNaN(value[key]) && !isNaN(Date.parse(value[key].replaceAll(' ',""))) ? formatDate(value[key]) : value[key]) : value[key]);
+        Object.keys(value).forEach(key => b[labels[key]] = value[key] ? (isNaN(value[key]) && !isNaN(Date.parse(value[key].replaceAll(' ',""))) ? formatDate(value[key]) : value[key]) : value[key]);
         value = b;
       }
     }
@@ -521,7 +524,7 @@ const sectionsContent = (activekey, data) => {
             if(field === "HabitatTypes" && cell === "Code") {
               value = <a href={"https://eunis.eea.europa.eu/habitats_code2000/" + value} target="blank">{value}</a>
             }
-            else if((field === "Species" || field === "OtherSpecies") && cell === "Species Name" && value !== "-") {
+            else if((field === "Species" || field === "OtherSpecies") && cell === "Scientific Name" && value !== "-") {
               value = <a href={"https://eunis.eea.europa.eu/species/" + value} target="blank">{value}</a>
             }
             else if((field === "Species" || field === "OtherSpecies") && cell === "Code" && value !== "-") {
@@ -538,12 +541,21 @@ const sectionsContent = (activekey, data) => {
               </tr>
             )
           });
-          
+          let tableHeader = ConfigSDF.TableHeader[field];
           return (
             <>
               <div className="sdf-row-field">
                 <CTable>
                   <CTableHead>
+                    {tableHeader &&
+                      <CTableRow>
+                        {tableHeader.map(a => 
+                          <th colSpan={a.span}>
+                            {a.text}
+                          </th>
+                        )}
+                      </CTableRow>
+                    }
                     <CTableRow>
                       {header}
                     </CTableRow>
@@ -563,8 +575,6 @@ const sectionsContent = (activekey, data) => {
         case "double-table":
           let tables = [];
           Object.entries(value).map(a => {
-            a[1] = a[1].map(obj => ({...obj, "Origin": ConfigSDF.Origin[obj.Origin]}));
-
             let header = a[1].length > 0 ? Object.keys(a[1][0]).map(b => {return(<CTableHeaderCell scope="col" key={b}> {b} </CTableHeaderCell>)}) : "";
             let body = a[1].map((row, i) => {
               return (
@@ -575,26 +585,31 @@ const sectionsContent = (activekey, data) => {
                 </tr>
               )
             });
+            if(!body.length) {
+              body = <tr><td>No data</td></tr> ;
+            }
+            let tableHeader = ConfigSDF.TableHeader[a[0]];
             tables.push(
               <CCol xs={12} md={6} lg={6} xl={6} key={a[0]}>
                 <div className="indicators-container">
-                  <b>
-                    {a[0] === "NegativeThreats" ? "Threats and pressures" : "Activities and Management"}
-                  </b>
                   <div className="sdf-row-field">
-                    {a[1].length > 0 ?
-                      <CTable>
-                        <CTableHead>
-                          <CTableRow>
-                            {header}
-                          </CTableRow>
-                        </CTableHead>
-                        <CTableBody>
-                          {body}
-                        </CTableBody>
-                      </CTable>
-                      : "No information provided"
-                    }
+                    <CTable>
+                      <CTableHead>
+                        <CTableRow>
+                          {tableHeader.map(a => 
+                            <th colSpan={a.span}>
+                              {a.text}
+                            </th>
+                          )}
+                        </CTableRow>
+                        <CTableRow>
+                          {header}
+                        </CTableRow>
+                      </CTableHead>
+                      <CTableBody>
+                        {body}
+                      </CTableBody>
+                    </CTable>
                   </div>
                 </div>
               </CCol>
