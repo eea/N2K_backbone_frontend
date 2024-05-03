@@ -70,7 +70,7 @@ const SDFVisualization = () => {
   const showMap = () => {
     return (
       <div className='sdf-map px-4 pb-5'>
-        <MapViewer  
+        <MapViewer
           siteCode={siteCode}
           mapSubmission={type === "submission" ? ConfigData.MAP_SUBMISSION : ConfigData.MAP_REFERENCE}
         />
