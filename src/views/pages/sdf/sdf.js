@@ -31,6 +31,7 @@ const SDFVisualization = () => {
   const [siteCode, setSiteCode] = useState("");
   const [version, setVersion] = useState("");
   const [type, setType] = useState("");
+  const [nav, setNav] = useState("");
   const [types, setTypes] = useState([{"value":"reference", "name":"Reference"}, {"value":"submission", "name":"Submission"}]);
   const [showScrollBtn, setShowScrollBtn] = useState(false);
 
@@ -45,6 +46,12 @@ const SDFVisualization = () => {
     });
   }, []);
 
+  useEffect(() => {
+    if(nav && !isLoading && siteCode && siteCode !== "nodata" && Object.keys(data).length !== 0 && !errorLoading) {
+      scrollTo(nav);
+    }
+  }, [isLoading]);
+
   let dl = new(DataLoader);
 
   const getSiteCode = () => {
@@ -53,9 +60,11 @@ const SDFVisualization = () => {
     let sitecode = params.get("sitecode");
     let version = params.get("version");
     let type = params.get("type");
+    let nav = params.get("nav");
     setSiteCode(sitecode && version && type ? sitecode : "nodata");
     setVersion(version);
     setType(type);
+    setNav(nav);
   }
 
   const showMap = () => {
@@ -121,10 +130,10 @@ const SDFVisualization = () => {
         <CRow className="sdf-title p-4">
           <CCol className='col-auto'>
             <div>
-              Site name: <b>{data.SiteInfo.SiteName}</b>
+              Site code: <b>{data.SiteInfo.SiteCode}</b>
             </div>
             <div>
-              Site code: <b>{data.SiteInfo.SiteCode}</b>
+              Site name: <b>{data.SiteInfo.SiteName}</b>
             </div>
           </CCol>
           <CCol className='col-auto ms-auto'>
@@ -137,7 +146,7 @@ const SDFVisualization = () => {
           <CCol>
             <h2>Table of contents</h2>
             <ol>
-              {Object.keys(data).filter(a => a !== "SiteInfo").map((a, i) => <a href="#" data-id={i+1} key={i} onClick={(e) => scrollTo(e)}><li>{ConfigSDF.Titles[i]}</li></a>)}
+              {Object.keys(data).filter(a => a !== "SiteInfo").map((a, i) => <a href="#" data-id={i+1} key={i} onClick={(e) => scrollTo(e.currentTarget.dataset.id)}><li>{ConfigSDF.Titles[i]}</li></a>)}
             </ol>
           </CCol>
         </CRow>
@@ -228,8 +237,9 @@ const SDFVisualization = () => {
 const scrollTo = (item) => {
   event.stopPropagation();
   event.preventDefault();
-  let element = document.getElementById(item.currentTarget.dataset.id).parentNode;
+  let element = document.getElementById(item).parentNode;
   const y = element.getBoundingClientRect().top + window.scrollY;
+  window.history.pushState(null, null, window.location.href.split("&nav")[0] + "&nav=" + item);
   window.scroll({
     top: y,
     behavior: 'instant'
@@ -549,8 +559,8 @@ const sectionsContent = (activekey, data) => {
                   <CTableHead>
                     {tableHeader &&
                       <CTableRow>
-                        {tableHeader.map(a => 
-                          <th colSpan={a.span}>
+                        {tableHeader.map((a, i) => 
+                          <th colSpan={a.span} key={"th_"+i}>
                             {a.text}
                           </th>
                         )}
@@ -596,8 +606,8 @@ const sectionsContent = (activekey, data) => {
                     <CTable>
                       <CTableHead>
                         <CTableRow>
-                          {tableHeader.map(a => 
-                            <th colSpan={a.span}>
+                          {tableHeader.map((a, i) => 
+                            <th colSpan={a.span} key={"th_"+i}>
                               {a.text}
                             </th>
                           )}
