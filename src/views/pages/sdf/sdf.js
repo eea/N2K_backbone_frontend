@@ -248,10 +248,9 @@ const scrollTo = (item) => {
 
 const formatDate = (date) => {
   date = new Date(date);
-  var d = date.getDate();
   var m = date.getMonth() + 1;
   var y = date.getFullYear();
-  date = (d <= 9 ? '0' + d : d) + '/' + (m <= 9 ? '0' + m : m) + '/' + y;
+  date = (y + '-' + (m <= 9 ? '0' + m : m));
   return date;
 };
 
