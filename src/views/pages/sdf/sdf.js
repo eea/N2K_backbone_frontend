@@ -115,6 +115,9 @@ const SDFVisualization = () => {
     let siteCentre = Object.fromEntries(Object.entries(data.Data.SiteLocation).filter(([key, value]) => key==="Latitude" || key==="Longitude"));
     data.Data.SiteLocation.Longitude = siteCentre;
     delete data.Data.SiteLocation.Latitude;
+    let siteCharacter = Object.fromEntries(Object.entries(data.Data.SiteDescription).filter(([key, value]) => key==="GeneralCharacter" || key==="OtherCharacteristics"));
+    data.Data.SiteDescription.GeneralCharacter = siteCharacter;
+    delete data.Data.SiteDescription.OtherCharacteristics;
     let threats = Object.fromEntries(Object.entries(data.Data.SiteDescription).filter(([key, value]) => key==="NegativeThreats" || key==="PositiveThreats"));
     data.Data.SiteDescription.NegativeThreats = threats;
     delete data.Data.SiteDescription.PositiveThreats;
@@ -379,10 +382,11 @@ const sectionsContent = (activekey, data) => {
         switch(field[0]) {
           case "GeneralCharacter":
             title = "General site character";
-            value = field[1];
+            value = field[1].GeneralCharacter;
             value = value.map(obj => ({"HabitatClass": ConfigSDF.HabitatClasses[obj.Code], ...obj}));
             let total = value.map(a => a["Cover"]).reduce((a, b) => a + b, 0);
-            value.push({"HabitatClass":"Total Habitat Cover", "Code":"","Cover":total});
+            value.push({"HabitatClass": "Total Habitat Cover", "Code": "","Cover": total});
+            legend = field[1].OtherCharacteristics;
             type = "table";
             break;
           case "Quality":
@@ -571,9 +575,20 @@ const sectionsContent = (activekey, data) => {
                 </CTable>
               </div>
               {legend &&
-                <div className="sdf-legend mt-2">
-                  {Object.keys(legend).map(a => <div key={a}><b>{a}: </b>{legend[a]}</div>)}
-                </div>
+                (field === "GeneralCharacter" ? 
+                  <>
+                    <div className="sdf-legend mt-2">
+                      <b>Other Site Characteristics</b>
+                    </div>
+                    <div className="sdf-row-field">
+                      {typeof legend === 'object' ? Object.entries(legend).map(a => <p key={"v_"+a}><b>{a[0]}</b>: {a[1] ? parseLinks(a[1]) : "No information provided"}</p>) : parseLinks(legend)}
+                    </div>
+                  </>
+                  :
+                  <div className="sdf-legend mt-2">
+                    {Object.keys(legend).map(a => <div key={a}><b>{a}: </b>{legend[a]}</div>)}
+                  </div>
+                )
               }
             </>
           )
@@ -596,7 +611,7 @@ const sectionsContent = (activekey, data) => {
             let tableHeader = ConfigSDF.TableHeader[a[0]];
             tables.push(
               <CCol xs={12} md={6} lg={6} xl={6} key={a[0]}>
-                <div className="indicators-container">
+                <div className="mb-2">
                   <div className="sdf-row-field">
                     <CTable>
                       <CTableHead>
@@ -624,7 +639,7 @@ const sectionsContent = (activekey, data) => {
             <CRow>
               {tables}
               {legend &&
-                <div className="sdf-legend mt-2">
+                <div className="sdf-legend">
                   {Object.keys(legend).map(a => <div key={a}><b>{a}: </b>{legend[a]}</div>)}
                 </div>
               }
