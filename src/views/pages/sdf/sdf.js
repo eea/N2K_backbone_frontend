@@ -124,7 +124,6 @@ const SDFVisualization = () => {
     let documents = Object.fromEntries(Object.entries(data.Data.SiteDescription).filter(([key, value]) => key==="Documents" || key==="Links"));
     data.Data.SiteDescription.Documents = documents;
     delete data.Data.SiteDescription.Links;
-    delete data.Data.MapOfTheSite.MapDelivered;
     return data.Data;
   }
   
@@ -466,6 +465,11 @@ const sectionsContent = (activekey, data) => {
         switch(field[0]) {
           case "INSPIRE":
             title = "INSPIRE ID";
+            value = field[1];
+            type = "value";
+            break;
+          case "MapDelivered":
+            title = "Map delivered as PDF in electronic format (optional)";
             value = field[1];
             type = "value";
             break;
