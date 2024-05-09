@@ -91,6 +91,19 @@
         border-bottom: none;
       }
     }
+    .checkbox {
+      margin-bottom: 0.5rem;
+      input[disabled] + label {
+        &::after, &::before {
+          cursor: default;
+        }
+      }
+      label {
+        color: inherit;
+        font-size: 1rem;
+        cursor: auto;
+      }
+    }
   }
 
   .piechart {

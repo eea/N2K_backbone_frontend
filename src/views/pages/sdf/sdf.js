@@ -385,7 +385,7 @@ const sectionsContent = (activekey, data) => {
             value = field[1].GeneralCharacter;
             value = value.map(obj => ({"HabitatClass": ConfigSDF.HabitatClasses[obj.Code], ...obj}));
             let total = value.map(a => a["Cover"]).reduce((a, b) => a + b, 0);
-            value.push({"HabitatClass": "Total Habitat Cover", "Code": "","Cover": total});
+            value.push({"HabitatClass": "Total Habitat Cover", "Code": "","Cover": parseFloat((total).toFixed(4))});
             legend = field[1].OtherCharacteristics;
             type = "table";
             break;
@@ -407,7 +407,7 @@ const sectionsContent = (activekey, data) => {
               let x = ConfigSDF.OwnershipType;
               value = Object.keys(x).map(a => ({"Type": x[a], "Percent": value.filter(b => b.Type===a).length ? value.find(b => b.Type === a).Percent : 0}))
               let sum = value.map(a => a["Percent"]).reduce((a, b) => a + b, 0);
-              value.push({"Type":"Sum","Percent":sum});
+              value.push({"Type": "Sum","Percent": parseFloat((sum).toFixed(4))});
             }
             type = "table";
             break;
@@ -453,7 +453,7 @@ const sectionsContent = (activekey, data) => {
           case "ManagementPlan":
             title = "Management Plan(s)";
             value = field[1];
-            type = "array";
+            type = "check"
             break;
           case "ConservationMeasures":
             title = "Conservation measures (optional)";
@@ -595,8 +595,8 @@ const sectionsContent = (activekey, data) => {
         case "double-table":
           let tables = [];
           Object.entries(value).map(a => {
-            let header = a[1].length > 0 ? Object.keys(a[1][0]).map(b => {return(<CTableHeaderCell scope="col" key={b}> {b} </CTableHeaderCell>)}) : "";
-            let body = a[1].map((row, i) => {
+            let header = a[1].length > 0 ? Object.keys(a[1][0]).map(b => {return(<CTableHeaderCell scope="col" key={b}> {b} </CTableHeaderCell>)}) : null;
+            let body = a[1].length > 0 && a[1].map((row, i) => {
               return (
                 <tr key={"tr_"+i}>
                   {Object.keys(a[1][0]).map((cell, ii) => {
@@ -645,6 +645,31 @@ const sectionsContent = (activekey, data) => {
               }
             </CRow>
           );
+        case "check":
+          let options = ConfigSDF.TableHeader.ManagementPlan;
+          let checked = value[0].Exists ? value[0].Exists : "N";
+          let check = options.map((a, i) => {
+            return (
+              <div key={"m_" + i}>
+                <div className="checkbox">
+                  <input type="checkbox" className="input-checkbox" id={"management_check_"+i} disabled checked={checked === a.value}/>
+                  <label htmlFor={"management_check_"+i} className="input-label">{a.text}</label>
+                </div >
+                {checked === "Y" && checked === a.value &&
+                  Array.isArray(data) && data.map((a, i) => 
+                    <div className="mb-3" key={"a_"+i}>
+                      {typeof a === 'object' ? Object.entries(a).map(b => b[0] !== "Exists" && <p className="mb-1" key={"b_"+b}><b>{b[0]}</b>: {b[1] ? parseLinks(b[1]) : "No information provided"}</p>) : parseLinks(a[1])}
+                    </div>
+                  )
+                }
+              </div>
+            )
+          });
+          return (
+            <div className="sdf-row-field">
+              {check}
+            </div>
+          )
       }
     }
     

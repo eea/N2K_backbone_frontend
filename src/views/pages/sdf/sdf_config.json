@@ -173,7 +173,7 @@
     },
     "Species": {
       "Group": "A = Amphibians, B = Birds, F = Fish, I = Invertebrates, M = Mammals, P = Plants, R = Reptiles",
-      "S": "In case that the data on species are sensitive and therefore have to be blocked for any public access enter: yes",
+      "S": "In case that the data on species are sensitive and therefore have to be blocked for any public access enter: Yes",
       "NP": "In case that a species is no longer present in the site enter: x (optional)",
       "Type": "p = permanent, r = reproducing, c = concentration, w = wintering (for plant and non-migratory species use permanent)",
       "Unit": "i = individuals, p = pairs or other units according to the Standard list of population units and codes in accordance with Article 12 and 17 reporting (see reference portal)",
@@ -183,7 +183,7 @@
     "OtherSpecies": {
       "Group": "A = Amphibians, B = Birds, F = Fish, Fu = Fungi, I = Invertebrates, L = Lichens, M = Mammals, P = Plants, R = Reptiles",
       "Code": "For Birds, Annex IV and V species the code as provided in the reference portal should be used in addition to the scientific name",
-      "S": "In case that the data on species are sensitive and therefore have to be blocked for any public access enter: yes",
+      "S": "In case that the data on species are sensitive and therefore have to be blocked for any public access enter: Yes",
       "NP": "In case that a species is no longer present in the site enter: x (optional)",
       "Unit": "i = individuals, p = pairs or other units according to the Standard list of population units and codes in accordance with Article 12 and 17 reporting (see reference portal)",
       "Abundance categories (Cat.)": "C = common, R = rare, V = very rare, P = present - to fill if data are deficient (DD) or in addition to population size information",
@@ -243,6 +243,20 @@
       {
         "span": 4,
         "text": "Positive Impacts"
+      }
+    ],
+    "ManagementPlan": [
+      {
+        "value": "Y",
+        "text": "Yes"
+      },
+      {
+        "value": "P",
+        "text": "No, but in preparation"
+      },
+      {
+        "value": "N",
+        "text": "No"
       }
     ]
   }
