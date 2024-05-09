@@ -220,7 +220,7 @@ const SDFVisualization = () => {
           {showMainData()}
           <CContainer fluid>
             <CTabContent>
-              {Object.keys(data).filter(a => a !== "SiteInfo").map((a,i) => renderSections(i + 1, data[a]))}
+              {renderSections(data)}
               {showMap()}
             </CTabContent>
           </CContainer>
@@ -274,46 +274,44 @@ const sectionsContent = (activekey, data) => {
           case "Type":
             title = "Type";
             value = field[1];
-            type = "value";
+            type = "single";
             break;
           case "SiteCode":
             title = "Site Code";
             value = field[1];
-            type = "value";
+            type = "single";
             break;
           case "SiteName":
             title = "Site Name";
             value = field[1];
-            type = "value";
+            type = "single";
             break;
           case "FirstCompletionDate":
             title = "First Compilation date";
             value = field[1];
-            type = "value";
+            type = "single";
             break;
           case "UpdateDate":
             title = "Update date";
             value = field[1];
-            type = "value";
+            type = "single";
             break;
           case "Respondent":
             title = "Respondent";
             value = field[1];
-            type = "value";
+            type = "single";
             break;
           case "SiteDesignation":
             title = "Site indication and designation / classification dates";
             value = field[1][0];
-            let a = ["ClassifiedSPA", "ReferenceSPA"];
-            let b = ["ProposedSCI", "ConfirmedSCI", "DesignatedSAC", "ReferenceSAC"];
-            let e = ["Explanations"];
+            let tableHeader = ConfigSDF.TableHeader.SiteDesignationGroup;
             let filter = (obj, keys) => keys.reduce((a, b) => (a[b] = obj[b], a), {});
-            let explanations = filter(value, e);
-            value = [filter(value, a), filter(value, b)];
+            let explanations = filter(value, tableHeader.e);
+            value = [filter(value, tableHeader.a), filter(value, tableHeader.b)];
             if(explanations.Explanations) {
               value.push(explanations);
             }
-            type = "array";
+            type = "multiple";
             break;
         }
         break;
@@ -322,22 +320,22 @@ const sectionsContent = (activekey, data) => {
           case "Longitude":
             title = "Site-centre location [decimal degrees]";
             value = field[1];
-            type = "value";
+            type = "single";
             break;
           case "Area":
             title = "Area [ha]";
             value = field[1];
-            type = "value";
+            type = "single";
             break;
           case "MarineArea":
             title = "Marine area [%]";
             value = field[1];
-            type = "value";
+            type = "single";
             break;
           case "SiteLength":
             title = "Sitelength [km] (optional)";
             value = field[1];
-            type = "value";
+            type = "single";
             break;
           case "Region":
             title = "Administrative region code and name";
@@ -391,7 +389,7 @@ const sectionsContent = (activekey, data) => {
           case "Quality":
             title = "Quality and importance";
             value = field[1];
-            type = "value";
+            type = "single";
             break;
           case "NegativeThreats":
             title = "Threats, pressures and activities with impacts on the site";
@@ -403,10 +401,23 @@ const sectionsContent = (activekey, data) => {
             title = "Ownership (optional)";
             value = field[1];
             if(value.length) {
-              let x = ConfigSDF.OwnershipType;
-              value = Object.keys(x).map(a => ({"Type": x[a], "Percent": value.filter(b => b.Type===a).length ? value.find(b => b.Type === a).Percent : 0}))
-              let sum = value.map(a => a["Percent"]).reduce((a, b) => a + b, 0);
-              value.push({"Type": "Sum","Percent": parseFloat((sum).toFixed(4))});
+              let tableHeader = ConfigSDF.TableHeader.OwnershipType;
+              let val = [];
+              value.forEach(item => {
+                if(item.Type === "national/federal") {
+                  item.Type = "publicnational"
+                }
+                let found = val.find(a => a.Type === item.Type);
+                if(found) {
+                  found.Percent += item.Percent;
+                }
+                else{
+                  val.push({"Type": item.Type,"Percent": item.Percent});
+                }
+              });
+              value = Object.keys(tableHeader).map(a => ({"Type": tableHeader[a], "Percent": val.filter(b => b.Type===a).length ? val.find(b => b.Type === a).Percent : 0}));
+              let total = value.map(a => a["Percent"]).reduce((a, b) => a + b, 0);
+              value.push({"Type": "Total","Percent": parseFloat((total).toFixed(4))});
             }
             type = "table";
             break;
@@ -419,7 +430,7 @@ const sectionsContent = (activekey, data) => {
                 value = null;
               }
             }
-            type = "value";
+            type = "single";
             break;
         }
         break;
@@ -438,7 +449,7 @@ const sectionsContent = (activekey, data) => {
           case "SiteDesignation":
             title = "Site designation (optional)";
             value = field[1];
-            type = "value";
+            type = "single";
             break;
         }
         break;
@@ -447,7 +458,7 @@ const sectionsContent = (activekey, data) => {
           case "BodyResponsible":
             title = "Body(ies) responsible for the site management";
             value = field[1];
-            type = "array";
+            type = "multiple";
             break;
           case "ManagementPlan":
             title = "Management Plan(s)";
@@ -457,7 +468,7 @@ const sectionsContent = (activekey, data) => {
           case "ConservationMeasures":
             title = "Conservation measures (optional)";
             value = field[1];
-            type = "value";
+            type = "single";
             break;
         }
         break
@@ -466,27 +477,27 @@ const sectionsContent = (activekey, data) => {
           case "INSPIRE":
             title = "INSPIRE ID";
             value = field[1];
-            type = "value";
+            type = "single";
             break;
           case "MapDelivered":
             title = "Map delivered as PDF in electronic format (optional)";
             value = field[1];
-            type = "value";
+            type = "single";
             break;
         }
     }
     if ((!value || value.length === 0) && value !== 0) {
       value = "No information provided";
-      type = "value";
+      type = "single";
     }
     let labels = ConfigSDF[field[0]]; 
     if(labels) {
       if(Array.isArray(value)) {
-        value = value.map(a=>{let b = {}; Object.keys(a).forEach(key => b[labels[key]] = a[key] ? (isNaN(a[key]) && !isNaN(Date.parse(a[key].replaceAll(' ',""))) ? formatDate(a[key]) : a[key]) : a[key]); return b});
+        value = value.map(a => {let b = {}; Object.keys(a).forEach(key => b[labels[key]] = a[key] ? (isNaN(a[key]) && !isNaN(Date.parse(a[key].replaceAll(' ',""))) ? formatDate(a[key]) : a[key]) : a[key]); return b});
       }
       else if(type === "double-table") {
         let c = {};
-        Object.keys(value).forEach(k => c[k] = value[k].map(a => {let b = {}; Object.keys(a).forEach(key => b[ConfigSDF[k][key]] = a[key]); return b}))
+        Object.keys(value).forEach(i => c[i] = value[i].map(a => {let b = {}; Object.keys(a).forEach(key => b[ConfigSDF[i][key]] = a[key]); return b}))
         value = c;
       }
       else if (typeof value === 'object' && type !== "double-table") {
@@ -513,13 +524,13 @@ const sectionsContent = (activekey, data) => {
 
     const dataType = (field, type, data) => {
       switch (type) {
-        case "value":
+        case "single":
           return (
             <div className="sdf-row-field">
               {typeof data === 'object' ? Object.entries(data).map(a => <p key={"v_"+a}><b>{a[0]}</b>: {a[1] ? parseLinks(a[1]) : "No information provided"}</p>) : parseLinks(data)}
             </div>
           )
-        case "array":
+        case "multiple":
           return (
             Array.isArray(data) && data.map((a, i) => 
               <div className="sdf-row-field" key={"a_"+i}>
@@ -689,15 +700,19 @@ const sectionsContent = (activekey, data) => {
   return fields;
 }
 
-const renderSections = (index, data) => {
-  return (
-    <CRow className="p-4" key={index}>
-      <div id={index}>
-        <h2>{index}. {ConfigSDF.Titles[index-1]}</h2>
-        {sectionsContent(index, data)}
-      </div>
-    </CRow>
-  );
+const renderSections = (data) => {
+  let sections = [];
+  Object.keys(data).filter(a => a !== "SiteInfo").forEach((item, i) => {
+    sections.push(
+      <CRow className="p-4" key={i}>
+        <div id={i+1}>
+          <h2>{i+1}. {ConfigSDF.Titles[i]}</h2>
+          {sectionsContent(i+1, data[item])}
+        </div>
+      </CRow>
+    )
+  });
+  return sections;
 }
 
 export default SDFVisualization;

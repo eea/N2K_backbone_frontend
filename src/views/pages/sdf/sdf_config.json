@@ -143,15 +143,6 @@
     "Type": "Type",
     "Percent": "[%]"
   },
-  "OwnershipType": {
-    "publicNational": "Public - National/Federal",
-    "publicState": "Public - State/Province",
-    "publicLocal": "Public - Local/Municipal",
-    "publicAny": "Public - Any Public",
-    "joint": "Joint or Co-Ownership",
-    "private": "Private",
-    "unknown": "Unknown"
-  },
   "DesignationTypes": {
     "Code": "Code",
     "Cover": "Cover [%]"
@@ -195,6 +186,11 @@
     }
   },
   "TableHeader": {
+    "SiteDesignationGroup": {
+      "a": ["ClassifiedSPA", "ReferenceSPA"],
+      "b": ["ProposedSCI", "ConfirmedSCI", "DesignatedSAC", "ReferenceSAC"],
+      "e": ["Explanations"]
+    },
     "HabitatTypes": [
       {
         "span": 7,
@@ -245,6 +241,15 @@
         "text": "Positive Impacts"
       }
     ],
+    "OwnershipType": {
+      "publicnational": "Public - National/Federal",
+      "publicstate": "Public - State/Province",
+      "publiclocal": "Public - Local/Municipal",
+      "publicany": "Public - Any Public",
+      "joint": "Joint or Co-Ownership",
+      "private": "Private",
+      "unknown": "Unknown"
+    },
     "ManagementPlan": [
       {
         "value": "Y",
