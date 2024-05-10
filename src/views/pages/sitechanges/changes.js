@@ -691,7 +691,7 @@ const Sitechanges = () => {
                         <li>
                           <div className="checkbox" disabled={loadingSites || statusLoaded.length !== 3}>
                             <input type="checkbox" className="input-checkbox" id="site_check_sci" checked={filterSCI===true} onClick={(e)=>changeFilter("sci", e.currentTarget.checked)} />
-                            <label htmlFor="site_check_sci" className="input-label badge color--default">SCI</label>
+                            <label htmlFor="site_check_sci" className="input-label badge color--default">SCI (Type B+C)</label>
                           </div>
                         </li>
                       </ul>
