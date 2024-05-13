@@ -31,6 +31,7 @@ const SDFVisualization = () => {
   const [siteCode, setSiteCode] = useState("");
   const [version, setVersion] = useState("");
   const [type, setType] = useState("");
+  const [nav, setNav] = useState("");
   const [types, setTypes] = useState([{"value":"reference", "name":"Reference"}, {"value":"submission", "name":"Submission"}]);
   const [showScrollBtn, setShowScrollBtn] = useState(false);
 
@@ -45,6 +46,12 @@ const SDFVisualization = () => {
     });
   }, []);
 
+  useEffect(() => {
+    if(nav && !isLoading && siteCode && siteCode !== "nodata" && Object.keys(data).length !== 0 && !errorLoading) {
+      scrollTo(nav);
+    }
+  }, [isLoading]);
+
   let dl = new(DataLoader);
 
   const getSiteCode = () => {
@@ -53,15 +60,17 @@ const SDFVisualization = () => {
     let sitecode = params.get("sitecode");
     let version = params.get("version");
     let type = params.get("type");
+    let nav = params.get("nav");
     setSiteCode(sitecode && version && type ? sitecode : "nodata");
     setVersion(version);
     setType(type);
+    setNav(nav);
   }
 
   const showMap = () => {
     return (
       <div className='sdf-map px-4 pb-5'>
-        <MapViewer  
+        <MapViewer
           siteCode={siteCode}
           mapSubmission={type === "submission" ? ConfigData.MAP_SUBMISSION : ConfigData.MAP_REFERENCE}
         />
@@ -106,6 +115,9 @@ const SDFVisualization = () => {
     let siteCentre = Object.fromEntries(Object.entries(data.Data.SiteLocation).filter(([key, value]) => key==="Latitude" || key==="Longitude"));
     data.Data.SiteLocation.Longitude = siteCentre;
     delete data.Data.SiteLocation.Latitude;
+    let siteCharacter = Object.fromEntries(Object.entries(data.Data.SiteDescription).filter(([key, value]) => key==="GeneralCharacter" || key==="OtherCharacteristics"));
+    data.Data.SiteDescription.GeneralCharacter = siteCharacter;
+    delete data.Data.SiteDescription.OtherCharacteristics;
     let threats = Object.fromEntries(Object.entries(data.Data.SiteDescription).filter(([key, value]) => key==="NegativeThreats" || key==="PositiveThreats"));
     data.Data.SiteDescription.NegativeThreats = threats;
     delete data.Data.SiteDescription.PositiveThreats;
@@ -121,10 +133,10 @@ const SDFVisualization = () => {
         <CRow className="sdf-title p-4">
           <CCol className='col-auto'>
             <div>
-              Site name: <b>{data.SiteInfo.SiteName}</b>
+              Site code: <b>{data.SiteInfo.SiteCode}</b>
             </div>
             <div>
-              Site code: <b>{data.SiteInfo.SiteCode}</b>
+              Site name: <b>{data.SiteInfo.SiteName}</b>
             </div>
           </CCol>
           <CCol className='col-auto ms-auto'>
@@ -137,7 +149,7 @@ const SDFVisualization = () => {
           <CCol>
             <h2>Table of contents</h2>
             <ol>
-              {Object.keys(data).filter(a => a !== "SiteInfo").map((a, i) => <a href="#" data-id={i+1} key={i} onClick={(e) => scrollTo(e)}><li>{ConfigSDF.Titles[i]}</li></a>)}
+              {Object.keys(data).filter(a => a !== "SiteInfo").map((a, i) => <a href="#" data-id={i+1} key={i} onClick={(e) => scrollTo(e.currentTarget.dataset.id)}><li>{ConfigSDF.Titles[i]}</li></a>)}
             </ol>
           </CCol>
         </CRow>
@@ -182,7 +194,7 @@ const SDFVisualization = () => {
                 </div>
               </div>
               <div className="select--right">
-              <CFormSelect aria-label="Select type" className="form-select-reporting" value={type} onChange={(e) => {changeType(e.currentTarget.value)}}>
+              <CFormSelect aria-label="Select type" className="form-select-reporting" disabled={isLoading} value={type} onChange={(e) => {changeType(e.currentTarget.value)}}>
                 {
                   types.map((e)=><option value={e.value} key={e.value}>{e.name}</option>)
                 }
@@ -208,7 +220,7 @@ const SDFVisualization = () => {
           {showMainData()}
           <CContainer fluid>
             <CTabContent>
-              {Object.keys(data).filter(a => a !== "SiteInfo").map((a,i) => renderSections(i + 1, data[a]))}
+              {renderSections(data)}
               {showMap()}
             </CTabContent>
           </CContainer>
@@ -228,8 +240,9 @@ const SDFVisualization = () => {
 const scrollTo = (item) => {
   event.stopPropagation();
   event.preventDefault();
-  let element = document.getElementById(item.currentTarget.dataset.id).parentNode;
+  let element = document.getElementById(item).parentNode;
   const y = element.getBoundingClientRect().top + window.scrollY;
+  window.history.pushState(null, null, window.location.href.split("&nav")[0] + "&nav=" + item);
   window.scroll({
     top: y,
     behavior: 'instant'
@@ -238,10 +251,9 @@ const scrollTo = (item) => {
 
 const formatDate = (date) => {
   date = new Date(date);
-  var d = date.getDate();
   var m = date.getMonth() + 1;
   var y = date.getFullYear();
-  date = (d <= 9 ? '0' + d : d) + '/' + (m <= 9 ? '0' + m : m) + '/' + y;
+  date = (y + '-' + (m <= 9 ? '0' + m : m));
   return date;
 };
 
@@ -262,48 +274,44 @@ const sectionsContent = (activekey, data) => {
           case "Type":
             title = "Type";
             value = field[1];
-            type = "value";
+            type = "single";
             break;
           case "SiteCode":
             title = "Site Code";
             value = field[1];
-            type = "value";
+            type = "single";
             break;
           case "SiteName":
             title = "Site Name";
             value = field[1];
-            type = "value";
+            type = "single";
             break;
           case "FirstCompletionDate":
             title = "First Compilation date";
             value = field[1];
-            type = "value";
+            type = "single";
             break;
           case "UpdateDate":
             title = "Update date";
             value = field[1];
-            type = "value";
+            type = "single";
             break;
           case "Respondent":
             title = "Respondent";
             value = field[1];
-            type = "value";
+            type = "single";
             break;
           case "SiteDesignation":
             title = "Site indication and designation / classification dates";
             value = field[1][0];
-            if(data.Type === "A") {
-              let filters = ["ProposedSCI", "ConfirmedSCI", "DesignatedSAC", "ReferenceSAC"];
-              filters.forEach(a => delete value[a]);
+            let tableHeader = ConfigSDF.TableHeader.SiteDesignationGroup;
+            let filter = (obj, keys) => keys.reduce((a, b) => (a[b] = obj[b], a), {});
+            let explanations = filter(value, tableHeader.e);
+            value = [filter(value, tableHeader.a), filter(value, tableHeader.b)];
+            if(explanations.Explanations) {
+              value.push(explanations);
             }
-            else if(data.Type === "B") {
-              let filters = ["ClassifiedSPA", "ReferenceSPA"];
-              filters.forEach(a => delete value[a]);
-            }
-            if(!value.Explanations) {
-              delete value.Explanations;
-            }
-            type = "value";
+            type = "multiple";
             break;
         }
         break;
@@ -312,32 +320,32 @@ const sectionsContent = (activekey, data) => {
           case "Longitude":
             title = "Site-centre location [decimal degrees]";
             value = field[1];
-            type = "value";
+            type = "single";
             break;
           case "Area":
             title = "Area [ha]";
             value = field[1];
-            type = "value";
+            type = "single";
             break;
           case "MarineArea":
             title = "Marine area [%]";
             value = field[1];
-            type = "value";
+            type = "single";
             break;
           case "SiteLength":
             title = "Sitelength [km] (optional)";
             value = field[1];
-            type = "value";
+            type = "single";
             break;
           case "Region":
             title = "Administrative region code and name";
             value = field[1];
-            type = "array";
+            type = "table";
             break;
           case "BiogeographicalRegions":
             title = "Biogeographical Region(s)";
             value = field[1];
-            type = "array";
+            type = "table";
             break;
         }
         break;
@@ -360,7 +368,7 @@ const sectionsContent = (activekey, data) => {
           case "OtherSpecies":
             title = "Other important species of flora and fauna (optional)";
             value = field[1];
-            var filters = ["DataQuality", "Population", "Conservation", "Isolation", "Global"];
+            var filters = ["Type", "DataQuality", "Population", "Conservation", "Isolation", "Global"];
             value.map(a => filters.forEach(b => delete a[b]));
             type = "table";
             legend = ConfigSDF.Legend.OtherSpecies;
@@ -371,16 +379,17 @@ const sectionsContent = (activekey, data) => {
         switch(field[0]) {
           case "GeneralCharacter":
             title = "General site character";
-            value = field[1];
+            value = field[1].GeneralCharacter;
             value = value.map(obj => ({"HabitatClass": ConfigSDF.HabitatClasses[obj.Code], ...obj}));
             let total = value.map(a => a["Cover"]).reduce((a, b) => a + b, 0);
-            value.push({"HabitatClass":"Total Habitat Code", "Code":"","Cover":total});
+            value.push({"HabitatClass": "Total Habitat Cover", "Code": "","Cover": parseFloat((total).toFixed(4))});
+            legend = field[1].OtherCharacteristics;
             type = "table";
             break;
           case "Quality":
             title = "Quality and importance";
             value = field[1];
-            type = "value";
+            type = "single";
             break;
           case "NegativeThreats":
             title = "Threats, pressures and activities with impacts on the site";
@@ -391,8 +400,25 @@ const sectionsContent = (activekey, data) => {
           case "Ownership":
             title = "Ownership (optional)";
             value = field[1];
-            let x = ConfigSDF.OwnershipType
-            value = value.map(obj => ({"Types": x[obj.Type], "Percent":obj.Percent}));
+            if(value.length) {
+              let tableHeader = ConfigSDF.TableHeader.OwnershipType;
+              let val = [];
+              value.forEach(item => {
+                if(item.Type === "national/federal") {
+                  item.Type = "publicnational"
+                }
+                let found = val.find(a => a.Type === item.Type);
+                if(found) {
+                  found.Percent += item.Percent;
+                }
+                else{
+                  val.push({"Type": item.Type,"Percent": item.Percent});
+                }
+              });
+              value = Object.keys(tableHeader).map(a => ({"Type": tableHeader[a], "Percent": val.filter(b => b.Type===a).length ? val.find(b => b.Type === a).Percent : 0}));
+              let total = value.map(a => a["Percent"]).reduce((a, b) => a + b, 0);
+              value.push({"Type": "Total","Percent": parseFloat((total).toFixed(4))});
+            }
             type = "table";
             break;
           case "Documents":
@@ -404,7 +430,7 @@ const sectionsContent = (activekey, data) => {
                 value = null;
               }
             }
-            type = "value";
+            type = "single";
             break;
         }
         break;
@@ -413,7 +439,7 @@ const sectionsContent = (activekey, data) => {
           case "DesignationTypes":
             title = "Designation types at national and regional level (optional)";
             value = field[1];
-            type = "array";
+            type = "table";
             break;
           case "RelationSites":
             title = "Relation of the described site with other sites (optional)";
@@ -423,7 +449,7 @@ const sectionsContent = (activekey, data) => {
           case "SiteDesignation":
             title = "Site designation (optional)";
             value = field[1];
-            type = "value";
+            type = "single";
             break;
         }
         break;
@@ -432,17 +458,17 @@ const sectionsContent = (activekey, data) => {
           case "BodyResponsible":
             title = "Body(ies) responsible for the site management";
             value = field[1];
-            type = "array";
+            type = "multiple";
             break;
           case "ManagementPlan":
             title = "Management Plan(s)";
             value = field[1];
-            type = "array";
+            type = "check"
             break;
           case "ConservationMeasures":
             title = "Conservation measures (optional)";
             value = field[1];
-            type = "value";
+            type = "single";
             break;
         }
         break
@@ -451,32 +477,37 @@ const sectionsContent = (activekey, data) => {
           case "INSPIRE":
             title = "INSPIRE ID";
             value = field[1];
-            type = "value";
+            type = "single";
             break;
           case "MapDelivered":
             title = "Map delivered as PDF in electronic format (optional)";
             value = field[1];
-            type = "value";
+            type = "single";
             break;
         }
     }
-    if (!value || value.length === 0) {
+    if ((!value || value.length === 0) && value !== 0) {
       value = "No information provided";
-      type = "value";
+      type = "single";
     }
     let labels = ConfigSDF[field[0]]; 
     if(labels) {
       if(Array.isArray(value)) {
-        value = value.map(a=>{let b = {}; Object.keys(a).forEach(key => b[labels[key]] = a[key] ? (isNaN(a[key]) && !isNaN(Date.parse(a[key])) ? formatDate(a[key]) : a[key]) : a[key]); return b});
+        value = value.map(a => {let b = {}; Object.keys(a).forEach(key => b[labels[key]] = a[key] ? (isNaN(a[key]) && !isNaN(Date.parse(a[key].replaceAll(' ',""))) ? formatDate(a[key]) : a[key]) : a[key]); return b});
       }
-      else if (typeof value === 'object') {
+      else if(type === "double-table") {
+        let c = {};
+        Object.keys(value).forEach(i => c[i] = value[i].map(a => {let b = {}; Object.keys(a).forEach(key => b[ConfigSDF[i][key]] = a[key]); return b}))
+        value = c;
+      }
+      else if (typeof value === 'object' && type !== "double-table") {
         let b = {};
-        value = Object.keys(value).forEach(key => b[labels[key]] = value[key] ? (isNaN(value[key]) && !isNaN(Date.parse(value[key])) ? formatDate(value[key]) : value[key]) : value[key]);
+        Object.keys(value).forEach(key => b[labels[key]] = value[key] ? (isNaN(value[key]) && !isNaN(Date.parse(value[key].replaceAll(' ',""))) ? formatDate(value[key]) : value[key]) : value[key]);
         value = b;
       }
     }
     else {
-      value = isNaN(value) && !isNaN(Date.parse(value)) ? formatDate(value) : value;
+      value = typeof value !== 'object' && isNaN(value) && !isNaN(Date.parse(value.replaceAll(' ',""))) ? formatDate(value) : value;
     }
 
     const parseLinks = (text) => {
@@ -493,13 +524,13 @@ const sectionsContent = (activekey, data) => {
 
     const dataType = (field, type, data) => {
       switch (type) {
-        case "value":
+        case "single":
           return (
             <div className="sdf-row-field">
               {typeof data === 'object' ? Object.entries(data).map(a => <p key={"v_"+a}><b>{a[0]}</b>: {a[1] ? parseLinks(a[1]) : "No information provided"}</p>) : parseLinks(data)}
             </div>
           )
-        case "array":
+        case "multiple":
           return (
             Array.isArray(data) && data.map((a, i) => 
               <div className="sdf-row-field" key={"a_"+i}>
@@ -517,7 +548,7 @@ const sectionsContent = (activekey, data) => {
             if(field === "HabitatTypes" && cell === "Code") {
               value = <a href={"https://eunis.eea.europa.eu/habitats_code2000/" + value} target="blank">{value}</a>
             }
-            else if((field === "Species" || field === "OtherSpecies") && cell === "Species Name" && value !== "-") {
+            else if((field === "Species" || field === "OtherSpecies") && cell === "Scientific Name" && value !== "-") {
               value = <a href={"https://eunis.eea.europa.eu/species/" + value} target="blank">{value}</a>
             }
             else if((field === "Species" || field === "OtherSpecies") && cell === "Code" && value !== "-") {
@@ -534,12 +565,21 @@ const sectionsContent = (activekey, data) => {
               </tr>
             )
           });
-          
+          let tableHeader = ConfigSDF.TableHeader[field];
           return (
             <>
               <div className="sdf-row-field">
                 <CTable>
                   <CTableHead>
+                    {tableHeader &&
+                      <CTableRow>
+                        {tableHeader.map((a, i) => 
+                          <th colSpan={a.span} key={"th_"+i}>
+                            {a.text}
+                          </th>
+                        )}
+                      </CTableRow>
+                    }
                     <CTableRow>
                       {header}
                     </CTableRow>
@@ -550,19 +590,28 @@ const sectionsContent = (activekey, data) => {
                 </CTable>
               </div>
               {legend &&
-                <div className="sdf-legend mt-2">
-                  {Object.keys(legend).map(a => <div key={a}><b>{a}: </b>{legend[a]}</div>)}
-                </div>
+                (field === "GeneralCharacter" ? 
+                  <>
+                    <div className="sdf-legend mt-2">
+                      <b>Other Site Characteristics</b>
+                    </div>
+                    <div className="sdf-row-field">
+                      {typeof legend === 'object' ? Object.entries(legend).map(a => <p key={"v_"+a}><b>{a[0]}</b>: {a[1] ? parseLinks(a[1]) : "No information provided"}</p>) : parseLinks(legend)}
+                    </div>
+                  </>
+                  :
+                  <div className="sdf-legend mt-2">
+                    {Object.keys(legend).map(a => <div key={a}><b>{a}: </b>{legend[a]}</div>)}
+                  </div>
+                )
               }
             </>
           )
         case "double-table":
           let tables = [];
           Object.entries(value).map(a => {
-            a[1] = a[1].map(obj => ({...obj, "Origin": ConfigSDF.Origin[obj.Origin]}));
-
-            let header = a[1].length > 0 ? Object.keys(a[1][0]).map(b => {return(<CTableHeaderCell scope="col" key={b}> {b} </CTableHeaderCell>)}) : "";
-            let body = a[1].map((row, i) => {
+            let header = a[1].length > 0 ? Object.keys(a[1][0]).map(b => {return(<CTableHeaderCell scope="col" key={b}> {b} </CTableHeaderCell>)}) : null;
+            let body = a[1].length > 0 && a[1].map((row, i) => {
               return (
                 <tr key={"tr_"+i}>
                   {Object.keys(a[1][0]).map((cell, ii) => {
@@ -571,26 +620,31 @@ const sectionsContent = (activekey, data) => {
                 </tr>
               )
             });
+            if(!body.length) {
+              body = <tr><td>No data</td></tr> ;
+            }
+            let tableHeader = ConfigSDF.TableHeader[a[0]];
             tables.push(
               <CCol xs={12} md={6} lg={6} xl={6} key={a[0]}>
-                <div className="indicators-container">
-                  <b>
-                    {a[0] === "NegativeThreats" ? "Threats and pressures" : "Activities and Management"}
-                  </b>
+                <div className="mb-2">
                   <div className="sdf-row-field">
-                    {a[1].length > 0 ?
-                      <CTable>
-                        <CTableHead>
-                          <CTableRow>
-                            {header}
-                          </CTableRow>
-                        </CTableHead>
-                        <CTableBody>
-                          {body}
-                        </CTableBody>
-                      </CTable>
-                      : "No information provided"
-                    }
+                    <CTable>
+                      <CTableHead>
+                        <CTableRow>
+                          {tableHeader.map((a, i) => 
+                            <th colSpan={a.span} key={"th_"+i}>
+                              {a.text}
+                            </th>
+                          )}
+                        </CTableRow>
+                        <CTableRow>
+                          {header}
+                        </CTableRow>
+                      </CTableHead>
+                      <CTableBody>
+                        {body}
+                      </CTableBody>
+                    </CTable>
                   </div>
                 </div>
               </CCol>
@@ -600,12 +654,37 @@ const sectionsContent = (activekey, data) => {
             <CRow>
               {tables}
               {legend &&
-                <div className="sdf-legend mt-2">
+                <div className="sdf-legend">
                   {Object.keys(legend).map(a => <div key={a}><b>{a}: </b>{legend[a]}</div>)}
                 </div>
               }
             </CRow>
           );
+        case "check":
+          let options = ConfigSDF.TableHeader.ManagementPlan;
+          let checked = value[0].Exists ? value[0].Exists : "N";
+          let check = options.map((a, i) => {
+            return (
+              <div key={"m_" + i}>
+                <div className="checkbox">
+                  <input type="checkbox" className="input-checkbox" id={"management_check_"+i} disabled checked={checked === a.value}/>
+                  <label htmlFor={"management_check_"+i} className="input-label">{a.text}</label>
+                </div >
+                {checked === "Y" && checked === a.value &&
+                  Array.isArray(data) && data.map((a, i) => 
+                    <div className="mb-3" key={"a_"+i}>
+                      {typeof a === 'object' ? Object.entries(a).map(b => b[0] !== "Exists" && <p className="mb-1" key={"b_"+b}><b>{b[0]}</b>: {b[1] ? parseLinks(b[1]) : "No information provided"}</p>) : parseLinks(a[1])}
+                    </div>
+                  )
+                }
+              </div>
+            )
+          });
+          return (
+            <div className="sdf-row-field">
+              {check}
+            </div>
+          )
       }
     }
     
@@ -621,15 +700,19 @@ const sectionsContent = (activekey, data) => {
   return fields;
 }
 
-const renderSections = (index, data) => {
-  return (
-    <CRow className="p-4" key={index}>
-      <div id={index}>
-        <h2>{index}. {ConfigSDF.Titles[index-1]}</h2>
-        {sectionsContent(index, data)}
-      </div>
-    </CRow>
-  );
+const renderSections = (data) => {
+  let sections = [];
+  Object.keys(data).filter(a => a !== "SiteInfo").forEach((item, i) => {
+    sections.push(
+      <CRow className="p-4" key={i}>
+        <div id={i+1}>
+          <h2>{i+1}. {ConfigSDF.Titles[i]}</h2>
+          {sectionsContent(i+1, data[item])}
+        </div>
+      </CRow>
+    )
+  });
+  return sections;
 }
 
 export default SDFVisualization;
