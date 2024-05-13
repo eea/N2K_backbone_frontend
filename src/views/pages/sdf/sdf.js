@@ -194,7 +194,7 @@ const SDFVisualization = () => {
                 </div>
               </div>
               <div className="select--right">
-              <CFormSelect aria-label="Select type" className="form-select-reporting" value={type} onChange={(e) => {changeType(e.currentTarget.value)}}>
+              <CFormSelect aria-label="Select type" className="form-select-reporting" disabled={isLoading} value={type} onChange={(e) => {changeType(e.currentTarget.value)}}>
                 {
                   types.map((e)=><option value={e.value} key={e.value}>{e.name}</option>)
                 }
