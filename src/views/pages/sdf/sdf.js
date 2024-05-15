@@ -404,8 +404,9 @@ const sectionsContent = (activekey, data) => {
               let tableHeader = ConfigSDF.TableHeader.OwnershipType;
               let val = [];
               value.forEach(item => {
-                if(item.Type === "national/federal") {
-                  item.Type = "publicnational"
+                let check = Object.entries(tableHeader).find(a => a[1].toLowerCase().includes(item.Type.toLowerCase()));
+                if(check) {
+                  item.Type = check[0];
                 }
                 let found = val.find(a => a.Type === item.Type);
                 if(found) {
