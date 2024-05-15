@@ -557,8 +557,12 @@ const sectionsContent = (activekey, data) => {
             return value;
           }
           let body = value.map((row, i) => {
+            let color;
+            if((field === "Species" || field === "OtherSpecies") && Object.entries(row).find(a => a[1] === "Yes")) {
+              color = ConfigSDF.Colors.Red;
+            }
             return (
-              <tr key={"tr_"+i}>
+              <tr style={{backgroundColor: color ? color : ""}} key={"tr_"+i}>
                 {Object.keys(value[0]).map((cell, ii) => {
                   return <CTableDataCell key={"tc_"+i+ii}><span>{checkCellLink(cell, row[cell])}</span></CTableDataCell>
                 })}
