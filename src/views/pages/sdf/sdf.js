@@ -380,9 +380,9 @@ const sectionsContent = (activekey, data) => {
           case "GeneralCharacter":
             title = "General site character";
             value = field[1].GeneralCharacter;
-            value = value.map(obj => ({"HabitatClass": ConfigSDF.HabitatClasses[obj.Code], ...obj}));
+            value = value.map(obj => ({"Code": obj.Code, "HabitatClass": ConfigSDF.HabitatClasses[obj.Code], "Cover": obj.Cover}));
             let total = value.map(a => a["Cover"]).reduce((a, b) => a + b, 0);
-            value.push({"HabitatClass": "Total Habitat Cover", "Code": "","Cover": parseFloat((total).toFixed(4))});
+            value.push({ "Code": "","HabitatClass": "Total Habitat Cover", "Cover": parseFloat((total).toFixed(4))});
             legend = field[1].OtherCharacteristics;
             type = "table";
             break;
