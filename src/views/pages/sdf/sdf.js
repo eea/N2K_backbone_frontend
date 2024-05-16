@@ -404,8 +404,9 @@ const sectionsContent = (activekey, data) => {
               let tableHeader = ConfigSDF.TableHeader.OwnershipType;
               let val = [];
               value.forEach(item => {
-                if(item.Type === "national/federal") {
-                  item.Type = "publicnational"
+                let check = Object.entries(tableHeader).find(a => a[1].toLowerCase().includes(item.Type.toLowerCase()));
+                if(check) {
+                  item.Type = check[0];
                 }
                 let found = val.find(a => a.Type === item.Type);
                 if(found) {
@@ -515,7 +516,7 @@ const sectionsContent = (activekey, data) => {
       let parts = text;
       if(isNaN(text)) {
         parts = !Array.isArray(text) ? text.split(reg) : text;
-        return parts.map((part, i) => (part.match(reg) ? <a href={part} target="_blank" key={i+"_"+part}>{part}</a> : part));
+        return parts.map((part, i) => (part.match(reg) ? <a className="sdf-link" href={part} target="_blank" key={i+"_"+part}>{part}</a> : part));
       }
       else {
         return parts;
