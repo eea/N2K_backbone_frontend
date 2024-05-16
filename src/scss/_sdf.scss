@@ -1,5 +1,4 @@
 .sdf-map {
-  pointer-events: none;
   #mapDiv {
     height: 400px !important;
     .esri-attribution {
@@ -90,6 +89,22 @@
       overflow: auto;
       tr:last-of-type td {
         border-bottom: none;
+      }
+    }
+    .sdf-link {
+      word-break: break-all;
+    }
+    .checkbox {
+      margin-bottom: 0.5rem;
+      input[disabled] + label {
+        &::after, &::before {
+          cursor: default;
+        }
+      }
+      label {
+        color: inherit;
+        font-size: 1rem;
+        cursor: auto;
       }
     }
   }
