@@ -516,7 +516,7 @@ const sectionsContent = (activekey, data) => {
       let parts = text;
       if(isNaN(text)) {
         parts = !Array.isArray(text) ? text.split(reg) : text;
-        return parts.map((part, i) => (part.match(reg) ? <a href={part} target="_blank" key={i+"_"+part}>{part}</a> : part));
+        return parts.map((part, i) => (part.match(reg) ? <a className="sdf-link" href={part} target="_blank" key={i+"_"+part}>{part}</a> : part));
       }
       else {
         return parts;

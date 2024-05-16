@@ -91,6 +91,9 @@
         border-bottom: none;
       }
     }
+    .sdf-link {
+      word-break: break-all;
+    }
     .checkbox {
       margin-bottom: 0.5rem;
       input[disabled] + label {
