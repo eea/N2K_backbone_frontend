@@ -255,6 +255,11 @@
     text-decoration: none;
   }
 
+  &.noborder {
+    box-shadow: none;
+    padding: 0;
+  }
+
   .card-dashboard-new {
     display: flex;
     flex-direction: row;
