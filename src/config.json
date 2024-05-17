@@ -58,7 +58,7 @@
   "LINEAGE_GET_REFERENCE_SITES": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteLineage/GetLineageReferenceSites",
   "LINEAGE_SAVE_CHANGES": "https://n2kbackboneback-dev.azurewebsites.net/api/SiteLineage/SaveEdition",
   "ATTACHMENTS_DOWNLOAD": "https://n2kbackboneback-dev.azurewebsites.net/api/Download/Get/",
-  "GET_SDF_DATA": "https://n2kbackboneback-dev.azurewebsites.net/api/SDF/GetData",
+  "GET_SDF_DATA": "https://n2kbackboneback-dev.azurewebsites.net/api/SDF/GetExtraData",
   "REPORTING_PERIOD_GET": "https://n2kbackboneback-dev.azurewebsites.net/api/ReportingPeriod/Get",
   "REPORTING_PERIOD_EDIT": "https://n2kbackboneback-dev.azurewebsites.net/api/ReportingPeriod/Edit",
   "REPORTING_PERIOD_CREATE": "https://n2kbackboneback-dev.azurewebsites.net/api/ReportingPeriod/Create",

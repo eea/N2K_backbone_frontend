@@ -452,10 +452,15 @@ export class ModalChanges extends Component {
               return (<CTableDataCell key={v + "_" + index}
                 style={{ backgroundColor: (pos.includes(index) ? colorizeValue(v) : "") }}>
                 {isNaN(v) ? v : Number(v)} </CTableDataCell>)
-            } else
-              return (<CTableDataCell key={v + "_" + index}>{v} </CTableDataCell>)
+            }
+            else {
+              if(this.state.data.Status === "Pending" && (type === "Site Merged" || type === "Site Split" || type === "Site Recoded" || type === "Site Deleted" || type === "Site Added")) {
+                return (<CTableDataCell key={v + "_" + index}>{v.split(",").map((a, i) => <>{i > 0 && ", "} <a href={"/#/sdf?sitecode=" + a + "&type=" + fields[index].toLowerCase()} target="_blank">{a}</a></>)}</CTableDataCell>)
+              }
+              else
+                return (<CTableDataCell key={v + "_" + index}>{v} </CTableDataCell>)
+            }
           })}
-
         </CTableRow>
       )
     }
@@ -1436,7 +1441,7 @@ export class ModalChanges extends Component {
                 </CNavLink>
               </CNavItem>
               <div className="ms-auto">
-                <CButton color="link" href={"/#/sdf?sitecode=" + sdfSiteCode  + "&version=" + data.Version + "&type=reference"} target="_blank"
+                <CButton color="link" href={"/#/sdf?sitecode=" + sdfSiteCode} target="_blank"
                   className={sdfSiteCode == null ? "disabled" : ""}>
                   <i className="fas fa-arrow-up-right-from-square me-2"></i>
                   SDF
