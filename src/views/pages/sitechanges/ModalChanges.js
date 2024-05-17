@@ -452,10 +452,15 @@ export class ModalChanges extends Component {
               return (<CTableDataCell key={v + "_" + index}
                 style={{ backgroundColor: (pos.includes(index) ? colorizeValue(v) : "") }}>
                 {isNaN(v) ? v : Number(v)} </CTableDataCell>)
-            } else
-              return (<CTableDataCell key={v + "_" + index}>{v} </CTableDataCell>)
+            }
+            else {
+              if(this.state.data.Status === "Pending" && UtilsData.LINEAGETYPES.includes(type)) {
+                return (<CTableDataCell key={v + "_" + index}>{v.split(",").map((a, i) => <>{i > 0 && ", "} <a href={"/#/sdf?sitecode=" + a + "&type=" + fields[index].toLowerCase()} target="_blank">{a}</a></>)}</CTableDataCell>)
+              }
+              else
+                return (<CTableDataCell key={v + "_" + index}>{v} </CTableDataCell>)
+            }
           })}
-
         </CTableRow>
       )
     }
@@ -476,7 +481,6 @@ export class ModalChanges extends Component {
   renderChangeList() {
     let levels = this.state.levels;
     let list = [];
-    const lineageTypeList = ["Site Added", "Site Deleted", "Site Merged", "Site Split", "Site Recoded"];
     for (let l in levels) {
       let changes = this.state.data[levels[l]][this.state.bookmark];
       let level = levels[l];
@@ -495,7 +499,7 @@ export class ModalChanges extends Component {
                 </div>
                 <div>
                   {this.state.data.Status === "Pending"
-                    && ((changes[i][j].ChangeCategory == "Lineage" || lineageTypeList.includes(changes[i][j].ChangeType))
+                    && ((changes[i][j].ChangeCategory == "Lineage" || UtilsData.LINEAGETYPES.includes(changes[i][j].ChangeType))
                     && this.props.lineageChangeType !== "NoChanges" && this.props.lineageChangeType !== "NoGeometryReported"
                     && this.props.lineageChangeType !== "NewGeometryReported")
                     &&
@@ -1441,7 +1445,7 @@ export class ModalChanges extends Component {
                 </CNavLink>
               </CNavItem>
               <div className="ms-auto">
-                <CButton color="link" href={"/#/sdf?sitecode=" + sdfSiteCode  + "&version=" + data.Version + "&type=reference"} target="_blank"
+                <CButton color="link" href={"/#/sdf?sitecode=" + sdfSiteCode} target="_blank"
                   className={sdfSiteCode == null ? "disabled" : ""}>
                   <i className="fas fa-arrow-up-right-from-square me-2"></i>
                   SDF
