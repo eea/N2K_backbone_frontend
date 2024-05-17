@@ -1341,7 +1341,12 @@ export class ModalChanges extends Component {
             }
             body[field] = value;
           }
-          this.setState({ fields: body, fieldChanged: false, updatingData: false });
+          this.getCurrentVersion().then(version => {
+            this.versionChanged = true;
+            this.currentVersion = version;
+            this.resetLoading();
+            this.setState({ data: {}, fields: {}, loading: true, fieldChanged: false, updatingData: false });
+          })
         }
         else {
           this.showErrorMessage("fields", "Something went wrong");
@@ -1488,7 +1493,7 @@ export class ModalChanges extends Component {
   }
 
   copyLink() {
-    let link = window.location.origin + "/#/sharesite?sitecode=" + this.props.item + "&version=" + this.props.version;
+    let link = window.location.origin + "/#/sharesite?sitecode=" + this.props.item + "&version=" +(this.versionChanged ? this.currentVersion : this.props.version);
     navigator.clipboard.writeText(link);
     this.setState({ showCopyTooltip: true });
     setTimeout(() => {
@@ -1573,7 +1578,7 @@ export class ModalChanges extends Component {
   loadComments() {
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)) {
       this.isLoadingComments = true;
-      this.dl.fetch(ConfigData.GET_SITE_COMMENTS + `siteCode=${this.props.item}&version=${this.props.version}`)
+      this.dl.fetch(ConfigData.GET_SITE_COMMENTS + `siteCode=${this.props.item}&version=${this.versionChanged ? this.currentVersion : this.props.version}`)
         .then(response => {
           if (response.status === 200)
             return response.json();
@@ -1598,7 +1603,7 @@ export class ModalChanges extends Component {
   loadDocuments() {
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)) {
       this.isLoadingDocuments = true;
-      this.dl.fetch(ConfigData.GET_ATTACHED_FILES + `siteCode=${this.props.item}&version=${this.props.version}`)
+      this.dl.fetch(ConfigData.GET_ATTACHED_FILES + `siteCode=${this.props.item}&version=${this.versionChanged ? this.currentVersion : this.props.version}`)
         .then(response => {
           if (response.status === 200)
             return response.json();
@@ -1697,12 +1702,12 @@ export class ModalChanges extends Component {
     }
     this.props.updateModalValues("Accept Changes",
       "This will accept all the site changes" + (this.state.data.AffectedSites ? ", including lineage changes. Those sites related to this by lineage changes will also be accepted: " + this.state.data.AffectedSites : ""),
-      "Continue", () => this.acceptChanges()?.catch(e => {this.showErrorMessage("general", "Error accepting changes"); console.log(e)}),
+      "Continue", () => this.acceptChanges({"SiteCode": this.props.item, "Version": this.versionChanged ? this.currentVersion : this.props.version})?.catch(e => {this.showErrorMessage("general", "Error accepting changes"); console.log(e)}),
       "Cancel", () => { this.changingStatus = false });
   }
 
-  acceptChanges() {
-    return this.props.accept()
+  acceptChanges(changes) {
+    return this.props.accept(changes)
       .then((data) => {
         this.changingStatus = false;
         if (data?.Success) {
@@ -1721,12 +1726,12 @@ export class ModalChanges extends Component {
     }
     this.props.updateModalValues("Reject Changes",
       "This will reject all the site changes" + (this.state.data.AffectedSites ? ", including lineage changes. Those sites related to this by lineage changes will also be rejected: " + this.state.data.AffectedSites : ""),
-      "Continue", () => this.rejectChanges()?.catch(e => {this.showErrorMessage("general", "Error rejecting changes"); console.log(e)}),
+      "Continue", () => this.rejectChanges({"SiteCode": this.props.item, "Version": this.versionChanged ? this.currentVersion : this.props.version})?.catch(e => {this.showErrorMessage("general", "Error rejecting changes"); console.log(e)}),
       "Cancel", () => { this.changingStatus = false })
   }
 
-  rejectChanges() {
-    return this.props.reject()
+  rejectChanges(changes) {
+    return this.props.reject(changes)
       .then(data => {
         this.changingStatus = false;
         if (data?.Success) {
@@ -1785,7 +1790,7 @@ export class ModalChanges extends Component {
           })
         })
     } else {
-      return this.props.backToPending(this.props.version)
+      return this.props.backToPending(this.versionChanged ? this.currentVersion : this.props.version)
         .then((data) => {
           controlResult(data);
         })
