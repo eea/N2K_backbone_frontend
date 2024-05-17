@@ -380,9 +380,9 @@ const sectionsContent = (activekey, data) => {
           case "GeneralCharacter":
             title = "General site character";
             value = field[1].GeneralCharacter;
-            value = value.map(obj => ({"HabitatClass": ConfigSDF.HabitatClasses[obj.Code], ...obj}));
+            value = value.map(obj => ({"Code": obj.Code, "HabitatClass": ConfigSDF.HabitatClasses[obj.Code], "Cover": obj.Cover}));
             let total = value.map(a => a["Cover"]).reduce((a, b) => a + b, 0);
-            value.push({"HabitatClass": "Total Habitat Cover", "Code": "","Cover": parseFloat((total).toFixed(4))});
+            value.push({ "Code": "","HabitatClass": "Total Habitat Cover", "Cover": parseFloat((total).toFixed(4))});
             legend = field[1].OtherCharacteristics;
             type = "table";
             break;
@@ -404,8 +404,9 @@ const sectionsContent = (activekey, data) => {
               let tableHeader = ConfigSDF.TableHeader.OwnershipType;
               let val = [];
               value.forEach(item => {
-                if(item.Type === "national/federal") {
-                  item.Type = "publicnational"
+                let check = Object.entries(tableHeader).find(a => a[1].toLowerCase().includes(item.Type.toLowerCase()));
+                if(check) {
+                  item.Type = check[0];
                 }
                 let found = val.find(a => a.Type === item.Type);
                 if(found) {
@@ -515,7 +516,7 @@ const sectionsContent = (activekey, data) => {
       let parts = text;
       if(isNaN(text)) {
         parts = !Array.isArray(text) ? text.split(reg) : text;
-        return parts.map((part, i) => (part.match(reg) ? <a href={part} target="_blank" key={i+"_"+part}>{part}</a> : part));
+        return parts.map((part, i) => (part.match(reg) ? <a className="sdf-link" href={part} target="_blank" key={i+"_"+part}>{part}</a> : part));
       }
       else {
         return parts;
@@ -557,8 +558,12 @@ const sectionsContent = (activekey, data) => {
             return value;
           }
           let body = value.map((row, i) => {
+            let color;
+            if((field === "Species" || field === "OtherSpecies") && Object.entries(row).find(a => a[1] === "Yes")) {
+              color = ConfigSDF.Colors.Red;
+            }
             return (
-              <tr key={"tr_"+i}>
+              <tr style={{backgroundColor: color ? color : ""}} key={"tr_"+i}>
                 {Object.keys(value[0]).map((cell, ii) => {
                   return <CTableDataCell key={"tc_"+i+ii}><span>{checkCellLink(cell, row[cell])}</span></CTableDataCell>
                 })}

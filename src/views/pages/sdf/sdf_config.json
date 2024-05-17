@@ -48,7 +48,7 @@
   },
   "HabitatTypes": {
     "Code": "Code",
-    "HabitatName": "Habitat Name",
+    "HabitatName": "Name",
     "PF": "PF",
     "NP": "NP",
     "Cover": "Cover [ha]",
@@ -123,21 +123,21 @@
     "N27": "Agricultural habitats (general)"
   },
   "GeneralCharacter": {
-    "HabitatClass": "Habitat Class",
     "Code": "Code",
+    "HabitatClass": "Habitat Class",
     "Cover": "Cover [%]"
   },
   "NegativeThreats": {
     "Rank": "Rank",
     "Impacts": "Threats and pressures [code]",
     "Pollution": "Pollution (optional) [code]",
-    "Origin": "inside/outside [i|o|b]"
+    "Origin": "Occurrence [i|o|b]"
   },
   "PositiveThreats": {
     "Rank": "Rank",
     "Impacts": "Activities, management [code]",
     "Pollution": "Pollution (optional) [code]",
-    "Origin": "inside/outside [i|o|b]"
+    "Origin": "Occurrence [i|o|b]"
   },
   "Ownership": {
     "Type": "Type",
@@ -182,7 +182,8 @@
     },
     "Threats": {
       "Rank": "H = high, M = medium, L = low",
-      "Pollution": "N = Nitrogen input, P = Phosphor/Phosphate input, A = Acid input/acidification, T = toxic inorganic chemicals, O = toxic organic chemicals, X = Mixed pollutions, i = inside, o = outside, b = both"
+      "Pollution": "N = Nitrogen input, P = Phosphor/Phosphate input, A = Acid input/acidification, T = toxic inorganic chemicals, O = toxic organic chemicals, X = Mixed pollutions",
+      "Occurrence": "i = inside, o = outside, b = both"
     }
   },
   "TableHeader": {
@@ -264,5 +265,8 @@
         "text": "No"
       }
     ]
+  },
+  "Colors": {
+    "Red": "#f6cbcf"
   }
 }
