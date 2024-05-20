@@ -559,7 +559,7 @@ const sectionsContent = (activekey, data) => {
           }
           let body = value.map((row, i) => {
             let color;
-            if((field === "Species" || field === "OtherSpecies") && Object.entries(row).find(a => a[1] === "Yes")) {
+            if((field === "Species" || field === "OtherSpecies") && Object.entries(row).find(a => a[0] === "S" && a[1] === "Yes")) {
               color = ConfigSDF.Colors.Red;
             }
             return (
