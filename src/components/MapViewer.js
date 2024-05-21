@@ -153,62 +153,25 @@ class MapViewer extends React.Component {
                     components: ["attribution"]
                 }
             }
-            if(!this.props.mapReference){
-                mapFeats["navigation"] = {
-                    mouseWheelZoomEnabled: false,
-                    browserTouchPanEnabled: false
-                }
-            }
-          
             this.view = new MapView(mapFeats);
 
             //Code to disable all events if required
             this.view.when(()=>{
                 if(!this.props.mapReference){
-                    let stopEvtPropagation= (event) => {
-                        event.stopPropagation();
-                    }
-        
-                    // exlude the zoom widget from the default UI
                     this.view.ui.components = ["attribution"];
-            
-                    // disable mouse wheel scroll zooming on the view
-                    this.view.on("mouse-wheel", stopEvtPropagation);
-            
-                    // disable zooming via double-click on the view
-                    this.view.on("double-click", stopEvtPropagation);
-            
-                    // disable zooming out via double-click + Control on the view
-                    this.view.on("double-click", ["Control"], stopEvtPropagation);
-            
-                    // disables pinch-zoom and panning on the view
-                    this.view.on("drag", stopEvtPropagation);
-            
-                    // disable the view's zoom box to prevent the Shift + drag
-                    // and Shift + Control + drag zoom gestures.
-                    this.view.on("drag", ["Shift"], stopEvtPropagation);
-                    this.view.on("drag", ["Shift", "Control"], stopEvtPropagation);
-            
-                    // prevents zooming with the + and - keys
-                    this.view.on("key-down", (event) => {
-                        const prohibitedKeys = ["+", "-", "Shift", "_", "=", "ArrowUp", "ArrowDown", "ArrowRight", "ArrowLeft"];
-                        const keyPressed = event.key;
-                        if (prohibitedKeys.indexOf(keyPressed) !== -1) {
-                            event.stopPropagation();
-                        }
-                    });
                 }
             });
             
             this.setState({});
-            if(this.props.mapReference){
-                this.zoom = new Zoom({
-                    view: this.view
-                });
-                this.view.ui.add(this.zoom, {
-                    position: "top-right"
-                });
 
+            this.zoom = new Zoom({
+                view: this.view
+            });
+            this.view.ui.add(this.zoom, {
+                position: "top-right"
+            });
+
+            if(this.props.mapReference){
                 let layerList = new LayerList({view: this.view});
                 this.view.ui.add(layerList,{position: "top-left"});
                 
