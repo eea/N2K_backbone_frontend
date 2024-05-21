@@ -74,6 +74,7 @@ const Sitechanges = () => {
   const [activeTab, setActiveTab] = useState(1)
   const [isTabChanged, setIsTabChanged] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
+  const [statusLoaded, setStatusLoaded] = useState([]);
   const [forceRefresh, setForceRefresh] = useState(0);
   const [countries, setCountries] = useState([]);
   const [countriesLoaded, setCountriesLoaded] = useState(false);
@@ -122,6 +123,7 @@ const Sitechanges = () => {
       codes[status] = data;
       setSitecodes(codes);
       setSearchList(getSitesList());
+      setStatusLoaded(statusLoaded => [...statusLoaded, status]);
       setIsLoading(false);
     }
     else if (country){
@@ -186,6 +188,7 @@ const Sitechanges = () => {
 
   let forceRefreshData = ()=>{
     setIsLoading(true);
+    setStatusLoaded([]);
     setLoadingSites(true);
     setSitecodes({});
     setSearchList({});
@@ -575,19 +578,19 @@ const Sitechanges = () => {
                 <div>
                   <ul className="btn--list">
                     <li>
-                      <div className="checkbox" disabled={loadingSites}>
+                      <div className="checkbox" disabled={loadingSites || statusLoaded.length !== 3}>
                         <input type="checkbox" className="input-checkbox" id="site_check_critical" checked={level==="Critical"} onClick={()=>changeLevel("Critical")} readOnly/>
                         <label htmlFor="site_check_critical" className="input-label badge color--critical">Critical</label>
                       </div>
                     </li>
                     <li>
-                      <div className="checkbox" disabled={loadingSites}>
+                      <div className="checkbox" disabled={loadingSites || statusLoaded.length !== 3}>
                         <input type="checkbox" className="input-checkbox" id="site_check_warning" checked={level==="Warning"} onClick={()=>changeLevel("Warning")} readOnly/>
                         <label htmlFor="site_check_warning" className="input-label badge color--warning">Warning</label>
                       </div>
                     </li>
                     <li>
-                      <div className="checkbox" disabled={loadingSites}>
+                      <div className="checkbox" disabled={loadingSites || statusLoaded.length !== 3}>
                         <input type="checkbox" className="input-checkbox" id="site_check_info" checked={level==="Info"} onClick={()=>changeLevel("Info")} readOnly/>
                         <label htmlFor="site_check_info" className="input-label badge color--info">Info</label>
                       </div>
@@ -611,7 +614,7 @@ const Sitechanges = () => {
                       Item={item}
                       GroupName={group}
                       typeahead={false}
-                      disabled={loadingSites}
+                      disabled={loadingSites || statusLoaded.length !== 3}
                     />
                     {Object.keys(selectOption).length !== 0 &&
                       <span className="btn-icon" onClick={()=>clearSearch(true)}>
@@ -627,7 +630,7 @@ const Sitechanges = () => {
                 <CCol sm={12} md={6} lg={6} className="mb-4">
                   <div className="select--right">
                     <CFormLabel htmlFor="exampleFormControlInput1" className='form-label form-label-reporting col-md-4 col-form-label'>Country </CFormLabel>
-                      <CFormSelect aria-label="Default select example" className='form-select-reporting' disabled={loadingSites} value={country} onChange={(e)=>changeCountry(e.target.value)}>
+                      <CFormSelect aria-label="Default select example" className='form-select-reporting' disabled={loadingSites || statusLoaded.length !== 3} value={country} onChange={(e)=>changeCountry(e.target.value)}>
                       {
                         countries.map((e)=><option value={e.code} key={e.code}>{e.name}</option>)
                       }
@@ -672,21 +675,21 @@ const Sitechanges = () => {
                       <div className="me-4"><h2 className="card-site-level-title">Filter by:</h2></div>
                       <ul className="btn--list">
                         <li>
-                          <div className="checkbox" disabled={loadingSites}>
+                          <div className="checkbox" disabled={loadingSites || statusLoaded.length !== 3}>
                             <input type="checkbox" className="input-checkbox" id="site_check_justification" checked={filterJustification===true} onClick={(e)=>changeFilter("justification", e.currentTarget.checked)} />
                             <label htmlFor="site_check_justification" className="input-label badge color--default">Justification missing</label>
                           </div>
                         </li>
                         {activeTab === 2 && 
                           <li>
-                            <div className="checkbox" disabled={loadingSites}>
+                            <div className="checkbox" disabled={loadingSites || statusLoaded.length !== 3}>
                               <input type="checkbox" className="input-checkbox" id="site_check_edited" checked={filterEdited===true} onClick={(e)=>changeFilter("edited", e.currentTarget.checked)} />
                               <label htmlFor="site_check_edited" className="input-label badge color--default">Edited</label>
                             </div>
                           </li>
                         }
                         <li>
-                          <div className="checkbox" disabled={loadingSites}>
+                          <div className="checkbox" disabled={loadingSites || statusLoaded.length !== 3}>
                             <input type="checkbox" className="input-checkbox" id="site_check_sci" checked={filterSCI===true} onClick={(e)=>changeFilter("sci", e.currentTarget.checked)} />
                             <label htmlFor="site_check_sci" className="input-label badge color--default">SCI (Type B+C)</label>
                           </div>
