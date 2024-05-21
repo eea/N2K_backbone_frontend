@@ -60,7 +60,7 @@ const SDFVisualization = () => {
     let release = params.get("release");
     let nav = params.get("nav");
     setSiteCode(sitecode ? sitecode : "nodata");
-    setRelease(release);
+    setRelease(parseInt(release));
     setNav(nav);
   }
 
@@ -93,10 +93,11 @@ const SDFVisualization = () => {
             setData("nodata");
           }
           else {
-            setReleases(data.Data.SiteInfo.Releases);
+            let releases = data.Data.SiteInfo.Releases.reverse();
+            setReleases(releases);
             setData(formatData(data));
             if(!release) {
-              let release = data.Data.SiteInfo.Releases[0].ReleaseId;
+              let release = releases[0].ReleaseId;
               setRelease(release);
               window.location.hash = "#/sdf-release?sitecode=" + siteCode + "&release=" + release;
             }
@@ -193,11 +194,11 @@ const SDFVisualization = () => {
                 <NaturaLogo/>
                 <div>
                   <h1>NATURA 2000 - STANDARD DATA FORM</h1>
-                  <b>RELEASE {release && releases.length > 0 && releases.find(a => a.ReleaseId === parseInt(release))?.ReleaseName}</b>
+                  <b>RELEASE {release && releases.length > 0 && releases.find(a => a.ReleaseId === release)?.ReleaseName}</b>
                 </div>
               </div>
               <div className="select--right">
-                <CFormSelect aria-label="Select release" className="form-select-reporting" disabled={isLoading || siteCode === "nodata" || releases.length === 0} value={releases.find(a => a.ReleaseId === parseInt(release)) ? release : ""} onChange={(e) => {changeRelease(e.currentTarget.value)}}>
+                <CFormSelect aria-label="Select release" className="form-select-reporting" disabled={isLoading || siteCode === "nodata" || releases.length === 0} value={releases.find(a => a.ReleaseId === release) ? release : ""} onChange={(e) => {changeRelease(e.currentTarget.value)}}>
                   <option hidden disabled value="">Select a release</option>
                   {
                     releases.map((e)=><option value={e.ReleaseId} key={e.ReleaseId}>{e.ReleaseName + " (" + formatDate(e.ReleaseDate, true) + ")"}</option>)
