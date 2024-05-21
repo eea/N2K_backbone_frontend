@@ -451,7 +451,7 @@ export class ModalChanges extends Component {
             if (fields.includes("Difference") || fields.includes("Percentage")) {
               return (<CTableDataCell key={v + "_" + index}
                 style={{ backgroundColor: (pos.includes(index) ? colorizeValue(v) : "") }}>
-                {isNaN(v) ? v : Number(v)} </CTableDataCell>)
+                {(isNaN(v) || v == "") ? v : Number(v)} </CTableDataCell>)
             } else
               return (<CTableDataCell key={v + "_" + index}>{v} </CTableDataCell>)
           })}
