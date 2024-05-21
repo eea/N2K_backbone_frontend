@@ -27,6 +27,7 @@ const LineageHistory = React.lazy(() => import('./views/pages/sitelineage/histor
 const ShareSite = React.lazy(() => import('./views/pages/sitechanges/sharesite'))
 const ReportingPeriod = React.lazy(() => import('./views/pages/reportingperiod/reportingperiod'))
 const SDF = React.lazy(() => import('./views/pages/sdf/sdf'))
+const SDFRelease = React.lazy(() => import('./views/pages/sdf/sdf-release'))
 const NotFound = React.lazy(() => import('./views/other/notfound'))
 //const NotAuthorized = React.lazy(() => import('./views/other/notauthorized')) 
 
@@ -58,6 +59,7 @@ const routes = [
   { path: '/sharesite', exact: true, name: 'Share', component: ShareSite },
   { path: '/reportingperiod', exact: true, name: 'ReportingPeriod', component: ReportingPeriod },
   { path: '/sdf', exact: true, name: 'SDF', component: SDF},
+  { path: '/sdf-release', exact: true, name: 'SDF Release', component: SDFRelease},
   { path: '/*', name: 'Not Found', component: NotFound },
 ]
 
