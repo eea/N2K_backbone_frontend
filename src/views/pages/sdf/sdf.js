@@ -29,11 +29,10 @@ const SDFVisualization = () => {
   const [data, setData] = useState([]);
   const [errorLoading, setErrorLoading] = useState(false);
   const [siteCode, setSiteCode] = useState("");
-  const [version, setVersion] = useState("");
   const [type, setType] = useState("");
   const [nav, setNav] = useState("");
-  const [types, setTypes] = useState([{"value":"reference", "name":"Reference"}, {"value":"submission", "name":"Submission"}]);
   const [showScrollBtn, setShowScrollBtn] = useState(false);
+  const types = [{"type": "reference", "name": "Reference"}, {"type": "submission", "name": "Submission"}];
 
   useEffect(() => {
     window.addEventListener("scroll", () => {
@@ -58,12 +57,14 @@ const SDFVisualization = () => {
     let query = window.location.hash.split("?")[1];
     let params = new URLSearchParams(query);
     let sitecode = params.get("sitecode");
-    let version = params.get("version");
     let type = params.get("type");
     let nav = params.get("nav");
-    setSiteCode(sitecode && version && type ? sitecode : "nodata");
-    setVersion(version);
-    setType(type);
+    if(sitecode && !type) {
+      type = "reference";
+      window.location.hash = "#/sdf?sitecode=" + sitecode + "&type=" + type;
+    }
+    setSiteCode(sitecode ? sitecode : "nodata");
+    setType(type ? type : "reference");
     setNav(nav);
   }
 
@@ -82,17 +83,12 @@ const SDFVisualization = () => {
     if(siteCode !=="" && !isLoading) {
       setIsLoading(true);
       let url = ConfigData.GET_SDF_DATA;
-      if(type === "submission") {
-        url +="?siteCode=" + siteCode + "&version=" + version;
-      }
-      else {
-        url += "?siteCode=" + siteCode;
-      }
+      url += "?siteCode=" + siteCode + "&submission=" + types.map(item => item.type).indexOf(type);
       dl.fetch(url)
       .then(response =>response.json())
       .then(data => {
         if(data?.Success) {
-          if(Object.keys(data.Data).length === 0){
+          if(!data.Data.SiteInfo.SiteCode) {
             setData("nodata");
           }
           else {
@@ -100,7 +96,7 @@ const SDFVisualization = () => {
           }
         }
         else {
-          setErrorLoading(true)
+          setErrorLoading(true);
         }
         setIsLoading(false);
       });
@@ -165,12 +161,12 @@ const SDFVisualization = () => {
     loadData();
   }
 
-  const changeType = (value) => {
-    window.location.hash = "#/sdf?sitecode=" + siteCode  + "&version=" + version + "&type=" + value;
+  const changeType = (type) => {
+    window.location.hash = "#/sdf?sitecode=" + siteCode + "&type=" + type;
     setSiteCode("");
-    setVersion("");
     setType("");
     setData([]);
+    setErrorLoading(false);
   }
 
   return (
@@ -194,11 +190,11 @@ const SDFVisualization = () => {
                 </div>
               </div>
               <div className="select--right">
-              <CFormSelect aria-label="Select type" className="form-select-reporting" disabled={isLoading} value={type} onChange={(e) => {changeType(e.currentTarget.value)}}>
-                {
-                  types.map((e)=><option value={e.value} key={e.value}>{e.name}</option>)
-                }
-              </CFormSelect>
+                <CFormSelect aria-label="Select type" className="form-select-reporting" disabled={isLoading || siteCode === "nodata" } value={type} onChange={(e) => {changeType(e.currentTarget.value)}}>
+                  {
+                    types.map((e)=><option value={e.type} key={e.type}>{e.name}</option>)
+                  }
+                </CFormSelect>
               </div>
             </div>
           </CCol>
@@ -214,7 +210,7 @@ const SDFVisualization = () => {
       {isLoading ?
         <div className="loading-container"><em>Loading...</em></div>
       :
-      siteCode === "nodata" ? <div className="nodata-container"><em>No Data</em></div> :
+      siteCode === "nodata" || data === "nodata" ? <div className="nodata-container"><em>No Data</em></div> :
       siteCode && Object.keys(data).length > 0 &&
         <>
           {showMainData()}
@@ -559,7 +555,7 @@ const sectionsContent = (activekey, data) => {
           }
           let body = value.map((row, i) => {
             let color;
-            if((field === "Species" || field === "OtherSpecies") && Object.entries(row).find(a => a[1] === "Yes")) {
+            if((field === "Species" || field === "OtherSpecies") && Object.entries(row).find(a => a[0] === "S" && a[1] === "Yes")) {
               color = ConfigSDF.Colors.Red;
             }
             return (
