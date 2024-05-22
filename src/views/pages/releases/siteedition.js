@@ -272,16 +272,14 @@ const Releases = () => {
                     </li>
                     <li>
                       <div className="checkbox" disabled={Object.keys(siteCodes).length === 0}>
-                        <input type="checkbox" className="input-checkbox" id="edition_check" checked={filterEdited} onClick={(e)=>changeFilter("edited", e.currentTarget.checked)} />
-                        <label htmlFor="edition_check" className="input-label badge color--default">Edited
-                        </label>
+                        <input type="checkbox" className="input-checkbox" id="edition_check_edited" checked={filterEdited} onClick={(e)=>changeFilter("edited", e.currentTarget.checked)} />
+                        <label htmlFor="edition_check_edited" className="input-label badge color--default">Edited</label>
                       </div>
                     </li>
                     <li>
                       <div className="checkbox" disabled={Object.keys(siteCodes).length === 0}>
-                        <input type="checkbox" className="input-checkbox" id="sci_check" checked={filterSCI} onClick={(e)=>changeFilter("sci", e.currentTarget.checked)} />
-                        <label htmlFor="sci_check" className="input-label badge color--default">SCI
-                        </label>
+                        <input type="checkbox" className="input-checkbox" id="edition_check_sci" checked={filterSCI} onClick={(e)=>changeFilter("sci", e.currentTarget.checked)} />
+                        <label htmlFor="edition_check_sci" className="input-label badge color--default">SCI (Type B+C)</label>
                       </div>
                     </li>
                   </ul>

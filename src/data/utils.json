@@ -46,6 +46,13 @@
     "Closed": "Completed",
     "Discarded": "Discarded"
   },
+  "LINEAGETYPES" : [
+    "Site Added",
+    "Site Deleted",
+    "Site Split",
+    "Site Merged",
+    "Site Recoded"
+  ],
   "COLORS": {
     "White": "#ffffff",
     "Grey": "#e4e4e4",

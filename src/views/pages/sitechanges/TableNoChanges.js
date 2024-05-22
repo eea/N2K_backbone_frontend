@@ -94,7 +94,7 @@ function DefaultColumnFilter({
             id: 'siteSDF',
             Cell: ({ row }) => {
               return (
-                <CButton color="link" href={"/#/sdf?sitecode=" + row.original.SiteCode + "&version=" + row.original.Version + "&type=reference"} target="_blank">
+                <CButton color="link" href={"/#/sdf?sitecode=" + row.original.SiteCode} target="_blank">
                   SDF
                 </CButton>
               )
