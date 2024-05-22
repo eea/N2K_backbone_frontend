@@ -38,7 +38,7 @@
     "B": "SCI",
     "C": "SPA/SCI"
   },
-  "ACCEPTED_DOCUMENT_FORMATS": ".pdf, .doc, .docx, .xls, .xlsx, .txt, .tif, .json, .kml, .gml, .xml, .zip, .7z",
+  "ACCEPTED_DOCUMENT_FORMATS": ".pdf, .doc, .docx, .xls, .xlsx, .txt, .tif, .json, .kml, .gml, .xml, .zip, .7z, .jpg, .jpeg, .png, .tiff, .gtif, .gtiff",
   "HARVESTING_STATUS": {
     "DataLoaded": "Incoming",
     "PreHarvested": "Ready to Use",
