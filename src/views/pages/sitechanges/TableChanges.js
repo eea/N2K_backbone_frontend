@@ -519,6 +519,12 @@ const IndeterminateCheckbox = React.forwardRef(
         {
           Header: 'Change Type',
           accessor: 'ChangeType',
+          Cell: ({ row }) => {
+            const num = row.original.NumChanges
+            const change = row.values.ChangeType
+            if (change == "") return null
+            else return change + (num != undefined ? ' ('+ num +')' : "")
+          }
         },
         {
           Header: () => null,
