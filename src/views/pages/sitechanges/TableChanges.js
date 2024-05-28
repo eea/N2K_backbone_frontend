@@ -520,10 +520,14 @@ const IndeterminateCheckbox = React.forwardRef(
           Header: 'Change Type',
           accessor: 'ChangeType',
           Cell: ({ row }) => {
-            const num = row.original.NumChanges
             const change = row.values.ChangeType
             if (change == "") return null
-            else return change + (num != undefined ? ' ('+ num +')' : "")
+            const num = (() => {
+              if (change.match(/((specie)|(habitat))/gi)) return row.original.NumChanges
+              if (change.match(/(del).+(area)+|(cover_ha).+(dec)+/gi)) return (Math.abs(row.original.OldValue - row.original.NewValue)).toFixed(4)
+              else return undefined
+            })()
+            return change + (num != undefined ? ' ('+ num +')' : "")
           }
         },
         {
