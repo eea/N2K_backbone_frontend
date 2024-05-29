@@ -28,26 +28,46 @@
   }
   &-secondary {
     background-color: $white;
-    color: $danger-base;
-    border-color: $danger-base;
+    color: $primary-base;
+    border-color: $primary-base;
     transition: $transition-base;
     &:hover {
-      background-color: $danger-base;
+      background-color: $primary-base;
       color: $white;
-      border-color: $danger-base;
+      border-color: $primary-base;
       transition: $transition-base;
     }
     &:focus, &:active, &:focus:active {
       box-shadow: none;
       background-color: $white;
-      color: $danger-base;
-      border-color: $danger-base;
+      color: $primary-base;
+      border-color: $primary-base;
     }
     &:disabled {
       opacity: 0.5;
       background-color: $white;
+      color: $primary-base;
+      border-color: $primary-base;
+    }
+    &.red {
+      background-color: $white;
       color: $danger-base;
       border-color: $danger-base;
+      &:hover {
+        background-color: $danger-base;
+        color: $white;
+        border-color: $danger-base;
+      }
+      &:focus, &:active, &:focus:active {
+        background-color: $white;
+        color: $danger-base;
+        border-color: $danger-base;
+      }
+      &:disabled {
+        background-color: $white;
+        color: $danger-base;
+        border-color: $danger-base;
+      }
     }
   }
   &-link--bold {
