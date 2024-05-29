@@ -17,6 +17,9 @@
     align-items: center;
     h1 {
       margin-bottom: 0;
+      .sensitive {
+        color: $danger-base;
+      }
     }
     b {
       color: $blue;
