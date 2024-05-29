@@ -451,7 +451,7 @@ export class ModalChanges extends Component {
             if (fields.includes("Difference") || fields.includes("Percentage")) {
               return (<CTableDataCell key={v + "_" + index}
                 style={{ backgroundColor: (pos.includes(index) ? colorizeValue(v) : "") }}>
-                {(isNaN(v) || v == "") ? v : Number(v)} </CTableDataCell>)
+                {(Number.isNaN(parseFloat(v)) || v.match(/[A-Z]/g)) ? v : Number(v)} </CTableDataCell>)
             } else {
               if(this.state.data.Status === "Pending" && UtilsData.LINEAGETYPES.includes(type)) {
                 return (<CTableDataCell key={v + "_" + index}>{v.split(",").map((a, i) => <>{i > 0 && ", "} <a href={"/#/sdf?sitecode=" + a + "&type=" + fields[index].toLowerCase()} target="_blank">{a}</a></>)}</CTableDataCell>)
