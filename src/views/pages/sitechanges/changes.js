@@ -450,7 +450,7 @@ const Sitechanges = () => {
 
   let changeLevel = (level)=>{
     setLevel(level);
-    clearSearch();
+    setSitecodes({})
     forceRefreshData();
   }
 
@@ -614,7 +614,7 @@ const Sitechanges = () => {
                       Item={item}
                       GroupName={group}
                       typeahead={false}
-                      disabled={loadingSites || statusLoaded.length !== 3}
+                      // disabled={statusLoaded.length !== 3}
                     />
                     {Object.keys(selectOption).length !== 0 &&
                       <span className="btn-icon" onClick={()=>clearSearch(true)}>
