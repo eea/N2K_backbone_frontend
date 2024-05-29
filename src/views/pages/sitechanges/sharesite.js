@@ -515,7 +515,7 @@ class ModalChanges extends Component {
       this.setState({ notValidDocument: message });
       setTimeout(() => {
         this.setState({ notValidDocument: "" });
-      }, ConfigData.MessageTimeout);
+      }, UtilsData.MESSAGE_TIMEOUT);
     }
   }
 
