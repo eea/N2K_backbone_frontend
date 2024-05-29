@@ -521,13 +521,13 @@ const ModalDocumentation = (props) => {
       setNotValidComment(message);
       setTimeout(() => {
         setNotValidComment("");
-      }, ConfigData.MessageTimeout);
+      }, UtilsData.MESSAGE_TIMEOUT);
     }
     else if (target === "document") {
       setNotValidDocument(message);
       setTimeout(() => {
         setNotValidDocument("");
-      }, ConfigData.MessageTimeout);
+      }, UtilsData.MESSAGE_TIMEOUT);
     }
   }
 
