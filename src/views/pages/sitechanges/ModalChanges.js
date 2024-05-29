@@ -323,12 +323,17 @@ export class ModalChanges extends Component {
     let formats = UtilsData.ACCEPTED_DOCUMENT_FORMATS;
     let file = e.currentTarget.closest("input").value;
     let extension = file.substring(file.lastIndexOf('.'), file.length) || file;
-    if (formats.includes(extension)) {
-      this.setState({ selectedFile: e.target.files[0], isSelected: true });
+    if(file) {
+      if (formats.includes(extension)) {
+        this.setState({ selectedFile: e.target.files[0], isSelected: true });
+      }
+      else {
+        e.currentTarget.closest("#uploadBtn").value = "";
+        this.showErrorMessage("document", "File not valid, use a valid format: " + UtilsData.ACCEPTED_DOCUMENT_FORMATS);
+      }
     }
     else {
-      e.currentTarget.closest("#uploadBtn").value = "";
-      this.showErrorMessage("document", "File not valid, use a valid format: " + UtilsData.ACCEPTED_DOCUMENT_FORMATS);
+      this.setState({ selectedFile: e.target.files[0], isSelected: false });
     }
   }
 
