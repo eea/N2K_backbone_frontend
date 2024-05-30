@@ -195,7 +195,7 @@ const Sitechanges = () => {
     for(let i in refreshSitechanges)
       setRefreshSitechanges(i,true)
     setIsLoading(false);
-    };
+  };
 
   let postRequest = (url,body)=>{
     const options = {
@@ -403,13 +403,16 @@ const Sitechanges = () => {
     });
   }
 
-  let clearSearch = (focus) => {
+  let clearSearch = () => {
+    const text = document.getElementById("sitechanges_search").value
     turnstoneRef.current?.clear();
-    if(!focus) {
-      turnstoneRef.current?.blur();
-    }
+    turnstoneRef.current?.blur();
     setDisabledSearchBtn(true);
     setSelectOption({});
+    if(text.length > 0) {
+      turnstoneRef.current?.focus()
+      turnstoneRef.current?.query(text)
+    }
   }
 
   let selectSearchOption = (e) => {
@@ -450,7 +453,7 @@ const Sitechanges = () => {
 
   let changeLevel = (level)=>{
     setLevel(level);
-    setSitecodes({})
+    clearSearch();
     forceRefreshData();
   }
 
