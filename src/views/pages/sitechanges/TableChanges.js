@@ -22,6 +22,23 @@ import creation from './../../../assets/images/creation.svg'
 import deletion from './../../../assets/images/deletion.svg'
 import {DataLoader} from '../../../components/DataLoader';
 
+const useStartExpanded = (hooks) => {
+    hooks.useInstance.push(useInstance)
+}
+
+useStartExpanded.pluginName = 'useStartExpanded'
+
+const useInstance = (instance) => {
+    const {
+      state: { startExpanded },
+      toggleAllRowsExpanded
+    } = instance
+
+  useEffect(() => {
+      if (startExpanded) toggleAllRowsExpanded(true)
+    }, [startExpanded, toggleAllRowsExpanded])
+}
+
 const IndeterminateCheckbox = React.forwardRef(
     ({ indeterminate, ...rest }, ref) => {
       const defaultRef = React.useRef()
@@ -120,7 +137,7 @@ const IndeterminateCheckbox = React.forwardRef(
   
   fuzzyTextFilterFn.autoRemove = val => !val
 
-  function Table({ columns, data, setSelected, siteCodes, currentPage, currentSize, loadPage, status, updateModalValues, isTabChanged, setIsTabChanged }) {
+  function Table({ columns, data, setSelected, siteCodes, currentPage, currentSize, loadPage, level, status, updateModalValues, isTabChanged, setIsTabChanged }) {
     const [disabledBtn, setDisabledBtn] = useState(false);
     const [pgCount, setPgCount] = useState(Math.ceil(siteCodes.length / currentSize));
     const [selectedRows, setSelectedRows] = useState(0);
@@ -173,7 +190,7 @@ const IndeterminateCheckbox = React.forwardRef(
         data,
         defaultColumn,
         filterTypes,
-        initialState: {pageSize: currentSize, pageIndex:currentPage, hiddenColumns: ["EditedDate", "EditedBy", "JustificationRequired"]},
+        initialState: {pageSize: currentSize, pageIndex:currentPage, hiddenColumns: ["EditedDate", "EditedBy", "JustificationRequired"], startExpanded: level == "Critical"},
         manualPagination:true,
         pageCount: pgCount,
         paginateExpandedRows: false
@@ -184,6 +201,7 @@ const IndeterminateCheckbox = React.forwardRef(
       useExpanded,
       usePagination,
       useRowSelect,
+      useStartExpanded,
       (hooks) => {
         hooks.visibleColumns.push((columns) => [
           {
@@ -817,6 +835,7 @@ const IndeterminateCheckbox = React.forwardRef(
             currentPage={currentPage}
             currentSize={currentSize} 
             loadPage = {loadPage}
+            level={props.level}
             status={props.status}
             isTabChanged={props.isTabChanged}
             setIsTabChanged={props.setIsTabChanged}
