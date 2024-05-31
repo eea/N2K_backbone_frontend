@@ -323,12 +323,17 @@ export class ModalChanges extends Component {
     let formats = UtilsData.ACCEPTED_DOCUMENT_FORMATS;
     let file = e.currentTarget.closest("input").value;
     let extension = file.substring(file.lastIndexOf('.'), file.length) || file;
-    if (formats.includes(extension)) {
-      this.setState({ selectedFile: e.target.files[0], isSelected: true });
+    if(file) {
+      if (formats.includes(extension)) {
+        this.setState({ selectedFile: e.target.files[0], isSelected: true });
+      }
+      else {
+        e.currentTarget.closest("#uploadBtn").value = "";
+        this.showErrorMessage("document", "File not valid, use a valid format: " + UtilsData.ACCEPTED_DOCUMENT_FORMATS);
+      }
     }
     else {
-      e.currentTarget.closest("#uploadBtn").value = "";
-      this.showErrorMessage("document", "File not valid, use a valid format: " + UtilsData.ACCEPTED_DOCUMENT_FORMATS);
+      this.setState({ selectedFile: e.target.files[0], isSelected: false });
     }
   }
 
@@ -451,9 +456,8 @@ export class ModalChanges extends Component {
             if (fields.includes("Difference") || fields.includes("Percentage")) {
               return (<CTableDataCell key={v + "_" + index}
                 style={{ backgroundColor: (pos.includes(index) ? colorizeValue(v) : "") }}>
-                {isNaN(v) ? v : Number(v)} </CTableDataCell>)
-            }
-            else {
+                {(Number.isNaN(parseFloat(v)) || v.match(/[A-Z]/g)) ? v : Number(v)} </CTableDataCell>)
+            } else {
               if(this.state.data.Status === "Pending" && UtilsData.LINEAGETYPES.includes(type)) {
                 return (<CTableDataCell key={v + "_" + index}>{v.split(",").map((a, i) => <>{i > 0 && ", "} <a href={"/#/sdf?sitecode=" + a + "&type=" + fields[index].toLowerCase()} target="_blank">{a}</a></>)}</CTableDataCell>)
               }
