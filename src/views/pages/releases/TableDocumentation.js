@@ -242,7 +242,8 @@ function TableDocumentation(props) {
 					if (data.Data.length == 0) {
 						setData("noData")
 					} else {
-						setData(data.Data)
+						data.Data.sort((a, b) => a.Country.localeCompare(b.Country));
+						setData(data.Data);
 					}
 				} else throw "Error loading data"
 		})
