@@ -40,7 +40,7 @@ export class ConfirmationModal extends Component {
         <CModalBody>{modal.text}</CModalBody>
         <CModalFooter className={modal.secondaryButton ? "justify-content-between" : "justify-content-end"}>
           {modal.secondaryButton &&
-            <CButton color="secondary" onClick={() => this.secondaryFunction()}>
+            <CButton className="red" color="secondary" onClick={() => this.secondaryFunction()}>
               {modal.secondaryButton.text}
             </CButton>
           }

@@ -193,7 +193,7 @@ export class ModalRelease extends Component {
         </CModalBody>
         <CModalFooter>
           <div className="d-flex w-100 justify-content-between">
-            <CButton color="secondary" disabled= {this.state.updatingData || this.state.completingEnvelope.state} onClick={()=>this.close()}>Cancel</CButton>
+            <CButton className="red" color="secondary" disabled= {this.state.updatingData || this.state.completingEnvelope.state} onClick={()=>this.close()}>Cancel</CButton>
             <CButton color="primary" disabled= {this.state.updatingData || this.state.completingEnvelope.state} onClick={()=>this.checkReleaseName()}>
               {this.state.updatingData && <CSpinner size="sm"/>}
               {this.state.updatingData ? " Creating":"Create"}

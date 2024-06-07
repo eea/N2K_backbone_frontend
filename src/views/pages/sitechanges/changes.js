@@ -529,7 +529,7 @@ const Sitechanges = () => {
                     {!isLoading && country && activeTab === 1 &&
                       <>
                         <li>
-                          <CButton color="secondary" disabled={updatingData || disabledBtn || activeTab!==1}
+                          <CButton className="red" color="secondary" disabled={updatingData || disabledBtn || activeTab!==1}
                             onClick={()=>updateModalValues("Reject Changes", "This will reject all the site changes",
                               "Continue", ()=>rejectChanges(selectedCodes, true).catch(e => {showErrorMessage("Reject changes"); console.log(e)}),
                               "Cancel", ()=>{})}>

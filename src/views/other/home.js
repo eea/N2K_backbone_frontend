@@ -36,7 +36,7 @@ const Home = (props) => {
                   <p>
                     This application is accessible only to authorised user, using their EU login. Please click on “Log In”.
                   </p>
-                  <CButton color="secondary" href="/#/" onClick={(e)=>login(e)}>
+                  <CButton color="primary" href="/#/" onClick={(e)=>login(e)}>
                     <i className="fa-solid fa-arrow-right-to-bracket me-2"></i>Log In
                   </CButton>
                 </div>
