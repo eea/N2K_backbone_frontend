@@ -368,6 +368,7 @@ export class ModalEdition extends Component {
                 }
                 <div className="d-flex justify-content-between align-items-center pb-2">
                   <b>Country Level</b>
+                  <CButton color="link" className="btn-link--dark" href="#/releases/documentation">Release Documentation</CButton>
                 </div>
                 {this.renderDocuments("country")}
                 <div className="d-flex justify-content-between align-items-center pb-2">
@@ -393,6 +394,7 @@ export class ModalEdition extends Component {
                 }
                 <div className="d-flex justify-content-between align-items-center pb-2">
                   <b>Country Level</b>
+                  <CButton color="link" className="btn-link--dark" href="#/releases/documentation">Release Documentation</CButton>
                 </div>
                 {this.renderComments("country")}
                 <div className="d-flex justify-content-between align-items-center pb-2">
