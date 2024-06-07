@@ -40,6 +40,7 @@
 .document {
   &--list {
     padding: 1rem;
+    overflow: auto;
   }
   &--item {
     display: flex;
@@ -78,6 +79,7 @@
 .comment {
   &--list {
     padding: 1rem;
+    overflow: auto;
   }
   &--item {
     display: flex;
