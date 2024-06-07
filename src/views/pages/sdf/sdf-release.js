@@ -60,7 +60,7 @@ const SDFVisualization = () => {
     let release = params.get("release");
     let nav = params.get("nav");
     setSiteCode(sitecode ? sitecode : "nodata");
-    setRelease(parseInt(release));
+    setRelease(release ? parseInt(release) : "");
     setNav(nav);
   }
 
