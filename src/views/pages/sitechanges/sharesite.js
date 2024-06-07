@@ -69,6 +69,23 @@ class ModalChanges extends Component {
     }
   }
 
+  componentDidUpdate() {
+    if(this.state.activeKey === 3) {
+      this.attachmentsHeight();
+      window.addEventListener("resize", () => {this.attachmentsHeight()});
+    }
+  }
+
+  attachmentsHeight = () => {
+    let height = window.innerHeight - document.querySelector(".header").offsetHeight - document.querySelector(".page-title").offsetHeight - document.querySelector(".nav").offsetHeight - document.querySelector(".attachments--title").offsetHeight - 96;
+    if(document.querySelector(".document--list").scrollHeight > height) {
+      document.querySelector(".document--list").style.height = height + "px";
+    }
+    if(document.querySelector(".comment--list").scrollHeight > height) {
+      document.querySelector(".comment--list").style.height = height + "px";
+    }
+  }
+
   toggleDetail(key) {
     if (this.state.showDetail.includes(key)) {
       this.setState({ showDetail: this.state.showDetail.filter((a) => a !== key) });
