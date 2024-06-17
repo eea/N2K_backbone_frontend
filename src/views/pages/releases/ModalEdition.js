@@ -91,6 +91,23 @@ export class ModalEdition extends Component {
     }
   }
 
+  componentDidUpdate() {
+    if(this.isVisible() && this.state.activeKey === 2) {
+      this.attachmentsHeight();
+      window.addEventListener("resize", () => {this.attachmentsHeight()});
+    }
+  }
+
+  attachmentsHeight = () => {
+    let height = document.querySelector(".modal-body").offsetHeight - document.querySelector(".modal-body .nav").offsetHeight - document.querySelector("#modal_justification_req").parentElement.offsetHeight - document.querySelector(".attachments--title").offsetHeight - 80;
+    if(document.querySelector(".document--list").scrollHeight > height) {
+      document.querySelector(".document--list").style.height = height + "px";
+    }
+    if(document.querySelector(".comment--list").scrollHeight > height) {
+      document.querySelector(".comment--list").style.height = height + "px";
+    }
+  }
+
   setActiveKey(val) {
     this.setState({ activeKey: val })
   }
@@ -368,6 +385,7 @@ export class ModalEdition extends Component {
                 }
                 <div className="d-flex justify-content-between align-items-center pb-2">
                   <b>Country Level</b>
+                  <CButton color="link" className="btn-link--dark" href="#/releases/documentation">Release Documentation</CButton>
                 </div>
                 {this.renderDocuments("country")}
                 <div className="d-flex justify-content-between align-items-center pb-2">
@@ -393,6 +411,7 @@ export class ModalEdition extends Component {
                 }
                 <div className="d-flex justify-content-between align-items-center pb-2">
                   <b>Country Level</b>
+                  <CButton color="link" className="btn-link--dark" href="#/releases/documentation">Release Documentation</CButton>
                 </div>
                 {this.renderComments("country")}
                 <div className="d-flex justify-content-between align-items-center pb-2">
@@ -924,7 +943,7 @@ export class ModalEdition extends Component {
         {this.state.activeKey === 1 &&
           <CModalFooter>
             <div className="d-flex w-100 justify-content-between">
-              <CButton color="secondary" disabled={this.state.updatingData} onClick={() => this.closeModal()}>Cancel</CButton>
+              <CButton className="red" color="secondary" disabled={this.state.updatingData} onClick={() => this.closeModal()}>Cancel</CButton>
               <CButton color="primary" disabled={this.state.updatingData || !this.state.fieldChanged} onClick={() => this.saveChangesModal()}>
                 {this.state.updatingData && <CSpinner size="sm" />}
                 {this.state.updatingData ? " Saving" : "Save"}

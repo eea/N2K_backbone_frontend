@@ -336,8 +336,8 @@ const IndeterminateCheckbox = React.forwardRef(
           accessor: 'SitesTotal',
         },
         {
-          Header: 'Envelope ID',
-          accessor: 'Id',
+          Header: 'CDR',
+          accessor: 'CDR',
         },
       ],
       []

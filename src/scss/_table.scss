@@ -22,15 +22,6 @@
       color: $black;
       vertical-align: middle;
       padding: 0.75rem 0.5rem;
-      .row-expand {
-        font-size: 18px;
-        line-height: 18px;
-        height: 18px;
-        text-align: center;
-        i {
-          color: $blue;
-        }
-      }
       .btn-group {
         width: 100%;
       }
@@ -41,6 +32,15 @@
         display: flex;
         flex-wrap: wrap;
         gap: 0.25rem;
+      }
+    }
+    .row-expand {
+      font-size: 18px;
+      line-height: 18px;
+      height: 18px;
+      text-align: center;
+      i {
+        color: $blue;
       }
     }
     .cell-sitecode {
