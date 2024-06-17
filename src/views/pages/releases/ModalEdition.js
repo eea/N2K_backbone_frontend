@@ -146,7 +146,7 @@ export class ModalEdition extends Component {
     for (let i in Object.keys(data)) {
       let field = Object.keys(data)[i]
       let value = data[field];
-      if (!value)
+      if (!value && field !== "Length")
         this.state.notValidField.push(field);
     }
     this.state.notValidField.forEach((e) => {
@@ -921,15 +921,17 @@ export class ModalEdition extends Component {
             {this.renderAttachments()}
           </CTabContent>
         </CModalBody>
-        <CModalFooter>
-          <div className="d-flex w-100 justify-content-between">
-            <CButton color="secondary" disabled={this.state.updatingData} onClick={() => this.closeModal()}>Cancel</CButton>
-            <CButton color="primary" disabled={this.state.updatingData || !this.state.fieldChanged} onClick={() => this.saveChangesModal()}>
-              {this.state.updatingData && <CSpinner size="sm" />}
-              {this.state.updatingData ? " Saving" : "Save"}
-            </CButton>
-          </div>
-        </CModalFooter>
+        {this.state.activeKey === 1 &&
+          <CModalFooter>
+            <div className="d-flex w-100 justify-content-between">
+              <CButton color="secondary" disabled={this.state.updatingData} onClick={() => this.closeModal()}>Cancel</CButton>
+              <CButton color="primary" disabled={this.state.updatingData || !this.state.fieldChanged} onClick={() => this.saveChangesModal()}>
+                {this.state.updatingData && <CSpinner size="sm" />}
+                {this.state.updatingData ? " Saving" : "Save"}
+              </CButton>
+            </div>
+          </CModalFooter>
+        }
       </>
     )
   }
@@ -1111,7 +1113,7 @@ export class ModalEdition extends Component {
     let body = Object.fromEntries(new FormData(document.querySelector("form")));
     body.BioRegion = Array.from(document.getElementsByName("BioRegion")).map(el => el.value).sort().toString();
     body.Area = body.Area ? +body.Area : body.Area;
-    body.Length = body.Length ? +body.Length : body.Length;
+    body.Length = body.Length ? +body.Length : null;
     body.CentreX = body.CentreX ? +body.CentreX : body.CentreX;
     body.CentreY = body.CentreY ? +body.CentreY : body.CentreY;
     body.Version = this.props.version;
@@ -1128,7 +1130,7 @@ export class ModalEdition extends Component {
   }
 
   saveChanges(body) {
-    if (Object.values(body).some(val => val === null || val === "")) {
+    if (Object.keys(body).some(val => val !== "Length" && (body[val] === null || body[val] === ""))) {
       this.showErrorMessage("fields", "Empty fields are not allowed");
     } else {
       body.JustificationRequired = this.state.justificationRequired;
