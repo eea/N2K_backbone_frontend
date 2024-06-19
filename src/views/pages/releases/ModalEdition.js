@@ -92,7 +92,7 @@ export class ModalEdition extends Component {
   }
 
   componentDidUpdate() {
-    if(this.isVisible() && this.state.activeKey === 2) {
+    if(this.isVisible() && !this.state.loading && this.state.activeKey === 2) {
       this.attachmentsHeight();
       window.addEventListener("resize", () => {this.attachmentsHeight()});
     }
@@ -103,8 +103,14 @@ export class ModalEdition extends Component {
     if(document.querySelector(".document--list").scrollHeight > height) {
       document.querySelector(".document--list").style.height = height + "px";
     }
+    else {
+      document.querySelector(".document--list").style.height = "";
+    }
     if(document.querySelector(".comment--list").scrollHeight > height) {
       document.querySelector(".comment--list").style.height = height + "px";
+    }
+    else {
+      document.querySelector(".comment--list").style.height = "";
     }
   }
 

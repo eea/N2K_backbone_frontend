@@ -153,8 +153,14 @@ const ModalDocumentation = (props) => {
     if(document.querySelector(".document--list").scrollHeight > height) {
       document.querySelector(".document--list").style.height = height + "px";
     }
+    else {
+      document.querySelector(".document--list").style.height = "";
+    }
     if(document.querySelector(".comment--list").scrollHeight > height) {
       document.querySelector(".comment--list").style.height = height + "px";
+    }
+    else {
+      document.querySelector(".comment--list").style.height = "";
     }
   }
 
