@@ -70,7 +70,7 @@ class ModalChanges extends Component {
   }
 
   componentDidUpdate() {
-    if(this.state.activeKey === 3) {
+    if(!this.state.loading && this.state.activeKey === 3) {
       this.attachmentsHeight();
       window.addEventListener("resize", () => {this.attachmentsHeight()});
     }
@@ -81,8 +81,14 @@ class ModalChanges extends Component {
     if(document.querySelector(".document--list").scrollHeight > height) {
       document.querySelector(".document--list").style.height = height + "px";
     }
+    else {
+      document.querySelector(".document--list").style.height = "";
+    }
     if(document.querySelector(".comment--list").scrollHeight > height) {
       document.querySelector(".comment--list").style.height = height + "px";
+    }
+    else {
+      document.querySelector(".comment--list").style.height = "";
     }
   }
 
