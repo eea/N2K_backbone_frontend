@@ -60,7 +60,7 @@ const SDFVisualization = () => {
     let release = params.get("release");
     let nav = params.get("nav");
     setSiteCode(sitecode ? sitecode : "nodata");
-    setRelease(parseInt(release));
+    setRelease(release ? parseInt(release) : "");
     setNav(nav);
   }
 
@@ -193,7 +193,7 @@ const SDFVisualization = () => {
               <div className="sdf-head">
                 <NaturaLogo/>
                 <div>
-                  <h1>NATURA 2000 - STANDARD DATA FORM</h1>
+                  <h1>NATURA 2000 - STANDARD DATA FORM - <span className="sensitive">SENSITIVE</span></h1>
                   <b>RELEASE {release && releases.length > 0 && releases.find(a => a.ReleaseId === release)?.ReleaseName}</b>
                 </div>
               </div>
