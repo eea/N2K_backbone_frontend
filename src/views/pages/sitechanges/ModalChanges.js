@@ -1202,7 +1202,7 @@ export class ModalChanges extends Component {
     for (let i in Object.keys(data)) {
       let field = Object.keys(data)[i]
       let value = data[field];
-      if (!value)
+      if (!value && field !== "Length")
         this.state.notValidField.push(field);
     }
     this.state.notValidField.forEach((e) => {
