@@ -1,4 +1,5 @@
 .esri-view {
+  --esri-view-outline: none !important;
   .esri-widget--button {
     color: $primary-base;
   }
@@ -8,6 +9,15 @@
       background: none;
       padding: 0;
       margin: 0;
+      .esri-layer-list {
+        &__status-indicator {
+          margin: 0.25rem;
+        }
+        &__updating {
+          background-color: $primary-base;
+          animation: 2s infinite loading;
+        }
+      }
       .esri-icon-visible, .esri-icon-non-visible {
         color: $primary-base;
       }
@@ -57,7 +67,28 @@
       margin: 0 0.25rem 0.25rem;
     }
     .esri-popup__main-container {
-      width: 300px !important;
+      width: 260px !important;
     }
+    .esri-features__container {
+      padding: 0;
+    }
+    .esri-widget__heading {
+      font-size: 0.875rem;
+    }
+    .esri-widget__table tr th {
+      width: 40%;
+    }
+  }
+}
+
+@keyframes loading {
+  0%, 40% {
+    background-color: #0000;
+  }
+  50%, 80% {
+    background-color: $primary-base;
+  }
+  100% {
+    background-color: #0000;
   }
 }
