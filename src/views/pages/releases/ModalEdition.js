@@ -91,6 +91,29 @@ export class ModalEdition extends Component {
     }
   }
 
+  componentDidUpdate() {
+    if(this.isVisible() && !this.state.loading && this.state.activeKey === 2) {
+      this.attachmentsHeight();
+      window.addEventListener("resize", () => {this.attachmentsHeight()});
+    }
+  }
+
+  attachmentsHeight = () => {
+    let height = document.querySelector(".modal-body").offsetHeight - document.querySelector(".modal-body .nav").offsetHeight - document.querySelector("#modal_justification_req").parentElement.offsetHeight - document.querySelector(".attachments--title").offsetHeight - 80;
+    if(document.querySelector(".document--list").scrollHeight > height) {
+      document.querySelector(".document--list").style.height = height + "px";
+    }
+    else {
+      document.querySelector(".document--list").style.height = "";
+    }
+    if(document.querySelector(".comment--list").scrollHeight > height) {
+      document.querySelector(".comment--list").style.height = height + "px";
+    }
+    else {
+      document.querySelector(".comment--list").style.height = "";
+    }
+  }
+
   setActiveKey(val) {
     this.setState({ activeKey: val })
   }
