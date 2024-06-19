@@ -91,6 +91,29 @@ export class ModalEdition extends Component {
     }
   }
 
+  componentDidUpdate() {
+    if(this.isVisible() && !this.state.loading && this.state.activeKey === 2) {
+      this.attachmentsHeight();
+      window.addEventListener("resize", () => {this.attachmentsHeight()});
+    }
+  }
+
+  attachmentsHeight = () => {
+    let height = document.querySelector(".modal-body").offsetHeight - document.querySelector(".modal-body .nav").offsetHeight - document.querySelector("#modal_justification_req").parentElement.offsetHeight - document.querySelector(".attachments--title").offsetHeight - 80;
+    if(document.querySelector(".document--list").scrollHeight > height) {
+      document.querySelector(".document--list").style.height = height + "px";
+    }
+    else {
+      document.querySelector(".document--list").style.height = "";
+    }
+    if(document.querySelector(".comment--list").scrollHeight > height) {
+      document.querySelector(".comment--list").style.height = height + "px";
+    }
+    else {
+      document.querySelector(".comment--list").style.height = "";
+    }
+  }
+
   setActiveKey(val) {
     this.setState({ activeKey: val })
   }
@@ -146,7 +169,7 @@ export class ModalEdition extends Component {
     for (let i in Object.keys(data)) {
       let field = Object.keys(data)[i]
       let value = data[field];
-      if (!value)
+      if (!value && field !== "Length")
         this.state.notValidField.push(field);
     }
     this.state.notValidField.forEach((e) => {
@@ -368,6 +391,7 @@ export class ModalEdition extends Component {
                 }
                 <div className="d-flex justify-content-between align-items-center pb-2">
                   <b>Country Level</b>
+                  <CButton color="link" className="btn-link--dark" href="#/releases/documentation">Release Documentation</CButton>
                 </div>
                 {this.renderDocuments("country")}
                 <div className="d-flex justify-content-between align-items-center pb-2">
@@ -393,6 +417,7 @@ export class ModalEdition extends Component {
                 }
                 <div className="d-flex justify-content-between align-items-center pb-2">
                   <b>Country Level</b>
+                  <CButton color="link" className="btn-link--dark" href="#/releases/documentation">Release Documentation</CButton>
                 </div>
                 {this.renderComments("country")}
                 <div className="d-flex justify-content-between align-items-center pb-2">
@@ -921,15 +946,17 @@ export class ModalEdition extends Component {
             {this.renderAttachments()}
           </CTabContent>
         </CModalBody>
-        <CModalFooter>
-          <div className="d-flex w-100 justify-content-between">
-            <CButton color="secondary" disabled={this.state.updatingData} onClick={() => this.closeModal()}>Cancel</CButton>
-            <CButton color="primary" disabled={this.state.updatingData || !this.state.fieldChanged} onClick={() => this.saveChangesModal()}>
-              {this.state.updatingData && <CSpinner size="sm" />}
-              {this.state.updatingData ? " Saving" : "Save"}
-            </CButton>
-          </div>
-        </CModalFooter>
+        {this.state.activeKey === 1 &&
+          <CModalFooter>
+            <div className="d-flex w-100 justify-content-between">
+              <CButton className="red" color="secondary" disabled={this.state.updatingData} onClick={() => this.closeModal()}>Cancel</CButton>
+              <CButton color="primary" disabled={this.state.updatingData || !this.state.fieldChanged} onClick={() => this.saveChangesModal()}>
+                {this.state.updatingData && <CSpinner size="sm" />}
+                {this.state.updatingData ? " Saving" : "Save"}
+              </CButton>
+            </div>
+          </CModalFooter>
+        }
       </>
     )
   }
@@ -1111,7 +1138,7 @@ export class ModalEdition extends Component {
     let body = Object.fromEntries(new FormData(document.querySelector("form")));
     body.BioRegion = Array.from(document.getElementsByName("BioRegion")).map(el => el.value).sort().toString();
     body.Area = body.Area ? +body.Area : body.Area;
-    body.Length = body.Length ? +body.Length : body.Length;
+    body.Length = body.Length ? +body.Length : null;
     body.CentreX = body.CentreX ? +body.CentreX : body.CentreX;
     body.CentreY = body.CentreY ? +body.CentreY : body.CentreY;
     body.Version = this.props.version;
@@ -1128,7 +1155,7 @@ export class ModalEdition extends Component {
   }
 
   saveChanges(body) {
-    if (Object.values(body).some(val => val === null || val === "")) {
+    if (Object.keys(body).some(val => val !== "Length" && (body[val] === null || body[val] === ""))) {
       this.showErrorMessage("fields", "Empty fields are not allowed");
     } else {
       body.JustificationRequired = this.state.justificationRequired;

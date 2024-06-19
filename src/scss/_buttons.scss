@@ -49,6 +49,26 @@
       color: $primary-base;
       border-color: $primary-base;
     }
+    &.red {
+      background-color: $white;
+      color: $danger-base;
+      border-color: $danger-base;
+      &:hover {
+        background-color: $danger-base;
+        color: $white;
+        border-color: $danger-base;
+      }
+      &:focus, &:active, &:focus:active {
+        background-color: $white;
+        color: $danger-base;
+        border-color: $danger-base;
+      }
+      &:disabled {
+        background-color: $white;
+        color: $danger-base;
+        border-color: $danger-base;
+      }
+    }
   }
   &-link--bold {
     font-weight: bold;

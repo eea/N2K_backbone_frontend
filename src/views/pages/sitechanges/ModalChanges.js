@@ -107,6 +107,29 @@ export class ModalChanges extends Component {
     };
   }
 
+  componentDidUpdate() {
+    if(this.isVisible() && !this.state.loading && this.state.activeKey === 4) {
+      this.attachmentsHeight();
+      window.addEventListener("resize", () => {this.attachmentsHeight()});
+    }
+  }
+
+  attachmentsHeight = () => {
+    let height = document.querySelector(".modal-body").offsetHeight - document.querySelector(".modal-body .nav").offsetHeight - document.querySelector("#modal_justification_req").parentElement.offsetHeight - document.querySelector(".attachments--title").offsetHeight - 80;
+    if(document.querySelector(".document--list").scrollHeight > height) {
+      document.querySelector(".document--list").style.height = height + "px";
+    }
+    else {
+      document.querySelector(".document--list").style.height = "";
+    }
+    if(document.querySelector(".comment--list").scrollHeight > height) {
+      document.querySelector(".comment--list").style.height = height + "px";
+    }
+    else {
+      document.querySelector(".comment--list").style.height = "";
+    }
+  }
+
   setActiveKey(val) {
     this.setState({ activeKey: val })
   }
@@ -852,6 +875,7 @@ export class ModalChanges extends Component {
                 }
                 <div className="d-flex justify-content-between align-items-center pb-2">
                   <b>Country Level</b>
+                  <CButton color="link" className="btn-link--dark" href="#/releases/documentation">Release Documentation</CButton>
                 </div>
                 {this.renderDocuments("country")}
                 <div className="d-flex justify-content-between align-items-center pb-2">
@@ -877,6 +901,7 @@ export class ModalChanges extends Component {
                 }
                 <div className="d-flex justify-content-between align-items-center pb-2">
                   <b>Country Level</b>
+                  <CButton color="link" className="btn-link--dark" href="#/releases/documentation">Release Documentation</CButton>
                 </div>
                 {this.renderComments("country")}
                 <div className="d-flex justify-content-between align-items-center pb-2">
@@ -1183,7 +1208,7 @@ export class ModalChanges extends Component {
     for (let i in Object.keys(data)) {
       let field = Object.keys(data)[i]
       let value = data[field];
-      if (!value)
+      if (!value && field !== "Length")
         this.state.notValidField.push(field);
     }
     this.state.notValidField.forEach((e) => {
@@ -1478,12 +1503,12 @@ export class ModalChanges extends Component {
           </CModalBody>
           <CModalFooter>
             <div className="d-flex w-100 justify-content-between">
-              {data.Status === 'Pending' && <CButton disabled={this.changingStatus} color="secondary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(() => this.rejectChangesModal(true), true) : this.rejectChangesModal()}>Reject Changes</CButton>}
+              {data.Status === 'Pending' && <CButton disabled={this.changingStatus} className="red" color="secondary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(() => this.rejectChangesModal(true), true) : this.rejectChangesModal()}>Reject Changes</CButton>}
               {data.Status === 'Pending' && <CButton disabled={this.changingStatus} color="primary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(() => this.acceptChangesModal(true), true) : this.acceptChangesModal()}>Accept Changes</CButton>}
               {data.Status !== 'Pending' && this.state.activeKey !== 3 && <CButton disabled={this.changingStatus} color="primary" className="ms-auto" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(() => this.backToPendingModal(true), true) : this.backToPendingModal()}>Back to Pending</CButton>}
               {data.Status !== 'Pending' && this.state.activeKey === 3 &&
                 <>
-                  <CButton color="secondary" disabled={this.state.updatingData} onClick={() => this.closeModal()}>Cancel</CButton>
+                  <CButton className="red" color="secondary" disabled={this.state.updatingData} onClick={() => this.closeModal()}>Cancel</CButton>
                   <CButton color="primary" disabled={this.state.updatingData || !this.state.fieldChanged} onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(() => this.saveChangesModal(true), true) : this.saveChangesModal()}>
                     {this.state.updatingData && <CSpinner size="sm" />}
                     {this.state.updatingData ? " Saving" : "Save"}
@@ -1557,6 +1582,13 @@ export class ModalChanges extends Component {
   }
 
   loadData() {
+    const getCriticalChangeTitles = ({ Critical }) => {
+      const changes = Object.values(Critical).flatMap(o => typeof o == "object" ? Object.values(o) : []).flatMap(a => a)
+      let result = []
+      changes.forEach(c => result.push(c.ChangeCategory + c.ChangeType))
+      return result
+    }
+
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)) {
       this.isLoadingData = true;
       this.dl.fetch(ConfigData.SITECHANGES_DETAIL + `siteCode=${this.props.item}&version=${this.versionChanged ? this.currentVersion : this.props.version}`)
@@ -1572,9 +1604,10 @@ export class ModalChanges extends Component {
         else
           if(data.Data.LineageChangeType === "Deletion")
             this.setState({ fields: "noData", isDeleted: true })
-          this.setState({ data: data.Data, loading: false
-          , justificationRequired: data.Data?.JustificationRequired
-          , activeKey: this.props.activeKey ? this.props.activeKey : this.state.activeKey })
+        this.setState({ data: data.Data, loading: false
+        , justificationRequired: data.Data?.JustificationRequired
+        , activeKey: this.props.activeKey ? this.props.activeKey : this.state.activeKey
+        , showDetail: getCriticalChangeTitles(data.Data) })
       });
     }
   }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { loadModules } from "esri-loader";
+import { setDefaultOptions, loadModules } from "esri-loader";
 import UtilsData from '../data/utils.json';
 import {DataLoader} from './DataLoader';
 
@@ -14,23 +14,14 @@ class MapViewer extends React.Component {
         this.map=null;
     }
 
-    componentDidUpdate(){
-        if(document.querySelectorAll(".esri-layer-list__item").length > 0) {
-            if(!document.querySelectorAll(".esri-layer-list__item")[0].querySelector(".esri-layer-list__item-label .legend-color")){
-                document.querySelectorAll(".esri-layer-list__item")[0].querySelector(".esri-layer-list__item-label").insertAdjacentHTML( 'beforeend', "<span class='legend-color legend-color-0'></span>" );
-            }
-            if(document.querySelectorAll(".esri-layer-list__item")[1]&&!document.querySelectorAll(".esri-layer-list__item")[1]?.querySelector(".esri-layer-list__item-label .legend-color")){
-                document.querySelectorAll(".esri-layer-list__item")[1].querySelector(".esri-layer-list__item-label").insertAdjacentHTML( 'beforeend', "<span class='legend-color legend-color-1'></span>" );
-            }
-        }
-    }
 
     componentDidMount(){
+        setDefaultOptions({ version: '4.28' });
         loadModules(
             ["esri/Map", "esri/views/MapView", "esri/widgets/Zoom", "esri/layers/GeoJSONLayer", "esri/widgets/LayerList", "esri/layers/FeatureLayer",
-            "esri/layers/MapImageLayer", "esri/widgets/BasemapToggle"],
+            "esri/layers/MapImageLayer", "esri/widgets/BasemapToggle", "esri/core/reactiveUtils"],
             { css: true }
-          ).then(([Map, MapView, Zoom, _GeoJSONLayer, LayerList, FeatureLayer, MapImageLayer, BasemapToggle]) => {
+          ).then(([Map, MapView, Zoom, _GeoJSONLayer, LayerList, FeatureLayer, MapImageLayer, BasemapToggle, reactiveUtils]) => {
             GeoJSONLayer = _GeoJSONLayer;
 
             let layers = [];
@@ -56,10 +47,6 @@ class MapViewer extends React.Component {
                     {
                         fieldName: "Area",
                         label: "Area (ha)"
-                    },
-                    {
-                        fieldName: "Length",
-                        label: "Length (km)"
                     }
                 ]
             };
@@ -160,6 +147,7 @@ class MapViewer extends React.Component {
                 if(!this.props.mapReference){
                     this.view.ui.components = ["attribution"];
                 }
+                this.getReportedGeometry(siteLayer, this.props.siteCode);
             });
             
             this.setState({});
@@ -180,15 +168,24 @@ class MapViewer extends React.Component {
                     nextBasemap: "satellite"
                 });
                 this.view.ui.add(basemapToggle,"bottom-left");
+                      
+                this.view.whenLayerView(siteLayer).then((layerView) => {
+                    reactiveUtils.whenOnce(() => layerView.updating).then(() => {
+                        if(!document.querySelectorAll(".esri-layer-list__item")[0].querySelector(".esri-layer-list__item-label .legend-color")){
+                            document.querySelectorAll(".esri-layer-list__item")[0].querySelector(".esri-layer-list__item-label").insertAdjacentHTML( 'beforeend', "<span class='legend-color legend-color-0'></span>" );
+                        }
+                        if(document.querySelectorAll(".esri-layer-list__item")[1] && !document.querySelectorAll(".esri-layer-list__item")[1]?.querySelector(".esri-layer-list__item-label .legend-color")){
+                            document.querySelectorAll(".esri-layer-list__item")[1].querySelector(".esri-layer-list__item-label").insertAdjacentHTML( 'beforeend', "<span class='legend-color legend-color-1'></span>" );
+                        }
+                    });
+                });
             } 
 
             this.view.popup.visibleElements={closeButton:false};
             this.view.popup.dockEnabled = true;
             this.view.popup.dockOptions={buttonEnabled: false, breakpoint: false, position: "bottom-right"};
             this.view.popup.defaultPopupTemplateEnabled = true;
-            this.view.popup.autoOpenEnabled = true;
-
-            this.getReportedGeometry(siteLayer,this.props.siteCode);
+            this.view.popup.popupEnabled = true;
         });
     }
 
@@ -217,7 +214,6 @@ class MapViewer extends React.Component {
                 }
             }
         );
-
     }
 
     render(){

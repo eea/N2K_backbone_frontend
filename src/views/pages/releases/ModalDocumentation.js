@@ -141,6 +141,29 @@ const ModalDocumentation = (props) => {
     } catch (e) { console.log("error loading"); showError(e) }
   }, [props.visible])
 
+  useEffect(() => {
+    if (props.visible && !isLoading) {
+      attachmentsHeight();
+      window.addEventListener("resize", () => {attachmentsHeight()});
+    }
+  }, [isLoading])
+
+  const attachmentsHeight = () => {
+    let height = document.querySelector(".modal-body").offsetHeight - document.querySelector(".modal-body .nav").offsetHeight - document.querySelector(".attachments--title").offsetHeight - 80;
+    if(document.querySelector(".document--list").scrollHeight > height) {
+      document.querySelector(".document--list").style.height = height + "px";
+    }
+    else {
+      document.querySelector(".document--list").style.height = "";
+    }
+    if(document.querySelector(".comment--list").scrollHeight > height) {
+      document.querySelector(".comment--list").style.height = height + "px";
+    }
+    else {
+      document.querySelector(".comment--list").style.height = "";
+    }
+  }
+
   const addComment = (target) => {
     let input = target.closest(".comment--item").querySelector("textarea");
     let comment = input.value;
