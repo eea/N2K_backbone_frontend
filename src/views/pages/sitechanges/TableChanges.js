@@ -161,10 +161,11 @@ const IndeterminateCheckbox = React.forwardRef(
       nextPage,
       previousPage,
       setPageSize, 
-      initialExpanded,
       isAllPageRowsSelected,      
       toggleAllRowsSelected,
       getToggleAllPageRowsSelectedProps,   
+      getToggleAllRowsExpandedProps,
+      isAllRowsExpanded,
       state: { pageIndex, pageSize, selectedRowIds, expanded, expandSubRows },
     } = useTable(
       {
@@ -194,7 +195,7 @@ const IndeterminateCheckbox = React.forwardRef(
                 row.isSelected && selectedRowsInCurrentPage++;
                 !row.original.disabled && selectableRowsInCurrentPage++;
               });
-  
+
               return (
                 <div>
                   <IndeterminateCheckbox {...{...getToggleAllPageRowsSelectedProps(), ...checkSelectedRows()}} id={"sitechanges_check_all_" + status} />
@@ -456,6 +457,21 @@ const IndeterminateCheckbox = React.forwardRef(
     const columns = React.useMemo(
       () => [
         {
+          Header: ({ getToggleAllRowsExpandedProps, isAllRowsExpanded }) => {
+            return (
+              <div
+                {...getToggleAllRowsExpandedProps()}
+                className="row-expand"
+                id={"sitechanges_expand_all_" + props.status}
+              >
+                {isAllRowsExpanded ? 
+                  <i className="fa-solid fa-square-minus"></i>
+                  : 
+                  <i className="fa-solid fa-square-plus"></i>
+                }
+              </div>
+            );
+          },
           id: 'expander',
           cellWidth: '48px',
           Cell: ({ row }) =>
