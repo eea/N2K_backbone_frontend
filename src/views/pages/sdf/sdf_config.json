@@ -172,8 +172,8 @@
       "NP": "In case that a species is no longer present in the site enter: x (optional)",
       "Type": "p = permanent, r = reproducing, c = concentration, w = wintering (for plant and non-migratory species use permanent)",
       "Unit": "i = individuals, p = pairs or other units according to the Standard list of population units and codes in accordance with Article 12 and 17 reporting (see reference portal)",
-      "Abundance categories": "C = common, R = rare, V = very rare, P = present - to fill if data are deficient (DD) or in addition to population size information",
-      "Data quality": "G = 'Good' (e.g. based on surveys), M = 'Moderate' (e.g. based on partial data with some extrapolation), P = 'Poor' (e.g. rough estimation), VP = 'Very poor' (use this category only, if not even a rough estimation of the population size can be made, in this case the fields for population size can remain empty, but the field 'Abundance categories' has to be filled in)",
+      "Abundance Categories": "C = common, R = rare, V = very rare, P = present - to fill if data are deficient (DD) or in addition to population size information",
+      "Data Quality": "G = 'Good' (e.g. based on surveys), M = 'Moderate' (e.g. based on partial data with some extrapolation), P = 'Poor' (e.g. rough estimation), VP = 'Very poor' (use this category only, if not even a rough estimation of the population size can be made, in this case the fields for population size can remain empty, but the field 'Abundance categories' has to be filled in)",
       "Population": "A = >15%, B = 2-15%, C = <2%, D = non-significant population",
       "Conservation": "A = excellent conservation, B = good conservation, C = average or reduced conservation",
       "Isolation": "A = population (almost) isolated, B = population not-isolated, but on the margins of are of distribution, C = population not-isolated withing extended distribution range",
@@ -185,8 +185,8 @@
       "S": "In case that the data on species are sensitive and therefore have to be blocked for any public access enter: Yes",
       "NP": "In case that a species is no longer present in the site enter: x (optional)",
       "Unit": "i = individuals, p = pairs or other units according to the Standard list of population units and codes in accordance with Article 12 and 17 reporting (see reference portal)",
-      "Abundance categories": "C = common, R = rare, V = very rare, P = present - to fill if data are deficient (DD) or in addition to population size information",
-      "Motivation categories": "IV, V: Annex Species (Habitats Directive), A: National Red List data, B: Endemics, C: International Conventions, D: other reasons"
+      "Abundance Categories": "C = common, R = rare, V = very rare, P = present - to fill if data are deficient (DD) or in addition to population size information",
+      "Motivation Categories": "IV, V: Annex Species (Habitats Directive), A: National Red List data, B: Endemics, C: International Conventions, D: other reasons"
     },
     "Threats": {
       "Rank": "H = high, M = medium, L = low",
