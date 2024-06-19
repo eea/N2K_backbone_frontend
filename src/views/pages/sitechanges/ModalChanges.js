@@ -1582,6 +1582,13 @@ export class ModalChanges extends Component {
   }
 
   loadData() {
+    const getCriticalChangeTitles = ({ Critical }) => {
+      const changes = Object.values(Critical).flatMap(o => typeof o == "object" ? Object.values(o) : []).flatMap(a => a)
+      let result = []
+      changes.forEach(c => result.push(c.ChangeCategory + c.ChangeType))
+      return result
+    }
+
     if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)) {
       this.isLoadingData = true;
       this.dl.fetch(ConfigData.SITECHANGES_DETAIL + `siteCode=${this.props.item}&version=${this.versionChanged ? this.currentVersion : this.props.version}`)
@@ -1597,9 +1604,10 @@ export class ModalChanges extends Component {
         else
           if(data.Data.LineageChangeType === "Deletion")
             this.setState({ fields: "noData", isDeleted: true })
-          this.setState({ data: data.Data, loading: false
-          , justificationRequired: data.Data?.JustificationRequired
-          , activeKey: this.props.activeKey ? this.props.activeKey : this.state.activeKey })
+        this.setState({ data: data.Data, loading: false
+        , justificationRequired: data.Data?.JustificationRequired
+        , activeKey: this.props.activeKey ? this.props.activeKey : this.state.activeKey
+        , showDetail: getCriticalChangeTitles(data.Data) })
       });
     }
   }
