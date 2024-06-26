@@ -29,6 +29,8 @@
       {"path": "/#/reports/releases", "name":"Releases Dates", "option": "releases"},
       {"path": "/#/reports/sites", "name":"Reference Sites Details", "option": "sites"},
       {"path": "/#/reports/status", "name":"Site Status", "option": "status"},
+      {"path": "/#/reports/bioregions", "name":"Sites Bioregions", "option": "bioregions"},
+      {"path": "/#/reports/noterrestrial", "name":"Sites With No Terrestrial", "option": "noterrestrial"},
       {"path": "/#/reports/manual", "name":"Manual Updates", "option": "manual"},
       {"path": "/#/reports/unionlists", "name":"Union Lists Changes", "option": "unionlists"}
     ]

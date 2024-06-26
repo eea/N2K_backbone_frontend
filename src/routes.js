@@ -13,6 +13,8 @@ const ReportsReleases = React.lazy(() => import('./views/pages/reports/releases'
 const ReportsReleasesOverview = React.lazy(() => import('./views/pages/reports/releasesoverview'))
 const ReportsSites = React.lazy(() => import('./views/pages/reports/sites'))
 const ReportsStatus = React.lazy(() => import('./views/pages/reports/status'))
+const ReportsBioregions = React.lazy(() => import('./views/pages/reports/bioregions'))
+const ReportsNoTerrestrial = React.lazy(() => import('./views/pages/reports/noterrestrial'))
 const ReportsManual = React.lazy(() => import('./views/pages/reports/manual'))
 const ReportsUnion = React.lazy(() => import('./views/pages/reports/unionlists'))
 const ReleasesManagement = React.lazy(() => import('./views/pages/releases/management'))
@@ -45,6 +47,8 @@ const routes = [
   { path: '/reports/releasesoverview', exact: true, name: 'Reports', component: ReportsReleasesOverview },
   { path: '/reports/sites', exact: true, name: 'Reports', component: ReportsSites },
   { path: '/reports/status', exact: true, name: 'Reports', component: ReportsStatus },
+  { path: '/reports/bioregions', exact: true, name: 'Reports', component: ReportsBioregions },
+  { path: '/reports/noterrestrial', exact: true, name: 'Reports', component: ReportsNoTerrestrial },
   { path: '/reports/manual', exact: true, name: 'Reports', component: ReportsManual },
   { path: '/reports/unionlists', exact: true, name: 'Reports', component: ReportsUnion },
   { path: '/releases/management', exact: true, name: 'Releases', component: ReleasesManagement },
