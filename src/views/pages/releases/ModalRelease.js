@@ -172,7 +172,7 @@ export class ModalRelease extends Component {
             <CForm id="release_form">
               <CRow>
                 <CCol xs={12}>
-                  <label className="mb-3">Release Name</label>
+                  <label className="mb-3">Release Name</label><span className="mandatory">*</span>
                   <CFormInput
                     className="mb-2"
                     name="Name"
