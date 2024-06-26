@@ -162,7 +162,7 @@ const Releases = () => {
       updateModalValues("Delete Release", "This will delete this Release", "Continue", ()=>deleteReport(id), "Cancel", ()=>{}, true);
     },
     showEditModal(id, name, final) {
-      updateModalValues("Edit Release", renderReleaseForm(name, final), "Continue", ()=>editReport(id), "Cancel", ()=>{}, true);
+      updateModalValues("Release Edition", renderReleaseForm(name, final), "Continue", ()=>editReport(id), "Cancel", ()=>{}, true);
     },
   }
 
@@ -183,7 +183,7 @@ const Releases = () => {
         <CForm id="release_form">
           <CRow>
             <CCol xs={12}>
-              <label className="mb-3">Release Name</label>
+              <label className="mb-3">Release Name</label><span className="mandatory">*</span>
               <CFormInput
                 className="mb-2"
                 name="Name"
