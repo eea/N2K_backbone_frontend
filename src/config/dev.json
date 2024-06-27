@@ -72,6 +72,8 @@
   "TABLEAU_RELEASES_OVERVIEW": "https://tableau-public.discomap.eea.europa.eu/views/N2K_Backbone_Releases_Overview/Releases",
   "TABLEAU_SITES": "https://tableau-public.discomap.eea.europa.eu/views/N2K_Backbone_Sites/Sites",
   "TABLEAU_STATUS": "https://tableau-public.discomap.eea.europa.eu/views/N2K_Backbone_Status/Status",
+  "TABLEAU_BIOREGIONS": "https://tableau-public.discomap.eea.europa.eu/views/N2K_Backbone_Bioregions/Bioregions",
+  "TABLEAU_NOTERRESTRIAL": "https://tableau-public.discomap.eea.europa.eu/views/N2K_Backbone_No_Terrestrial/NoTerrestrial",
   "TABLEAU_MANUAL": "https://tableau-public.discomap.eea.europa.eu/views/N2K_Backbone_Manual/Manual",
   "EULoginServiceUrl": "https://n2kbackboneback-dev.azurewebsites.net/api/",
   "EULogoutURL": "https://ecas.acceptance.ec.europa.eu/cas/oauth2/logout"
