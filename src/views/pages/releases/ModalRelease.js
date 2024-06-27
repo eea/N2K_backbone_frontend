@@ -180,6 +180,7 @@ export class ModalRelease extends Component {
                     maxLength={254}
                     placeholder="Release Name"
                     autoComplete="off"
+                    onChange={(e) => this.onChangeField(e)}
                   />
                   <div className="checkbox">
                     <input type="checkbox" className="input-checkbox" id="modal_check_final" name="Final"/>
@@ -278,11 +279,18 @@ export class ModalRelease extends Component {
     let body = Object.fromEntries(new FormData(document.getElementById("release_form")));
     if(!body.Name) {
       this.showMessage("Add a release name");
+      document.querySelector("#release_form input").classList.add('invalidField');
     }
     else {
       this.props.updateModalValues("Create Release", <><p>This will create the release.</p><p>Note: Release creation will launch a process and you will be notified by email when the release is complete.</p></>, "Continue", ()=>this.createRelease(), "Cancel", ()=>{})
     }
   };
+
+  onChangeField(e) {
+    if(e.target.classList.contains('invalidField')) {
+      e.target.classList.remove('invalidField');
+    }
+  }
 
   showMessage(text) {
     this.setState({message: text});

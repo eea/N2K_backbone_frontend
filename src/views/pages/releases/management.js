@@ -139,6 +139,7 @@ const Releases = () => {
     body.Final = body.Final ? true : false;
     if(!body.Name) {
       showMessage("Add a release name");
+      document.querySelector("#release_form input").classList.add('invalidField');
     }
     else {
       sendRequest(ConfigData.UNIONLIST_UPDATE,"PUT",body)
@@ -178,6 +179,11 @@ const Releases = () => {
   }
 
   const renderReleaseForm = (name, final) => {
+    const onChangeField = (e) => {
+      if(e.target.classList.contains('invalidField')) {
+        e.target.classList.remove('invalidField');
+      }
+    }
     return (
       <div>
         <CForm id="release_form">
@@ -192,6 +198,7 @@ const Releases = () => {
                 defaultValue={name}
                 placeholder="Release Name"
                 autoComplete="off"
+                onChange={(e) => onChangeField(e)}
               />
               <div className="checkbox">
                 <input type="checkbox" className="input-checkbox" id="modal_check_final" name="Final" defaultChecked={final}/>
