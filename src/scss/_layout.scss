@@ -16,6 +16,16 @@ html {
   @include transition(padding 0.15s);
 }
 
+.container,
+.container-fluid,
+.container-xxl,
+.container-xl,
+.container-lg,
+.container-md,
+.container-sm {
+  padding: 0 1rem;
+}
+
 .container--main {
   display: flex;
   flex-direction: column;
@@ -147,6 +157,22 @@ html {
   }
 }
 
+.color--primary {
+  color: $primary;
+}
+
+.color--secondary {
+  color: $secondary;
+}
+
+.color--default {
+  color: $gray-800;
+}
+
+.ico--md {
+  width: 1.5rem;
+}
+
 .alert {
   &-primary {
     background-color: $primary-25;
@@ -240,4 +266,19 @@ html {
 
 .page-image {
   height: 10rem;
+}
+
+.loading-container,
+.nodata-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  padding: 2rem;
+}
+
+.mandatory {
+  color: $danger-base;
+  font-weight: bold;
+  margin-left: 0.25rem;
 }
