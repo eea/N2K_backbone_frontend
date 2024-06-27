@@ -9,7 +9,8 @@
     ],
     "sitechanges": [
       {"path": "/#/sitechanges/changes", "name":"Changes Management", "option": "changes"},
-      {"path": "/#/sitechanges/nochanges", "name":"No Changes", "option": "nochanges"}
+      {"path": "/#/sitechanges/nochanges", "name":"No Changes", "option": "nochanges"},
+      {"path": "/#/sitechanges/extraction", "name":"Changes Extraction", "option": "extraction"}
     ],
     "releases": [
       {"path": "/#/releases/management", "name":"Release Management", "option": "management"},
