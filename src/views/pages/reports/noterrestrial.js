@@ -36,7 +36,7 @@ const Reports = () => {
           <CContainer fluid>
             <div className="d-flex justify-content-between py-3">
               <div className="page-title">
-                <h1 className="h1">Sites With No Terrestrial</h1>
+                <h1 className="h1">SCIs w/o UL Regions</h1>
               </div>
             </div>
             <CRow>
