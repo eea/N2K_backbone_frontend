@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef} from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { AppFooter, AppHeader, AppSidebar } from '../../../components/index'
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
@@ -16,21 +16,21 @@ import {
 import { ConfirmationModal } from './components/ConfirmationModal';
 import ConfigData from '../../../config.json';
 import UtilsData from '../../../data/utils.json';
-import {DataLoader} from '../../../components/DataLoader';
+import { DataLoader } from '../../../components/DataLoader';
 
 const Sitechanges = () => {
 
-  let dl = new(DataLoader);
+  let dl = new (DataLoader);
 
-  const [loadingCountries, setLoadingCountries] = useState(false);
-  const [country, setCountry] = useState('');
-  const [countries, setCountries] = useState([]);
+  const [loadingExtractions, setLoadingExtractions] = useState(false);
+  const [extraction, setExtraction] = useState(null);
+  const [isGenerating, setIsGenerating] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
   const showErrorMessage = (message) => {
     setErrorMessage("Something went wrong: " + message);
-    setTimeout(() => {setErrorMessage('')}, UtilsData.MESSAGE_TIMEOUT);
+    setTimeout(() => { setErrorMessage('') }, UtilsData.MESSAGE_TIMEOUT);
   }
 
   const [modalValues, setModalValues] = useState({
@@ -43,54 +43,62 @@ const Sitechanges = () => {
     }
   });
 
-  let changeCountry = (country) => {
-    if(country) {
-      setCountry(country);
-    }
-  }
-
-  let loadCountries = () => {
-    setLoadingCountries(true);
-    dl.fetch(ConfigData.COUNTRIES_WITH_DATA)
-    .then(response => response.json())
-    .then(data => {
-      if(data?.Success) {
-        let countriesList = [];
-        if(data.Data.length > 0) {
-          for(let i in data.Data){
-            countriesList.push({name:data.Data[i].Country, code:data.Data[i].Code});
-          }
-          countriesList.sort((a, b) => a.name.localeCompare(b.name));
-          countriesList.unshift({name:"All", code:countriesList.map(a => a.code).toString()});
+  let loadExtractions = () => {
+    setLoadingExtractions(true);
+    dl.fetch(ConfigData.EXTRACTION_GET)
+      .then(response => response.json())
+      .then(data => {
+        if (data?.Success) {
+          setExtraction(data.Data);
         }
-        setCountries(countriesList);
-      }
-    });
+      });
   }
 
-  const downloadExtraction = (country) => {
+  const generateExtraction = () => {
+    setIsGenerating(true);
+    dl.xmlHttpRequest(ConfigData.EXTRACTION_UPDATE)
+      .then(data => {
+        if (!data?.Success) {
+          showErrorMessage(data.Message);
+        }
+        setExtraction(null);
+        setLoadingExtractions(false);
+        setIsGenerating(false);
+      })
+  }
+
+  const downloadExtraction = () => {
     setIsDownloading(true);
-    dl.fetch(ConfigData.EXTRACTION_DOWNLOAD+"?country="+country)
-    .then(response => response.json())
-    .then(data => {
-      if(data?.Success) {
-        window.location = data.Data;
-      } else {
-        showErrorMessage(data.Message);
-      }
-      setIsDownloading(false);
-    });
+    dl.fetch(ConfigData.EXTRACTION_DOWNLOAD)
+      .then(data => {
+        if (data?.ok) {
+          data.blob()
+            .then(blobresp => {
+              var blob = new Blob([blobresp], { type: "octet/stream" });
+              var url = window.URL.createObjectURL(blob);
+              let link = document.createElement("a");
+              link.download = extraction + ".zip";
+              link.href = url;
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+            })
+        } else {
+          showErrorMessage("Downloading error");
+        }
+        setIsDownloading(false);
+      })
   }
 
-  //Initial set for countries
-  if(countries.length === 0 && !loadingCountries){
-    loadCountries();
-  }
+  useEffect(() => {
+    if(!extraction)
+      loadExtractions();
+  }, [extraction])
 
   return (
     <>
       <div className="container--main min-vh-100">
-        <AppHeader page="sitechanges"/>
+        <AppHeader page="sitechanges" />
         <div className="content--wrapper">
           <AppSidebar
             title="Site Changes"
@@ -110,16 +118,18 @@ const Sitechanges = () => {
               <CRow>
                 <CCol className="mb-4">
                   <div className="select--left">
-                    <CFormLabel htmlFor="exampleFormControlInput1" className='form-label form-label-reporting col-md-4 col-form-label w-auto'>Country </CFormLabel>
-                    <CFormSelect aria-label="Default select example" className='form-select-reporting' disabled={countries.length === 0 && loadingCountries} defaultValue="default" onChange={(e)=>changeCountry(e.target.value)}>
-                      <option disabled value="default" hidden>Select a Country</option>
-                      {
-                        countries.map((e)=><option value={e.code} key={e.code}>{e.name}</option>)
-                      }
-                    </CFormSelect>
-                    <CButton className="ms-3" color="primary" disabled={!country || isDownloading} onClick={()=>downloadExtraction(country)}>
-                      {isDownloading && <CSpinner size="sm"/>}
-                      {isDownloading ? " Downloading Extraction" : "Download Extraction"}
+                    {extraction &&
+                      <span>The lastest available extraction is <br /><b>{extraction}</b></span>
+                    } {!extraction &&
+                      <span>There are no available extractions</span>
+                    }
+                    <CButton className="ms-3" color="secondary" disabled={isDownloading || isGenerating} onClick={() => generateExtraction()}>
+                      {isGenerating && <CSpinner size="sm" />}
+                      {isGenerating ? " Generating Extraction" : "Generate New"}
+                    </CButton>
+                    <CButton className="ms-3" color="primary" disabled={!extraction || isDownloading || isGenerating} onClick={() => downloadExtraction()}>
+                      {isDownloading && <CSpinner size="sm" />}
+                      {isDownloading ? " Downloading Extraction" : "Download"}
                     </CButton>
                   </div>
                 </CCol>
@@ -128,7 +138,7 @@ const Sitechanges = () => {
           </div>
         </div>
       </div>
-      <ConfirmationModal modalValues={modalValues}/>
+      <ConfirmationModal modalValues={modalValues} />
     </>
   )
 }
