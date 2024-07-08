@@ -17,6 +17,7 @@ import { ConfirmationModal } from './components/ConfirmationModal';
 import ConfigData from '../../../config.json';
 import UtilsData from '../../../data/utils.json';
 import { DataLoader } from '../../../components/DataLoader';
+import { dateTimeFormatter } from 'src/components/DateUtils';
 
 const Sitechanges = () => {
 
@@ -49,7 +50,9 @@ const Sitechanges = () => {
       .then(response => response.json())
       .then(data => {
         if (data?.Success) {
-          setExtraction(data.Data);
+          const dateArray = data.Data.split('_');
+          const date = dateArray[0].replaceAll('-', '/') + ' ' + dateArray[1].replaceAll('-', ':');
+          setExtraction(dateTimeFormatter(date));
         }
       });
   }
@@ -77,7 +80,7 @@ const Sitechanges = () => {
               var blob = new Blob([blobresp], { type: "octet/stream" });
               var url = window.URL.createObjectURL(blob);
               let link = document.createElement("a");
-              link.download = extraction + ".zip";
+              link.download = extraction.replaceAll("/",'-').replaceAll(', ', '_').replaceAll(':','-') + ".zip";
               link.href = url;
               document.body.appendChild(link);
               link.click();
