@@ -51,7 +51,9 @@ const Sitechanges = () => {
       .then(data => {
         if (data?.Success) {
           const dateArray = data.Data.split('_');
-          const date = dateArray[0].replaceAll('-', '/') + ' ' + dateArray[1].replaceAll('-', ':');
+          const date = dateArray[0].replaceAll('-', '/') + ' ' +
+            dateArray[1].replaceAll('-', ':') + ' ' +
+            dateArray[2] + ' UTC';
           setExtraction(dateTimeFormatter(date));
         }
       });
@@ -80,7 +82,7 @@ const Sitechanges = () => {
               var blob = new Blob([blobresp], { type: "octet/stream" });
               var url = window.URL.createObjectURL(blob);
               let link = document.createElement("a");
-              link.download = extraction.replaceAll("/",'-').replaceAll(', ', '_').replaceAll(':','-') + ".zip";
+              link.download = extraction.replaceAll("/", '-').replaceAll(', ', '_').replaceAll(':', '-') + ".zip";
               link.href = url;
               document.body.appendChild(link);
               link.click();
@@ -94,7 +96,7 @@ const Sitechanges = () => {
   }
 
   useEffect(() => {
-    if(!extraction)
+    if (!extraction)
       loadExtractions();
   }, [extraction])
 
