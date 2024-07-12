@@ -40,14 +40,18 @@
     cursor: initial;
   }
 }
-.select--right {
-  display: flex;
-  align-items: center;
-  line-height: 1.5;
-  justify-content: end;
-  width: 100%;
-  select {
-    line-height: 1.5rem;
+.select {
+  &--left, &--right {
+    display: flex;
+    align-items: center;
+    line-height: 1.5;
+    width: 100%;
+  }
+  &--right {
+    justify-content: end;
+    select {
+      line-height: 1.5rem;
+    }
   }
 }
 .search--input {
