@@ -331,7 +331,7 @@ export class ModalLineage extends Component {
     return (
       <CTabPane role="tabpanel" aria-labelledby="home-tab" visible={this.state.activeKey === 1}>
         {this.lineageEditor()}
-        {this.state.type !== "Deletion" &&
+        {this.state.previousType !== "Deletion" &&
           <CRow className="p-3">
             <CCol key={"changes_tabular"}>
               <b>Tabular Changes</b>
@@ -339,7 +339,7 @@ export class ModalLineage extends Component {
             </CCol>
           </CRow>
         }
-        {this.state.type !== "Creation" && this.state.predecessorData.length >= 1 &&
+        {this.state.previousType !== "Creation" && this.state.predecessorData.length >= 1 &&
           <CRow className="p-3">
             <CCol key={"changes_predecessors"}>
               <b>Predecessors</b>
@@ -347,7 +347,7 @@ export class ModalLineage extends Component {
             </CCol>
           </CRow>
         }
-        {this.state.predecessorData.length == 0 &&
+        {this.state.previousPredecessors.length == 0 &&
           <CRow className="p-3">
             <CCol>
               <em>No predecessor data</em>
