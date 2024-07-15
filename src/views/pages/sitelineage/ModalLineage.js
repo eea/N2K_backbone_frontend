@@ -557,7 +557,7 @@ export class ModalLineage extends Component {
             predecessors: data.Data.map(s => s.SiteCode).join(','),
             predecessorData: data.Data,
             previousPredecessors: data.Data.map(s => s.SiteCode).join(','),
-            releaseDate: dateFormatter(data.Data[0].ReleaseDate),
+            releaseDate: data.Data.length ? dateFormatter(data.Data[0].ReleaseDate) : "",
             newPredecessor: data.Data.length ? false : true
           })
       });
