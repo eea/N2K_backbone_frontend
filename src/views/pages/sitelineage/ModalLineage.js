@@ -339,7 +339,7 @@ export class ModalLineage extends Component {
             </CCol>
           </CRow>
         }
-        {this.state.previousType !== "Creation" && this.state.predecessorData.length >= 1 &&
+        {this.state.previousType !== "Creation" && this.state.previousPredecessors?.length >= 1 &&
           <CRow className="p-3">
             <CCol key={"changes_predecessors"}>
               <b>Predecessors</b>
@@ -347,7 +347,7 @@ export class ModalLineage extends Component {
             </CCol>
           </CRow>
         }
-        {this.state.previousPredecessors.length == 0 &&
+        {this.state.previousPredecessors?.length == 0 &&
           <CRow className="p-3">
             <CCol>
               <em>No predecessor data</em>
@@ -590,7 +590,7 @@ export class ModalLineage extends Component {
   }
 
   saveChangesModal() {
-    if(this.state.newPredecessor || this.state.predecessors === "") {
+    if(this.state.type !== "Creation" && (this.state.newPredecessor || this.state.predecessors === "")) {
       this.setState({"message": "Predecessors cannot be empty"});
     }
     else {
