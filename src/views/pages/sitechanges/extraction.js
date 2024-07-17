@@ -51,9 +51,7 @@ const Sitechanges = () => {
       .then(data => {
         if (data?.Success) {
           const dateArray = data.Data.split('_');
-          const date = dateArray[0].replaceAll('-', '/') + ' ' +
-            dateArray[1].replaceAll('-', ':') + ' ' +
-            dateArray[2] + ' UTC';
+          const date = dateArray[0].split("-").reverse().join('-') + 'T' + dateArray[1].replaceAll('-', ':');
           setExtraction(dateTimeFormatter(date));
         }
       });
