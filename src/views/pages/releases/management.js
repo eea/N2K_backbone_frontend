@@ -139,6 +139,7 @@ const Releases = () => {
     body.Final = body.Final ? true : false;
     if(!body.Name) {
       showMessage("Add a release name");
+      document.querySelector("#release_form input").classList.add('invalidField');
     }
     else {
       sendRequest(ConfigData.UNIONLIST_UPDATE,"PUT",body)
@@ -162,7 +163,7 @@ const Releases = () => {
       updateModalValues("Delete Release", "This will delete this Release", "Continue", ()=>deleteReport(id), "Cancel", ()=>{}, true);
     },
     showEditModal(id, name, final) {
-      updateModalValues("Edit Release", renderReleaseForm(name, final), "Continue", ()=>editReport(id), "Cancel", ()=>{}, true);
+      updateModalValues("Release Edition", renderReleaseForm(name, final), "Continue", ()=>editReport(id), "Cancel", ()=>{}, true);
     },
   }
 
@@ -178,12 +179,17 @@ const Releases = () => {
   }
 
   const renderReleaseForm = (name, final) => {
+    const onChangeField = (e) => {
+      if(e.target.classList.contains('invalidField')) {
+        e.target.classList.remove('invalidField');
+      }
+    }
     return (
       <div>
         <CForm id="release_form">
           <CRow>
             <CCol xs={12}>
-              <label className="mb-3">Release Name</label>
+              <label className="mb-3">Release Name</label><span className="mandatory">*</span>
               <CFormInput
                 className="mb-2"
                 name="Name"
@@ -192,6 +198,7 @@ const Releases = () => {
                 defaultValue={name}
                 placeholder="Release Name"
                 autoComplete="off"
+                onChange={(e) => onChangeField(e)}
               />
               <div className="checkbox">
                 <input type="checkbox" className="input-checkbox" id="modal_check_final" name="Final" defaultChecked={final}/>

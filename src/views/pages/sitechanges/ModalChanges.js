@@ -1075,7 +1075,7 @@ export class ModalChanges extends Component {
         <CCol xs={12} md={12} lg={6} key={"fd_" + field} className="mb-4">
           {field === "SiteCode" &&
             <>
-              <label>{label}</label>
+              <label>{label}</label><span className="mandatory">*</span>
               <CFormInput
                 id={id}
                 name={name}
@@ -1090,7 +1090,7 @@ export class ModalChanges extends Component {
           }
           {field === "SiteName" &&
             <>
-              <label>{label}</label>
+              <label>{label}</label><span className="mandatory">*</span>
               <CFormInput
                 id={id}
                 name={name}
@@ -1104,7 +1104,7 @@ export class ModalChanges extends Component {
           }
           {field === "SiteType" &&
             <>
-              <label>{label}</label>
+              <label>{label}</label><span className="mandatory">*</span>
               <Select
                 id={id}
                 name={name}
@@ -1119,7 +1119,7 @@ export class ModalChanges extends Component {
           }
           {field === "BioRegion" &&
             <>
-              <label>{label}</label>
+              <label>{label}</label><span className="mandatory">*</span>
               <Select
                 id={id}
                 name={name}
@@ -1136,7 +1136,7 @@ export class ModalChanges extends Component {
           }
           {field === "Area" &&
             <>
-              <label>{label} (ha)</label>
+              <label>{label} (ha)</label><span className="mandatory">*</span>
               <CFormInput
                 id={id}
                 name={name}
@@ -1164,7 +1164,7 @@ export class ModalChanges extends Component {
           }
           {field === "CentreX" &&
             <>
-              <label>{label} (deg)</label>
+              <label>{label} (deg)</label><span className="mandatory">*</span>
               <CFormInput
                 id={id}
                 name={name}
@@ -1178,7 +1178,7 @@ export class ModalChanges extends Component {
           }
           {field === "CentreY" &&
             <>
-              <label>{label} (deg)</label>
+              <label>{label} (deg)</label><span className="mandatory">*</span>
               <CFormInput
                 id={id}
                 name={name}
