@@ -1,6 +1,7 @@
 .sidebar {
   &.show {
     position: relative;
+    margin-left: 0 !important;
   }
   &-nav {
     .nav-title {
