@@ -93,7 +93,7 @@ const SDFVisualization = () => {
             setData("nodata");
           }
           else {
-            let releases = data.Data.SiteInfo.Releases.sort((a, b) => b.ReleaseId - a.ReleaseId);
+            let releases = data.Data.SiteInfo.Releases.sort((a, b) => new Date(b.ReleaseDate) - new Date(a.ReleaseDate));
             setReleases(releases);
             setData(formatData(data));
             if(!release) {

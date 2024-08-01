@@ -9,6 +9,7 @@ const HarvestingReadPocessed = React.lazy(() => import('./views/pages/harvesting
 const HarvestingReadAll = React.lazy(() => import('./views/pages/harvesting/all'))
 const SiteChanges = React.lazy(() => import('./views/pages/sitechanges/changes'))
 const NoChanges = React.lazy(() => import('./views/pages/sitechanges/nochanges'))
+const Extraction = React.lazy(() => import('./views/pages/sitechanges/extraction'))
 const ReportsReleases = React.lazy(() => import('./views/pages/reports/releases'))
 const ReportsReleasesOverview = React.lazy(() => import('./views/pages/reports/releasesoverview'))
 const ReportsSites = React.lazy(() => import('./views/pages/reports/sites'))
@@ -42,7 +43,8 @@ const routes = [
   { path: '/harvesting/processed', exact: true, name: 'Harvesting', component: HarvestingReadPocessed },
   { path: '/harvesting/all', exact: true, name: 'Harvesting', component: HarvestingReadAll },
   { path: '/sitechanges/changes', exact: true, name: 'Sitechanges', component: SiteChanges },
-  { path: '/sitechanges/nochanges', exact: true, name: 'Nochanges', component: NoChanges },
+  { path: '/sitechanges/nochanges', exact: true, name: 'Sitechanges', component: NoChanges },
+  { path: '/sitechanges/extraction', exact: true, name: 'Sitechanges', component: Extraction },
   { path: '/reports/releases', exact: true, name: 'Reports', component: ReportsReleases },
   { path: '/reports/releasesoverview', exact: true, name: 'Reports', component: ReportsReleasesOverview },
   { path: '/reports/sites', exact: true, name: 'Reports', component: ReportsSites },

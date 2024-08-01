@@ -100,6 +100,8 @@ const Sitechanges = () => {
   const [backing, setBacking] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const turnstoneRef = useRef();
+  const [textValue, setTextValue] = useState('');
+  const [searchText, setSearchText] = useState('');
 
   useEffect(() => {
     if(!modalHasChanges) return;
@@ -116,6 +118,14 @@ const Sitechanges = () => {
       window.removeEventListener('beforeunload', handleBeforeUnload)
     }
   }, [modalHasChanges])
+
+  useEffect(() => {
+    if(statusLoaded.length === 3 && textValue) {
+      turnstoneRef.current?.focus();
+      turnstoneRef.current?.query(textValue);
+      setSearchText(textValue);
+    }
+  }, [statusLoaded])
 
   let setCodes = (status,data) => {
     if(data) {
@@ -195,7 +205,7 @@ const Sitechanges = () => {
     for(let i in refreshSitechanges)
       setRefreshSitechanges(i,true)
     setIsLoading(false);
-    };
+  };
 
   let postRequest = (url,body)=>{
     const options = {
@@ -403,19 +413,22 @@ const Sitechanges = () => {
     });
   }
 
-  let clearSearch = (focus) => {
+  let clearSearch = () => {
     turnstoneRef.current?.clear();
-    if(!focus) {
-      turnstoneRef.current?.blur();
-    }
+    turnstoneRef.current?.blur();
     setDisabledSearchBtn(true);
     setSelectOption({});
+    setTextValue('');
+    setSearchText('');
   }
 
   let selectSearchOption = (e) => {
     if (e) {
       setDisabledSearchBtn(false);
       setSelectOption(e);
+      if(document.querySelector("#sitechanges_search-listbox")) {
+        document.querySelector("#sitechanges_search-listbox").style.display="none";
+      }
     }
     else {
       setDisabledSearchBtn(true);
@@ -449,8 +462,10 @@ const Sitechanges = () => {
   }
 
   let changeLevel = (level)=>{
+    const text = document.getElementById("sitechanges_search").value;
     setLevel(level);
-    clearSearch();
+    turnstoneRef.current?.clear();
+    setTextValue(text);
     forceRefreshData();
   }
 
@@ -475,6 +490,8 @@ const Sitechanges = () => {
     setDisabledBtn(true);
     turnstoneRef.current?.clear();
     turnstoneRef.current?.blur();
+    setTextValue('');
+    setSearchText('');
     if(country !== "") {
       forceRefreshData();
       changeCountryParam(country);
@@ -606,7 +623,7 @@ const Sitechanges = () => {
                       className="form-control"
                       listbox = {searchList}
                       listboxIsImmutable = {false}
-                      placeholder="Search sites by site name or site code"
+                      placeholder={textValue && (loadingSites || statusLoaded.length !== 3) ? textValue : "Search sites by site name or site code"}
                       noItemsMessage="Site not found"
                       styles={{input:"form-control", listbox:"search--results", groupHeading:"search--group", noItemsMessage:"search--option"}}
                       onSelect={(e)=>selectSearchOption(e)}
@@ -615,6 +632,7 @@ const Sitechanges = () => {
                       GroupName={group}
                       typeahead={false}
                       disabled={loadingSites || statusLoaded.length !== 3}
+                      text={searchText}
                     />
                     {Object.keys(selectOption).length !== 0 &&
                       <span className="btn-icon" onClick={()=>clearSearch(true)}>
