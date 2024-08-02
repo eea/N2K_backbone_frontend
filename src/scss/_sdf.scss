@@ -40,7 +40,10 @@
 .sdf-index {
   ol {
     width: fit-content;
-    padding-inline-start: 32px;
+    padding-inline-start: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 2rem;
   }
 }
 
