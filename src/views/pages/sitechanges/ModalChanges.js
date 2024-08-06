@@ -531,7 +531,7 @@ export class ModalChanges extends Component {
                     && this.props.lineageChangeType !== "NewGeometryReported")
                     &&
                     <>
-                      <CButton color="link" href={"/#/sitelineage/management?country=" + this.props.country + "&siteCode=" + this.props.item} className="btn-link--dark text-nowrap">
+                      <CButton color="link" href={"/#/sitelineage/management?country=" + this.props.country + "&sitecode=" + this.props.item} className="btn-link--dark text-nowrap">
                         Review Lineage
                       </CButton>
                       <span>|</span>
