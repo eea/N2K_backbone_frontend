@@ -70,14 +70,14 @@ class ModalChanges extends Component {
   }
 
   componentDidUpdate() {
-    if(!this.state.loading && this.state.activeKey === 3) {
+    if(!this.state.loading && this.state.activeKey === 3 && !this.errorLoadingComments && !this.errorLoadingDocuments) {
       this.attachmentsHeight();
       window.addEventListener("resize", () => {this.attachmentsHeight()});
     }
   }
 
   attachmentsHeight = () => {
-    let height = window.innerHeight - document.querySelector(".header").offsetHeight - document.querySelector(".page-title").offsetHeight - document.querySelector(".nav").offsetHeight - document.querySelector(".attachments--title").offsetHeight - 96;
+    let height = window.innerHeight - document.querySelector(".header").offsetHeight - document.querySelector(".page-title").offsetHeight - document.querySelector(".nav").offsetHeight - document.querySelector(".attachments--title").offsetHeight - (document.querySelector(".alert-primary") ? document.querySelector(".alert-primary").offsetHeight + 16 : 0 ) - 96;
     if(document.querySelector(".document--list").scrollHeight > height) {
       document.querySelector(".document--list").style.height = height + "px";
     }
@@ -416,10 +416,9 @@ class ModalChanges extends Component {
     }
     if (this.state.documents !== "noData") {
       filteredDocuments.forEach(d => {
-        // original name may be null until the backend part it's finished
         const name = d.OriginalName ?? d.Path;
         docs.push(
-          this.createDocumentElement(d.Id, name, d.ImportDate, d.Username, target)
+          this.createDocumentElement(d.Id, name, d.ImportDate, d.Username, d.Comment, target)
         )
       })
     }
@@ -433,7 +432,7 @@ class ModalChanges extends Component {
     )
   }
 
-  createDocumentElement(id, name, date, user, level) {
+  createDocumentElement(id, name, date, user, comment, level) {
     return (
       <div className="document--item" key={"docItem_" + id} id={"docItem_" + id} doc_id={id}>
         <div className="my-auto document--text">
@@ -441,8 +440,13 @@ class ModalChanges extends Component {
             <CImage src={documentImg} className="ico--md me-3"></CImage>
             <span>{name?.replace(/^.*[\\\/]/, '')}</span>
           </div>
+          {comment &&
+            <label className="document--date" htmlFor={"docItem_" + id}>
+              {comment}
+            </label>
+          }
           {(date || user) &&
-            <label className="comment--date" htmlFor={"docItem_" + id}>
+            <label className="document--date" htmlFor={"docItem_" + id}>
               {"Uploaded"
               + (date && " on " + date.slice(0, 10).split('-').reverse().join('/'))
               + (user && " by " + user)}

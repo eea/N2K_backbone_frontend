@@ -108,14 +108,14 @@ export class ModalChanges extends Component {
   }
 
   componentDidUpdate() {
-    if(this.isVisible() && !this.state.loading && this.state.activeKey === 4) {
+    if(this.isVisible() && !this.state.loading && this.state.activeKey === 4  && !this.errorLoadingComments && !this.errorLoadingDocuments) {
       this.attachmentsHeight();
       window.addEventListener("resize", () => {this.attachmentsHeight()});
     }
   }
 
   attachmentsHeight = () => {
-    let height = document.querySelector(".modal-body").offsetHeight - document.querySelector(".modal-body .nav").offsetHeight - document.querySelector("#modal_justification_req").parentElement.offsetHeight - document.querySelector(".attachments--title").offsetHeight - 80;
+    let height = document.querySelector(".modal-body").offsetHeight - document.querySelector(".modal-body .nav").offsetHeight - document.querySelector("#modal_justification_req").parentElement.offsetHeight - document.querySelector(".attachments--title").offsetHeight - (document.querySelector(".alert-primary") ? document.querySelector(".alert-primary").offsetHeight + 16 : 0 ) - 80;
     if(document.querySelector(".document--list").scrollHeight > height) {
       document.querySelector(".document--list").style.height = height + "px";
     }
@@ -363,7 +363,8 @@ export class ModalChanges extends Component {
   uploadFile(data) {
     let siteCode = this.state.data.SiteCode;
     let version = this.state.data.Version;
-    return this.dl.xmlHttpRequest(ConfigData.UPLOAD_ATTACHED_FILE + '?sitecode=' + siteCode + '&version=' + version, data);
+    let comment = document.querySelector(".document--comment textarea").value;
+    return this.dl.xmlHttpRequest(ConfigData.UPLOAD_ATTACHED_FILE + '?sitecode=' + siteCode + '&version=' + version + "&comment=" + comment, data);
   }
 
   handleSubmission() {
@@ -787,32 +788,40 @@ export class ModalChanges extends Component {
     }
     docs.push(
       target == "site" && this.state.newDocument &&
-      <div className="document--item new" key={"docItem_new"}>
-        <div className="input-file">
-          <label htmlFor="uploadBtn">
-            Select file
-          </label>
-          <input id="uploadBtn" type="file" name="Files" onChange={(e) => this.changeHandler(e)} accept={UtilsData.ACCEPTED_DOCUMENT_FORMATS} />
-          {this.state.isSelected ? (
-            <input id="uploadFile" placeholder={this.state.selectedFile.name} disabled="disabled" />
-          ) : (<input id="uploadFile" placeholder="No file selected" disabled="disabled" />)}
+      <div className="document--new" key={"docItem_new"}>
+        <div className="document--item">
+          <div className="input-file">
+            <label htmlFor="uploadBtn">
+              Select file
+            </label>
+            <input id="uploadBtn" type="file" name="Files" onChange={(e) => this.changeHandler(e)} accept={UtilsData.ACCEPTED_DOCUMENT_FORMATS} />
+            {this.state.isSelected ? (
+              <input id="uploadFile" placeholder={this.state.selectedFile.name} disabled="disabled" />
+            ) : (<input id="uploadFile" placeholder="No file selected" disabled="disabled" />)}
+          </div>
+          <div className="document--icons">
+            <CButton color="link" className="btn-link" onClick={() => this.handleSubmission()}>
+              Save
+            </CButton>
+            <CButton color="link" className="btn-icon" onClick={() => this.deleteDocumentMessage()}>
+              <i className="fa-regular fa-trash-can"></i>
+            </CButton>
+          </div>
         </div>
-        <div className="document--icons">
-          <CButton color="link" className="btn-link" onClick={() => this.handleSubmission()}>
-            Save
-          </CButton>
-          <CButton color="link" className="btn-icon" onClick={() => this.deleteDocumentMessage()}>
-            <i className="fa-regular fa-trash-can"></i>
-          </CButton>
+        <div className="document--comment">
+          <TextareaAutosize
+            minRows={3}
+            placeholder="Add a comment (optional)"
+            className="comment--input"
+          ></TextareaAutosize>
         </div>
       </div>
     )
     if (this.state.documents !== "noData") {
       filteredDocuments.forEach(d => {
-        // original name may be null until the backend part it's finished
         const name = d.OriginalName ?? d.Path;
         docs.push(
-          this.createDocumentElement(d.Id, name, d.ImportDate, d.Username, target)
+          this.createDocumentElement(d.Id, name, d.ImportDate, d.Username, d.Comment, target)
         )
       })
     }
@@ -826,7 +835,7 @@ export class ModalChanges extends Component {
     )
   }
 
-  createDocumentElement(id, name, date, user, level) {
+  createDocumentElement(id, name, date, user, comment, level) {
     return (
       <div className="document--item" key={"docItem_" + id} id={"docItem_" + id} doc_id={id}>
         <div className="my-auto document--text">
@@ -834,8 +843,13 @@ export class ModalChanges extends Component {
             <CImage src={documentImg} className="ico--md me-3"></CImage>
             <span>{name?.replace(/^.*[\\\/]/, '')}</span>
           </div>
+          {comment &&
+            <label className="document--date" htmlFor={"docItem_" + id}>
+              {comment}
+            </label>
+          }
           {(date || user) &&
-            <label className="comment--date" htmlFor={"docItem_" + id}>
+            <label className="document--date" htmlFor={"docItem_" + id}>
               {"Uploaded"
               + (date && " on " + date.slice(0, 10).split('-').reverse().join('/'))
               + (user && " by " + user)}
