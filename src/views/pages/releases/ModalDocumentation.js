@@ -426,13 +426,13 @@ const ModalDocumentation = (props) => {
               </CButton>
             </div>
           </div>
-        </div>
-        <div className="document--comment">
-          <TextareaAutosize
-            minRows={3}
-            placeholder="Add a comment (optional)"
-            className="comment--input"
-          ></TextareaAutosize>
+          <div className="document--comment">
+            <TextareaAutosize
+              minRows={3}
+              placeholder="Add a comment (optional)"
+              className="comment--input"
+            ></TextareaAutosize>
+          </div>
         </div>
       </div>
     )
@@ -478,7 +478,7 @@ const ModalDocumentation = (props) => {
             <TextareaAutosize
               disabled
               defaultValue={comment}
-              className="comment--input mt-1"
+              className="comment--input"
             ></TextareaAutosize>
           </div>
         }

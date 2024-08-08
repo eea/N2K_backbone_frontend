@@ -329,13 +329,13 @@ export class ModalEdition extends Component {
               </CButton>
             </div>
           </div>
-        </div>
-        <div className="document--comment">
-          <TextareaAutosize
-            minRows={3}
-            placeholder="Add a comment (optional)"
-            className="comment--input"
-          ></TextareaAutosize>
+          <div className="document--comment">
+            <TextareaAutosize
+              minRows={3}
+              placeholder="Add a comment (optional)"
+              className="comment--input"
+            ></TextareaAutosize>
+          </div>
         </div>
       </div>
     )
@@ -383,7 +383,7 @@ export class ModalEdition extends Component {
             <TextareaAutosize
               disabled
               defaultValue={comment}
-              className="comment--input mt-1"
+              className="comment--input"
             ></TextareaAutosize>
           </div>
         }

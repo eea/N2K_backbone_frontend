@@ -456,7 +456,7 @@ class ModalChanges extends Component {
             <TextareaAutosize
               disabled
               defaultValue={comment}
-              className="comment--input mt-1"
+              className="comment--input"
             ></TextareaAutosize>
           </div>
         }
