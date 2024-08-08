@@ -795,8 +795,8 @@ export class ModalChanges extends Component {
     docs.push(
       target == "site" && this.state.newDocument &&
       <div className="document--new" key={"docItem_new"}>
-        <div className="document--row">
-          <div className="document--item">
+        <div className="document--item">
+          <div className="document--row">
             <div className="input-file">
               <label htmlFor="uploadBtn">
                 Select file
@@ -815,13 +815,13 @@ export class ModalChanges extends Component {
               </CButton>
             </div>
           </div>
-        </div>
-        <div className="document--comment">
-          <TextareaAutosize
-            minRows={3}
-            placeholder="Add a comment (optional)"
-            className="comment--input"
-          ></TextareaAutosize>
+          <div className="document--comment">
+            <TextareaAutosize
+              minRows={3}
+              placeholder="Add a comment (optional)"
+              className="comment--input"
+            ></TextareaAutosize>
+          </div>
         </div>
       </div>
     )
@@ -869,7 +869,7 @@ export class ModalChanges extends Component {
             <TextareaAutosize
               disabled
               defaultValue={comment}
-              className="comment--input mt-1"
+              className="comment--input"
             ></TextareaAutosize>
           </div>
         }
