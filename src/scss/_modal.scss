@@ -43,12 +43,14 @@
     overflow: auto;
   }
   &--item {
-    display: flex;
-    justify-content: space-between;
-    gap: 0.25rem;
     &:not(:last-of-type) {
       margin-bottom: 0.75rem;
     }
+  }
+  &--row {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.25rem;
   }
   &--new {
     display: flex;
@@ -86,12 +88,14 @@
     overflow: auto;
   }
   &--item {
-    display: flex;
-    justify-content: space-between;
-    gap: 0.25rem;
     &:not(:last-of-type) {
       margin-bottom: 0.75rem;
     }
+  }
+  &--row {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.25rem;
   }
   &--text {
     flex: 1 1;

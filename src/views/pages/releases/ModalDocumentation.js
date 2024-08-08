@@ -262,20 +262,22 @@ const ModalDocumentation = (props) => {
     cmts.push(
       newComment &&
       <div className="comment--item new" key={"cmtItem_new"}>
-        <div className="comment--text">
-          <TextareaAutosize
-            minRows={3}
-            placeholder="Add a comment"
-            className="comment--input"
-          ></TextareaAutosize>
-        </div>
-        <div>
-          <CButton color="link" className="btn-link" onClick={(e) => addComment(e.currentTarget)}>
-            Save
-          </CButton>
-          <CButton color="link" className="btn-icon" onClick={() => deleteCommentMessage()}>
-            <i className="fa-regular fa-trash-can"></i>
-          </CButton>
+        <div className="comment--row">
+          <div className="comment--text">
+            <TextareaAutosize
+              minRows={3}
+              placeholder="Add a comment"
+              className="comment--input"
+            ></TextareaAutosize>
+          </div>
+          <div className="comment--icons">
+            <CButton color="link" className="btn-link" onClick={(e) => addComment(e.currentTarget)}>
+              Save
+            </CButton>
+            <CButton color="link" className="btn-icon" onClick={() => deleteCommentMessage()}>
+              <i className="fa-regular fa-trash-can"></i>
+            </CButton>
+          </div>
         </div>
       </div>
     )
@@ -299,29 +301,31 @@ const ModalDocumentation = (props) => {
   const createCommentElement = (id, comment, date, owner, edited, editeddate, editedby) => {
     return (
       <div className="comment--item" key={"cmtItem_" + id} id={"cmtItem_" + id}>
-        <div className="comment--text">
-          <TextareaAutosize
-            id={id}
-            disabled
-            defaultValue={comment}
-            className="comment--input" />
-          <label className="comment--date" htmlFor={id}>
-            {date && owner &&
-              "Commented on " + date.slice(0, 10).split('-').reverse().join('/') + " by " + owner + "."
-            }
-            {((edited >= 1) && (editeddate && editeddate !== undefined) && (editedby && editedby !== undefined)) &&
-              " Last edited on " + editeddate.slice(0, 10).split('-').reverse().join('/') + " by " + editedby + "."
-            }
-          </label>
+        <div className="comment--row">
+          <div className="comment--text">
+            <TextareaAutosize
+              id={id}
+              disabled
+              defaultValue={comment}
+              className="comment--input" />
+          </div>
+          <div className="comment--icons">
+            <CButton color="link" className="btn-link" onClick={(e) => updateComment(e.currentTarget)} key={"cmtUpdate_" + id}>
+              Edit
+            </CButton>
+            <CButton color="link" className="btn-icon" onClick={(e) => deleteCommentMessage(e.currentTarget)} key={"cmtDelete_" + id}>
+              <i className="fa-regular fa-trash-can"></i>
+            </CButton>
+          </div>
         </div>
-        <div className="comment--icons">
-          <CButton color="link" className="btn-link" onClick={(e) => updateComment(e.currentTarget)} key={"cmtUpdate_" + id}>
-            Edit
-          </CButton>
-          <CButton color="link" className="btn-icon" onClick={(e) => deleteCommentMessage(e.currentTarget)} key={"cmtDelete_" + id}>
-            <i className="fa-regular fa-trash-can"></i>
-          </CButton>
-        </div>
+        <label className="comment--date" htmlFor={id}>
+          {date && owner &&
+            "Commented on " + date.slice(0, 10).split('-').reverse().join('/') + " by " + owner + "."
+          }
+          {((edited >= 1) && (editeddate && editeddate !== undefined) && (editedby && editedby !== undefined)) &&
+            " Last edited on " + editeddate.slice(0, 10).split('-').reverse().join('/') + " by " + editedby + "."
+          }
+        </label>
       </div>
     )
   }
@@ -403,22 +407,24 @@ const ModalDocumentation = (props) => {
       newDocument &&
       <div className="document--new" key={"docItem_new"}>
         <div className="document--item">
-          <div className="input-file">
-            <label htmlFor="uploadBtn">
-              Select file
-            </label>
-            <input id="uploadBtn" type="file" name="Files" onChange={(e) => changeHandler(e)} accept={UtilsData.ACCEPTED_DOCUMENT_FORMATS} />
-            {selectedFile ? (
-              <input id="uploadFile" placeholder={selectedFile.name} disabled="disabled" />
-            ) : (<input id="uploadFile" placeholder="No file selected" disabled="disabled" />)}
-          </div>
-          <div className="document--icons">
-            <CButton color="link" className="btn-link" onClick={() => handleSubmission()}>
-              Save
-            </CButton>
-            <CButton color="link" className="btn-icon" onClick={() => deleteDocumentMessage()}>
-              <i className="fa-regular fa-trash-can"></i>
-            </CButton>
+          <div className="document--row">
+            <div className="input-file">
+              <label htmlFor="uploadBtn">
+                Select file
+              </label>
+              <input id="uploadBtn" type="file" name="Files" onChange={(e) => changeHandler(e)} accept={UtilsData.ACCEPTED_DOCUMENT_FORMATS} />
+              {selectedFile ? (
+                <input id="uploadFile" placeholder={selectedFile.name} disabled="disabled" />
+              ) : (<input id="uploadFile" placeholder="No file selected" disabled="disabled" />)}
+            </div>
+            <div className="document--icons">
+              <CButton color="link" className="btn-link" onClick={() => handleSubmission()}>
+                Save
+              </CButton>
+              <CButton color="link" className="btn-icon" onClick={() => deleteDocumentMessage()}>
+                <i className="fa-regular fa-trash-can"></i>
+              </CButton>
+            </div>
           </div>
         </div>
         <div className="document--comment">
@@ -451,32 +457,38 @@ const ModalDocumentation = (props) => {
   const createDocumentElement = (id, name, date, user, comment) => {
     return (
       <div className="document--item" key={"docItem_" + id} id={"docItem_" + id} doc_id={id}>
-        <div className="my-auto document--text">
-          <div className="document--file">
-            <CImage src={documentImg} className="ico--md me-3"></CImage>
-            <span>{name?.replace(/^.*[\\\/]/, '')}</span>
+        <div className="document--row">
+          <div className="my-auto document--text">
+            <div className="document--file">
+              <CImage src={documentImg} className="ico--md me-2"></CImage>
+              <span>{name?.replace(/^.*[\\\/]/, '')}</span>
+            </div>
           </div>
-          {comment &&
-            <label className="document--date" htmlFor={"docItem_" + id}>
-              {comment}
-            </label>
-          }
-          {(date || user) &&
-            <label className="document--date" htmlFor={"docItem_" + id}>
-              {"Uploaded"
-              + (date && " on " + date.slice(0, 10).split('-').reverse().join('/'))
-              + (user && " by " + user)}
-            </label>
-          }
+          <div className="document--icons">
+            <CButton color="link" className="btn-link" onClick={()=>{downloadAttachments(id, name)}}>
+              View
+            </CButton>
+            <CButton color="link" className="btn-icon" onClick={(e) => deleteDocumentMessage(e.currentTarget)}>
+              <i className="fa-regular fa-trash-can"></i>
+            </CButton>
+          </div>
         </div>
-        <div className="document--icons">
-          <CButton color="link" className="btn-link" onClick={()=>{downloadAttachments(id, name)}}>
-            View
-          </CButton>
-          <CButton color="link" className="btn-icon" onClick={(e) => deleteDocumentMessage(e.currentTarget)}>
-            <i className="fa-regular fa-trash-can"></i>
-          </CButton>
-        </div>
+        {comment &&
+          <div className="document--comment">
+            <TextareaAutosize
+              disabled
+              defaultValue={comment}
+              className="comment--input mt-1"
+            ></TextareaAutosize>
+          </div>
+        }
+        {(date || user) &&
+          <label className="document--date" htmlFor={"docItem_" + id}>
+            {"Uploaded"
+            + (date && " on " + date.slice(0, 10).split('-').reverse().join('/'))
+            + (user && " by " + user)}
+          </label>
+        }
       </div>
     )
   }

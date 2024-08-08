@@ -377,21 +377,24 @@ class ModalChanges extends Component {
   createCommentElement(id, comment, date, owner, edited, editeddate, editedby, level) {
     return (
       <div className="comment--item" key={"cmtItem_" + id} id={"cmtItem_" + id}>
-        <div className="comment--text">
-          <TextareaAutosize
-            id={id}
-            disabled
-            defaultValue={comment}
-            className="comment--input" />
-          <label className="comment--date" htmlFor={id}>
-            {date && owner &&
-              "Commented on " + date.slice(0, 10).split('-').reverse().join('/') + " by " + owner + "."
-            }
-            {((edited >= 1) && (editeddate && editeddate !== undefined) && (editedby && editedby !== undefined)) &&
-              " Last edited on " + editeddate.slice(0, 10).split('-').reverse().join('/') + " by " + editedby + "."
-            }
-          </label>
+        <div className="comment--row">
+          <div className="comment--text">
+            <TextareaAutosize
+              id={id}
+              disabled
+              defaultValue={comment}
+              className="comment--input"
+            ></TextareaAutosize>
+          </div>
         </div>
+        <label className="comment--date" htmlFor={id}>
+          {date && owner &&
+            "Commented on " + date.slice(0, 10).split('-').reverse().join('/') + " by " + owner + "."
+          }
+          {((edited >= 1) && (editeddate && editeddate !== undefined) && (editedby && editedby !== undefined)) &&
+            " Last edited on " + editeddate.slice(0, 10).split('-').reverse().join('/') + " by " + editedby + "."
+          }
+        </label>
       </div>
     )
   }
@@ -435,29 +438,35 @@ class ModalChanges extends Component {
   createDocumentElement(id, name, date, user, comment, level) {
     return (
       <div className="document--item" key={"docItem_" + id} id={"docItem_" + id} doc_id={id}>
-        <div className="my-auto document--text">
-          <div className="document--file">
-            <CImage src={documentImg} className="ico--md me-3"></CImage>
-            <span>{name?.replace(/^.*[\\\/]/, '')}</span>
+        <div className="document--row">
+          <div className="my-auto document--text">
+            <div className="document--file">
+              <CImage src={documentImg} className="ico--md me-2"></CImage>
+              <span>{name?.replace(/^.*[\\\/]/, '')}</span>
+            </div>
           </div>
-          {comment &&
-            <label className="document--date" htmlFor={"docItem_" + id}>
-              {comment}
-            </label>
-          }
-          {(date || user) &&
-            <label className="document--date" htmlFor={"docItem_" + id}>
-              {"Uploaded"
-              + (date && " on " + date.slice(0, 10).split('-').reverse().join('/'))
-              + (user && " by " + user)}
-            </label>
-          }
+          <div className="document--icons">
+            <CButton color="link" className="btn-link" onClick={()=>{this.downloadAttachments(id, name, level)}}>
+              View
+            </CButton>
+          </div>
         </div>
-        <div className="document--icons">
-          <CButton color="link" className="btn-link" onClick={()=>{this.downloadAttachments(id, name, level)}}>
-            View
-          </CButton>
-        </div>
+        {comment &&
+          <div className="document--comment">
+            <TextareaAutosize
+              disabled
+              defaultValue={comment}
+              className="comment--input mt-1"
+            ></TextareaAutosize>
+          </div>
+        }
+        {(date || user) &&
+          <label className="document--date" htmlFor={"docItem_" + id}>
+            {"Uploaded"
+            + (date && " on " + date.slice(0, 10).split('-').reverse().join('/'))
+            + (user && " by " + user)}
+          </label>
+        }
       </div>
     )
   }
