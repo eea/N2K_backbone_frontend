@@ -333,6 +333,8 @@ const Sitelineage = () => {
   {country && loadSites()}
   {siteCode && Object.keys(siteData).length === 0 && loadData()}
 
+  const page = UtilsData.SIDEBAR["sitelineage"].find(a => a.option === "history");
+
   return (
     <div className="container--main min-vh-100">
       <AppHeader page="sitelineage"/>
@@ -340,13 +342,16 @@ const Sitelineage = () => {
         <AppSidebar
           title="Site Lineage"
           options={UtilsData.SIDEBAR["sitelineage"]}
-          active="history"
+          active={page.option}
         />
         <div className="main-content">
           <CContainer fluid>
             <div className="d-flex justify-content-between py-3">
               <div className="page-title">
-                <h1 className="h1">Lineage History</h1>
+                <h1 className="h1">{page.name}</h1>
+                {page.description &&
+                  <div className="page-description">{page.description}</div>
+                }
               </div>
             </div>
             <CRow>

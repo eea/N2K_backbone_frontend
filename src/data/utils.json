@@ -1,39 +1,139 @@
 {
   "SIDEBAR": {
     "harvesting": [
-      {"path": "/#/harvesting/incoming", "name":"Incoming", "option": "incoming"},
-      {"path": "/#/harvesting/ready", "name":"Ready to Use", "option": "ready"},
-      {"path": "/#/harvesting/progress", "name":"In Progress", "option": "progress"},
-      {"path": "/#/harvesting/processed", "name":"Processed", "option": "processed"},
-      {"path": "/#/harvesting/all", "name":"All", "option": "all"}
+      {
+        "path": "/#/harvesting/incoming",
+        "name": "Incoming",
+        "option": "incoming"
+      },
+      {
+        "path": "/#/harvesting/ready",
+        "name": "Ready to Use",
+        "option": "ready"
+      },
+      {
+        "path": "/#/harvesting/progress",
+        "name": "In Progress",
+        "option": "progress"
+      },
+      {
+        "path": "/#/harvesting/processed",
+        "name": "Processed",
+        "option": "processed"
+      },
+      {
+        "path": "/#/harvesting/all",
+        "name": "All",
+        "option": "all"
+      }
     ],
     "sitechanges": [
-      {"path": "/#/sitechanges/changes", "name":"Changes Management", "option": "changes"},
-      {"path": "/#/sitechanges/nochanges", "name":"No Changes", "option": "nochanges"},
-      {"path": "/#/sitechanges/extraction", "name":"Changes Extraction", "option": "extraction"}
+      {
+        "path": "/#/sitechanges/changes",
+        "name":"Changes Management",
+        "option": "changes"
+      },
+      {
+        "path": "/#/sitechanges/nochanges",
+        "name": "No Changes",
+        "option": "nochanges"
+      },
+      {
+        "path": "/#/sitechanges/extraction",
+        "name": "Changes Extraction",
+        "option": "extraction"
+      }
     ],
     "releases": [
-      {"path": "/#/releases/management", "name":"Release Management", "option": "management"},
-      {"path": "/#/releases/documentation", "name":"Release Documentation", "option": "documentation"},
-      {"path": "/#/releases/comparer", "name":"Release Comparer", "option": "comparer"},
-      {"path": "/#/releases/siteeditionoverview", "name":"Site Edition Overview", "option": "siteeditionoverview"},
-      {"path": "/#/releases/siteedition", "name":"Site Edition", "option": "siteedition"},
-      {"path": "/#/releases/unionlists", "name":"Union Lists", "option": "unionlists"}
+      {
+        "path": "/#/releases/management",
+        "name": "Release Management",
+        "option": "management"
+      },
+      {
+        "path": "/#/releases/documentation",
+        "name": "Release Documentation",
+        "option": "documentation"
+      },
+      {
+        "path": "/#/releases/comparer",
+        "name": "Release Comparer",
+        "option": "comparer"
+      },
+      {
+        "path": "/#/releases/siteeditionoverview", 
+        "name": "Site Edition Overview",
+        "option": "siteeditionoverview"
+      },
+      {
+        "path": "/#/releases/siteedition",
+        "name": "Site Edition",
+        "option": "siteedition"
+      },
+      {
+        "path": "/#/releases/unionlists",
+        "name": "Union Lists",
+        "option": "unionlists"
+      }
     ],
     "sitelineage": [
-      {"path": "/#/sitelineage/overview", "name":"Lineage Overview", "option": "overview"},
-      {"path": "/#/sitelineage/management", "name":"Lineage Management", "option": "management"},
-      {"path": "/#/sitelineage/history", "name":"Lineage History", "option": "history"}
+      {
+        "path": "/#/sitelineage/overview",
+        "name": "Lineage Overview",
+        "option": "overview"
+      },
+      {
+        "path": "/#/sitelineage/management",
+        "name": "Lineage Management",
+        "option": "management"
+      },
+      {
+        "path": "/#/sitelineage/history",
+        "name": "Lineage History",
+        "option": "history"
+      }
     ],
     "reports": [
-      {"path": "/#/reports/releasesoverview", "name":"Releases Dates Overview", "option": "releasesoverview"},
-      {"path": "/#/reports/releases", "name":"Releases Dates", "option": "releases"},
-      {"path": "/#/reports/sites", "name":"Reference Sites Details", "option": "sites"},
-      {"path": "/#/reports/status", "name":"Site Status", "option": "status"},
-      {"path": "/#/reports/bioregions", "name":"Sites Bioregions", "option": "bioregions"},
-      {"path": "/#/reports/noterrestrial", "name":"SCIs w/o UL Regions", "option": "noterrestrial"},
-      {"path": "/#/reports/manual", "name":"Manual Updates", "option": "manual"},
-      {"path": "/#/reports/unionlists", "name":"Union Lists Changes", "option": "unionlists"}
+      {
+        "path": "/#/reports/releasesoverview",
+        "name": "Releases Dates Overview",
+        "option": "releasesoverview"
+      },
+      {
+        "path": "/#/reports/releases",
+        "name": "Releases Dates",
+        "option": "releases"
+      },
+      {
+        "path": "/#/reports/sites",
+        "name": "Reference Sites Details",
+        "option": "sites"
+      },
+      {
+        "path": "/#/reports/status",
+        "name": "Site Status",
+        "option": "status"
+      },
+      {
+        "path": "/#/reports/bioregions",
+        "name": "Sites Bioregions",
+        "option": "bioregions"
+      },
+      {
+        "path":"/#/reports/noterrestrial",
+        "name": "SCIs w/o UL Regions",
+        "option": "noterrestrial"
+      },
+      {
+        "path": "/#/reports/manual",
+        "name": "Manual Updates",
+        "option": "manual"
+      },
+      {
+        "path": "/#/reports/unionlists",
+        "name": "Union Lists Changes",
+        "option": "unionlists"
+      }
     ]
   },
   "SITE_TYPES": {

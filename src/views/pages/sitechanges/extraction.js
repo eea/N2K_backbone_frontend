@@ -98,6 +98,8 @@ const Sitechanges = () => {
       loadExtractions();
   }, [extraction])
 
+  const page = UtilsData.SIDEBAR["sitechanges"].find(a => a.option === "extraction");
+
   return (
     <>
       <div className="container--main min-vh-100">
@@ -106,13 +108,16 @@ const Sitechanges = () => {
           <AppSidebar
             title="Site Changes"
             options={UtilsData.SIDEBAR["sitechanges"]}
-            active="extraction"
+            active={page.option}
           />
           <div className="main-content">
             <CContainer fluid>
               <div className="d-flex  justify-content-between px-0 p-3">
                 <div className="page-title">
-                  <h1 className="h1">Changes Extraction</h1>
+                  <h1 className="h1">{page.name}</h1>
+                  {page.description &&
+                    <div className="page-description">{page.description}</div>
+                  }
                 </div>
               </div>
               <div>

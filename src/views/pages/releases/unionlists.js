@@ -287,6 +287,8 @@ const Releases = () => {
 
   !isLoading && (!tableData || (tableData1.length === 0 && tableData2.length === 0)) && loadData();
 
+  const page = UtilsData.SIDEBAR["releases"].find(a => a.option === "unionlists");
+
   return (
     <div className="container--main min-vh-100">
       <AppHeader page="releases"/>
@@ -294,15 +296,15 @@ const Releases = () => {
         <AppSidebar
           title="Releases"
           options={UtilsData.SIDEBAR["releases"]}
-          active="unionlists"
+          active={page.option}
         />
         <div className="main-content">
           <CContainer fluid>
             <div className="d-flex justify-content-between py-3">
               <div className="page-title">
-                <h1 className="h1">Union Lists</h1>
-                {downloadError &&
-                  <CAlert color="danger">An error occurred while downloading</CAlert>
+                <h1 className="h1">{page.name}</h1>
+                {page.description &&
+                  <div className="page-description">{page.description}</div>
                 }
               </div>
               <div>
@@ -326,6 +328,9 @@ const Releases = () => {
                 </ul>
               </div>
             </div>
+            {downloadError &&
+              <CAlert color="danger">An error occurred while downloading</CAlert>
+            }
             {isLoading && !tableData ?
               <div className="loading-container"><em>Loading...</em></div>
             : (bioRegionsSummary.length === 0 ? 

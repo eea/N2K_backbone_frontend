@@ -77,6 +77,8 @@ const Releases = () => {
     });
   }
 
+  const page = UtilsData.SIDEBAR["releases"].find(a => a.option === "documentation");
+
   return (
     <div className="container--main min-vh-100">
       <AppHeader page="releases" />
@@ -84,18 +86,19 @@ const Releases = () => {
         <AppSidebar
           title="Releases"
           options={UtilsData.SIDEBAR["releases"]}
-          active="documentation"
+          active={page.option}
         />
         <div className="main-content">
           <CContainer fluid>
             <div className="d-flex justify-content-between py-3">
               <div className="page-title">
-                <h1 className="h1">Release Documentation</h1>
+                <h1 className="h1">{page.name}</h1>
+                {page.description &&
+                  <div className="page-description">{page.description}</div>
+                }
               </div>
-
             </div>
             <CAlert color="danger" visible={error.length > 0}>{error}</CAlert>
-
             <TableDocumentation
               openModal={openModal}
               showError={showError}
@@ -114,7 +117,6 @@ const Releases = () => {
           </CContainer>
         </div>
       </div>
-
       <ConfirmationModal modalValues={modalValues} />
     </div>
   )

@@ -47,6 +47,9 @@ html {
     font-size: 1.5rem;
     color: $primary-base;
   }
+  .page-description {
+    white-space: break-spaces;
+  }
 }
 .header {
   &--custom {
