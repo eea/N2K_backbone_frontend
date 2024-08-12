@@ -35,7 +35,7 @@ const defaultCountry = () => {
 
 const openSite = () => {
   const searchParams = new URLSearchParams(window.location.href.split('?')[1]);
-  const siteCode = searchParams.get('siteCode');
+  const siteCode = searchParams.get('sitecode');
   return siteCode ?? "";
 }
 
@@ -55,7 +55,7 @@ const changeCountryParam = (country) => {
 const cleanSiteParm = () => {
   const base = window.location.href.split('?')[0];
   const parms = new URLSearchParams(window.location.href.split('?')[1]);
-  parms.delete("siteCode");
+  parms.delete("sitecode");
   if(parms.toString()!==""){
     location.href = base + '?' + parms.toString();
   }
