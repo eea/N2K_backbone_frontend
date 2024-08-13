@@ -55,11 +55,19 @@
     width: 1rem;
     opacity: 0.5;
     margin-left: 0.5rem;
-    &.legend-color-0 {
+    &.legend-color-border {
+      height: 3px;
+      opacity: 1;
+      border-top: solid 3px $black;
+    }
+    &.legend-color-submission {
       background-color: $submission;
     }
-    &.legend-color-1 {
+    &.legend-color-reference {
       background-color: $reference;
+    }
+    &.legend-color-changes {
+      background-image: linear-gradient(45deg, $danger-base 50%, $success-base 50%);
     }
   }
   .esri-popup {

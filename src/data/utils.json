@@ -62,7 +62,10 @@
     "Green": "#daf5d6",
     "Red": "#f6cbcf",
     "Yellow": "#fed100",
-    "Blue": "#4fc1c5"
+    "Blue": "#4fc1c5",
+    "Black": "#000015",
+    "MapRed": "#db303f",
+    "MapGreen": "#7fc008"
   },
   "MESSAGE_TIMEOUT": 5000
 }
