@@ -379,6 +379,8 @@ export class ModalLineage extends Component {
                 lineageChangeType={this.props.type}
                 mapReference={ConfigData.MAP_REFERENCE}
                 mapSubmission={ConfigData.MAP_SUBMISSION}
+                mapChanges={ConfigData.MAP_GEOMETRY_CHANGES}
+                showGeometryChanges={false}
               />
             </CRow>
           }
