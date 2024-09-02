@@ -276,7 +276,6 @@ class MapViewer extends React.Component {
         return(
             <>
                 <div id={this.mapDiv} style={{ width: '100%', height: '600px' }} />
-                <div>kdfs jkbsh bf sdbfb l</div>
             </>
         );
     }
