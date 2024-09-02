@@ -165,7 +165,7 @@ class MapViewer extends React.Component {
                 url: this.props.lineageChangeType === "Deletion" || this.props.noGeometry ? this.props.mapReference : this.props.mapSubmission,
                 id: 3,
                 popupEnabled: false,
-                title: "Site",
+                title: "Submited Site",
                 definitionExpression: "SiteCode = '" + this.props.siteCode + "'",
                 renderer: {
                     type: "simple",
@@ -276,6 +276,7 @@ class MapViewer extends React.Component {
         return(
             <>
                 <div id={this.mapDiv} style={{ width: '100%', height: '600px' }} />
+                <div>kdfs jkbsh bf sdbfb l</div>
             </>
         );
     }
