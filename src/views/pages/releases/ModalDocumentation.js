@@ -362,7 +362,7 @@ const ModalDocumentation = (props) => {
 
   const uploadFile = (data) => {
     let country = props.item.Code
-    let comment = document.querySelector(".document--comment textarea").value;
+    let comment = document.querySelector(".document--new .document--comment textarea").value;
     return dl.xmlHttpRequest(ConfigData.RELEASES_ATTACHMENTS_DOCUMENT_ADD + '?Country=' + country + "&comment=" + comment, data)
   }
 
