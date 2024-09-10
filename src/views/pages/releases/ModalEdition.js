@@ -679,7 +679,7 @@ export class ModalEdition extends Component {
   uploadFile(data) {
     let siteCode = this.state.data.SiteCode;
     let version = this.state.data.Version;
-    let comment = document.querySelector(".document--comment textarea").value;
+    let comment = document.querySelector(".document--new .document--comment textarea").value;
     return this.dl.xmlHttpRequest(ConfigData.UPLOAD_ATTACHED_FILE + '?sitecode=' + siteCode + '&version=' + version + "&comment=" + comment, data);
   }
 
