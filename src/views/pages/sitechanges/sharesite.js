@@ -63,6 +63,7 @@ class ModalChanges extends Component {
       comments:[],
       documents:[],
       showDetail: [],
+      downloadingDocuments: [],
       justificationRequired: false,
       notValidDocument: "",
       errorLoading: false
@@ -446,8 +447,8 @@ class ModalChanges extends Component {
             </div>
           </div>
           <div className="document--icons">
-            <CButton color="link" className="btn-link" onClick={()=>{this.downloadAttachments(id, name, level)}}>
-              View
+            <CButton color="link" className="btn-link" disabled={this.state.downloadingDocuments.includes(id)} onClick={() => this.downloadAttachments(id, name, level)}>
+              {this.state.downloadingDocuments.includes(id) ? <i className="fas fa-spinner fa-spin px-2"></i> : <>View</>}
             </CButton>
           </div>
         </div>
@@ -524,6 +525,7 @@ class ModalChanges extends Component {
   }
 
   downloadAttachments = (id, name, level) => {
+    this.setState({ downloadingDocuments: [...this.state.downloadingDocuments, id] });
     let type = level === "site" ? 0 : 1;
     this.dl.fetch(ConfigData.ATTACHMENTS_DOWNLOAD + "id=" + id + "&docuType=" + type)
     .then(data => {
@@ -538,10 +540,12 @@ class ModalChanges extends Component {
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
+          this.setState({ downloadingDocuments: this.state.downloadingDocuments.filter(a => a !== id) });
         })
       }
       else {
         this.showErrorMessage("document", "Error downloading file");
+        this.setState({ downloadingDocuments: this.state.downloadingDocuments.filter(a => a !== id) });
       }
     })
   }

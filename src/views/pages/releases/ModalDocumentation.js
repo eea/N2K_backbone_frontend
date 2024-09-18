@@ -48,6 +48,8 @@ const ModalDocumentation = (props) => {
   const [isLoading, setIsLoading] = useState(true)
   const [newDocument, setNewDocument] = useState(false)
   const [newComment, setNewComment] = useState(false)
+  const [uploadingDocument, setUploadingDocument] = useState(false)
+  const [downloadingDocuments, setDownloadingDocuments] = useState([])
   const [notValidComment, setNotValidComment] = useState(false)
   const [notValidDocument, setNotValidDocument] = useState(false)
   const [errorLoadingComments, setErrorLoadingComments] = useState(false)
@@ -383,12 +385,14 @@ const ModalDocumentation = (props) => {
     if (selectedFile) {
       let formData = new FormData();
       formData.append("Files", selectedFile, selectedFile.name);
+      setUploadingDocument(true);
 
       return uploadFile(formData)
         .then(data => {
           if (data?.Success) {
             setIsLoading(true)
             setNewDocument(false)
+            setUploadingDocument(false)
             loadData(props.item.Code)
           }
           else {
@@ -412,16 +416,16 @@ const ModalDocumentation = (props) => {
               <label htmlFor="uploadBtn">
                 Select file
               </label>
-              <input id="uploadBtn" type="file" name="Files" onChange={(e) => changeHandler(e)} accept={UtilsData.ACCEPTED_DOCUMENT_FORMATS} />
+              <input id="uploadBtn" type="file" name="Files" disabled={uploadingDocument} onChange={(e) => changeHandler(e)} accept={UtilsData.ACCEPTED_DOCUMENT_FORMATS} />
               {selectedFile ? (
                 <input id="uploadFile" placeholder={selectedFile.name} disabled="disabled" />
               ) : (<input id="uploadFile" placeholder="No file selected" disabled="disabled" />)}
             </div>
             <div className="document--icons">
-              <CButton color="link" className="btn-link" onClick={() => handleSubmission()}>
-                Save
+              <CButton color="link" className="btn-link" disabled={uploadingDocument} onClick={() => handleSubmission()}>
+                {uploadingDocument ? <i className="fas fa-spinner fa-spin px-2"></i> : <>Save</>}
               </CButton>
-              <CButton color="link" className="btn-icon" onClick={() => deleteDocumentMessage()}>
+              <CButton color="link" className="btn-icon" disabled={uploadingDocument} onClick={() => deleteDocumentMessage()}>
                 <i className="fa-regular fa-trash-can"></i>
               </CButton>
             </div>
@@ -431,6 +435,7 @@ const ModalDocumentation = (props) => {
               minRows={3}
               placeholder="Add a comment (optional)"
               className="comment--input"
+              disabled={uploadingDocument}
             ></TextareaAutosize>
           </div>
         </div>
@@ -465,10 +470,10 @@ const ModalDocumentation = (props) => {
             </div>
           </div>
           <div className="document--icons">
-            <CButton color="link" className="btn-link" onClick={()=>{downloadAttachments(id, name)}}>
-              View
+            <CButton color="link" className="btn-link" disabled={this.state.downloadingDocuments.includes(id)} onClick={() => downloadAttachments(id, name)}>
+              {downloadingDocuments.includes(id) ? <i className="fas fa-spinner fa-spin px-2"></i> : <>View</>}
             </CButton>
-            <CButton color="link" className="btn-icon" onClick={(e) => deleteDocumentMessage(e.currentTarget)}>
+            <CButton color="link" className="btn-icon" disabled={this.state.downloadingDocuments.includes(id)} onClick={(e) => deleteDocumentMessage(e.currentTarget)}>
               <i className="fa-regular fa-trash-can"></i>
             </CButton>
           </div>
@@ -545,6 +550,7 @@ const ModalDocumentation = (props) => {
   }
 
   const downloadAttachments = (id, name) => {
+    setDownloadingDocuments([...downloadingDocuments, id]);
     dl.fetch(ConfigData.ATTACHMENTS_DOWNLOAD + "id=" + id + "&docuType=1")
     .then(data => {
       if(data?.ok) {
@@ -558,10 +564,12 @@ const ModalDocumentation = (props) => {
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
+          setDownloadingDocuments(downloadingDocuments.filter(a => a !== id));
         })
       }
       else {
         showErrorMessage("document", "Error downloading file");
+        setDownloadingDocuments(downloadingDocuments.filter(a => a !== id));
       }
     })
   }
