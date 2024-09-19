@@ -813,7 +813,7 @@ export class ModalChanges extends Component {
             </div>
             <div className="document--icons">
               <CButton color="link" className="btn-link" disabled={this.state.uploadingDocument} onClick={() => this.handleSubmission()}>
-                {this.state.uploadingDocument ? <i className="fas fa-spinner fa-spin px-2"></i> : <>Save</>}
+                {this.state.uploadingDocument ? <CSpinner size="sm" className="mx-2" /> : <>Save</>}
               </CButton>
               <CButton color="link" className="btn-icon" disabled={this.state.uploadingDocument} onClick={() => this.deleteDocumentMessage()}>
                 <i className="fa-regular fa-trash-can"></i>
@@ -861,7 +861,7 @@ export class ModalChanges extends Component {
           </div>
           <div className="document--icons">
             <CButton color="link" className="btn-link" disabled={this.state.downloadingDocuments.includes(id)} onClick={() => this.downloadAttachments(id, name, level)}>
-              {this.state.downloadingDocuments.includes(id) ? <i className="fas fa-spinner fa-spin px-2"></i> : <>View</>}
+              {this.state.downloadingDocuments.includes(id) ? <CSpinner size="sm" className="mx-2" /> : <>View</>}
             </CButton>
             {level == "site" &&
               <CButton color="link" className="btn-icon" disabled={this.state.downloadingDocuments.includes(id)} onClick={(e) => this.deleteDocumentMessage(e.currentTarget)}>
@@ -962,7 +962,6 @@ export class ModalChanges extends Component {
   }
 
   downloadAttachments = (id, name, level) => {
-    debugger
     this.setState({ downloadingDocuments: [...this.state.downloadingDocuments, id] });
     let type = level === "site" ? 0 : 1;
     this.dl.fetch(ConfigData.ATTACHMENTS_DOWNLOAD + "id=" + id + "&docuType=" + type)

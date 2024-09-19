@@ -18,6 +18,7 @@ import {
   CCard,
   CAlert,
   CCloseButton,
+  CSpinner,
 } from '@coreui/react'
 
 import TextareaAutosize from 'react-textarea-autosize';
@@ -423,7 +424,7 @@ const ModalDocumentation = (props) => {
             </div>
             <div className="document--icons">
               <CButton color="link" className="btn-link" disabled={uploadingDocument} onClick={() => handleSubmission()}>
-                {uploadingDocument ? <i className="fas fa-spinner fa-spin px-2"></i> : <>Save</>}
+                {uploadingDocument ? <CSpinner size="sm" className="mx-2" /> : <>Save</>}
               </CButton>
               <CButton color="link" className="btn-icon" disabled={uploadingDocument} onClick={() => deleteDocumentMessage()}>
                 <i className="fa-regular fa-trash-can"></i>
@@ -470,10 +471,10 @@ const ModalDocumentation = (props) => {
             </div>
           </div>
           <div className="document--icons">
-            <CButton color="link" className="btn-link" disabled={this.state.downloadingDocuments.includes(id)} onClick={() => downloadAttachments(id, name)}>
-              {downloadingDocuments.includes(id) ? <i className="fas fa-spinner fa-spin px-2"></i> : <>View</>}
+            <CButton color="link" className="btn-link" disabled={downloadingDocuments.includes(id)} onClick={() => downloadAttachments(id, name)}>
+              {downloadingDocuments.includes(id) ? <CSpinner size="sm" className="mx-2" /> : <>View</>}
             </CButton>
-            <CButton color="link" className="btn-icon" disabled={this.state.downloadingDocuments.includes(id)} onClick={(e) => deleteDocumentMessage(e.currentTarget)}>
+            <CButton color="link" className="btn-icon" disabled={downloadingDocuments.includes(id)} onClick={(e) => deleteDocumentMessage(e.currentTarget)}>
               <i className="fa-regular fa-trash-can"></i>
             </CButton>
           </div>
