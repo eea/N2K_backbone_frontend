@@ -24,6 +24,7 @@ import {
   CCollapse,
   CCard,
   CAlert,
+  CSpinner
 } from '@coreui/react'
 
 import ConfigData from '../../../config.json';
@@ -448,7 +449,7 @@ class ModalChanges extends Component {
           </div>
           <div className="document--icons">
             <CButton color="link" className="btn-link" disabled={this.state.downloadingDocuments.includes(id)} onClick={() => this.downloadAttachments(id, name, level)}>
-              {this.state.downloadingDocuments.includes(id) ? <i className="fas fa-spinner fa-spin px-2"></i> : <>View</>}
+              {this.state.downloadingDocuments.includes(id) ? <CSpinner size="sm" className="mx-2" /> : <>View</>}
             </CButton>
           </div>
         </div>
