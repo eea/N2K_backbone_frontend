@@ -75,6 +75,8 @@ export class ModalChanges extends Component {
       showDetail: [],
       newComment: false,
       newDocument: false,
+      uploadingDocument: false,
+      downloadingDocuments: [],
       justificationRequired: false,
       updateOnClose: false,
       selectedFile: "",
@@ -146,6 +148,8 @@ export class ModalChanges extends Component {
       documents: [],
       newComment: false,
       newDocument: false,
+      uploadingDocument: false,
+      downloadingDocuments: [],
       isSelected: false,
       selectedFile: "",
       fieldChanged: false,
@@ -372,6 +376,7 @@ export class ModalChanges extends Component {
       this.setState({ notValidDocument: "" });
       let formData = new FormData();
       formData.append("Files", this.state.selectedFile, this.state.selectedFile.name);
+      this.setState({ uploadingDocument: true });
 
       return this.uploadFile(formData)
         .then(data => {
@@ -393,7 +398,7 @@ export class ModalChanges extends Component {
                 Comment: document.Comment
               })
             }
-            this.setState({ documents: docs, newDocument: false, isSelected: false, selectedFile: "" })
+            this.setState({ documents: docs, newDocument: false, isSelected: false, selectedFile: "", uploadingDocument: false });
           }
           else {
             this.showErrorMessage("document", "File upload failed - " + data.Message);
@@ -801,16 +806,16 @@ export class ModalChanges extends Component {
               <label htmlFor="uploadBtn">
                 Select file
               </label>
-              <input id="uploadBtn" type="file" name="Files" onChange={(e) => this.changeHandler(e)} accept={UtilsData.ACCEPTED_DOCUMENT_FORMATS} />
+              <input id="uploadBtn" type="file" name="Files" disabled={this.state.uploadingDocument} onChange={(e) => this.changeHandler(e)} accept={UtilsData.ACCEPTED_DOCUMENT_FORMATS} />
               {this.state.isSelected ? (
                 <input id="uploadFile" placeholder={this.state.selectedFile.name} disabled="disabled" />
               ) : (<input id="uploadFile" placeholder="No file selected" disabled="disabled" />)}
             </div>
             <div className="document--icons">
-              <CButton color="link" className="btn-link" onClick={() => this.handleSubmission()}>
-                Save
+              <CButton color="link" className="btn-link" disabled={this.state.uploadingDocument} onClick={() => this.handleSubmission()}>
+                {this.state.uploadingDocument ? <CSpinner size="sm" className="mx-2" /> : <>Save</>}
               </CButton>
-              <CButton color="link" className="btn-icon" onClick={() => this.deleteDocumentMessage()}>
+              <CButton color="link" className="btn-icon" disabled={this.state.uploadingDocument} onClick={() => this.deleteDocumentMessage()}>
                 <i className="fa-regular fa-trash-can"></i>
               </CButton>
             </div>
@@ -820,6 +825,7 @@ export class ModalChanges extends Component {
               minRows={3}
               placeholder="Add a comment (optional)"
               className="comment--input"
+              disabled={this.state.uploadingDocument}
             ></TextareaAutosize>
           </div>
         </div>
@@ -854,11 +860,11 @@ export class ModalChanges extends Component {
             </div>
           </div>
           <div className="document--icons">
-            <CButton color="link" className="btn-link" onClick={()=>{this.downloadAttachments(id, name, level)}}>
-              View
+            <CButton color="link" className="btn-link" disabled={this.state.downloadingDocuments.includes(id)} onClick={() => this.downloadAttachments(id, name, level)}>
+              {this.state.downloadingDocuments.includes(id) ? <CSpinner size="sm" className="mx-2" /> : <>View</>}
             </CButton>
             {level == "site" &&
-              <CButton color="link" className="btn-icon" onClick={(e) => this.deleteDocumentMessage(e.currentTarget)}>
+              <CButton color="link" className="btn-icon" disabled={this.state.downloadingDocuments.includes(id)} onClick={(e) => this.deleteDocumentMessage(e.currentTarget)}>
                 <i className="fa-regular fa-trash-can"></i>
               </CButton>
             }
@@ -956,6 +962,7 @@ export class ModalChanges extends Component {
   }
 
   downloadAttachments = (id, name, level) => {
+    this.setState({ downloadingDocuments: [...this.state.downloadingDocuments, id] });
     let type = level === "site" ? 0 : 1;
     this.dl.fetch(ConfigData.ATTACHMENTS_DOWNLOAD + "id=" + id + "&docuType=" + type)
     .then(data => {
@@ -970,10 +977,12 @@ export class ModalChanges extends Component {
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
+          this.setState({ downloadingDocuments: this.state.downloadingDocuments.filter(a => a !== id) });
         })
       }
       else {
         this.showErrorMessage("document", "Error downloading file");
+        this.setState({ downloadingDocuments: this.state.downloadingDocuments.filter(a => a !== id) });
       }
     })
   }
