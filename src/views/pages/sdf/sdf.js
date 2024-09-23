@@ -32,7 +32,7 @@ const SDFVisualization = () => {
   const [type, setType] = useState("");
   const [nav, setNav] = useState("");
   const [showScrollBtn, setShowScrollBtn] = useState(false);
-  const types = [{"type": "reference", "name": "Reference"}, {"type": "submission", "name": "Submission"}, {"type": "release", "name": "Last Official Release"}];
+  const types = [{"type": "reference", "name": "Reference"}, {"type": "submission", "name": "Submission"}];
 
   useEffect(() => {
     window.addEventListener("scroll", () => {
@@ -82,13 +82,8 @@ const SDFVisualization = () => {
   const loadData = () => {
     if(siteCode !=="" && !isLoading) {
       setIsLoading(true);
-      let url;
-      if(type === "release") {
-        url = ConfigData.GET_SDF_RELEASE_DATA + "?siteCode=" + siteCode;
-      }
-      else {
-        url = ConfigData.GET_SDF_DATA + "?siteCode=" + siteCode + "&submission=" + types.map(item => item.type).indexOf(type);
-      }
+      let url = ConfigData.GET_SDF_DATA;
+      url += "?siteCode=" + siteCode + "&submission=" + types.map(item => item.type).indexOf(type);
       dl.fetch(url)
       .then(response =>response.json())
       .then(data => {
@@ -183,10 +178,7 @@ const SDFVisualization = () => {
                 <NaturaLogo/>
                 <div>
                   <h1>NATURA 2000 - STANDARD DATA FORM</h1>
-                  <b>{type && types.find(a => a.type === type).name}</b>
-                  {type === "release" && !isLoading && data !== "nodata" && Object.keys(data).length > 0 && !errorLoading &&
-                    <b> ({formatDate(data.SiteInfo.Releases.sort((a, b) => new Date(b.ReleaseDate) - new Date(a.ReleaseDate))[0].ReleaseDate, true)})</b>
-                  }
+                  <b>{type.toUpperCase()}</b>
                 </div>
               </div>
               <div className="select--right">
@@ -245,17 +237,11 @@ const scrollTo = (item) => {
   });
 }
 
-const formatDate = (date, ddmmyyyy) => {
+const formatDate = (date) => {
   date = new Date(date);
-  var d = date.getDate();
   var m = date.getMonth() + 1;
   var y = date.getFullYear();
-  if(ddmmyyyy) {
-    date = (d <= 9 ? '0' + d : d) + '/' + (m <= 9 ? '0' + m : m) + '/' + y;
-  }
-  else {
-    date = (y + '-' + (m <= 9 ? '0' + m : m));
-  }
+  date = (y + '-' + (m <= 9 ? '0' + m : m));
   return date;
 };
 
