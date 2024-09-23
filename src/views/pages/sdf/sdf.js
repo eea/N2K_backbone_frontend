@@ -46,7 +46,7 @@ const SDFVisualization = () => {
   }, []);
 
   useEffect(() => {
-    if(nav && !isLoading && siteCode && siteCode !== "nodata" && Object.keys(data).length !== 0 && !errorLoading) {
+    if(nav && !isLoading && siteCode && siteCode !== "nodata" && data !== "nodata" && !errorLoading) {
       scrollTo(nav);
     }
   }, [isLoading]);
@@ -126,15 +126,7 @@ const SDFVisualization = () => {
   const showMainData = () => {
     return (
       <CContainer fluid>
-        <CRow className="sdf-title p-4">
-          <CCol className='col-auto'>
-            <div>
-              Site code: <b>{data.SiteInfo.SiteCode}</b>
-            </div>
-            <div>
-              Site name: <b>{data.SiteInfo.SiteName}</b>
-            </div>
-          </CCol>
+        <CRow className="sdf-title px-4">
           <CCol className='col-auto ms-auto'>
             <CButton color="primary" onClick={()=>{window.print()}}>
               <i className="fa-solid fa-download"></i> Download PDF
