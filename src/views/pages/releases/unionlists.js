@@ -75,8 +75,10 @@ const Releases = () => {
               }
               else if(Object.keys(data.Data).length > 0){
                 setBioRegionsSummary(data.Data.BioRegionSummary);
-                setPageResults(data.Count);
-                setActiveBioregions(data.Data.BioRegionSummary.filter(a=>a.Count>0).map(a=>a.BioRegion).toString());
+                let terrestrial = bioRegionsData.filter(b=>!b.isMarine).map(a=>a.BioRegionShortCode);
+                let results = data.Data.BioRegionSummary.filter(a=>terrestrial.includes(a.BioRegion)).map(a=>a.Count).reduce((a, b) => a + b);
+                setPageResults(results);
+                setActiveBioregions(data.Data.BioRegionSummary.filter(a=>a.Count>0 && terrestrial.includes(a.BioRegion)).map(a=>a.BioRegion).toString());
               }
               setIsLoading(false);
             }
@@ -165,17 +167,60 @@ const Releases = () => {
   }
 
   const loadBioRegionButtons = () => {
-    let buttons = [];
+    let terrestrial = [];
+    let marine = [];
     for(let i in bioRegionsSummary){
       let region = bioRegionsSummary[i];
       let regionName = bioRegions.find(a=>a.BioRegionShortCode === region.BioRegion).RefBioGeoName;
-      buttons.push(
-        <CButton color={activeBioregions.includes(region.BioRegion) || region.Count === 0 ? "primary" : "secondary"} key={region.BioRegion} disabled={tableDataLoading || region.Count===0} size="sm" onClick={(e)=>filterBioRegion(e)} value={region.BioRegion}>
+      let isMarine = bioRegions.find(a=>a.BioRegionShortCode === region.BioRegion).isMarine;
+      let button = 
+        <CButton color={activeBioregions.includes(region.BioRegion) || region.Count === 0 ? "primary" : "secondary"} key={region.BioRegion} disabled={tableDataLoading || region.Count===0} size="sm" onClick={(e)=>filterBioRegion(e)} data-type={isMarine ? "marine" : "terrestrial"} data-count={region.Count} value={region.BioRegion}>
           {region.Count + " " + regionName}
         </CButton>
-      );
+      if(isMarine) {
+        marine.push(button);
+      }
+      else {
+        terrestrial.push(button);
+      }
     }
-    return buttons;
+    
+    return (
+      <>
+        <div>
+          <div className="checkbox mb-2">
+              <input type="checkbox" className="input-checkbox" id="union_terrestrial"
+                onClick={(e)=>(filterRegions(e))}
+                disabled={tableDataLoading}
+                defaultChecked={true}
+                data-type="terrestrial"
+              />
+              <label htmlFor="union_terrestrial" className="input-label">
+                <b>Terrestrial regions</b>
+              </label>
+            </div>
+          <div className="unionlist-changes">
+            {terrestrial}
+          </div>
+        </div>
+        <div>
+          <div className="checkbox mb-2">
+            <input type="checkbox" className="input-checkbox" id="union_marine"
+              onClick={(e)=>(filterRegions(e))}
+              disabled={tableDataLoading}
+              defaultChecked={false}
+              data-type="marine"
+            />
+            <label htmlFor="union_marine" className="input-label">
+              <b>Marine regions</b>
+            </label>
+          </div>
+          <div className="unionlist-changes">
+            {marine}
+          </div>
+        </div>
+      </>
+    );
   }
 
   const gotoPage = (page, size) => {
@@ -188,27 +233,79 @@ const Releases = () => {
     }
   }
 
-  const filterBioRegion = (e) => {
-    let value = e.currentTarget.value;
+  const filterRegions = (e) => {
     let filter;
     let results;
-    if(activeBioregions.includes(value)) {
-      filter = activeBioregions.split(",").filter(a=>a!==value).toString();
-      results = pageResults - bioRegionsSummary.find(a=>a.BioRegion === value).Count;
-      if(filter === "")
-        filter = "nodata";
+    let type = e.currentTarget.dataset.type;
+    let regions = document.querySelectorAll(".unionlist-changes .btn[data-type='"+type+"']:not([data-count='0'])");
+    regions = Array.from(regions).map(a => a.value);
+    let active = activeBioregions.split(",").filter(a=>a!=="nodata");
+    if(e.currentTarget.checked) {
+      filter = active.concat(regions.filter(a=>!active.includes(a))).toString();
     }
     else {
-      filter = activeBioregions.split(",").concat(value).toString();
-      results = pageResults + bioRegionsSummary.find(a=>a.BioRegion === value).Count;
-      if(activeBioregions.includes("nodata"))
-        filter = filter.split(",").filter(a=>a!=="nodata").toString();
+      filter = active.filter(e=>!regions.includes(e)).toString();
+    }
+    if(filter === "") {
+      filter = "nodata";
+      results = 0;
+      setTableData1("nodata");
+      setTableData2("nodata");
+    }
+    else {
+      results = filter.split(",").map(a=>bioRegionsSummary.find(b=>b.BioRegion==a).Count).reduce((a, b) => a + b);
+      setTableData1([]);
+      setTableData2([]);
     }
     setPageNumber(1);
     setPageResults(results);
     setActiveBioregions(filter);
-    setTableData1([]);
-    setTableData2([]);
+  }
+
+  const filterBioRegion = (e) => {
+    let filter;
+    let results;
+    let value = e.currentTarget.value;
+    let type = e.currentTarget.dataset.type;
+    let regions = document.querySelectorAll(".unionlist-changes .btn[data-type='"+type+"']:not([data-count='0'])").length;
+    let active = document.querySelectorAll(".unionlist-changes .btn.btn-primary[data-type='"+type+"']:not([data-count='0'])").length;
+    if(activeBioregions.includes(value)) {
+      filter = activeBioregions.split(",").filter(a=>a!==value).toString();
+      results = pageResults - bioRegionsSummary.find(a=>a.BioRegion === value).Count;
+      active--;
+    }
+    else {
+      filter = activeBioregions.split(",").filter(a=>a!=="nodata").concat(value).toString();
+      results = pageResults + bioRegionsSummary.find(a=>a.BioRegion === value).Count;
+      active++;
+    }
+    if(active === 0) {
+      document.querySelector("#union_" + type).indeterminate = false;
+      document.querySelector("#union_" + type).checked = false;
+    }
+    else {
+      if(regions > active) {
+        document.querySelector("#union_" + type).indeterminate = true;
+        document.querySelector("#union_" + type).checked = false;
+      }
+      else {
+        document.querySelector("#union_" + type).indeterminate = false;
+        document.querySelector("#union_" + type).checked = true;
+      }
+    }
+    if(filter === "") {
+      filter = "nodata";
+      results = 0;
+      setTableData1("nodata");
+      setTableData2("nodata");
+    }
+    else {
+      setTableData1([]);
+      setTableData2([]);
+    }
+    setPageNumber(1);
+    setPageResults(results);
+    setActiveBioregions(filter);
   }
 
   let resizeIframe = () => {
@@ -334,10 +431,7 @@ const Releases = () => {
                 <>
                   <CRow>
                     <CCol>
-                      <div className="unionlist-changes">
-                        <b>Detected changes:</b>
-                        {loadBioRegionButtons()}
-                      </div>
+                      {loadBioRegionButtons()}
                     </CCol>
                   </CRow>
                   {tableDataLoading ? 
@@ -346,7 +440,7 @@ const Releases = () => {
                     <>
                       <CRow>
                         <CCol xs={6}>
-                          <b>Reference</b>
+                          <b>Last Official Release</b>
                           <ScrollContainer hideScrollbars={false} className="scroll-container unionlist-table" style={{width: tableWidth}}>
                             {tableData1.length > 0 &&
                               <TableUnionLists data={tableData1} colors={false}/>
