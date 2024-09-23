@@ -108,14 +108,14 @@ export class ModalChanges extends Component {
   }
 
   componentDidUpdate() {
-    if(this.isVisible() && !this.state.loading && this.state.activeKey === 4) {
+    if(this.isVisible() && !this.state.loading && this.state.activeKey === 4  && !this.errorLoadingComments && !this.errorLoadingDocuments) {
       this.attachmentsHeight();
       window.addEventListener("resize", () => {this.attachmentsHeight()});
     }
   }
 
   attachmentsHeight = () => {
-    let height = document.querySelector(".modal-body").offsetHeight - document.querySelector(".modal-body .nav").offsetHeight - document.querySelector("#modal_justification_req").parentElement.offsetHeight - document.querySelector(".attachments--title").offsetHeight - 80;
+    let height = document.querySelector(".modal-body").offsetHeight - document.querySelector(".modal-body .nav").offsetHeight - document.querySelector("#modal_justification_req").parentElement.offsetHeight - document.querySelector(".attachments--title").offsetHeight - (document.querySelector(".alert-primary") ? document.querySelector(".alert-primary").offsetHeight + 16 : 0 ) - 80;
     if(document.querySelector(".document--list").scrollHeight > height) {
       document.querySelector(".document--list").style.height = height + "px";
     }
@@ -363,7 +363,8 @@ export class ModalChanges extends Component {
   uploadFile(data) {
     let siteCode = this.state.data.SiteCode;
     let version = this.state.data.Version;
-    return this.dl.xmlHttpRequest(ConfigData.UPLOAD_ATTACHED_FILE + '?sitecode=' + siteCode + '&version=' + version, data);
+    let comment = document.querySelector(".document--new .document--comment textarea").value;
+    return this.dl.xmlHttpRequest(ConfigData.UPLOAD_ATTACHED_FILE + '?sitecode=' + siteCode + '&version=' + version + "&comment=" + comment, data);
   }
 
   handleSubmission() {
@@ -388,7 +389,8 @@ export class ModalChanges extends Component {
                 Path: path,
                 Username: document.Username,
                 ImportDate: document.ImportDate,
-                OriginalName: document.OriginalName
+                OriginalName: document.OriginalName,
+                Comment: document.Comment
               })
             }
             this.setState({ documents: docs, newDocument: false, isSelected: false, selectedFile: "" })
@@ -531,7 +533,7 @@ export class ModalChanges extends Component {
                     && this.props.lineageChangeType !== "NewGeometryReported")
                     &&
                     <>
-                      <CButton color="link" href={"/#/sitelineage/management?country=" + this.props.country + "&siteCode=" + this.props.item} className="btn-link--dark text-nowrap">
+                      <CButton color="link" href={"/#/sitelineage/management?country=" + this.props.country + "&sitecode=" + this.props.item} className="btn-link--dark text-nowrap">
                         Review Lineage
                       </CButton>
                       <span>|</span>
@@ -700,21 +702,23 @@ export class ModalChanges extends Component {
     cmts.push(
       target == "site" && this.state.newComment &&
       <div className="comment--item new" key={"cmtItem_new"}>
-        <div className="comment--text">
-          <TextareaAutosize
-            minRows={3}
-            placeholder="Add a comment"
-            className="comment--input"
-            onChange={({target}) => this.props.setHasChanges(target.value.length > 0)}
-          ></TextareaAutosize>
-        </div>
-        <div>
-          <CButton color="link" className="btn-link" onClick={(e) => this.addComment(e.currentTarget)}>
-            Save
-          </CButton>
-          <CButton color="link" className="btn-icon" onClick={() => this.deleteCommentMessage()}>
-            <i className="fa-regular fa-trash-can"></i>
-          </CButton>
+        <div className="comment--row">
+          <div className="comment--text">
+            <TextareaAutosize
+              minRows={3}
+              placeholder="Add a comment"
+              className="comment--input"
+              onChange={({target}) => this.props.setHasChanges(target.value.length > 0)}
+            ></TextareaAutosize>
+          </div>
+          <div className="comment--icons">
+            <CButton color="link" className="btn-link" onClick={(e) => this.addComment(e.currentTarget)}>
+              Save
+            </CButton>
+            <CButton color="link" className="btn-icon" onClick={() => this.deleteCommentMessage()}>
+              <i className="fa-regular fa-trash-can"></i>
+            </CButton>
+          </div>
         </div>
       </div>
     )
@@ -738,31 +742,34 @@ export class ModalChanges extends Component {
   createCommentElement(id, comment, date, owner, edited, editeddate, editedby, level) {
     return (
       <div className="comment--item" key={"cmtItem_" + id} id={"cmtItem_" + id}>
-        <div className="comment--text">
-          <TextareaAutosize
-            id={id}
-            disabled
-            defaultValue={comment}
-            className="comment--input" />
-          <label className="comment--date" htmlFor={id}>
-            {date && owner &&
-              "Commented on " + date.slice(0, 10).split('-').reverse().join('/') + " by " + owner + "."
-            }
-            {((edited >= 1) && (editeddate && editeddate !== undefined) && (editedby && editedby !== undefined)) &&
-              " Last edited on " + editeddate.slice(0, 10).split('-').reverse().join('/') + " by " + editedby + "."
-            }
-          </label>
-        </div>
-        {level == "site" &&
-          <div className="comment--icons">
-            <CButton color="link" className="btn-link" onClick={(e) => this.updateComment(e.currentTarget)} key={"cmtUpdate_" + id}>
-              Edit
-            </CButton>
-            <CButton color="link" className="btn-icon" onClick={(e) => this.deleteCommentMessage(e.currentTarget)} key={"cmtDelete_" + id}>
-              <i className="fa-regular fa-trash-can"></i>
-            </CButton>
+        <div className="comment--row">
+          <div className="comment--text">
+            <TextareaAutosize
+              id={id}
+              disabled
+              defaultValue={comment}
+              className="comment--input"
+            ></TextareaAutosize>
           </div>
-        }
+          {level == "site" &&
+            <div className="comment--icons">
+              <CButton color="link" className="btn-link" onClick={(e) => this.updateComment(e.currentTarget)} key={"cmtUpdate_" + id}>
+                Edit
+              </CButton>
+              <CButton color="link" className="btn-icon" onClick={(e) => this.deleteCommentMessage(e.currentTarget)} key={"cmtDelete_" + id}>
+                <i className="fa-regular fa-trash-can"></i>
+              </CButton>
+            </div>
+          }
+        </div>
+        <label className="comment--date" htmlFor={id}>
+          {date && owner &&
+            "Commented on " + date.slice(0, 10).split('-').reverse().join('/') + " by " + owner + "."
+          }
+          {((edited >= 1) && (editeddate && editeddate !== undefined) && (editedby && editedby !== undefined)) &&
+            " Last edited on " + editeddate.slice(0, 10).split('-').reverse().join('/') + " by " + editedby + "."
+          }
+        </label>
       </div>
     )
   }
@@ -787,32 +794,42 @@ export class ModalChanges extends Component {
     }
     docs.push(
       target == "site" && this.state.newDocument &&
-      <div className="document--item new" key={"docItem_new"}>
-        <div className="input-file">
-          <label htmlFor="uploadBtn">
-            Select file
-          </label>
-          <input id="uploadBtn" type="file" name="Files" onChange={(e) => this.changeHandler(e)} accept={UtilsData.ACCEPTED_DOCUMENT_FORMATS} />
-          {this.state.isSelected ? (
-            <input id="uploadFile" placeholder={this.state.selectedFile.name} disabled="disabled" />
-          ) : (<input id="uploadFile" placeholder="No file selected" disabled="disabled" />)}
-        </div>
-        <div className="document--icons">
-          <CButton color="link" className="btn-link" onClick={() => this.handleSubmission()}>
-            Save
-          </CButton>
-          <CButton color="link" className="btn-icon" onClick={() => this.deleteDocumentMessage()}>
-            <i className="fa-regular fa-trash-can"></i>
-          </CButton>
+      <div className="document--new" key={"docItem_new"}>
+        <div className="document--item">
+          <div className="document--row">
+            <div className="input-file">
+              <label htmlFor="uploadBtn">
+                Select file
+              </label>
+              <input id="uploadBtn" type="file" name="Files" onChange={(e) => this.changeHandler(e)} accept={UtilsData.ACCEPTED_DOCUMENT_FORMATS} />
+              {this.state.isSelected ? (
+                <input id="uploadFile" placeholder={this.state.selectedFile.name} disabled="disabled" />
+              ) : (<input id="uploadFile" placeholder="No file selected" disabled="disabled" />)}
+            </div>
+            <div className="document--icons">
+              <CButton color="link" className="btn-link" onClick={() => this.handleSubmission()}>
+                Save
+              </CButton>
+              <CButton color="link" className="btn-icon" onClick={() => this.deleteDocumentMessage()}>
+                <i className="fa-regular fa-trash-can"></i>
+              </CButton>
+            </div>
+          </div>
+          <div className="document--comment">
+            <TextareaAutosize
+              minRows={3}
+              placeholder="Add a comment (optional)"
+              className="comment--input"
+            ></TextareaAutosize>
+          </div>
         </div>
       </div>
     )
     if (this.state.documents !== "noData") {
       filteredDocuments.forEach(d => {
-        // original name may be null until the backend part it's finished
         const name = d.OriginalName ?? d.Path;
         docs.push(
-          this.createDocumentElement(d.Id, name, d.ImportDate, d.Username, target)
+          this.createDocumentElement(d.Id, name, d.ImportDate, d.Username, d.Comment, target)
         )
       })
     }
@@ -826,32 +843,43 @@ export class ModalChanges extends Component {
     )
   }
 
-  createDocumentElement(id, name, date, user, level) {
+  createDocumentElement(id, name, date, user, comment, level) {
     return (
       <div className="document--item" key={"docItem_" + id} id={"docItem_" + id} doc_id={id}>
-        <div className="my-auto document--text">
-          <div className="document--file">
-            <CImage src={documentImg} className="ico--md me-3"></CImage>
-            <span>{name?.replace(/^.*[\\\/]/, '')}</span>
+        <div className="document--row">
+          <div className="my-auto document--text">
+            <div className="document--file">
+              <CImage src={documentImg} className="ico--md me-2"></CImage>
+              <span>{name?.replace(/^.*[\\\/]/, '')}</span>
+            </div>
           </div>
-          {(date || user) &&
-            <label className="comment--date" htmlFor={"docItem_" + id}>
-              {"Uploaded"
-              + (date && " on " + date.slice(0, 10).split('-').reverse().join('/'))
-              + (user && " by " + user)}
-            </label>
-          }
-        </div>
-        <div className="document--icons">
-          <CButton color="link" className="btn-link" onClick={()=>{this.downloadAttachments(id, name, level)}}>
-            View
-          </CButton>
-          {level == "site" &&
-            <CButton color="link" className="btn-icon" onClick={(e) => this.deleteDocumentMessage(e.currentTarget)}>
-              <i className="fa-regular fa-trash-can"></i>
+          <div className="document--icons">
+            <CButton color="link" className="btn-link" onClick={()=>{this.downloadAttachments(id, name, level)}}>
+              View
             </CButton>
-          }
+            {level == "site" &&
+              <CButton color="link" className="btn-icon" onClick={(e) => this.deleteDocumentMessage(e.currentTarget)}>
+                <i className="fa-regular fa-trash-can"></i>
+              </CButton>
+            }
+          </div>
         </div>
+        {comment &&
+          <div className="document--comment">
+            <TextareaAutosize
+              disabled
+              defaultValue={comment}
+              className="comment--input"
+            ></TextareaAutosize>
+          </div>
+        }
+        {(date || user) &&
+          <label className="document--date" htmlFor={"docItem_" + id}>
+            {"Uploaded"
+            + (date && " on " + date.slice(0, 10).split('-').reverse().join('/'))
+            + (user && " by " + user)}
+          </label>
+        }
       </div>
     )
   }
@@ -964,6 +992,8 @@ export class ModalChanges extends Component {
               lineageChangeType={this.props.lineageChangeType}
               mapReference={ConfigData.MAP_REFERENCE}
               mapSubmission={ConfigData.MAP_SUBMISSION}
+              mapChanges={ConfigData.MAP_GEOMETRY_CHANGES}
+              showGeometryChanges={this.state.data?.Critical?.SiteInfo?.ChangesByCategory?.some(a => a.ChangeType.includes("Deletion of Spatial Area")) || this.state.data?.Info?.SiteInfo?.ChangesByCategory?.some(a => a.ChangeType.includes("Addition of Spatial Area"))}
             />
           </CRow>
         }
