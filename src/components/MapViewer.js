@@ -50,8 +50,57 @@ class MapViewer extends React.Component {
                     }
                 ]
             };
-
             if(this.props.mapReference){
+                if(this.props.showGeometryChanges) {
+                    let geometryChanges = new FeatureLayer({
+                        url: this.props.mapChanges,
+                        id: 2,
+                        popupEnabled: true,
+                        title: "Geometry Changes",
+                        opacity: 0.5,
+                        minScale : 10000000,
+                        definitionExpression: "SiteCode = '" + this.props.siteCode + "'",
+                        renderer: {
+                            type: "unique-value",
+                            field: "ChangeType",
+                            uniqueValueInfos: [{
+                                value: "Deletion of Spatial Area",
+                                symbol: {
+                                  type: "simple-fill",
+                                  color: UtilsData.COLORS.MapRed
+                                },
+                              },
+                              {
+                                value: "Addition of Spatial Area",
+                                symbol: {
+                                  type: "simple-fill",
+                                  color: UtilsData.COLORS.MapGreen
+                                },
+                              }
+                            ]
+                        },
+                        popupTemplate: {
+                            title: "Geometry Changes: {SiteCode} - {SiteName}",
+                            content: [
+                                {
+                                    type: "fields",
+                                    fieldInfos: [
+                                        {
+                                            fieldName: "ChangeType",
+                                            label: "Change Type"
+                                        },
+                                        {
+                                            fieldName: "Area",
+                                            label: "Changed Area (ha)"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    });
+                    layers.push(geometryChanges);
+                }
+
                 let lastRelease = new FeatureLayer({
                     url: this.props.mapReference,
                     id: 1,
@@ -116,15 +165,17 @@ class MapViewer extends React.Component {
                 url: this.props.lineageChangeType === "Deletion" || this.props.noGeometry ? this.props.mapReference : this.props.mapSubmission,
                 id: 3,
                 popupEnabled: false,
-                listMode: "hide",
+                title: "Submitted Site",
                 definitionExpression: "SiteCode = '" + this.props.siteCode + "'",
                 renderer: {
                     type: "simple",
                     symbol: {
                         type: "simple-fill",
                         color: "transparent",
+                        style: "solid",
                         outline: {
-                            style: "none",
+                            width: 2,
+                            color: UtilsData.COLORS.Black
                         }
                     },
                 },
@@ -172,10 +223,16 @@ class MapViewer extends React.Component {
                 this.view.whenLayerView(siteLayer).then((layerView) => {
                     reactiveUtils.whenOnce(() => layerView.updating).then(() => {
                         if(!document.querySelectorAll(".esri-layer-list__item")[0].querySelector(".esri-layer-list__item-label .legend-color")){
-                            document.querySelectorAll(".esri-layer-list__item")[0].querySelector(".esri-layer-list__item-label").insertAdjacentHTML( 'beforeend', "<span class='legend-color legend-color-0'></span>" );
+                            document.querySelectorAll(".esri-layer-list__item")[0].querySelector(".esri-layer-list__item-label").insertAdjacentHTML( 'beforeend', "<span class='legend-color legend-color-border'></span>" );
                         }
                         if(document.querySelectorAll(".esri-layer-list__item")[1] && !document.querySelectorAll(".esri-layer-list__item")[1]?.querySelector(".esri-layer-list__item-label .legend-color")){
-                            document.querySelectorAll(".esri-layer-list__item")[1].querySelector(".esri-layer-list__item-label").insertAdjacentHTML( 'beforeend', "<span class='legend-color legend-color-1'></span>" );
+                            document.querySelectorAll(".esri-layer-list__item")[1].querySelector(".esri-layer-list__item-label").insertAdjacentHTML( 'beforeend', "<span class='legend-color legend-color-submission'></span>" );
+                        }
+                        if(document.querySelectorAll(".esri-layer-list__item")[2] && !document.querySelectorAll(".esri-layer-list__item")[2]?.querySelector(".esri-layer-list__item-label .legend-color")){
+                            document.querySelectorAll(".esri-layer-list__item")[2].querySelector(".esri-layer-list__item-label").insertAdjacentHTML( 'beforeend', "<span class='legend-color legend-color-reference'></span>" );
+                        }
+                        if(document.querySelectorAll(".esri-layer-list__item")[3] && !document.querySelectorAll(".esri-layer-list__item")[3]?.querySelector(".esri-layer-list__item-label .legend-color")){
+                            document.querySelectorAll(".esri-layer-list__item")[3].querySelector(".esri-layer-list__item-label").insertAdjacentHTML( 'beforeend', "<span class='legend-color legend-color-changes'></span>" );
                         }
                     });
                 });
@@ -203,10 +260,9 @@ class MapViewer extends React.Component {
                     let polylineSymbol = {
                         type: "simple-fill",
                         color: "transparent",
-                        style: "solid",
+                        style: "none",
                         outline: {
-                            color: "#000015",
-                            width: 2
+                            style: "none",
                         }
                     };
                     feat.symbol = polylineSymbol;
