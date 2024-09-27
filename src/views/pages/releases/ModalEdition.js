@@ -54,6 +54,8 @@ export class ModalEdition extends Component {
       documents: [],
       newComment: false,
       newDocument: false,
+      uploadingDocument: false,
+      downloadingDocuments: [],
       justificationRequired: false,
       selectedFile: "",
       isSelected: false,
@@ -92,14 +94,14 @@ export class ModalEdition extends Component {
   }
 
   componentDidUpdate() {
-    if(this.isVisible() && !this.state.loading && this.state.activeKey === 2) {
+    if(this.isVisible() && !this.state.loading && this.state.activeKey === 2  && !this.errorLoadingComments && !this.errorLoadingDocuments) {
       this.attachmentsHeight();
       window.addEventListener("resize", () => {this.attachmentsHeight()});
     }
   }
 
   attachmentsHeight = () => {
-    let height = document.querySelector(".modal-body").offsetHeight - document.querySelector(".modal-body .nav").offsetHeight - document.querySelector("#modal_justification_req").parentElement.offsetHeight - document.querySelector(".attachments--title").offsetHeight - 80;
+    let height = document.querySelector(".modal-body").offsetHeight - document.querySelector(".modal-body .nav").offsetHeight - document.querySelector("#modal_justification_req").parentElement.offsetHeight - document.querySelector(".attachments--title").offsetHeight  - (document.querySelector(".alert-primary") ? document.querySelector(".alert-primary").offsetHeight + 16 : 0 ) - 80;
     if(document.querySelector(".document--list").scrollHeight > height) {
       document.querySelector(".document--list").style.height = height + "px";
     }
@@ -128,6 +130,8 @@ export class ModalEdition extends Component {
       documents: [],
       newComment: false,
       newDocument: false,
+      uploadingDocument: false,
+      downloadingDocuments: [],
       isSelected: false,
       selectedFile: "",
       notValidField: [],
@@ -216,21 +220,23 @@ export class ModalEdition extends Component {
     cmts.push(
       target == "site" && this.state.newComment &&
       <div className="comment--item new" key={"cmtItem_new"}>
-        <div className="comment--text">
-          <TextareaAutosize
-            minRows={3}
-            placeholder="Add a comment"
-            className="comment--input"
-            onChange={({ target }) => this.props.setHasChanges(target.value.length > 0)}
-          ></TextareaAutosize>
-        </div>
-        <div>
-          <CButton color="link" className="btn-link" onClick={(e) => this.addComment(e.currentTarget)}>
-            Save
-          </CButton>
-          <CButton color="link" className="btn-icon" onClick={() => this.deleteCommentMessage()}>
-            <i className="fa-regular fa-trash-can"></i>
-          </CButton>
+        <div className="comment--row">
+          <div className="comment--text">
+            <TextareaAutosize
+              minRows={3}
+              placeholder="Add a comment"
+              className="comment--input"
+              onChange={({ target }) => this.props.setHasChanges(target.value.length > 0)}
+            ></TextareaAutosize>
+          </div>
+          <div className="comment--icons">
+            <CButton color="link" className="btn-link" onClick={(e) => this.addComment(e.currentTarget)}>
+              Save
+            </CButton>
+            <CButton color="link" className="btn-icon" onClick={() => this.deleteCommentMessage()}>
+              <i className="fa-regular fa-trash-can"></i>
+            </CButton>
+          </div>
         </div>
       </div>
     )
@@ -254,31 +260,34 @@ export class ModalEdition extends Component {
   createCommentElement(id, comment, date, owner, edited, editeddate, editedby, level) {
     return (
       <div className="comment--item" key={"cmtItem_" + id} id={"cmtItem_" + id}>
-        <div className="comment--text">
-          <TextareaAutosize
-            id={id}
-            disabled
-            defaultValue={comment}
-            className="comment--input" />
-          <label className="comment--date" htmlFor={id}>
-            {date && owner &&
-              "Commented on " + date.slice(0, 10).split('-').reverse().join('/') + " by " + owner + "."
-            }
-            {((edited >= 1) && (editeddate && editeddate !== undefined) && (editedby && editedby !== undefined)) &&
-              " Last edited on " + editeddate.slice(0, 10).split('-').reverse().join('/') + " by " + editedby + "."
-            }
-          </label>
-        </div>
-        {level == "site" &&
-          <div className="comment--icons">
-            <CButton color="link" className="btn-link" onClick={(e) => this.updateComment(e.currentTarget)} key={"cmtUpdate_" + id}>
-              Edit
-            </CButton>
-            <CButton color="link" className="btn-icon" onClick={(e) => this.deleteCommentMessage(e.currentTarget)} key={"cmtDelete_" + id}>
-              <i className="fa-regular fa-trash-can"></i>
-            </CButton>
+        <div className="comment--row">
+          <div className="comment--text">
+            <TextareaAutosize
+              id={id}
+              disabled
+              defaultValue={comment}
+              className="comment--input"
+            ></TextareaAutosize>
           </div>
-        }
+          {level == "site" &&
+            <div className="comment--icons">
+              <CButton color="link" className="btn-link" onClick={(e) => this.updateComment(e.currentTarget)} key={"cmtUpdate_" + id}>
+                Edit
+              </CButton>
+              <CButton color="link" className="btn-icon" onClick={(e) => this.deleteCommentMessage(e.currentTarget)} key={"cmtDelete_" + id}>
+                <i className="fa-regular fa-trash-can"></i>
+              </CButton>
+            </div>
+          }
+        </div>
+        <label className="comment--date" htmlFor={id}>
+          {date && owner &&
+            "Commented on " + date.slice(0, 10).split('-').reverse().join('/') + " by " + owner + "."
+          }
+          {((edited >= 1) && (editeddate && editeddate !== undefined) && (editedby && editedby !== undefined)) &&
+            " Last edited on " + editeddate.slice(0, 10).split('-').reverse().join('/') + " by " + editedby + "."
+          }
+        </label>
       </div>
     )
   }
@@ -303,32 +312,43 @@ export class ModalEdition extends Component {
     }
     docs.push(
       target == "site" && this.state.newDocument &&
-      <div className="document--item new" key={"docItem_new"}>
-        <div className="input-file">
-          <label htmlFor="uploadBtn">
-            Select file
-          </label>
-          <input id="uploadBtn" type="file" name="Files" onChange={(e) => this.changeHandler(e)} accept={UtilsData.ACCEPTED_DOCUMENT_FORMATS} />
-          {this.state.isSelected ? (
-            <input id="uploadFile" placeholder={this.state.selectedFile.name} disabled="disabled" />
-          ) : (<input id="uploadFile" placeholder="No file selected" disabled="disabled" />)}
-        </div>
-        <div className="document--icons">
-          <CButton color="link" className="btn-link" onClick={() => this.handleSubmission()}>
-            Save
-          </CButton>
-          <CButton color="link" className="btn-icon" onClick={() => this.deleteDocumentMessage()}>
-            <i className="fa-regular fa-trash-can"></i>
-          </CButton>
+      <div className="document--new" key={"docItem_new"}>
+        <div className="document--item">
+          <div className="document--row">
+            <div className="input-file">
+              <label htmlFor="uploadBtn">
+                Select file
+              </label>
+              <input id="uploadBtn" type="file" name="Files" disabled={this.state.uploadingDocument} onChange={(e) => this.changeHandler(e)} accept={UtilsData.ACCEPTED_DOCUMENT_FORMATS} />
+              {this.state.isSelected ? (
+                <input id="uploadFile" placeholder={this.state.selectedFile.name} disabled="disabled" />
+              ) : (<input id="uploadFile" placeholder="No file selected" disabled="disabled" />)}
+            </div>
+            <div className="document--icons">
+              <CButton color="link" className="btn-link" disabled={this.state.uploadingDocument} onClick={() => this.handleSubmission()}>
+                {this.state.uploadingDocument ? <CSpinner size="sm" className="mx-2" /> : <>Save</>}
+              </CButton>
+              <CButton color="link" className="btn-icon" disabled={this.state.uploadingDocument} onClick={() => this.deleteDocumentMessage()}>
+                <i className="fa-regular fa-trash-can"></i>
+              </CButton>
+            </div>
+          </div>
+          <div className="document--comment">
+            <TextareaAutosize
+              minRows={3}
+              placeholder="Add a comment (optional)"
+              className="comment--input"
+              disabled={this.state.uploadingDocument}
+            ></TextareaAutosize>
+          </div>
         </div>
       </div>
     )
     if (this.state.documents !== "noData") {
       filteredDocuments.forEach(d => {
-        // original name may be null until the backend part it's finished
         const name = d.OriginalName ?? d.Path;
         docs.push(
-          this.createDocumentElement(d.Id, name, d.ImportDate, d.Username, target)
+          this.createDocumentElement(d.Id, name, d.ImportDate, d.Username, d.Comment, target)
         )
       })
     }
@@ -342,32 +362,43 @@ export class ModalEdition extends Component {
     )
   }
 
-  createDocumentElement(id, name, date, user, level) {
+  createDocumentElement(id, name, date, user, comment, level) {
     return (
       <div className="document--item" key={"docItem_" + id} id={"docItem_" + id} doc_id={id}>
-        <div className="my-auto document--text">
-          <div className="document--file">
-            <CImage src={documentImg} className="ico--md me-3"></CImage>
-            <span>{name?.replace(/^.*[\\\/]/, '')}</span>
+        <div className="document--row">
+          <div className="my-auto document--text">
+            <div className="document--file">
+              <CImage src={documentImg} className="ico--md me-2"></CImage>
+              <span>{name?.replace(/^.*[\\\/]/, '')}</span>
+            </div>
           </div>
-          {(date || user) &&
-            <label className="comment--date" htmlFor={"docItem_" + id}>
-              {"Uploaded"
-              + (date && " on " + date.slice(0, 10).split('-').reverse().join('/'))
-              + (user && " by " + user)}
-            </label>
-          }
-        </div>
-        <div className="document--icons">
-          <CButton color="link" className="btn-link" onClick={()=>{this.downloadAttachments(id, name, level)}}>
-            View
-          </CButton>
-          {level == "site" &&
-            <CButton color="link" className="btn-icon" onClick={(e) => this.deleteDocumentMessage(e.currentTarget)}>
-              <i className="fa-regular fa-trash-can"></i>
+          <div className="document--icons">
+            <CButton color="link" className="btn-link" disabled={this.state.downloadingDocuments.includes(id)} onClick={() => this.downloadAttachments(id, name, level)}>
+              {this.state.downloadingDocuments.includes(id) ? <CSpinner size="sm" className="mx-2" /> : <>View</>}
             </CButton>
-          }
+            {level == "site" &&
+              <CButton color="link" className="btn-icon" disabled={this.state.downloadingDocuments.includes(id)} onClick={(e) => this.deleteDocumentMessage(e.currentTarget)}>
+                <i className="fa-regular fa-trash-can"></i>
+              </CButton>
+            }
+          </div>
         </div>
+        {comment &&
+          <div className="document--comment">
+            <TextareaAutosize
+              disabled
+              defaultValue={comment}
+              className="comment--input"
+            ></TextareaAutosize>
+          </div>
+        }
+        {(date || user) &&
+          <label className="document--date" htmlFor={"docItem_" + id}>
+            {"Uploaded"
+            + (date && " on " + date.slice(0, 10).split('-').reverse().join('/'))
+            + (user && " by " + user)}
+          </label>
+        }
       </div>
     )
   }
@@ -444,6 +475,7 @@ export class ModalEdition extends Component {
   }
 
   downloadAttachments = (id, name, level) => {
+    this.setState({ downloadingDocuments: [...this.state.downloadingDocuments, id] });
     let type = level === "site" ? 0 : 1;
     this.dl.fetch(ConfigData.ATTACHMENTS_DOWNLOAD + "id=" + id + "&docuType=" + type)
     .then(data => {
@@ -458,10 +490,12 @@ export class ModalEdition extends Component {
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
+          this.setState({ downloadingDocuments: this.state.downloadingDocuments.filter(a => a !== id) });
         })
       }
       else {
         this.showErrorMessage("document", "Error downloading file");
+        this.setState({ downloadingDocuments: this.state.downloadingDocuments.filter(a => a !== id) });
       }
     })
   }
@@ -653,7 +687,8 @@ export class ModalEdition extends Component {
   uploadFile(data) {
     let siteCode = this.state.data.SiteCode;
     let version = this.state.data.Version;
-    return this.dl.xmlHttpRequest(ConfigData.UPLOAD_ATTACHED_FILE + '?sitecode=' + siteCode + '&version=' + version, data);
+    let comment = document.querySelector(".document--new .document--comment textarea").value;
+    return this.dl.xmlHttpRequest(ConfigData.UPLOAD_ATTACHED_FILE + '?sitecode=' + siteCode + '&version=' + version + "&comment=" + comment, data);
   }
 
   handleSubmission() {
@@ -661,6 +696,7 @@ export class ModalEdition extends Component {
       this.setState({ notValidDocument: "" });
       let formData = new FormData();
       formData.append("Files", this.state.selectedFile, this.state.selectedFile.name);
+      this.setState({ uploadingDocument: true });
 
       return this.uploadFile(formData)
         .then(data => {
@@ -678,10 +714,11 @@ export class ModalEdition extends Component {
                 Path: path,
                 Username: document.Username,
                 ImportDate: document.ImportDate,
-                OriginalName: document.OriginalName
+                OriginalName: document.OriginalName,
+                Comment: document.Comment
               })
             }
-            this.setState({ documents: docs, newDocument: false, isSelected: false, selectedFile: "" })
+            this.setState({ documents: docs, newDocument: false, isSelected: false, selectedFile: "", uploadingDocument: false })
           }
           else {
             this.showErrorMessage("document", "File upload failed - " + data.Message);

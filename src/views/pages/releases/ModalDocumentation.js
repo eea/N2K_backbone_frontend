@@ -18,6 +18,7 @@ import {
   CCard,
   CAlert,
   CCloseButton,
+  CSpinner,
 } from '@coreui/react'
 
 import TextareaAutosize from 'react-textarea-autosize';
@@ -48,6 +49,8 @@ const ModalDocumentation = (props) => {
   const [isLoading, setIsLoading] = useState(true)
   const [newDocument, setNewDocument] = useState(false)
   const [newComment, setNewComment] = useState(false)
+  const [uploadingDocument, setUploadingDocument] = useState(false)
+  const [downloadingDocuments, setDownloadingDocuments] = useState([])
   const [notValidComment, setNotValidComment] = useState(false)
   const [notValidDocument, setNotValidDocument] = useState(false)
   const [errorLoadingComments, setErrorLoadingComments] = useState(false)
@@ -142,7 +145,7 @@ const ModalDocumentation = (props) => {
   }, [props.visible])
 
   useEffect(() => {
-    if (props.visible && !isLoading) {
+    if (props.visible && !isLoading && !errorLoadingComments && !errorLoadingDocuments) {
       attachmentsHeight();
       window.addEventListener("resize", () => {attachmentsHeight()});
     }
@@ -262,20 +265,22 @@ const ModalDocumentation = (props) => {
     cmts.push(
       newComment &&
       <div className="comment--item new" key={"cmtItem_new"}>
-        <div className="comment--text">
-          <TextareaAutosize
-            minRows={3}
-            placeholder="Add a comment"
-            className="comment--input"
-          ></TextareaAutosize>
-        </div>
-        <div>
-          <CButton color="link" className="btn-link" onClick={(e) => addComment(e.currentTarget)}>
-            Save
-          </CButton>
-          <CButton color="link" className="btn-icon" onClick={() => deleteCommentMessage()}>
-            <i className="fa-regular fa-trash-can"></i>
-          </CButton>
+        <div className="comment--row">
+          <div className="comment--text">
+            <TextareaAutosize
+              minRows={3}
+              placeholder="Add a comment"
+              className="comment--input"
+            ></TextareaAutosize>
+          </div>
+          <div className="comment--icons">
+            <CButton color="link" className="btn-link" onClick={(e) => addComment(e.currentTarget)}>
+              Save
+            </CButton>
+            <CButton color="link" className="btn-icon" onClick={() => deleteCommentMessage()}>
+              <i className="fa-regular fa-trash-can"></i>
+            </CButton>
+          </div>
         </div>
       </div>
     )
@@ -299,29 +304,31 @@ const ModalDocumentation = (props) => {
   const createCommentElement = (id, comment, date, owner, edited, editeddate, editedby) => {
     return (
       <div className="comment--item" key={"cmtItem_" + id} id={"cmtItem_" + id}>
-        <div className="comment--text">
-          <TextareaAutosize
-            id={id}
-            disabled
-            defaultValue={comment}
-            className="comment--input" />
-          <label className="comment--date" htmlFor={id}>
-            {date && owner &&
-              "Commented on " + date.slice(0, 10).split('-').reverse().join('/') + " by " + owner + "."
-            }
-            {((edited >= 1) && (editeddate && editeddate !== undefined) && (editedby && editedby !== undefined)) &&
-              " Last edited on " + editeddate.slice(0, 10).split('-').reverse().join('/') + " by " + editedby + "."
-            }
-          </label>
+        <div className="comment--row">
+          <div className="comment--text">
+            <TextareaAutosize
+              id={id}
+              disabled
+              defaultValue={comment}
+              className="comment--input" />
+          </div>
+          <div className="comment--icons">
+            <CButton color="link" className="btn-link" onClick={(e) => updateComment(e.currentTarget)} key={"cmtUpdate_" + id}>
+              Edit
+            </CButton>
+            <CButton color="link" className="btn-icon" onClick={(e) => deleteCommentMessage(e.currentTarget)} key={"cmtDelete_" + id}>
+              <i className="fa-regular fa-trash-can"></i>
+            </CButton>
+          </div>
         </div>
-        <div className="comment--icons">
-          <CButton color="link" className="btn-link" onClick={(e) => updateComment(e.currentTarget)} key={"cmtUpdate_" + id}>
-            Edit
-          </CButton>
-          <CButton color="link" className="btn-icon" onClick={(e) => deleteCommentMessage(e.currentTarget)} key={"cmtDelete_" + id}>
-            <i className="fa-regular fa-trash-can"></i>
-          </CButton>
-        </div>
+        <label className="comment--date" htmlFor={id}>
+          {date && owner &&
+            "Commented on " + date.slice(0, 10).split('-').reverse().join('/') + " by " + owner + "."
+          }
+          {((edited >= 1) && (editeddate && editeddate !== undefined) && (editedby && editedby !== undefined)) &&
+            " Last edited on " + editeddate.slice(0, 10).split('-').reverse().join('/') + " by " + editedby + "."
+          }
+        </label>
       </div>
     )
   }
@@ -358,7 +365,8 @@ const ModalDocumentation = (props) => {
 
   const uploadFile = (data) => {
     let country = props.item.Code
-    return dl.xmlHttpRequest(ConfigData.RELEASES_ATTACHMENTS_DOCUMENT_ADD + '?Country=' + country, data)
+    let comment = document.querySelector(".document--new .document--comment textarea").value;
+    return dl.xmlHttpRequest(ConfigData.RELEASES_ATTACHMENTS_DOCUMENT_ADD + '?Country=' + country + "&comment=" + comment, data)
   }
 
   const changeHandler = (e) => {
@@ -378,12 +386,14 @@ const ModalDocumentation = (props) => {
     if (selectedFile) {
       let formData = new FormData();
       formData.append("Files", selectedFile, selectedFile.name);
+      setUploadingDocument(true);
 
       return uploadFile(formData)
         .then(data => {
           if (data?.Success) {
             setIsLoading(true)
             setNewDocument(false)
+            setUploadingDocument(false)
             loadData(props.item.Code)
           }
           else {
@@ -400,23 +410,35 @@ const ModalDocumentation = (props) => {
     let docs = [];
     docs.push(
       newDocument &&
-      <div className="document--item new" key={"docItem_new"}>
-        <div className="input-file">
-          <label htmlFor="uploadBtn">
-            Select file
-          </label>
-          <input id="uploadBtn" type="file" name="Files" onChange={(e) => changeHandler(e)} accept={UtilsData.ACCEPTED_DOCUMENT_FORMATS} />
-          {selectedFile ? (
-            <input id="uploadFile" placeholder={selectedFile.name} disabled="disabled" />
-          ) : (<input id="uploadFile" placeholder="No file selected" disabled="disabled" />)}
-        </div>
-        <div className="document--icons">
-          <CButton color="link" className="btn-link" onClick={() => handleSubmission()}>
-            Save
-          </CButton>
-          <CButton color="link" className="btn-icon" onClick={() => deleteDocumentMessage()}>
-            <i className="fa-regular fa-trash-can"></i>
-          </CButton>
+      <div className="document--new" key={"docItem_new"}>
+        <div className="document--item">
+          <div className="document--row">
+            <div className="input-file">
+              <label htmlFor="uploadBtn">
+                Select file
+              </label>
+              <input id="uploadBtn" type="file" name="Files" disabled={uploadingDocument} onChange={(e) => changeHandler(e)} accept={UtilsData.ACCEPTED_DOCUMENT_FORMATS} />
+              {selectedFile ? (
+                <input id="uploadFile" placeholder={selectedFile.name} disabled="disabled" />
+              ) : (<input id="uploadFile" placeholder="No file selected" disabled="disabled" />)}
+            </div>
+            <div className="document--icons">
+              <CButton color="link" className="btn-link" disabled={uploadingDocument} onClick={() => handleSubmission()}>
+                {uploadingDocument ? <CSpinner size="sm" className="mx-2" /> : <>Save</>}
+              </CButton>
+              <CButton color="link" className="btn-icon" disabled={uploadingDocument} onClick={() => deleteDocumentMessage()}>
+                <i className="fa-regular fa-trash-can"></i>
+              </CButton>
+            </div>
+          </div>
+          <div className="document--comment">
+            <TextareaAutosize
+              minRows={3}
+              placeholder="Add a comment (optional)"
+              className="comment--input"
+              disabled={uploadingDocument}
+            ></TextareaAutosize>
+          </div>
         </div>
       </div>
     )
@@ -424,7 +446,7 @@ const ModalDocumentation = (props) => {
       documents.forEach(d => {
         const name = d.OriginalName ?? d.Path;
         docs.push(
-          createDocumentElement(d.ID, name, d.ImportDate, d.Username)
+          createDocumentElement(d.ID, name, d.ImportDate, d.Username, d.Comment)
         )
       })
     }
@@ -438,30 +460,41 @@ const ModalDocumentation = (props) => {
     )
   }
 
-  const createDocumentElement = (id, name, date, user) => {
+  const createDocumentElement = (id, name, date, user, comment) => {
     return (
       <div className="document--item" key={"docItem_" + id} id={"docItem_" + id} doc_id={id}>
-        <div className="my-auto document--text">
-          <div className="document--file">
-            <CImage src={documentImg} className="ico--md me-3"></CImage>
-            <span>{name?.replace(/^.*[\\\/]/, '')}</span>
-          </div>  
-          {(date || user) &&
-            <label className="comment--date" htmlFor={"docItem_" + id}>
-              {"Uploaded"
-              + (date && " on " + date.slice(0, 10).split('-').reverse().join('/'))
-              + (user && " by " + user)}
-            </label>
-          }
+        <div className="document--row">
+          <div className="my-auto document--text">
+            <div className="document--file">
+              <CImage src={documentImg} className="ico--md me-2"></CImage>
+              <span>{name?.replace(/^.*[\\\/]/, '')}</span>
+            </div>
+          </div>
+          <div className="document--icons">
+            <CButton color="link" className="btn-link" disabled={downloadingDocuments.includes(id)} onClick={() => downloadAttachments(id, name)}>
+              {downloadingDocuments.includes(id) ? <CSpinner size="sm" className="mx-2" /> : <>View</>}
+            </CButton>
+            <CButton color="link" className="btn-icon" disabled={downloadingDocuments.includes(id)} onClick={(e) => deleteDocumentMessage(e.currentTarget)}>
+              <i className="fa-regular fa-trash-can"></i>
+            </CButton>
+          </div>
         </div>
-        <div className="document--icons">
-          <CButton color="link" className="btn-link" onClick={()=>{downloadAttachments(id, name)}}>
-            View
-          </CButton>
-          <CButton color="link" className="btn-icon" onClick={(e) => deleteDocumentMessage(e.currentTarget)}>
-            <i className="fa-regular fa-trash-can"></i>
-          </CButton>
-        </div>
+        {comment &&
+          <div className="document--comment">
+            <TextareaAutosize
+              disabled
+              defaultValue={comment}
+              className="comment--input"
+            ></TextareaAutosize>
+          </div>
+        }
+        {(date || user) &&
+          <label className="document--date" htmlFor={"docItem_" + id}>
+            {"Uploaded"
+            + (date && " on " + date.slice(0, 10).split('-').reverse().join('/'))
+            + (user && " by " + user)}
+          </label>
+        }
       </div>
     )
   }
@@ -518,6 +551,7 @@ const ModalDocumentation = (props) => {
   }
 
   const downloadAttachments = (id, name) => {
+    setDownloadingDocuments([...downloadingDocuments, id]);
     dl.fetch(ConfigData.ATTACHMENTS_DOWNLOAD + "id=" + id + "&docuType=1")
     .then(data => {
       if(data?.ok) {
@@ -531,10 +565,12 @@ const ModalDocumentation = (props) => {
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
+          setDownloadingDocuments(downloadingDocuments.filter(a => a !== id));
         })
       }
       else {
         showErrorMessage("document", "Error downloading file");
+        setDownloadingDocuments(downloadingDocuments.filter(a => a !== id));
       }
     })
   }

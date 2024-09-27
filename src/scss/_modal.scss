@@ -43,12 +43,19 @@
     overflow: auto;
   }
   &--item {
-    display: flex;
-    justify-content: space-between;
-    gap: 0.5rem;
     &:not(:last-of-type) {
       margin-bottom: 0.75rem;
     }
+  }
+  &--row {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.25rem;
+  }
+  &--new {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0.75rem;
   }
   &--text {
     flex: 1 1;
@@ -63,16 +70,18 @@
   }
   &--icons {
     white-space: nowrap;
-    .btn-icon {
-      padding: 0.25rem 0.5rem;
+    .btn-link {
+      padding-top: 0;
+      padding-bottom: 0;
     }
   }
+  &--comment {
+    margin-top: 0.5rem;
+  }
   &--date {
+    display: block;
     font-style: italic;
     font-size: 80%;
-  }
-  &.new {
-    margin-right: 0.5rem;
   }
 }
 
@@ -82,12 +91,14 @@
     overflow: auto;
   }
   &--item {
-    display: flex;
-    justify-content: space-between;
-    gap: 0.5rem;
     &:not(:last-of-type) {
       margin-bottom: 0.75rem;
     }
+  }
+  &--row {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.25rem;
   }
   &--text {
     flex: 1 1;
@@ -107,6 +118,10 @@
   }
   &--icons {
     white-space: nowrap;
+    .btn-link {
+      padding-top: 0;
+      padding-bottom: 0;
+    }
   }
   &--input {
       height: 100%;
@@ -117,6 +132,7 @@
       outline: none;
   }
   &--date {
+    display: block;
     font-style: italic;
     font-size: 80%;
   }

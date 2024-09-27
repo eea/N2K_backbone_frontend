@@ -24,6 +24,7 @@ import {
   CCollapse,
   CCard,
   CAlert,
+  CSpinner
 } from '@coreui/react'
 
 import ConfigData from '../../../config.json';
@@ -63,6 +64,7 @@ class ModalChanges extends Component {
       comments:[],
       documents:[],
       showDetail: [],
+      downloadingDocuments: [],
       justificationRequired: false,
       notValidDocument: "",
       errorLoading: false
@@ -70,14 +72,14 @@ class ModalChanges extends Component {
   }
 
   componentDidUpdate() {
-    if(!this.state.loading && this.state.activeKey === 3) {
+    if(!this.state.loading && this.state.activeKey === 3 && !this.errorLoadingComments && !this.errorLoadingDocuments) {
       this.attachmentsHeight();
       window.addEventListener("resize", () => {this.attachmentsHeight()});
     }
   }
 
   attachmentsHeight = () => {
-    let height = window.innerHeight - document.querySelector(".header").offsetHeight - document.querySelector(".page-title").offsetHeight - document.querySelector(".nav").offsetHeight - document.querySelector(".attachments--title").offsetHeight - 96;
+    let height = window.innerHeight - document.querySelector(".header").offsetHeight - document.querySelector(".page-title").offsetHeight - document.querySelector(".nav").offsetHeight - document.querySelector(".attachments--title").offsetHeight - (document.querySelector(".alert-primary") ? document.querySelector(".alert-primary").offsetHeight + 16 : 0 ) - 96;
     if(document.querySelector(".document--list").scrollHeight > height) {
       document.querySelector(".document--list").style.height = height + "px";
     }
@@ -377,21 +379,24 @@ class ModalChanges extends Component {
   createCommentElement(id, comment, date, owner, edited, editeddate, editedby, level) {
     return (
       <div className="comment--item" key={"cmtItem_" + id} id={"cmtItem_" + id}>
-        <div className="comment--text">
-          <TextareaAutosize
-            id={id}
-            disabled
-            defaultValue={comment}
-            className="comment--input" />
-          <label className="comment--date" htmlFor={id}>
-            {date && owner &&
-              "Commented on " + date.slice(0, 10).split('-').reverse().join('/') + " by " + owner + "."
-            }
-            {((edited >= 1) && (editeddate && editeddate !== undefined) && (editedby && editedby !== undefined)) &&
-              " Last edited on " + editeddate.slice(0, 10).split('-').reverse().join('/') + " by " + editedby + "."
-            }
-          </label>
+        <div className="comment--row">
+          <div className="comment--text">
+            <TextareaAutosize
+              id={id}
+              disabled
+              defaultValue={comment}
+              className="comment--input"
+            ></TextareaAutosize>
+          </div>
         </div>
+        <label className="comment--date" htmlFor={id}>
+          {date && owner &&
+            "Commented on " + date.slice(0, 10).split('-').reverse().join('/') + " by " + owner + "."
+          }
+          {((edited >= 1) && (editeddate && editeddate !== undefined) && (editedby && editedby !== undefined)) &&
+            " Last edited on " + editeddate.slice(0, 10).split('-').reverse().join('/') + " by " + editedby + "."
+          }
+        </label>
       </div>
     )
   }
@@ -416,10 +421,9 @@ class ModalChanges extends Component {
     }
     if (this.state.documents !== "noData") {
       filteredDocuments.forEach(d => {
-        // original name may be null until the backend part it's finished
         const name = d.OriginalName ?? d.Path;
         docs.push(
-          this.createDocumentElement(d.Id, name, d.ImportDate, d.Username, target)
+          this.createDocumentElement(d.Id, name, d.ImportDate, d.Username, d.Comment, target)
         )
       })
     }
@@ -433,27 +437,38 @@ class ModalChanges extends Component {
     )
   }
 
-  createDocumentElement(id, name, date, user, level) {
+  createDocumentElement(id, name, date, user, comment, level) {
     return (
       <div className="document--item" key={"docItem_" + id} id={"docItem_" + id} doc_id={id}>
-        <div className="my-auto document--text">
-          <div className="document--file">
-            <CImage src={documentImg} className="ico--md me-3"></CImage>
-            <span>{name?.replace(/^.*[\\\/]/, '')}</span>
+        <div className="document--row">
+          <div className="my-auto document--text">
+            <div className="document--file">
+              <CImage src={documentImg} className="ico--md me-2"></CImage>
+              <span>{name?.replace(/^.*[\\\/]/, '')}</span>
+            </div>
           </div>
-          {(date || user) &&
-            <label className="comment--date" htmlFor={"docItem_" + id}>
-              {"Uploaded"
-              + (date && " on " + date.slice(0, 10).split('-').reverse().join('/'))
-              + (user && " by " + user)}
-            </label>
-          }
+          <div className="document--icons">
+            <CButton color="link" className="btn-link" disabled={this.state.downloadingDocuments.includes(id)} onClick={() => this.downloadAttachments(id, name, level)}>
+              {this.state.downloadingDocuments.includes(id) ? <CSpinner size="sm" className="mx-2" /> : <>View</>}
+            </CButton>
+          </div>
         </div>
-        <div className="document--icons">
-          <CButton color="link" className="btn-link" onClick={()=>{this.downloadAttachments(id, name, level)}}>
-            View
-          </CButton>
-        </div>
+        {comment &&
+          <div className="document--comment">
+            <TextareaAutosize
+              disabled
+              defaultValue={comment}
+              className="comment--input"
+            ></TextareaAutosize>
+          </div>
+        }
+        {(date || user) &&
+          <label className="document--date" htmlFor={"docItem_" + id}>
+            {"Uploaded"
+            + (date && " on " + date.slice(0, 10).split('-').reverse().join('/'))
+            + (user && " by " + user)}
+          </label>
+        }
       </div>
     )
   }
@@ -511,6 +526,7 @@ class ModalChanges extends Component {
   }
 
   downloadAttachments = (id, name, level) => {
+    this.setState({ downloadingDocuments: [...this.state.downloadingDocuments, id] });
     let type = level === "site" ? 0 : 1;
     this.dl.fetch(ConfigData.ATTACHMENTS_DOWNLOAD + "id=" + id + "&docuType=" + type)
     .then(data => {
@@ -525,10 +541,12 @@ class ModalChanges extends Component {
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
+          this.setState({ downloadingDocuments: this.state.downloadingDocuments.filter(a => a !== id) });
         })
       }
       else {
         this.showErrorMessage("document", "Error downloading file");
+        this.setState({ downloadingDocuments: this.state.downloadingDocuments.filter(a => a !== id) });
       }
     })
   }
@@ -556,6 +574,8 @@ class ModalChanges extends Component {
               lineageChangeType={this.state.data.lineageChangeType}
               mapReference={ConfigData.MAP_REFERENCE}
               mapSubmission={ConfigData.MAP_SUBMISSION}
+              mapChanges={ConfigData.MAP_GEOMETRY_CHANGES}
+              showGeometryChanges={this.state.data?.Critical?.SiteInfo?.ChangesByCategory?.some(a => a.ChangeType.includes("Deletion of Spatial Area")) || this.state.data?.Info?.SiteInfo?.ChangesByCategory?.some(a => a.ChangeType.includes("Addition of Spatial Area"))}
             />
           </CRow>
         }

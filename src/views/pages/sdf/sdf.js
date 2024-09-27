@@ -132,7 +132,7 @@ const SDFVisualization = () => {
     return (
       <CContainer fluid>
         <CRow className="sdf-title px-4">
-          <CCol className='col-auto ms-auto'>
+          <CCol className="col-auto ms-auto">
             <CButton color="primary" onClick={()=>{window.print()}}>
               <i className="fa-solid fa-download"></i> Download PDF
             </CButton>

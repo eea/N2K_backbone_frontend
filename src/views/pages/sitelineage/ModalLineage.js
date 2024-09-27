@@ -379,6 +379,8 @@ export class ModalLineage extends Component {
                 lineageChangeType={this.props.type}
                 mapReference={ConfigData.MAP_REFERENCE}
                 mapSubmission={ConfigData.MAP_SUBMISSION}
+                mapChanges={ConfigData.MAP_GEOMETRY_CHANGES}
+                showGeometryChanges={false}
               />
             </CRow>
           }
@@ -454,7 +456,7 @@ export class ModalLineage extends Component {
                   Spatial Changes
                 </CNavLink>
               </CNavItem>
-              <CButton color="link" className="ms-auto" href={"/#/sitechanges/changes?country=" + this.props.country + "&siteCode=" + this.state.data.SiteCode}>
+              <CButton color="link" className="ms-auto" href={"/#/sitechanges/changes?country=" + this.props.country + "&sitecode=" + this.state.data.SiteCode}>
                 <span>Review site CHANGES</span>
               </CButton>
             </CNav>
