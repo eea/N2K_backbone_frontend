@@ -66,10 +66,11 @@ const SDFVisualization = () => {
 
   const showMap = () => {
     return (
-      <div className='sdf-map px-4 pb-5'>
+      <div className="sdf-map px-4 pb-5">
         <MapViewer
           siteCode={siteCode}
-          mapSubmission={ConfigData.MAP_REFERENCE}
+          release={release}
+          mapSubmission={ConfigData.MAP_RELEASES}
         />
       </div>
     )
@@ -135,7 +136,7 @@ const SDFVisualization = () => {
     return (
       <CContainer fluid>
         <CRow className="sdf-title px-4">
-          <CCol className='col-auto ms-auto'>
+          <CCol className="col-auto ms-auto">
             <CButton color="primary" onClick={()=>{window.print()}}>
               <i className="fa-solid fa-download"></i> Download PDF
             </CButton>
@@ -171,8 +172,8 @@ const SDFVisualization = () => {
 
   return (
     <div className="container--main min-vh-100">
-      <CHeader className='header--custom'>
-        <CRow className='align-items-center'>
+      <CHeader className="header--custom">
+        <CRow className="align-items-center">
           <CCol className="header__title">
             <CHeaderBrand href="#" target="_blank">Natura Change Manager</CHeaderBrand>
           </CCol>
@@ -699,7 +700,7 @@ const sectionsContent = (activekey, data) => {
     fields.push(
       <CRow className={"sdf-row" + (layout === 2 ? " col-md-6 col-12" : "")} key={index}>
         <CCol>
-          <div className='sdf-row-title'>{index + ' ' + title}</div>
+          <div className="sdf-row-title">{index + ' ' + title}</div>
           {dataType(field[0], type, value)}
         </CCol>
       </CRow>
