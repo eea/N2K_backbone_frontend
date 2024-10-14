@@ -82,6 +82,8 @@ const Sitelineage = () => {
 
   loadData();
 
+  const page = UtilsData.SIDEBAR["sitelineage"].find(a => a.option === "overview");
+
   return (
     <div className="container--main min-vh-100">
       <AppHeader page="sitelineage"/>
@@ -89,15 +91,18 @@ const Sitelineage = () => {
         <AppSidebar
           title="Site Lineage"
           options={UtilsData.SIDEBAR["sitelineage"]}
-          active="overview"
+          active={page.option}
         />
         <div className="main-content">
           <CContainer fluid>
             <div className="d-flex justify-content-between py-3">
               <div className="page-title">
-                <h1 className="h1">Lineage Overview</h1>
+                <h1 className="h1">{page.name}</h1>
               </div>
             </div>
+            {page.description &&
+              <div className="page-description">{page.description}</div>
+            }
             <CRow className="grid">
               {isLoading ?
                 <div className="loading-container"><em>Loading...</em></div>

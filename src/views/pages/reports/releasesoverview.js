@@ -23,6 +23,8 @@ const Reports = () => {
     window.addEventListener('resize', resizeIframe)
   }, []);
 
+  const page = UtilsData.SIDEBAR["reports"].find(a => a.option === "releasesoverview");
+
   return (
     <div className="container--main min-vh-100">
       <AppHeader page="reports"/>
@@ -30,15 +32,18 @@ const Reports = () => {
         <AppSidebar
           title="Reports"
           options={UtilsData.SIDEBAR["reports"]}
-          active="releasesoverview"
+          active={page.option}
         />
         <div className="main-content">
           <CContainer fluid>
             <div className="d-flex justify-content-between py-3">
               <div className="page-title">
-                <h1 className="h1">Releases Dates Overview</h1>
+                <h1 className="h1">{page.name}</h1>
               </div>
             </div>
+            {page.description &&
+              <div className="page-description">{page.description}</div>
+            }
             <CRow>
               <CCol>
                 <iframe
