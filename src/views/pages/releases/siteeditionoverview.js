@@ -83,11 +83,11 @@ const SiteEditionOverView = () => {
             <div className="d-flex justify-content-between py-3">
               <div className="page-title">
                 <h1 className="h1">{page.name}</h1>
-                {page.description &&
-                  <div className="page-description">{page.description}</div>
-                }
               </div>
             </div>
+            {page.description &&
+              <div className="page-description">{page.description}</div>
+            }
             <CRow className="grid">
               {errors.length > 0 && <CAlert color="danger">{errors}</CAlert>}
               {isLoading &&

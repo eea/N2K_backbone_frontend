@@ -359,14 +359,14 @@ const Sitelineage = () => {
               <div className="d-flex justify-content-between py-3">
                 <div className="page-title">
                   <h1 className="h1">{page.name}</h1>
-                  {page.description &&
-                    <div className="page-description">{page.description}</div>
-                  }
                 </div>
                 <div>
                   <CButton color="primary" onClick={()=>updateModalValues("Export Lineage", "This will export lineage", "Continue", ()=>exportLineage(), "Cancel", ()=>{})} disabled={isLoading}>Export</CButton>
                 </div>
               </div>
+              {page.description &&
+                <div className="page-description">{page.description}</div>
+              }
               <div>
                 <CAlert color="danger" visible={error.length > 0}>{error}</CAlert>
               </div>

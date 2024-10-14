@@ -46,10 +46,12 @@ html {
   h1 {
     font-size: 1.5rem;
     color: $primary-base;
+    margin-bottom: 1rem;
   }
-  .page-description {
-    white-space: break-spaces;
-  }
+}
+.page-description {
+  white-space: break-spaces;
+  margin-bottom: 2rem;
 }
 .header {
   &--custom {

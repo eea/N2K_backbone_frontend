@@ -258,11 +258,11 @@ const Releases = () => {
             <div className="d-flex justify-content-between py-3">
               <div className="page-title">
                 <h1 className="h1">{page.name}</h1>
-                {page.description &&
-                  <div className="page-description">{page.description}</div>
-                }
               </div>
             </div>
+            {page.description &&
+              <div className="page-description">{page.description}</div>
+            }
             <div className="d-flex flex-start align-items-center p-3 card-lineage-type">
                 <div className="me-5">
                   <h2 className="card-lineage-type-title">Filter by</h2>

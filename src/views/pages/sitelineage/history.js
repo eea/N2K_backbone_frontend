@@ -349,11 +349,11 @@ const Sitelineage = () => {
             <div className="d-flex justify-content-between py-3">
               <div className="page-title">
                 <h1 className="h1">{page.name}</h1>
-                {page.description &&
-                  <div className="page-description">{page.description}</div>
-                }
               </div>
             </div>
+            {page.description &&
+              <div className="page-description">{page.description}</div>
+            }
             <CRow>
               <CCol sm={12} md={6} lg={6} className="d-flex mb-4">
                 <div className="search--input">

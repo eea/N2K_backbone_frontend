@@ -112,14 +112,30 @@ const Sitechanges = () => {
           />
           <div className="main-content">
             <CContainer fluid>
-              <div className="d-flex  justify-content-between px-0 p-3">
+              <div className="d-flex justify-content-between px-0 p-3">
                 <div className="page-title">
                   <h1 className="h1">{page.name}</h1>
-                  {page.description &&
-                    <div className="page-description">{page.description}</div>
-                  }
+                </div>
+                <div>
+                  <ul className="btn--list">
+                    <li>
+                      <CButton className="ms-3" color="secondary" disabled={isDownloading || isGenerating} onClick={() => generateExtraction()}>
+                        {isGenerating && <CSpinner size="sm" />}
+                        {isGenerating ? " Generating Extraction" : "Generate New"}
+                      </CButton>
+                    </li>
+                    <li>
+                      <CButton className="ms-3" color="primary" disabled={!extraction || isDownloading || isGenerating} onClick={() => downloadExtraction()}>
+                        {isDownloading && <CSpinner size="sm" />}
+                        {isDownloading ? " Downloading Extraction" : "Download"}
+                      </CButton>
+                    </li>
+                  </ul>
                 </div>
               </div>
+              {page.description &&
+                <div className="page-description">{page.description}</div>
+              }
               <div>
                 <CAlert color="danger" visible={errorMessage.length > 0}>{errorMessage}</CAlert>
               </div>
@@ -127,18 +143,11 @@ const Sitechanges = () => {
                 <CCol className="mb-4">
                   <div className="select--left">
                     {extraction &&
-                      <span>The lastest available extraction is <br /><b>{extraction}</b></span>
-                    } {!extraction &&
+                      <span>The lastest available extraction is: <b>{extraction}</b></span>
+                    }
+                    {!extraction &&
                       <span>There are no available extractions</span>
                     }
-                    <CButton className="ms-3" color="secondary" disabled={isDownloading || isGenerating} onClick={() => generateExtraction()}>
-                      {isGenerating && <CSpinner size="sm" />}
-                      {isGenerating ? " Generating Extraction" : "Generate New"}
-                    </CButton>
-                    <CButton className="ms-3" color="primary" disabled={!extraction || isDownloading || isGenerating} onClick={() => downloadExtraction()}>
-                      {isDownloading && <CSpinner size="sm" />}
-                      {isDownloading ? " Downloading Extraction" : "Download"}
-                    </CButton>
                   </div>
                 </CCol>
               </CRow>

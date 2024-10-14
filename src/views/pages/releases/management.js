@@ -227,9 +227,6 @@ const Releases = () => {
             <div className="d-flex justify-content-between py-3">
               <div className="page-title">
                 <h1 className="h1">{page.name}</h1>
-                {page.description &&
-                  <div className="page-description">{page.description}</div>
-                }
               </div>
               <div>
                 <ul className="btn--list">
@@ -241,6 +238,9 @@ const Releases = () => {
                 </ul>
               </div>
             </div>
+            {page.description &&
+              <div className="page-description">{page.description}</div>
+            }
             {errorRequest && 
               <CAlert color="danger">Something went wrong with your request</CAlert>
             }

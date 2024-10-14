@@ -28,11 +28,11 @@ const Harvesting = () => {
             <div className="d-flex justify-content-between py-3">
               <div className="page-title">
                 <h1 className="h1">{page.name}</h1>
-                {page.description &&
-                  <div className="page-description">{page.description}</div>
-                }
               </div>
             </div>
+            {page.description &&
+              <div className="page-description">{page.description}</div>
+            }
             <div className="text-center mb-4">
               <ReactLogo className="harvesting-chart" id="processed_chart"/>
             </div>
