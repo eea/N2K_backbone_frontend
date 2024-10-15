@@ -32,7 +32,9 @@ function fuzzyTextFilterFn(rows, id, filterValue) {
 
 fuzzyTextFilterFn.autoRemove = val => !val
 
-function Table({ columns, data, setSelected, modalProps, updateModalValues }) {
+function Table({ columns, data, setSelected, modalProps, currentPage, currentSize, updateModalValues }) {
+	const [pgCount, setPgCount] = useState(Math.ceil(data.length / currentSize));
+
 	const filterTypes = React.useMemo(
 		() => ({
 			fuzzyText: fuzzyTextFilterFn,
@@ -64,19 +66,20 @@ function Table({ columns, data, setSelected, modalProps, updateModalValues }) {
 		canPreviousPage,
 		canNextPage,
 		pageOptions,
-		pageSize,
+		pageCount,
 		gotoPage,
 		nextPage,
 		previousPage,
 		setPageSize,
-		state: { pageIndex, selectedRowIds },
+		state: { pageIndex, pageSize, selectedRowIds },
 	} = useTable(
 		{
 			columns,
 			data,
 			defaultColumn,
 			filterTypes,
-			initialState: { hiddenColumns: [] },
+			initialState: { pageSize: currentSize, pageIndex: currentPage },
+			pageCount: pgCount,
 		},
 		useFilters,
 		useGlobalFilter,
@@ -164,14 +167,14 @@ function Table({ columns, data, setSelected, modalProps, updateModalValues }) {
 				<span>
 					Page{' '}
 					<strong>
-						{pageIndex + 1} of {pageOptions.length}
+						{pageIndex + 1} of {pageCount}
 					</strong>{' '}
 					({data.length === 1 ? data.length + " result" : data.length + " results"})
 				</span>
 				<CPaginationItem onClick={() => nextPage()} disabled={!canNextPage}>
 					<i className="fa-solid fa-angle-right"></i>
 				</CPaginationItem>
-				<CPaginationItem onClick={() => gotoPage(pageOptions.length - 1)} disabled={!canNextPage}>
+				<CPaginationItem onClick={() => gotoPage(pageCount - 1)} disabled={!canNextPage}>
 					<i className="fa-solid fa-angles-right"></i>
 				</CPaginationItem>
 				<div className='pagination-rows'>
@@ -180,7 +183,8 @@ function Table({ columns, data, setSelected, modalProps, updateModalValues }) {
 						className='form-select'
 						value={pageSize}
 						onChange={e => {
-							setPageSize(Number(e.target.value))
+							setPgCount(Math.ceil(data.length / Number(e.target.value)));
+							setPageSize(Number(e.target.value));
 						}}
 					>
 						{[10, 20, 30, 40, 50].map(pageSize => (
@@ -198,6 +202,8 @@ function Table({ columns, data, setSelected, modalProps, updateModalValues }) {
 function TableDocumentation(props) {
 	const [isLoading, setIsLoading] = useState(false);
 	const [data, setData] = useState([]);
+	const [currentPage, setCurrentPage] = useState(0);
+	const [currentSize, setCurrentSize] = useState(30);
 	
 	let dl = new (DataLoader);
 
@@ -244,6 +250,8 @@ function TableDocumentation(props) {
 					} else {
 						data.Data.sort((a, b) => a.Country.localeCompare(b.Country));
 						setData(data.Data);
+						setCurrentPage(0);
+						setCurrentSize(30);
 					}
 				} else throw "Error loading data"
 		})
@@ -266,6 +274,8 @@ function TableDocumentation(props) {
 						data={data}
 						modalProps={props}
 						updateModalValues={props.updateModalValues}
+						currentPage={currentPage}
+						currentSize={currentSize}
 					/>
 				</>
 			)
