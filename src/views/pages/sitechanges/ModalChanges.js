@@ -1504,8 +1504,10 @@ export class ModalChanges extends Component {
           <CModalFooter>
             <div className="d-flex w-100 justify-content-between">
               {data.Status === 'Pending' && <CButton disabled={this.changingStatus} className="red" color="secondary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(() => this.rejectChangesModal(true), true) : this.rejectChangesModal()}>Reject Changes</CButton>}
+              {data.Status === 'Pending' && this.state.activeKey === 2 && <span className="button-text">When accepting, the submitted area will replace the current one</span>}
               {data.Status === 'Pending' && <CButton disabled={this.changingStatus} color="primary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(() => this.acceptChangesModal(true), true) : this.acceptChangesModal()}>Accept Changes</CButton>}
-              {data.Status !== 'Pending' && this.state.activeKey !== 3 && <div className="d-flex ms-auto"><span className="my-auto">You can revert the changes</span><CButton disabled={this.changingStatus} color="primary" className="ms-3" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(() => this.backToPendingModal(true), true) : this.backToPendingModal()}>Back to Pending</CButton></div>}
+              {data.Status !== 'Pending' && this.state.activeKey !== 3 && <span className="button-text">You can revert the changes</span>}
+              {data.Status !== 'Pending' && this.state.activeKey !== 3 && <CButton disabled={this.changingStatus} color="primary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(() => this.backToPendingModal(true), true) : this.backToPendingModal()}>Back to Pending</CButton>}
               {data.Status !== 'Pending' && this.state.activeKey === 3 &&
                 <>
                   <CButton className="red" color="secondary" disabled={this.state.updatingData} onClick={() => this.closeModal()}>Cancel</CButton>
