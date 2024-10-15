@@ -102,7 +102,7 @@ const Releases = () => {
           .then(response =>response.json())
           .then(data => {
             if(data?.Success) {
-              if(data.Count === 0 || data.Data.BioRegionSummary.find(a=>a.BioRegion==="ALP").Count === 0){
+              if(data.Count === 0 || data.Data.BioRegionSummary.find(a => a.BioRegion === "ALP").Count === 0){
                 setBioRegionsSummary(data.Data.BioRegionSummary);
                 setPageResults(data.Count);
                 setTableData1("nodata");
@@ -110,10 +110,8 @@ const Releases = () => {
               }
               else if(Object.keys(data.Data).length > 0){
                 setBioRegionsSummary(data.Data.BioRegionSummary);
-                let terrestrial = bioRegionsData.filter(b=>!b.isMarine).map(a=>a.BioRegionShortCode);
-                let results = data.Data.BioRegionSummary.filter(a=>terrestrial.includes(a.BioRegion)).map(a=>a.Count).reduce((a, b) => a + b);
-                setPageResults(results);
-                setActiveBioregions(data.Data.BioRegionSummary.filter(a=>a.Count>0 && a.BioRegion === "ALP").map(a=>a.BioRegion).toString());
+                setPageResults(data.Data.BioRegionSummary.find(a=>a.BioRegion === "ALP").Count);
+                setActiveBioregions("ALP");
               }
               setIsLoading(false);
             }
