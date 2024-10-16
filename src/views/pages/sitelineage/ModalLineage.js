@@ -502,7 +502,7 @@ export class ModalLineage extends Component {
 
   closeModal() {
     if(!this.checkChanges())
-      this.props.updateModalValues("Lineage Edition", "There are unsaved changes, do you want to continue?",
+      this.props.updateModalValues("Unsaved Changes", "There are unsaved changes, do you want to continue?",
         "Continue", () => this.close(),
         "Cancel", () => { })
     else

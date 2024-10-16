@@ -1106,13 +1106,13 @@ export class ModalEdition extends Component {
 
   warningUnsavedChanges(activeKey) {
     if (this.state.fieldChanged && this.state.activeKey === 1) {
-      this.props.updateModalValues("Edit fields",
+      this.props.updateModalValues("Unsaved Changes",
         "There are unsaved changes. Do you want to continue?",
         "Continue", () => { this.cleanEditFields(); this.setActiveKey(activeKey) },
         "Cancel", () => { });
     }
     else if (this.checkUnsavedChanges() && this.state.activeKey === 2) {
-      this.props.updateModalValues("Documents & Comments",
+      this.props.updateModalValues("Unsaved Changes",
         "There are unsaved changes. Do you want to continue?",
         "Continue", () => { this.cleanUnsavedChanges(); this.setActiveKey(activeKey) },
         "Cancel", () => { });
@@ -1123,7 +1123,7 @@ export class ModalEdition extends Component {
   }
 
   messageBeforeClose(action, keepOpen) {
-    this.props.updateModalValues("Site Edition", "There are unsaved changes. Do you want to continue?", "Continue", action, "Cancel", () => { }, keepOpen);
+    this.props.updateModalValues("Unsaved Changes", "There are unsaved changes. Do you want to continue?", "Continue", action, "Cancel", () => { }, keepOpen);
   }
 
   cleanUnsavedChanges() {
