@@ -7,8 +7,6 @@ import {
   CCol,
   CContainer,
   CRow,
-  CFormLabel,
-  CFormSelect,
   CSpinner,
   CAlert
 } from '@coreui/react'
@@ -20,14 +18,24 @@ import { DataLoader } from '../../../components/DataLoader';
 import { dateTimeFormatter } from 'src/components/DateUtils';
 
 const Sitechanges = () => {
-
-  let dl = new (DataLoader);
-
   const [loadingExtractions, setLoadingExtractions] = useState(false);
   const [extraction, setExtraction] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [showDescription, setShowDescription] = useState(false);
+  let dl = new (DataLoader);
+
+  useEffect(() => {
+    if(!showDescription) {
+      if(document.querySelector(".page-description")?.scrollHeight < 6*16){
+        setShowDescription("all");
+      }
+      else {
+        setShowDescription("hide");
+      }
+    }
+  });
 
   const showErrorMessage = (message) => {
     setErrorMessage("Something went wrong: " + message);
@@ -134,7 +142,14 @@ const Sitechanges = () => {
                 </div>
               </div>
               {page.description &&
-                <div className="page-description">{page.description}</div>
+                <div className={"page-description " + showDescription}>
+                  {page.description}
+                  {showDescription !== "all" &&
+                    <CButton color="link" className="btn-link--dark text-nowrap" onClick={() => setShowDescription(prevCheck => prevCheck === "show" ? "hide" : "show")}>
+                      {showDescription === "show" ? "Hide description" : "Show description"}
+                    </CButton>
+                  }
+                </div>
               }
               <div>
                 <CAlert color="danger" visible={errorMessage.length > 0}>{errorMessage}</CAlert>

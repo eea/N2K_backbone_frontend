@@ -10,15 +10,28 @@ import {
   CCol,
   CContainer,
   CRow,
-  CCard
+  CCard,
+  CButton
 } from '@coreui/react'
 
 const SiteEditionOverView = () => {
   const [countries, setCountries] = useState([])
   const [errors, setErrors] = useState('')
   const [isLoading, setIsLoading] = useState(true)
+  const [showDescription, setShowDescription] = useState(false);
 
   let dl = new (DataLoader);
+
+  useEffect(() => {
+    if(!showDescription) {
+      if(document.querySelector(".page-description")?.scrollHeight < 6*16){
+        setShowDescription("all");
+      }
+      else {
+        setShowDescription("hide");
+      }
+    }
+  });
 
   const loadData = () => {
     let promises = []
@@ -86,7 +99,14 @@ const SiteEditionOverView = () => {
               </div>
             </div>
             {page.description &&
-              <div className="page-description">{page.description}</div>
+              <div className={"page-description " + showDescription}>
+                {page.description}
+                {showDescription !== "all" &&
+                  <CButton color="link" className="btn-link--dark text-nowrap" onClick={() => setShowDescription(prevCheck => prevCheck === "show" ? "hide" : "show")}>
+                    {showDescription === "show" ? "Hide description" : "Show description"}
+                  </CButton>
+                }
+              </div>
             }
             <CRow className="grid">
               {errors.length > 0 && <CAlert color="danger">{errors}</CAlert>}

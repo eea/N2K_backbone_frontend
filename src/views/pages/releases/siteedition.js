@@ -1,4 +1,4 @@
-import React, { lazy, useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { AppFooter, AppHeader, AppSidebar } from '../../../components/index'
 import TableEdition from './TableEdition';
 import ConfigData from '../../../config.json';
@@ -66,7 +66,19 @@ const Releases = () => {
       }));
     }
   });
+  const [showDescription, setShowDescription] = useState(false);
   let dl = new(DataLoader);
+
+  useEffect(() => {
+    if(!showDescription) {
+      if(document.querySelector(".page-description")?.scrollHeight < 6*16){
+        setShowDescription("all");
+      }
+      else {
+        setShowDescription("hide");
+      }
+    }
+  });
   
   let changeCountry = (country) => {
     setCountry(country);
@@ -261,7 +273,14 @@ const Releases = () => {
               </div>
             </div>
             {page.description &&
-              <div className="page-description">{page.description}</div>
+              <div className={"page-description " + showDescription}>
+                {page.description}
+                {showDescription !== "all" &&
+                  <CButton color="link" className="btn-link--dark text-nowrap" onClick={() => setShowDescription(prevCheck => prevCheck === "show" ? "hide" : "show")}>
+                    {showDescription === "show" ? "Hide description" : "Show description"}
+                  </CButton>
+                }
+              </div>
             }
             <div className="d-flex flex-start align-items-center p-3 card-lineage-type">
                 <div className="me-5">

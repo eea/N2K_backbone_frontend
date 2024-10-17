@@ -1,15 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { AppFooter, AppHeader, AppSidebar } from '../../../components/index'
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import ConfigData from '../../../config.json';
 import UtilsData from '../../../data/utils.json';
-import { DataLoader } from '../../../components/DataLoader';
 
 import {
   CCol,
   CContainer,
   CRow,
-  CAlert
+  CAlert,
+  CButton
 } from '@coreui/react'
 
 import { ConfirmationModal } from './../sitechanges/components/ConfirmationModal';
@@ -21,8 +20,18 @@ const Releases = () => {
   const [modalItem, setModalItem] = useState({})
   const [error, setError] = useState('')
   const [refresh, setRefresh] = useState(false)
+  const [showDescription, setShowDescription] = useState(false);
 
-  let dl = new DataLoader()
+  useEffect(() => {
+    if(!showDescription) {
+      if(document.querySelector(".page-description")?.scrollHeight < 6*16){
+        setShowDescription("all");
+      }
+      else {
+        setShowDescription("hide");
+      }
+    }
+  });
 
   const openModal = (data) => {
     setModalItem(data)
@@ -96,7 +105,14 @@ const Releases = () => {
               </div>
             </div>
             {page.description &&
-              <div className="page-description">{page.description}</div>
+              <div className={"page-description " + showDescription}>
+                {page.description}
+                {showDescription !== "all" &&
+                  <CButton color="link" className="btn-link--dark text-nowrap" onClick={() => setShowDescription(prevCheck => prevCheck === "show" ? "hide" : "show")}>
+                    {showDescription === "show" ? "Hide description" : "Show description"}
+                  </CButton>
+                }
+              </div>
             }
             <CAlert color="danger" visible={error.length > 0}>{error}</CAlert>
             <TableDocumentation

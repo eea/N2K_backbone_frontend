@@ -11,14 +11,27 @@ import {
   CContainer,
   CRow,
   CCard,
-  CAlert
+  CAlert,
+  CButton
 } from '@coreui/react'
 
 const Sitelineage = () => {
   const [countries, setCountries] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [errorsLoading, setErrorsLoading] = useState(false);
+  const [showDescription, setShowDescription] = useState(false);
   let dl = new(DataLoader);
+
+  useEffect(() => {
+    if(!showDescription) {
+      if(document.querySelector(".page-description")?.scrollHeight < 6*16){
+        setShowDescription("all");
+      }
+      else {
+        setShowDescription("hide");
+      }
+    }
+  });
 
   let loadData = () => {
     if(countries.length !==0) return;
@@ -101,7 +114,14 @@ const Sitelineage = () => {
               </div>
             </div>
             {page.description &&
-              <div className="page-description">{page.description}</div>
+              <div className={"page-description " + showDescription}>
+                {page.description}
+                {showDescription !== "all" &&
+                  <CButton color="link" className="btn-link--dark text-nowrap" onClick={() => setShowDescription(prevCheck => prevCheck === "show" ? "hide" : "show")}>
+                    {showDescription === "show" ? "Hide description" : "Show description"}
+                  </CButton>
+                }
+              </div>
             }
             <CRow className="grid">
               {isLoading ?

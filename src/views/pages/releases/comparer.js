@@ -39,7 +39,19 @@ const Releases = () => {
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [pageResults, setPageResults] = useState();
+  const [showDescription, setShowDescription] = useState(false);
   let dl = new(DataLoader);
+
+  useEffect(() => {
+    if(!showDescription) {
+      if(document.querySelector(".page-description")?.scrollHeight < 6*16){
+        setShowDescription("all");
+      }
+      else {
+        setShowDescription("hide");
+      }
+    }
+  });
 
   let loadUnionLists = () => {
     setIsLoading(true);
@@ -326,7 +338,14 @@ const Releases = () => {
               </div>
             </div>
             {page.description &&
-              <div className="page-description">{page.description}</div>
+              <div className={"page-description " + showDescription}>
+                {page.description}
+                {showDescription !== "all" &&
+                  <CButton color="link" className="btn-link--dark text-nowrap" onClick={() => setShowDescription(prevCheck => prevCheck === "show" ? "hide" : "show")}>
+                    {showDescription === "show" ? "Hide description" : "Show description"}
+                  </CButton>
+                }
+              </div>
             }
             <CRow>
               <CCol>

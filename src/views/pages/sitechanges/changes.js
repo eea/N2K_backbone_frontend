@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState, useRef} from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { AppFooter, AppHeader, AppSidebar } from '../../../components/index'
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import Turnstone from 'turnstone';
@@ -68,9 +68,6 @@ let refreshSitechanges={"pending":false,"accepted":false,"rejected":false},
   }
 
 const Sitechanges = () => {
-
-  let dl = new(DataLoader);
-
   const [activeTab, setActiveTab] = useState(1)
   const [isTabChanged, setIsTabChanged] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
@@ -102,6 +99,8 @@ const Sitechanges = () => {
   const turnstoneRef = useRef();
   const [textValue, setTextValue] = useState('');
   const [searchText, setSearchText] = useState('');
+  const [showDescription, setShowDescription] = useState(false);
+  let dl = new(DataLoader);
 
   useEffect(() => {
     if(!modalHasChanges) return;
@@ -126,6 +125,17 @@ const Sitechanges = () => {
       setSearchText(textValue);
     }
   }, [statusLoaded])
+
+  useEffect(() => {
+    if(!showDescription) {
+      if(document.querySelector(".page-description")?.scrollHeight < 6*16){
+        setShowDescription("all");
+      }
+      else {
+        setShowDescription("hide");
+      }
+    }
+  });
 
   let setCodes = (status,data) => {
     if(data) {
@@ -590,7 +600,14 @@ const Sitechanges = () => {
                 </div>
               </div>
               {page.description &&
-                <div className="page-description">{page.description}</div>
+                <div className={"page-description " + showDescription}>
+                  {page.description}
+                  {showDescription !== "all" &&
+                    <CButton color="link" className="btn-link--dark text-nowrap" onClick={() => setShowDescription(prevCheck => prevCheck === "show" ? "hide" : "show")}>
+                      {showDescription === "show" ? "Hide description" : "Show description"}
+                    </CButton>
+                  }
+                </div>
               }
               <div>
                 <CAlert color="danger" visible={errorMessage.length > 0}>{errorMessage}</CAlert>
