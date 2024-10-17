@@ -7,11 +7,13 @@ import UtilsData from '../../../data/utils.json';
 import {
   CCol,
   CContainer,
-  CRow
+  CRow,
+  CButton
 } from '@coreui/react'
 
 const Reports = () => {
   const [height, setHeight] = useState();
+  const [showDescription, setShowDescription] = useState(false);
 
   let resizeIframe = () => {
     let height = window.innerHeight - document.querySelector(".header").offsetHeight - document.querySelector(".page-title").offsetHeight - 64;
@@ -22,6 +24,17 @@ const Reports = () => {
     resizeIframe();
     window.addEventListener('resize', resizeIframe)
   }, []);
+
+  useEffect(() => {
+    if(!showDescription) {
+      if(document.querySelector(".page-description")?.scrollHeight < 6*16){
+        setShowDescription("all");
+      }
+      else {
+        setShowDescription("hide");
+      }
+    }
+  });
 
   const page = UtilsData.SIDEBAR["reports"].find(a => a.option === "releasesoverview");
 
@@ -42,7 +55,14 @@ const Reports = () => {
               </div>
             </div>
             {page.description &&
-              <div className="page-description">{page.description}</div>
+              <div className={"page-description " + showDescription}>
+                {page.description}
+                {showDescription !== "all" &&
+                  <CButton color="link" className="btn-link--dark text-nowrap" onClick={() => setShowDescription(prevCheck => prevCheck === "show" ? "hide" : "show")}>
+                    {showDescription === "show" ? "Hide description" : "Show description"}
+                  </CButton>
+                }
+              </div>
             }
             <CRow>
               <CCol>

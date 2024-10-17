@@ -1,4 +1,4 @@
-import React, { lazy, useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { AppFooter, AppHeader, AppSidebar } from '../../../components/index'
 import TableEnvelops from './TableEnvelops';
 import '@fortawesome/fontawesome-free/css/all.min.css';
@@ -45,7 +45,20 @@ const Harvesting = () => {
       }));
     }
   });
+  const [showDescription, setShowDescription] = useState(false);
   let dl = new(DataLoader);
+
+  useEffect(() => {
+    if(!showDescription) {
+      if(document.querySelector(".page-description")?.scrollHeight < 6*16){
+        setShowDescription("all");
+      }
+      else {
+        setShowDescription("hide");
+      }
+    }
+  });
+
   let selectedCodes = [],
   setSelectedCodes = (v) => {
     if(document.querySelectorAll('input[sitecode]:checked').length !== 0 && v.length === 0) return;
@@ -244,7 +257,14 @@ const Harvesting = () => {
               </div>
             </div>
             {page.description &&
-              <div className="page-description">{page.description}</div>
+              <div className={"page-description " + showDescription}>
+                {page.description}
+                {showDescription !== "all" &&
+                  <CButton color="link" className="btn-link--dark text-nowrap" onClick={() => setShowDescription(prevCheck => prevCheck === "show" ? "hide" : "show")}>
+                    {showDescription === "show" ? "Hide description" : "Show description"}
+                  </CButton>
+                }
+              </div>
             }
             <div className="text-center mb-4">
               <ReactLogo className="harvesting-chart" id="ready_chart"/>
