@@ -389,7 +389,8 @@ const Releases = () => {
     dl.fetch(ConfigData.UNIONLISTS_DOWNLOAD+"?bioregs="+regions)
       .then(data => {
         if(data?.ok) {
-          const filename = data.headers.get('Content-Disposition').split('filename=')[1];
+          const regExp = /filename="(?<filename>.*)"/;
+          const filename = regExp.exec(data.headers.get('Content-Disposition'))?.groups?.filename ?? null;
           data.blob()
             .then(blobresp => {
               downloadFile(filename, blobresp);
@@ -407,7 +408,8 @@ const Releases = () => {
     dl.fetch(ConfigData.UNIONLISTS_DOWNLOAD)
       .then(data => {
         if(data?.ok) {
-          const filename = response.headers.get('Content-Disposition').split('filename=')[1];
+          const regExp = /filename="(?<filename>.*)"/;
+          const filename = regExp.exec(data.headers.get('Content-Disposition'))?.groups?.filename ?? null;
           data.blob()
             .then(blobresp => {
               downloadFile(filename, blobresp);
