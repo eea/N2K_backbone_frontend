@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState, useRef} from 'react'
+import React, { useEffect, useState, useRef} from 'react'
 import { AppFooter, AppHeader, AppSidebar } from '../../../components/index'
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import Turnstone from 'turnstone';
@@ -41,9 +41,6 @@ import {DataLoader} from '../../../components/DataLoader';
   }
 
 const Sitechanges = () => {
-
-  let dl = new(DataLoader);
-
   const [isLoading, setIsLoading] = useState(false);
   const [refresh,setRefresh] = useState(false);
   const [countries, setCountries] = useState([]);
@@ -55,7 +52,9 @@ const Sitechanges = () => {
   const [selectOption, setSelectOption] = useState({});
   const [modalHasChanges, setModalHasChanges] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [showDescription, setShowDescription] = useState(false);
   const turnstoneRef = useRef();
+  let dl = new(DataLoader);
 
   useEffect(() => {
     if(!modalHasChanges) return;
@@ -72,6 +71,17 @@ const Sitechanges = () => {
       window.removeEventListener('beforeunload', handleBeforeUnload)
     }
   }, [modalHasChanges])
+
+  useEffect(() => {
+    if(!showDescription) {
+      if(document.querySelector(".page-description")?.scrollHeight < 6*16){
+        setShowDescription("all");
+      }
+      else {
+        setShowDescription("hide");
+      }
+    }
+  });
 
   let setCodes = (data) => {
     if(data) {
@@ -186,6 +196,8 @@ const Sitechanges = () => {
     loadCountries();
   }
 
+  const page = UtilsData.SIDEBAR["sitechanges"].find(a => a.option === "nochanges");
+
   return (
     <>
       <div className="container--main min-vh-100">
@@ -194,15 +206,25 @@ const Sitechanges = () => {
           <AppSidebar
             title="Site Changes"
             options={UtilsData.SIDEBAR["sitechanges"]}
-            active="nochanges"
+            active={page.option}
           />
           <div className="main-content">
             <CContainer fluid>
-              <div className="d-flex  justify-content-between px-0 p-3">
+              <div className="d-flex justify-content-between px-0 p-3">
                 <div className="page-title">
-                  <h1 className="h1">No Changes</h1>
+                  <h1 className="h1">{page.name}</h1>
                 </div>
               </div>
+              {page.description &&
+                <div className={"page-description " + showDescription}>
+                  {page.description}
+                  {showDescription !== "all" &&
+                    <CButton color="link" className="btn-link--dark text-nowrap" onClick={() => setShowDescription(prevCheck => prevCheck === "show" ? "hide" : "show")}>
+                      {showDescription === "show" ? "Hide description" : "Show description"}
+                    </CButton>
+                  }
+                </div>
+              }
               <div>
                 <CAlert color="danger" visible={errorMessage.length > 0}>{errorMessage}</CAlert>
               </div>

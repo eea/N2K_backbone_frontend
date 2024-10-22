@@ -1,4 +1,4 @@
-import React, { lazy, useState, useRef } from 'react'
+import React, { lazy, useState, useRef, useEffect } from 'react'
 import { AppFooter, AppHeader, AppSidebar } from '../../../components/index'
 import TableLineage from './TableLineage';
 import ConfigData from '../../../config.json';
@@ -38,8 +38,20 @@ const Sitelineage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingCountries, setLoadingCountries] = useState(false);
   const [disabledSearchBtn, setDisabledSearchBtn] = useState(true);
+  const [showDescription, setShowDescription] = useState(false);
   const turnstoneRef = useRef();
   let dl = new(DataLoader);
+
+  useEffect(() => {
+    if(!showDescription) {
+      if(document.querySelector(".page-description")?.scrollHeight < 6*16){
+        setShowDescription("all");
+      }
+      else {
+        setShowDescription("hide");
+      }
+    }
+  });
 
   if(countries.length === 0 && !loadingCountries){
     setLoadingCountries(true);
@@ -333,6 +345,8 @@ const Sitelineage = () => {
   {country && loadSites()}
   {siteCode && Object.keys(siteData).length === 0 && loadData()}
 
+  const page = UtilsData.SIDEBAR["sitelineage"].find(a => a.option === "history");
+
   return (
     <div className="container--main min-vh-100">
       <AppHeader page="sitelineage"/>
@@ -340,15 +354,25 @@ const Sitelineage = () => {
         <AppSidebar
           title="Site Lineage"
           options={UtilsData.SIDEBAR["sitelineage"]}
-          active="history"
+          active={page.option}
         />
         <div className="main-content">
           <CContainer fluid>
             <div className="d-flex justify-content-between py-3">
               <div className="page-title">
-                <h1 className="h1">Lineage History</h1>
+                <h1 className="h1">{page.name}</h1>
               </div>
             </div>
+            {page.description &&
+              <div className={"page-description " + showDescription}>
+                {page.description}
+                {showDescription !== "all" &&
+                  <CButton color="link" className="btn-link--dark text-nowrap" onClick={() => setShowDescription(prevCheck => prevCheck === "show" ? "hide" : "show")}>
+                    {showDescription === "show" ? "Hide description" : "Show description"}
+                  </CButton>
+                }
+              </div>
+            }
             <CRow>
               <CCol sm={12} md={6} lg={6} className="d-flex mb-4">
                 <div className="search--input">
