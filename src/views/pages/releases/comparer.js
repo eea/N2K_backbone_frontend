@@ -39,7 +39,19 @@ const Releases = () => {
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [pageResults, setPageResults] = useState();
+  const [showDescription, setShowDescription] = useState(false);
   let dl = new(DataLoader);
+
+  useEffect(() => {
+    if(!showDescription) {
+      if(document.querySelector(".page-description")?.scrollHeight < 6*16){
+        setShowDescription("all");
+      }
+      else {
+        setShowDescription("hide");
+      }
+    }
+  });
 
   let loadUnionLists = () => {
     setIsLoading(true);
@@ -307,6 +319,8 @@ const Releases = () => {
 
   compare && (tableData1.length === 0 && tableData2.length === 0) && loadData();
 
+  const page = UtilsData.SIDEBAR["releases"].find(a => a.option === "comparer");
+
   return (
     <div className="container--main min-vh-100">
       <AppHeader page="releases"/>
@@ -314,15 +328,25 @@ const Releases = () => {
         <AppSidebar
           title="Releases"
           options={UtilsData.SIDEBAR["releases"]}
-          active="comparer"
+          active={page.option}
         />
-      <div className="main-content">
+        <div className="main-content">
           <CContainer fluid>
             <div className="d-flex justify-content-between py-3">
               <div className="page-title">
-                <h1 className="h1">Release Comparer</h1>
+                <h1 className="h1">{page.name}</h1>
               </div>
             </div>
+            {page.description &&
+              <div className={"page-description " + showDescription}>
+                {page.description}
+                {showDescription !== "all" &&
+                  <CButton color="link" className="btn-link--dark text-nowrap" onClick={() => setShowDescription(prevCheck => prevCheck === "show" ? "hide" : "show")}>
+                    {showDescription === "show" ? "Hide description" : "Show description"}
+                  </CButton>
+                }
+              </div>
+            }
             <CRow>
               <CCol>
                 <div className="unionlist-compare">

@@ -11,14 +11,27 @@ import {
   CContainer,
   CRow,
   CCard,
-  CAlert
+  CAlert,
+  CButton
 } from '@coreui/react'
 
 const Sitelineage = () => {
   const [countries, setCountries] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [errorsLoading, setErrorsLoading] = useState(false);
+  const [showDescription, setShowDescription] = useState(false);
   let dl = new(DataLoader);
+
+  useEffect(() => {
+    if(!showDescription) {
+      if(document.querySelector(".page-description")?.scrollHeight < 6*16){
+        setShowDescription("all");
+      }
+      else {
+        setShowDescription("hide");
+      }
+    }
+  });
 
   let loadData = () => {
     if(countries.length !==0) return;
@@ -82,6 +95,8 @@ const Sitelineage = () => {
 
   loadData();
 
+  const page = UtilsData.SIDEBAR["sitelineage"].find(a => a.option === "overview");
+
   return (
     <div className="container--main min-vh-100">
       <AppHeader page="sitelineage"/>
@@ -89,15 +104,25 @@ const Sitelineage = () => {
         <AppSidebar
           title="Site Lineage"
           options={UtilsData.SIDEBAR["sitelineage"]}
-          active="overview"
+          active={page.option}
         />
         <div className="main-content">
           <CContainer fluid>
             <div className="d-flex justify-content-between py-3">
               <div className="page-title">
-                <h1 className="h1">Lineage Overview</h1>
+                <h1 className="h1">{page.name}</h1>
               </div>
             </div>
+            {page.description &&
+              <div className={"page-description " + showDescription}>
+                {page.description}
+                {showDescription !== "all" &&
+                  <CButton color="link" className="btn-link--dark text-nowrap" onClick={() => setShowDescription(prevCheck => prevCheck === "show" ? "hide" : "show")}>
+                    {showDescription === "show" ? "Hide description" : "Show description"}
+                  </CButton>
+                }
+              </div>
+            }
             <CRow className="grid">
               {isLoading ?
                 <div className="loading-container"><em>Loading...</em></div>
