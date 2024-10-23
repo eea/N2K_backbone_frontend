@@ -1286,12 +1286,12 @@ export class ModalChanges extends Component {
 
   warningUnsavedChanges(activeKey) {
     if (this.checkUnsavedChanges() && this.state.activeKey === 4) {
-      this.props.updateModalValues("Documents & Comments", "There are unsaved changes. Do you want to continue?",
+      this.props.updateModalValues("Unsaved Changes", "There are unsaved changes. Do you want to continue?",
         "Continue", () => this.cleanUnsavedChanges(activeKey),
         "Cancel", () => { });
     }
     else if (this.state.fieldChanged && this.state.activeKey === 3) {
-      this.props.updateModalValues("Edit Fields", "There are unsaved changes. Do you want to continue?",
+      this.props.updateModalValues("Unsaved Changes", "There are unsaved changes. Do you want to continue?",
         "Continue", () => this.cleanFields(activeKey),
         "Cancel", () => { });
     }
@@ -1301,7 +1301,7 @@ export class ModalChanges extends Component {
   }
 
   messageBeforeClose(action, keepOpen) {
-    this.props.updateModalValues(this.state.data.SiteCode, "There are unsaved changes. Do you want to continue?", "Continue", action, "Cancel", () => { }, keepOpen);
+    this.props.updateModalValues("Unsaved Changes", "There are unsaved changes. Do you want to continue?", "Continue", action, "Cancel", () => { }, keepOpen);
   }
 
   cleanFields(activeKey) {
@@ -1596,12 +1596,12 @@ export class ModalChanges extends Component {
 
   closeModal() {
     if (this.state.activeKey === 4 && this.checkUnsavedChanges()) {
-      this.props.updateModalValues("Documents & Comments", "There are unsaved changes. Do you want to continue?",
+      this.props.updateModalValues("Unsaved Changes", "There are unsaved changes. Do you want to continue?",
         "Continue", () => this.close(),
         "Cancel", () => { });
     }
     else if (this.state.activeKey === 3 && this.state.fieldChanged) {
-      this.props.updateModalValues("Edit Fields", "There are unsaved changes. Do you want to continue?",
+      this.props.updateModalValues("Unsaved Changes", "There are unsaved changes. Do you want to continue?",
         "Continue", () => this.close(),
         "Cancel", () => { });
     } else {
