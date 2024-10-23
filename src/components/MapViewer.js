@@ -14,7 +14,6 @@ class MapViewer extends React.Component {
         this.map=null;
     }
 
-
     componentDidMount(){
         setDefaultOptions({ version: '4.28' });
         loadModules(
@@ -101,7 +100,7 @@ class MapViewer extends React.Component {
                     layers.push(geometryChanges);
                 }
 
-                let lastRelease = new FeatureLayer({
+                let referenceLayer = new FeatureLayer({
                     url: this.props.mapReference,
                     id: 1,
                     popupEnabled: true,
@@ -125,35 +124,33 @@ class MapViewer extends React.Component {
                         content: [ popupTemplate ]
                     }
                 });
-                layers.push(lastRelease);
-            }
+                layers.push(referenceLayer);
 
-            let mapSubmission = new FeatureLayer({
-                url: this.props.mapSubmission,
-                id: 0,
-                popupEnabled: this.props.mapReference,
-                title: "Submission",
-                opacity: 0.5,
-                minScale : 10000000,
-                renderer: {
-                    type: "simple",
-                    symbol: {
-                        type: "simple-fill",
-                        color: UtilsData.COLORS.Yellow,
-                        style: "solid",
-                        outline: {
-                            width: 1,
-                            color: "#444444"
-                        }
+                let submissionLayer = new FeatureLayer({
+                    url: this.props.mapSubmission,
+                    id: 0,
+                    popupEnabled: true,
+                    title: "Submission",
+                    opacity: 0.5,
+                    minScale : 10000000,
+                    renderer: {
+                        type: "simple",
+                        symbol: {
+                            type: "simple-fill",
+                            color: UtilsData.COLORS.Yellow,
+                            style: "solid",
+                            outline: {
+                                width: 1,
+                                color: "#444444"
+                            }
+                        },
                     },
-                },
-                popupTemplate: {
-                    title: "Submission: {SiteCode} - {SiteName}",
-                    content: [ popupTemplate ]
-                }
-            });
-            if(this.props.mapReference){
-                layers.push(mapSubmission);
+                    popupTemplate: {
+                        title: "Submission: {SiteCode} - {SiteName}",
+                        content: [ popupTemplate ]
+                    }
+                });
+                layers.push(submissionLayer);
             }
 
             this.map = new Map({
@@ -248,7 +245,12 @@ class MapViewer extends React.Component {
 
     getReportedGeometry(layer,code){
         let query = layer.createQuery();
-        query.where = "SiteCode = '" + code + "'";
+        if (this.props.release) {
+            query.where = "SiteCode = '" + code + "' AND ReleaseId = " + this.props.release;
+        }
+        else {
+            query.where = "SiteCode = '" + code + "'";
+        }
         layer.queryFeatures(query)
         .then(
             res => {
