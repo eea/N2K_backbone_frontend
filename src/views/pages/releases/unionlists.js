@@ -375,10 +375,14 @@ const Releases = () => {
     let regions = bioRegionsSummary.filter(a=>a.Count > 0).map(a=>a.BioRegion).toString();
     setIsDownloading(true);
     dl.fetch(ConfigData.UNIONLISTS_DOWNLOAD+"?bioregs="+regions)
-      .then(response => response.json())
       .then(data => {
-        if(data?.Success) {
-          window.location = data.Data;
+        if(data?.ok) {
+          const regExp = /filename="(?<filename>.*)"/;
+          const filename = regExp.exec(data.headers.get('Content-Disposition'))?.groups?.filename ?? null;
+          data.blob()
+            .then(blobresp => {
+              downloadFile(filename, blobresp);
+            })
         } else {
           setDownloadError(true);
           messageTimeOut();
@@ -390,16 +394,31 @@ const Releases = () => {
   const downloadUnionLists = () => {
     setIsDownloadingAll(true);
     dl.fetch(ConfigData.UNIONLISTS_DOWNLOAD)
-      .then(response => response.json())
       .then(data => {
-        if(data?.Success) {
-          window.location = data.Data;
+        if(data?.ok) {
+          const regExp = /filename="(?<filename>.*)"/;
+          const filename = regExp.exec(data.headers.get('Content-Disposition'))?.groups?.filename ?? null;
+          data.blob()
+            .then(blobresp => {
+              downloadFile(filename, blobresp);
+            })
         } else {
           setDownloadError(true);
           messageTimeOut();
         }
         setIsDownloadingAll(false);
       });
+  }
+
+  const downloadFile = (filename, blobresp) => {
+    var blob = new Blob([blobresp], { type: "octet/stream" });
+    var url = window.URL.createObjectURL(blob);
+    let link = document.createElement("a");
+    link.download = filename;
+    link.href = url;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 
   !isLoading && (!tableData || (tableData1.length === 0 && tableData2.length === 0)) && loadData();
