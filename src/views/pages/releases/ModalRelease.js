@@ -281,6 +281,10 @@ export class ModalRelease extends Component {
       this.showMessage("Add a release name");
       document.querySelector("#release_form input").classList.add('invalidField');
     }
+    else if(body.Name.includes(".") || body.Name.includes("!") || body.Name.includes("?")) {
+      this.showMessage("Some special characters are not allowed for release name: . ! ?");
+      document.querySelector("#release_form input").classList.add('invalidField');
+    }
     else {
       this.props.updateModalValues("Create Release", <><p>This will create the release.</p><p>Note: Release creation will launch a process and you will be notified by email when the release is complete.</p></>, "Continue", ()=>this.createRelease(), "Cancel", ()=>{})
     }
