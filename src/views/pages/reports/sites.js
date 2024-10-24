@@ -7,11 +7,13 @@ import UtilsData from '../../../data/utils.json';
 import {
   CCol,
   CContainer,
-  CRow
+  CRow,
+  CButton
 } from '@coreui/react'
 
 const Reports = () => {
   const [height, setHeight] = useState();
+  const [showDescription, setShowDescription] = useState(false);
 
   let resizeIframe = () => {
     let height = window.innerHeight - document.querySelector(".header").offsetHeight - document.querySelector(".page-title").offsetHeight - 64;
@@ -23,6 +25,19 @@ const Reports = () => {
     window.addEventListener('resize', resizeIframe)
   }, []);
 
+  useEffect(() => {
+    if(!showDescription) {
+      if(document.querySelector(".page-description")?.scrollHeight < 6*16){
+        setShowDescription("all");
+      }
+      else {
+        setShowDescription("hide");
+      }
+    }
+  });
+
+  const page = UtilsData.SIDEBAR["reports"].find(a => a.option === "sites");
+
   return (
     <div className="container--main min-vh-100">
       <AppHeader page="reports"/>
@@ -30,15 +45,25 @@ const Reports = () => {
         <AppSidebar
           title="Reports"
           options={UtilsData.SIDEBAR["reports"]}
-          active="sites"
+          active={page.option}
         />
         <div className="main-content">
           <CContainer fluid>
             <div className="d-flex justify-content-between py-3">
               <div className="page-title">
-                <h1 className="h1">Reference Sites Details</h1>
+                <h1 className="h1">{page.name}</h1>
               </div>
             </div>
+            {page.description &&
+              <div className={"page-description " + showDescription}>
+                {page.description}
+                {showDescription !== "all" &&
+                  <CButton color="link" className="btn-link--dark text-nowrap" onClick={() => setShowDescription(prevCheck => prevCheck === "show" ? "hide" : "show")}>
+                    {showDescription === "show" ? "Hide description" : "Show description"}
+                  </CButton>
+                }
+              </div>
+            }
             <CRow>
               <CCol>
                 <iframe

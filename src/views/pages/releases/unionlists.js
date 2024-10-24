@@ -29,12 +29,59 @@ const Releases = () => {
   const [tableData2, setTableData2] = useState([]);
   const [tableWidth, setTableWidth] = useState();
   const [pageNumber, setPageNumber] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(50);
   const [pageResults, setPageResults] = useState();
   const [isDownloading, setIsDownloading] = useState(false);
   const [isDownloadingAll, setIsDownloadingAll] = useState(false);
   const [downloadError, setDownloadError] = useState(false);
+  const [showDescription, setShowDescription] = useState(false);
   let dl = new(DataLoader);
+  const checkTerrestrial = useRef();
+  const checkMarine = useRef();
+
+  useEffect(() => {
+    if(checkTerrestrial.current) {
+      let type = checkTerrestrial.current.dataset.type;
+      toggleCheckbox(type, checkTerrestrial.current);
+    }
+  }, [checkTerrestrial, tableDataLoading, activeBioregions]);
+
+  useEffect(() => {
+    if(checkMarine.current) {
+      let type = checkMarine.current.dataset.type;
+      toggleCheckbox(type, checkMarine.current);
+    }
+  }, [checkMarine, tableDataLoading, activeBioregions]);
+
+  const toggleCheckbox = (type, checkbox) => {
+    let regions = document.querySelectorAll(".unionlist-changes .btn[data-type='"+type+"']:not([data-count='0'])").length;
+    let active = document.querySelectorAll(".unionlist-changes .btn.btn-primary[data-type='"+type+"']:not([data-count='0'])").length;
+    if(active === 0) {
+      checkbox.indeterminate = false;
+      checkbox.checked = false;
+    }
+    else {
+      if(regions > active) {
+        checkbox.indeterminate = true;
+        checkbox.checked = false;
+      }
+      else {
+        checkbox.indeterminate = false;
+        checkbox.checked = true;
+      }
+    }
+  }
+
+  useEffect(() => {
+    if(!showDescription) {
+      if(document.querySelector(".page-description")?.scrollHeight < 6*16){
+        setShowDescription("all");
+      }
+      else {
+        setShowDescription("hide");
+      }
+    }
+  });
 
   const messageTimeOut = () => {
     setTimeout(() => {
@@ -67,7 +114,7 @@ const Releases = () => {
           .then(response =>response.json())
           .then(data => {
             if(data?.Success) {
-              if(data.Count === 0){
+              if(data.Count === 0 || data.Data.BioRegionSummary.find(a => a.BioRegion === "ALP").Count === 0){
                 setBioRegionsSummary(data.Data.BioRegionSummary);
                 setPageResults(data.Count);
                 setTableData1("nodata");
@@ -75,10 +122,8 @@ const Releases = () => {
               }
               else if(Object.keys(data.Data).length > 0){
                 setBioRegionsSummary(data.Data.BioRegionSummary);
-                let terrestrial = bioRegionsData.filter(b=>!b.isMarine).map(a=>a.BioRegionShortCode);
-                let results = data.Data.BioRegionSummary.filter(a=>terrestrial.includes(a.BioRegion)).map(a=>a.Count).reduce((a, b) => a + b);
-                setPageResults(results);
-                setActiveBioregions(data.Data.BioRegionSummary.filter(a=>a.Count>0 && terrestrial.includes(a.BioRegion)).map(a=>a.BioRegion).toString());
+                setPageResults(data.Data.BioRegionSummary.find(a=>a.BioRegion === "ALP").Count);
+                setActiveBioregions("ALP");
               }
               setIsLoading(false);
             }
@@ -192,8 +237,9 @@ const Releases = () => {
               <input type="checkbox" className="input-checkbox" id="union_terrestrial"
                 onClick={(e)=>(filterRegions(e))}
                 disabled={tableDataLoading}
-                defaultChecked={true}
+                defaultChecked={false}
                 data-type="terrestrial"
+                ref={checkTerrestrial}
               />
               <label htmlFor="union_terrestrial" className="input-label">
                 <b>Terrestrial regions</b>
@@ -210,6 +256,7 @@ const Releases = () => {
               disabled={tableDataLoading}
               defaultChecked={false}
               data-type="marine"
+              ref={checkMarine}
             />
             <label htmlFor="union_marine" className="input-label">
               <b>Marine regions</b>
@@ -267,7 +314,6 @@ const Releases = () => {
     let results;
     let value = e.currentTarget.value;
     let type = e.currentTarget.dataset.type;
-    let regions = document.querySelectorAll(".unionlist-changes .btn[data-type='"+type+"']:not([data-count='0'])").length;
     let active = document.querySelectorAll(".unionlist-changes .btn.btn-primary[data-type='"+type+"']:not([data-count='0'])").length;
     if(activeBioregions.includes(value)) {
       filter = activeBioregions.split(",").filter(a=>a!==value).toString();
@@ -278,20 +324,6 @@ const Releases = () => {
       filter = activeBioregions.split(",").filter(a=>a!=="nodata").concat(value).toString();
       results = pageResults + bioRegionsSummary.find(a=>a.BioRegion === value).Count;
       active++;
-    }
-    if(active === 0) {
-      document.querySelector("#union_" + type).indeterminate = false;
-      document.querySelector("#union_" + type).checked = false;
-    }
-    else {
-      if(regions > active) {
-        document.querySelector("#union_" + type).indeterminate = true;
-        document.querySelector("#union_" + type).checked = false;
-      }
-      else {
-        document.querySelector("#union_" + type).indeterminate = false;
-        document.querySelector("#union_" + type).checked = true;
-      }
     }
     if(filter === "") {
       filter = "nodata";
@@ -355,10 +387,14 @@ const Releases = () => {
     let regions = bioRegionsSummary.filter(a=>a.Count > 0).map(a=>a.BioRegion).toString();
     setIsDownloading(true);
     dl.fetch(ConfigData.UNIONLISTS_DOWNLOAD+"?bioregs="+regions)
-      .then(response => response.json())
       .then(data => {
-        if(data?.Success) {
-          window.location = data.Data;
+        if(data?.ok) {
+          const regExp = /filename="(?<filename>.*)"/;
+          const filename = regExp.exec(data.headers.get('Content-Disposition'))?.groups?.filename ?? null;
+          data.blob()
+            .then(blobresp => {
+              downloadFile(filename, blobresp);
+            })
         } else {
           setDownloadError(true);
           messageTimeOut();
@@ -370,10 +406,14 @@ const Releases = () => {
   const downloadUnionLists = () => {
     setIsDownloadingAll(true);
     dl.fetch(ConfigData.UNIONLISTS_DOWNLOAD)
-      .then(response => response.json())
       .then(data => {
-        if(data?.Success) {
-          window.location = data.Data;
+        if(data?.ok) {
+          const regExp = /filename="(?<filename>.*)"/;
+          const filename = regExp.exec(data.headers.get('Content-Disposition'))?.groups?.filename ?? null;
+          data.blob()
+            .then(blobresp => {
+              downloadFile(filename, blobresp);
+            })
         } else {
           setDownloadError(true);
           messageTimeOut();
@@ -382,7 +422,20 @@ const Releases = () => {
       });
   }
 
+  const downloadFile = (filename, blobresp) => {
+    var blob = new Blob([blobresp], { type: "octet/stream" });
+    var url = window.URL.createObjectURL(blob);
+    let link = document.createElement("a");
+    link.download = filename;
+    link.href = url;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
   !isLoading && (!tableData || (tableData1.length === 0 && tableData2.length === 0)) && loadData();
+
+  const page = UtilsData.SIDEBAR["releases"].find(a => a.option === "unionlists");
 
   return (
     <div className="container--main min-vh-100">
@@ -391,16 +444,13 @@ const Releases = () => {
         <AppSidebar
           title="Releases"
           options={UtilsData.SIDEBAR["releases"]}
-          active="unionlists"
+          active={page.option}
         />
         <div className="main-content">
           <CContainer fluid>
             <div className="d-flex justify-content-between py-3">
               <div className="page-title">
-                <h1 className="h1">Union Lists</h1>
-                {downloadError &&
-                  <CAlert color="danger">An error occurred while downloading</CAlert>
-                }
+                <h1 className="h1">{page.name}</h1>
               </div>
               <div>
                 <ul className="btn--list">
@@ -423,6 +473,19 @@ const Releases = () => {
                 </ul>
               </div>
             </div>
+            {page.description &&
+              <div className={"page-description " + showDescription}>
+                {page.description}
+                {showDescription !== "all" &&
+                  <CButton color="link" className="btn-link--dark text-nowrap" onClick={() => setShowDescription(prevCheck => prevCheck === "show" ? "hide" : "show")}>
+                    {showDescription === "show" ? "Hide description" : "Show description"}
+                  </CButton>
+                }
+              </div>
+            }
+            {downloadError &&
+              <CAlert color="danger">An error occurred while downloading</CAlert>
+            }
             {isLoading && !tableData ?
               <div className="loading-container"><em>Loading...</em></div>
             : (bioRegionsSummary.length === 0 ? 
@@ -497,9 +560,9 @@ const Releases = () => {
                                   gotoPage(null,Number(e.target.value))
                                 }}
                               >
-                                {[10, 20, 30, 40, 50].map(pageSize => (
+                                {[50, 100, 200, 500, pageResults].map(pageSize => (
                                   <option key={pageSize} value={pageSize}>
-                                    {pageSize}
+                                    {pageSize === pageResults ? "All" : pageSize}
                                   </option>
                                 ))}
                               </select>

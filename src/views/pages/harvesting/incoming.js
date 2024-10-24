@@ -1,4 +1,4 @@
-import React, { lazy, useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { AppFooter, AppHeader, AppSidebar } from '../../../components/index'
 import TableEnvelops from './TableEnvelops';
 import '@fortawesome/fontawesome-free/css/all.min.css';
@@ -44,7 +44,20 @@ const Harvesting = () => {
       }));
     }
   });
+  const [showDescription, setShowDescription] = useState(false);
   let dl = new(DataLoader);
+
+  useEffect(() => {
+    if(!showDescription) {
+      if(document.querySelector(".page-description")?.scrollHeight < 6*16){
+        setShowDescription("all");
+      }
+      else {
+        setShowDescription("hide");
+      }
+    }
+  });
+
   let selectedCodes = [],
   setSelectedCodes = (v) => {
     if(document.querySelectorAll('input[sitecode]:checked').length !== 0 && v.length === 0) return;
@@ -144,6 +157,8 @@ const Harvesting = () => {
     }));
   }
 
+  const page = UtilsData.SIDEBAR["harvesting"].find(a => a.option === "incoming");
+
   return (
     <div className="container--main min-vh-100">
       <AppHeader page="harvesting"/>
@@ -151,13 +166,13 @@ const Harvesting = () => {
         <AppSidebar
           title="Harvesting"
           options={UtilsData.SIDEBAR["harvesting"]}
-          active="incoming"
+          active={page.option}
         />
         <div className="main-content">
           <CContainer fluid>
             <div className="d-flex justify-content-between py-3">
               <div className="page-title">
-                <h1 className="h1">Incoming</h1>
+                <h1 className="h1">{page.name}</h1>
               </div>
               <div>
                 <ul className="btn--list">
@@ -170,6 +185,16 @@ const Harvesting = () => {
                 </ul>
               </div>
             </div>
+            {page.description &&
+              <div className={"page-description " + showDescription}>
+                {page.description}
+                {showDescription !== "all" &&
+                  <CButton color="link" className="btn-link--dark text-nowrap" onClick={() => setShowDescription(prevCheck => prevCheck === "show" ? "hide" : "show")}>
+                    {showDescription === "show" ? "Hide description" : "Show description"}
+                  </CButton>
+                }
+              </div>
+            }
             <div className="text-center mb-4">
               <ReactLogo className="harvesting-chart" id="incoming_chart"/>
             </div>

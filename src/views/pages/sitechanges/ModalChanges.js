@@ -1286,12 +1286,12 @@ export class ModalChanges extends Component {
 
   warningUnsavedChanges(activeKey) {
     if (this.checkUnsavedChanges() && this.state.activeKey === 4) {
-      this.props.updateModalValues("Documents & Comments", "There are unsaved changes. Do you want to continue?",
+      this.props.updateModalValues("Unsaved Changes", "There are unsaved changes. Do you want to continue?",
         "Continue", () => this.cleanUnsavedChanges(activeKey),
         "Cancel", () => { });
     }
     else if (this.state.fieldChanged && this.state.activeKey === 3) {
-      this.props.updateModalValues("Edit Fields", "There are unsaved changes. Do you want to continue?",
+      this.props.updateModalValues("Unsaved Changes", "There are unsaved changes. Do you want to continue?",
         "Continue", () => this.cleanFields(activeKey),
         "Cancel", () => { });
     }
@@ -1301,7 +1301,7 @@ export class ModalChanges extends Component {
   }
 
   messageBeforeClose(action, keepOpen) {
-    this.props.updateModalValues(this.state.data.SiteCode, "There are unsaved changes. Do you want to continue?", "Continue", action, "Cancel", () => { }, keepOpen);
+    this.props.updateModalValues("Unsaved Changes", "There are unsaved changes. Do you want to continue?", "Continue", action, "Cancel", () => { }, keepOpen);
   }
 
   cleanFields(activeKey) {
@@ -1543,8 +1543,10 @@ export class ModalChanges extends Component {
           <CModalFooter>
             <div className="d-flex w-100 justify-content-between">
               {data.Status === 'Pending' && <CButton disabled={this.changingStatus} className="red" color="secondary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(() => this.rejectChangesModal(true), true) : this.rejectChangesModal()}>Reject Changes</CButton>}
+              {data.Status === 'Pending' && this.state.activeKey === 2 && <span className="button-text">When accepting, the submitted area will replace the current one</span>}
               {data.Status === 'Pending' && <CButton disabled={this.changingStatus} color="primary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(() => this.acceptChangesModal(true), true) : this.acceptChangesModal()}>Accept Changes</CButton>}
-              {data.Status !== 'Pending' && this.state.activeKey !== 3 && <CButton disabled={this.changingStatus} color="primary" className="ms-auto" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(() => this.backToPendingModal(true), true) : this.backToPendingModal()}>Back to Pending</CButton>}
+              {data.Status !== 'Pending' && this.state.activeKey !== 3 && <span className="button-text">You can revert the changes</span>}
+              {data.Status !== 'Pending' && this.state.activeKey !== 3 && <CButton disabled={this.changingStatus} color="primary" onClick={() => this.checkUnsavedChanges() ? this.messageBeforeClose(() => this.backToPendingModal(true), true) : this.backToPendingModal()}>Back to Pending</CButton>}
               {data.Status !== 'Pending' && this.state.activeKey === 3 &&
                 <>
                   <CButton className="red" color="secondary" disabled={this.state.updatingData} onClick={() => this.closeModal()}>Cancel</CButton>
@@ -1596,12 +1598,12 @@ export class ModalChanges extends Component {
 
   closeModal() {
     if (this.state.activeKey === 4 && this.checkUnsavedChanges()) {
-      this.props.updateModalValues("Documents & Comments", "There are unsaved changes. Do you want to continue?",
+      this.props.updateModalValues("Unsaved Changes", "There are unsaved changes. Do you want to continue?",
         "Continue", () => this.close(),
         "Cancel", () => { });
     }
     else if (this.state.activeKey === 3 && this.state.fieldChanged) {
-      this.props.updateModalValues("Edit Fields", "There are unsaved changes. Do you want to continue?",
+      this.props.updateModalValues("Unsaved Changes", "There are unsaved changes. Do you want to continue?",
         "Continue", () => this.close(),
         "Cancel", () => { });
     } else {

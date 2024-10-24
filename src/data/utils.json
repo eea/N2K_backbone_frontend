@@ -1,39 +1,164 @@
 {
   "SIDEBAR": {
     "harvesting": [
-      {"path": "/#/harvesting/incoming", "name":"Incoming", "option": "incoming"},
-      {"path": "/#/harvesting/ready", "name":"Ready to Use", "option": "ready"},
-      {"path": "/#/harvesting/progress", "name":"In Progress", "option": "progress"},
-      {"path": "/#/harvesting/processed", "name":"Processed", "option": "processed"},
-      {"path": "/#/harvesting/all", "name":"All", "option": "all"}
+      {
+        "path": "/#/harvesting/incoming",
+        "name": "Incoming",
+        "option": "incoming",
+        "description": ""
+      },
+      {
+        "path": "/#/harvesting/ready",
+        "name": "Ready to Use",
+        "option": "ready",
+        "description": ""
+      },
+      {
+        "path": "/#/harvesting/progress",
+        "name": "In Progress",
+        "option": "progress",
+        "description": ""
+      },
+      {
+        "path": "/#/harvesting/processed",
+        "name": "Processed",
+        "option": "processed",
+        "description": ""
+      },
+      {
+        "path": "/#/harvesting/all",
+        "name": "All",
+        "option": "all",
+        "description": ""
+      }
     ],
     "sitechanges": [
-      {"path": "/#/sitechanges/changes", "name":"Changes Management", "option": "changes"},
-      {"path": "/#/sitechanges/nochanges", "name":"No Changes", "option": "nochanges"},
-      {"path": "/#/sitechanges/extraction", "name":"Changes Extraction", "option": "extraction"}
-    ],
-    "releases": [
-      {"path": "/#/releases/management", "name":"Release Management", "option": "management"},
-      {"path": "/#/releases/documentation", "name":"Release Documentation", "option": "documentation"},
-      {"path": "/#/releases/comparer", "name":"Release Comparer", "option": "comparer"},
-      {"path": "/#/releases/siteeditionoverview", "name":"Site Edition Overview", "option": "siteeditionoverview"},
-      {"path": "/#/releases/siteedition", "name":"Site Edition", "option": "siteedition"},
-      {"path": "/#/releases/unionlists", "name":"Union Lists", "option": "unionlists"}
+      {
+        "path": "/#/sitechanges/changes",
+        "name": "Changes Management",
+        "option": "changes",
+        "description": ""
+      },
+      {
+        "path": "/#/sitechanges/nochanges",
+        "name": "No Changes",
+        "option": "nochanges",
+        "description": ""
+      },
+      {
+        "path": "/#/sitechanges/extraction",
+        "name": "Changes Extraction",
+        "option": "extraction",
+        "description": "This extraction shows the changes for the reported sites and stores them in an excel file for each of the different countries. \nClick on the \"Generate new\" button to generate a new extraction or click on the \"Download\" button to download the last generated extraction."
+      }
     ],
     "sitelineage": [
-      {"path": "/#/sitelineage/overview", "name":"Lineage Overview", "option": "overview"},
-      {"path": "/#/sitelineage/management", "name":"Lineage Management", "option": "management"},
-      {"path": "/#/sitelineage/history", "name":"Lineage History", "option": "history"}
+      {
+        "path": "/#/sitelineage/overview",
+        "name": "Lineage Overview",
+        "option": "overview",
+        "description": ""
+      },
+      {
+        "path": "/#/sitelineage/management",
+        "name": "Lineage Management",
+        "option": "management",
+        "description": ""
+      },
+      {
+        "path": "/#/sitelineage/history",
+        "name": "Lineage History",
+        "option": "history",
+        "description": ""
+      }
+    ],
+    "releases": [
+      {
+        "path": "/#/releases/management",
+        "name": "Release Management",
+        "option": "management",
+        "description": ""
+      },
+      {
+        "path": "/#/releases/documentation",
+        "name": "Release Documentation",
+        "option": "documentation",
+        "description": ""
+      },
+      {
+        "path": "/#/releases/comparer",
+        "name": "Release Comparer",
+        "option": "comparer",
+        "description": ""
+      },
+      {
+        "path": "/#/releases/siteeditionoverview", 
+        "name": "Site Edition Overview",
+        "option": "siteeditionoverview",
+        "description": ""
+      },
+      {
+        "path": "/#/releases/siteedition",
+        "name": "Site Edition",
+        "option": "siteedition",
+        "description": ""
+      },
+      {
+        "path": "/#/releases/unionlists",
+        "name": "Union Lists",
+        "option": "unionlists",
+        "description": "There are 9 biogeographical regions (the Union lists) and 5 marine biogeographical regions. \nThe Union lists data for a site are: the biogeographical region, code, name, priority, SDF area, length, centre coordinates. \nThe tool shows SCI sites affected by a change (changes related to a marine biogeographical region are not reported). \nSCI with no-change with respect to the Union lists data are not shown. \n\nTo download data: \n• Download Updated Union lists: download the Union lists where a change was detected \n• Download Union lists: download the 9 Union lists"
+      }
     ],
     "reports": [
-      {"path": "/#/reports/releasesoverview", "name":"Releases Dates Overview", "option": "releasesoverview"},
-      {"path": "/#/reports/releases", "name":"Releases Dates", "option": "releases"},
-      {"path": "/#/reports/sites", "name":"Reference Sites Details", "option": "sites"},
-      {"path": "/#/reports/status", "name":"Site Status", "option": "status"},
-      {"path": "/#/reports/bioregions", "name":"Sites Bioregions", "option": "bioregions"},
-      {"path": "/#/reports/noterrestrial", "name":"SCIs w/o UL Regions", "option": "noterrestrial"},
-      {"path": "/#/reports/manual", "name":"Manual Updates", "option": "manual"},
-      {"path": "/#/reports/unionlists", "name":"Union Lists Changes", "option": "unionlists"}
+      {
+        "path": "/#/reports/releasesoverview",
+        "name": "Releases Dates Overview",
+        "option": "releasesoverview",
+        "description": "An overview by release of the number of sites for each of the different releases dates."
+      },
+      {
+        "path": "/#/reports/releases",
+        "name": "Releases Dates",
+        "option": "releases",
+        "description": "List of the sites with each release date by release."
+      },
+      {
+        "path": "/#/reports/sites",
+        "name": "Reference Sites Details",
+        "option": "sites",
+        "description": "Sites details for the reference data."
+      },
+      {
+        "path": "/#/reports/status",
+        "name": "Sites Status",
+        "option": "status",
+        "description": "Shows status (accepted, rejected, no change detected), for all sites in the database. \nImportant: when sharing with Member States, remove the columns “Justification missing”, “Comments” and “Documents”."
+      },
+      {
+        "path": "/#/reports/bioregions",
+        "name": "Sites Bioregions",
+        "option": "bioregions",
+        "description": "Matrix of sites with the bioregions grouped in terrestrial and marine for the reported data."
+      },
+      {
+        "path": "/#/reports/noterrestrial",
+        "name": "SCIs w/o UL Regions",
+        "option": "noterrestrial",
+        "description": "List of SCI sites (type B and C) without a terrestrial bioregion for the reported data."
+      },
+      {
+        "path": "/#/reports/manual",
+        "name": "Manual Updates",
+        "option": "manual",
+        "description": "List of sites with information about manual edition, comments and documents by release."
+      },
+      {
+        "path": "/#/reports/unionlists",
+        "name": "Union Lists Changes",
+        "option": "unionlists",
+        "description": "List of sites with each biogeographical region for the reported data."
+      }
     ]
   },
   "SITE_TYPES": {

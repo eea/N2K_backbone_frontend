@@ -64,7 +64,7 @@ const ModalDocumentation = (props) => {
     if((newDocument && selectedFile)
     || ((newComment && hasComment) || (comments !== "noData" && hasEditionComments))
     ) {
-      props.updateModalValues("Documents & Comments", "There are unsaved changes. Do you want to continue?",
+      props.updateModalValues("Unsaved Changes", "There are unsaved changes. Do you want to continue?",
         "Continue", () => close(),
         "Cancel", () => { })
     }

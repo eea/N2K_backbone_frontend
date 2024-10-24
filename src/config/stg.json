@@ -70,6 +70,7 @@
   "MAP_SUBMISSION": "https://bio.discomap.eea.europa.eu/arcgis/rest/services/N2K_Backbone/N2KBackbone_stg/MapServer/0",
   "MAP_REFERENCE": "https://bio.discomap.eea.europa.eu/arcgis/rest/services/N2K_Backbone/N2KBackbone_stg/MapServer/4",
   "MAP_GEOMETRY_CHANGES": "https://bio.discomap.eea.europa.eu/arcgis/rest/services/N2K_Backbone/N2KBackbone_stg/MapServer/5",
+  "MAP_RELEASES": "https://bio.discomap.eea.europa.eu/arcgis/rest/services/N2K_Backbone/Releases_Spatial_stg/MapServer/0",
   "TABLEAU_CHANGES": "https://tableau-public.discomap.eea.europa.eu/views/N2K_Backbone_Changes_Stg/Changes",
   "TABLEAU_RELEASES": "https://tableau-public.discomap.eea.europa.eu/views/N2K_Backbone_Releases_Stg/Releases",
   "TABLEAU_RELEASES_OVERVIEW": "https://tableau-public.discomap.eea.europa.eu/views/N2K_Backbone_Releases_Overview_Stg/Releases",

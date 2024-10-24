@@ -1,4 +1,4 @@
-import React, { lazy, useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { AppFooter, AppHeader, AppSidebar } from '../../../components/index'
 import TableEdition from './TableEdition';
 import ConfigData from '../../../config.json';
@@ -66,7 +66,19 @@ const Releases = () => {
       }));
     }
   });
+  const [showDescription, setShowDescription] = useState(false);
   let dl = new(DataLoader);
+
+  useEffect(() => {
+    if(!showDescription) {
+      if(document.querySelector(".page-description")?.scrollHeight < 6*16){
+        setShowDescription("all");
+      }
+      else {
+        setShowDescription("hide");
+      }
+    }
+  });
   
   let changeCountry = (country) => {
     setCountry(country);
@@ -242,6 +254,8 @@ const Releases = () => {
     });
   }
 
+  const page = UtilsData.SIDEBAR["releases"].find(a => a.option === "siteedition");
+
   return (
     <div className="container--main min-vh-100">
       <AppHeader page="releases"/>
@@ -249,15 +263,25 @@ const Releases = () => {
         <AppSidebar
           title="Releases"
           options={UtilsData.SIDEBAR["releases"]}
-          active="siteedition"
+          active={page.option}
         />
         <div className="main-content">
           <CContainer fluid>
             <div className="d-flex justify-content-between py-3">
               <div className="page-title">
-                <h1 className="h1">Site Edition</h1>
+                <h1 className="h1">{page.name}</h1>
               </div>
             </div>
+            {page.description &&
+              <div className={"page-description " + showDescription}>
+                {page.description}
+                {showDescription !== "all" &&
+                  <CButton color="link" className="btn-link--dark text-nowrap" onClick={() => setShowDescription(prevCheck => prevCheck === "show" ? "hide" : "show")}>
+                    {showDescription === "show" ? "Hide description" : "Show description"}
+                  </CButton>
+                }
+              </div>
+            }
             <div className="d-flex flex-start align-items-center p-3 card-lineage-type">
                 <div className="me-5">
                   <h2 className="card-lineage-type-title">Filter by</h2>

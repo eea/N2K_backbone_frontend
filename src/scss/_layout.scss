@@ -46,8 +46,54 @@ html {
   h1 {
     font-size: 1.5rem;
     color: $primary-base;
+    margin-bottom: 1rem;
   }
 }
+.page-description {
+  white-space: break-spaces;
+  margin-bottom: 2rem;
+  overflow: hidden;
+  max-height: 6rem;
+  position: relative;
+  &.all{
+    &::after {
+      content: none;
+    }
+    button {
+      display: none;
+    }
+  }
+  &.show {
+    max-height: 100%;
+    &::after {
+      content: none;
+    }
+    button {
+      position: relative;
+    }
+  }
+  &.hide {
+    &::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(to top, rgba(255, 255, 255, 1) 15%, rgba(255, 255, 255, 0) 85%);
+      pointer-events: none;
+    }
+  }
+  button {
+    position: absolute;
+    display: block;
+    bottom: 0;
+    right: 0;
+    z-index: 1;
+    margin-left: auto;
+  }
+}
+
 .header {
   &--custom {
     display: block;
