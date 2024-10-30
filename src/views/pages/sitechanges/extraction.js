@@ -83,12 +83,14 @@ const Sitechanges = () => {
     dl.fetch(ConfigData.EXTRACTION_DOWNLOAD)
       .then(data => {
         if (data?.ok) {
+          const regExp = /filename="(?<filename>.*)"/;
+          const filename = regExp.exec(data.headers.get('Content-Disposition'))?.groups?.filename ?? null;
           data.blob()
             .then(blobresp => {
               var blob = new Blob([blobresp], { type: "octet/stream" });
               var url = window.URL.createObjectURL(blob);
               let link = document.createElement("a");
-              link.download = extraction.replaceAll("/", '-').replaceAll(', ', '_').replaceAll(':', '-') + ".zip";
+              link.download = filename;
               link.href = url;
               document.body.appendChild(link);
               link.click();
