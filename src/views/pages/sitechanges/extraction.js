@@ -58,8 +58,8 @@ const Sitechanges = () => {
       .then(response => response.json())
       .then(data => {
         if (data?.Success) {
-          const dateArray = data.Data.split('_');
-          const date = dateArray[0].split("-").reverse().join('-') + 'T' + dateArray[1].replaceAll('-', ':');
+          const dateArray = data.Data.split("ChangesExtraction_").pop().split("_");
+          const date = dateArray[0].split("-").reverse().join('-') + 'T' + dateArray[1]?.replaceAll('-', ':');
           setExtraction(dateTimeFormatter(date));
         }
       });
