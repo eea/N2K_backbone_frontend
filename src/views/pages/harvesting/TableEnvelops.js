@@ -143,7 +143,7 @@ const IndeterminateCheckbox = React.forwardRef(
                 <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} id="harvesting_check_all"/>
               ),
               Cell: ({ row }) => (
-                <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} id={"harvesting_check_" + row.values.Id}/>
+                <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} id={"harvesting_check_" + row.original.Id}/>
               ),
             },
             ...columns,
