@@ -65,15 +65,18 @@ export class ModalRelease extends Component {
     return (
       <>
         <div className="release-group">
-          <div className="release-group-title">Pending changes {this.state.harvestedData !== "nodata" && "(" + this.state.harvestedData.length + ")"}</div>
-          {this.state.harvestedData === "nodata" ? 
-            "There are no pending changes." : this.renderPendingCards()
+          <div className="release-group-title">Pending Changes {this.state.harvestedData !== "nodata" && "(" + this.state.harvestedData.length + ")"}</div>
+          {this.state.harvestedData !== "nodata" &&
+            <div className="release-message">Complete the envelopes to include the last version of those sites without changes</div>
+          }
+          {this.state.harvestedData === "nodata" ?
+            <div className="release-message">There are no pending changes</div> : this.renderPendingCards()
           }
         </div>
         <div className="release-group">
-          <div className="release-group-title">Completed countries {this.state.completedData !== "nodata" && "("+this.state.completedData.length+")"}</div>
+          <div className="release-group-title">Completed Countries {this.state.completedData !== "nodata" && "("+this.state.completedData.length+")"}</div>
           {this.state.completedData === "nodata" ? 
-            "There are no completed countries." : this.renderCompletedCards()
+            <div className="release-message">There are no completed countries</div> : this.renderCompletedCards()
           }
         </div>
       </>
