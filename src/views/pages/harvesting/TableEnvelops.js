@@ -338,6 +338,9 @@ const IndeterminateCheckbox = React.forwardRef(
         {
           Header: 'CDR',
           accessor: 'CDR',
+          Cell: ({ row }) => (
+            <a href={row.original.CDRLink} target="_blank">{row.values.CDR}</a>
+          ),
         },
       ],
       []
