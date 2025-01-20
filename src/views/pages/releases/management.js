@@ -44,6 +44,7 @@ const Releases = () => {
     }
   });
   const [showDescription, setShowDescription] = useState(false);
+  const [downloadError, setDownloadError] = useState(false);
   let dl = new(DataLoader);
 
   useEffect(() => {
@@ -179,6 +180,17 @@ const Releases = () => {
     },
   }
 
+  const showErrorMessage = () => {
+    setDownloadError(true);
+    messageTimeOut();
+  }
+
+  const messageTimeOut = () => {
+    setTimeout(() => {
+      setDownloadError(false);
+    }, UtilsData.MESSAGE_TIMEOUT);
+  }
+
   const sendRequest = (url,method,body,path) => {
     const options = {
       method: method,
@@ -265,11 +277,15 @@ const Releases = () => {
             }
             <CRow>
               <CCol>
+                {downloadError &&
+                  <CAlert color="danger">An error occurred while downloading</CAlert>
+                }
                 <TableManagement
                   updateModalValues={updateModalValues}
                   modalProps={modalProps}
                   refresh = {refresh}
                   setRefresh = {(v)=>{setRefresh(v)}}
+                  showErrorMessage={showErrorMessage}
                 />
               </CCol>
             </CRow>
