@@ -58,7 +58,7 @@ function Table({ columns, data, setSelected, modalProps, showErrorMessage }) {
 
   const downloadRelease = (id, file) => {
     setDownloadingFiles([...downloadingFiles, id]);
-    dl.fetch(ConfigData.RELEASES_GET + "?id=" + id + "&file=" + file)
+    dl.fetch(ConfigData.RELEASES_DOWNLOAD + "?id=" + id + "&file=" + file)
       .then(data => {
         if (data?.ok) {
           const regExp = /filename="(?<filename>.*)"/;
