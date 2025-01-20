@@ -2,10 +2,15 @@ import React, {useState} from 'react'
 import { useTable, usePagination, useFilters,useGlobalFilter, useRowSelect, useAsyncDebounce, useSortBy, useExpanded } from 'react-table'
 import {matchSorter} from 'match-sorter'
 import ConfigData from '../../../config.json';
+import UtilsData from '../../../data/utils.json';
 import {
   CButton,
   CPagination,
   CPaginationItem,
+  CDropdown,
+  CDropdownMenu,
+  CDropdownToggle,
+  CDropdownItem
 } from '@coreui/react'
 import {DataLoader} from '../../../components/DataLoader';
 
@@ -31,7 +36,9 @@ function fuzzyTextFilterFn(rows, id, filterValue) {
 
 fuzzyTextFilterFn.autoRemove = val => !val
 
-function Table({ columns, data, setSelected, modalProps, updateModalValues }) {
+function Table({ columns, data, setSelected, modalProps, showErrorMessage }) {
+  let dl = new(DataLoader);
+  const [downloadingFiles, setDownloadingFiles] = useState([]);
   const filterTypes = React.useMemo(
     () => ({
       fuzzyText: fuzzyTextFilterFn,
@@ -48,6 +55,31 @@ function Table({ columns, data, setSelected, modalProps, updateModalValues }) {
     }),
     []
   )
+
+  const downloadRelease = (id, file) => {
+    setDownloadingFiles([...downloadingFiles, id]);
+    dl.fetch(ConfigData.RELEASES_GET + "?id=" + id + "&file=" + file)
+      .then(data => {
+        if (data?.ok) {
+          const regExp = /filename="(?<filename>.*)"/;
+          const filename = regExp.exec(data.headers.get('Content-Disposition'))?.groups?.filename ?? null;
+          data.blob()
+            .then(blobresp => {
+              var blob = new Blob([blobresp], { type: "octet/stream" });
+              var url = window.URL.createObjectURL(blob);
+              let link = document.createElement("a");
+              link.download = filename;
+              link.href = url;
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+            })
+        } else {
+          showErrorMessage();
+        }
+        setDownloadingFiles(downloadingFiles.filter(a => a !== id));
+      })
+  }
 
   const defaultColumn = React.useMemo(
     () => ({
@@ -85,6 +117,23 @@ function Table({ columns, data, setSelected, modalProps, updateModalValues }) {
     hooks => {
       hooks.visibleColumns.push(columns => [
         ...columns,
+        {
+          Header: () => null,
+          id: 'unionListDownload',
+          cellWidth: "48px",
+          Cell: ({ row }) => (
+            <div className="btn-icon">
+              <CDropdown>
+                <CDropdownToggle color="link" caret={false} disabled={downloadingFiles.includes(row.original.ID)}>
+                  {downloadingFiles.includes(row.original.ID) ? "Downloading" : "Download"}
+                </CDropdownToggle>
+                <CDropdownMenu>
+                  {Object.entries(UtilsData.RELEASE_DOWNLOAD).map((obj) => <CDropdownItem data-option={obj[0]} onClick={() => downloadRelease(row.original.ID, obj[0])}>{obj[1]}</CDropdownItem>)}
+                </CDropdownMenu>
+              </CDropdown>
+            </div>
+          )
+        },
         {
           Header: () => null,
           id: 'unionListEdit',
@@ -272,7 +321,7 @@ function TableManagement(props) {
           columns={columns}
           data={releasesData}
           modalProps={props.modalProps}
-          updateModalValues={props.updateModalValues}
+          showErrorMessage={props.showErrorMessage}
         />
       </>
     )
