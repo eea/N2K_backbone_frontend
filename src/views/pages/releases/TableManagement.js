@@ -61,7 +61,7 @@ function Table({ columns, data, setSelected, modalProps, showErrorMessage }) {
     dl.fetch(ConfigData.RELEASES_DOWNLOAD + "?id=" + id + "&file=" + file)
       .then(data => {
         if (data?.ok) {
-          const regExp = /filename="(?<filename>.*)"/;
+          const regExp = /filename=(?<filename>.*);/;
           const filename = regExp.exec(data.headers.get('Content-Disposition'))?.groups?.filename ?? null;
           data.blob()
             .then(blobresp => {
