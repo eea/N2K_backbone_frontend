@@ -64,7 +64,6 @@ function Table({ columns, data, setSelected, modalProps, showErrorMessage }) {
         if (data?.ok) {
           const regExp = /filename=(?<filename>.*);/;
           const filename = regExp.exec(data.headers.get('Content-Disposition'))?.groups?.filename ?? null;
-          debugger
           data.blob()
             .then(blobresp => {
               var blob = new Blob([blobresp], { type: "octet/stream" });
