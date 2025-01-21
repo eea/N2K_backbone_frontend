@@ -73,11 +73,12 @@ function Table({ columns, data, setSelected, modalProps, showErrorMessage }) {
               document.body.appendChild(link);
               link.click();
               document.body.removeChild(link);
+              setDownloadingFiles(downloadingFiles.filter(a => a !== id));
             })
         } else {
           showErrorMessage();
+          setDownloadingFiles(downloadingFiles.filter(a => a !== id));
         }
-        setDownloadingFiles(downloadingFiles.filter(a => a !== id));
       })
   }
 
@@ -128,7 +129,11 @@ function Table({ columns, data, setSelected, modalProps, showErrorMessage }) {
                   {downloadingFiles.includes(row.original.ID) ? "Downloading" : "Download"}
                 </CDropdownToggle>
                 <CDropdownMenu>
-                  {Object.entries(UtilsData.RELEASE_DOWNLOAD).map((obj) => <CDropdownItem data-option={obj[0]} onClick={() => downloadRelease(row.original.ID, obj[0])}>{obj[1]}</CDropdownItem>)}
+                  {Object.entries(UtilsData.RELEASE_DOWNLOAD).map((obj) =>
+                    <CDropdownItem data-option={obj[0]} onClick={() => downloadRelease(row.original.ID, obj[0])}>
+                      <div className="btn-icon"><i className="fa-solid fa-download me-2"></i></div>{obj[1]}
+                    </CDropdownItem>
+                  )}
                 </CDropdownMenu>
               </CDropdown>
             </div>
