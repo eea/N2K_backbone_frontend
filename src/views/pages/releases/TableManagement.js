@@ -10,7 +10,8 @@ import {
   CDropdown,
   CDropdownMenu,
   CDropdownToggle,
-  CDropdownItem
+  CDropdownItem,
+  CSpinner
 } from '@coreui/react'
 import {DataLoader} from '../../../components/DataLoader';
 
@@ -126,7 +127,7 @@ function Table({ columns, data, setSelected, modalProps, showErrorMessage }) {
             <div className="btn-icon">
               <CDropdown>
                 <CDropdownToggle color="link" caret={false} disabled={downloadingFiles.includes(row.original.ID)}>
-                  {downloadingFiles.includes(row.original.ID) ? "Downloading" : "Download"}
+                  {downloadingFiles.includes(row.original.ID) ? <CSpinner size="sm" className="mx-4"/> : "Download"}
                 </CDropdownToggle>
                 <CDropdownMenu>
                   {Object.entries(UtilsData.RELEASE_DOWNLOAD).map((obj) =>
