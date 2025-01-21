@@ -124,6 +124,12 @@
       opacity: 0.2;
     }
   }
+  .btn-icon {
+    padding: 0;
+    i {
+      color: $primary-base;
+    }
+  }
 }
 
 .btn-more {
