@@ -114,6 +114,10 @@
 .dropdown-menu {
   box-shadow: $box-shadow;
   border: none;
+  .dropdown-title {
+    cursor: default;
+    white-space: nowrap;
+  }
   .dropdown-item {
     color: $black;
     cursor: pointer;
