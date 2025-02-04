@@ -11,6 +11,8 @@ import {
   CDropdownMenu,
   CDropdownToggle,
   CDropdownItem,
+  CDropdownDivider,
+  CDropdownItemPlain,
   CSpinner
 } from '@coreui/react'
 import {DataLoader} from '../../../components/DataLoader';
@@ -62,7 +64,7 @@ function Table({ columns, data, setSelected, modalProps, showErrorMessage }) {
     dl.fetch(ConfigData.RELEASES_DOWNLOAD + "?id=" + id + "&file=" + file)
       .then(data => {
         if (data?.ok) {
-          const regExp = /filename=(?<filename>.*);/;
+          const regExp = /filename="(?<filename>.*)"/;
           const filename = regExp.exec(data.headers.get('Content-Disposition'))?.groups?.filename ?? null;
           data.blob()
             .then(blobresp => {
@@ -130,6 +132,10 @@ function Table({ columns, data, setSelected, modalProps, showErrorMessage }) {
                   {downloadingFiles.includes(row.original.ID) ? <CSpinner size="sm" className="mx-4"/> : "Download"}
                 </CDropdownToggle>
                 <CDropdownMenu>
+                  <CDropdownItemPlain data-option={-1} className="dropdown-title">
+                    Intermediate products
+                  </CDropdownItemPlain>
+                  <CDropdownDivider />
                   {Object.entries(UtilsData.RELEASE_DOWNLOAD).map((obj) =>
                     <CDropdownItem data-option={obj[0]} onClick={() => downloadRelease(row.original.ID, obj[0])}>
                       <div className="btn-icon"><i className="fa-solid fa-download me-2"></i></div>{obj[1]}
