@@ -174,6 +174,13 @@
     "Closed": "Completed",
     "Discarded": "Discarded"
   },
+  "RELEASE_DOWNLOAD": {
+    "MDB_Public": "Public mdb",
+    "MDB_Official": "Official mdb",
+    "SHP": "Shape",
+    "GPKG_Public": "Public gpkg",
+    "GPKG_Official": "Official gpkg"
+  },
   "LINEAGETYPES" : [
     "Site Added",
     "Site Deleted",

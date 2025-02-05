@@ -114,6 +114,10 @@
 .dropdown-menu {
   box-shadow: $box-shadow;
   border: none;
+  .dropdown-title {
+    cursor: default;
+    white-space: nowrap;
+  }
   .dropdown-item {
     color: $black;
     cursor: pointer;
@@ -122,6 +126,12 @@
     }
     &.disabled {
       opacity: 0.2;
+    }
+  }
+  .btn-icon {
+    padding: 0;
+    i {
+      color: $primary-base;
     }
   }
 }

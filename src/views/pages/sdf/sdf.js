@@ -30,9 +30,11 @@ const SDFVisualization = () => {
   const [errorLoading, setErrorLoading] = useState(false);
   const [siteCode, setSiteCode] = useState("");
   const [type, setType] = useState("");
+  const types = [{"type": "reference", "name": "Reference"}, {"type": "submission", "name": "Submission"}, {"type": "lastofficial", "name": "Last Official Release"}];
+  const [release, setRelease] = useState("");
+  const [releases, setReleases] = useState([]);
   const [nav, setNav] = useState("");
   const [showScrollBtn, setShowScrollBtn] = useState(false);
-  const types = [{"type": "reference", "name": "Reference"}, {"type": "submission", "name": "Submission"}, {"type": "release", "name": "Last Official Release"}];
 
   useEffect(() => {
     window.addEventListener("scroll", () => {
@@ -59,12 +61,14 @@ const SDFVisualization = () => {
     let sitecode = params.get("sitecode");
     let type = params.get("type");
     let nav = params.get("nav");
+    let release = params.get("release");
     if(sitecode && !type) {
       type = "reference";
       window.location.hash = "#/sdf?sitecode=" + sitecode + "&type=" + type;
     }
+    setType(type);
     setSiteCode(sitecode ? sitecode : "nodata");
-    setType(type ? type : "reference");
+    setRelease(release ? parseInt(release) : "");
     setNav(nav);
   }
 
@@ -73,21 +77,33 @@ const SDFVisualization = () => {
       <div className="sdf-map px-4 pb-5">
         <MapViewer
           siteCode={siteCode}
-          release={type === "release" && data.SiteInfo.Releases.sort((a, b) => new Date(b.ReleaseDate) - new Date(a.ReleaseDate))[0].ReleaseId}
-          mapSubmission={getMapUrl(type)}
+          release={getRelease()}
+          mapSubmission={getMapUrl()}
         />
       </div>
     )
   }
 
-  const getMapUrl = (type) => {
+  const getMapUrl = () => {
     switch(type) {
       case "reference":
         return ConfigData.MAP_REFERENCE
       case "submission":
         return ConfigData.MAP_SUBMISSION
-      case "release":
+      case "lastofficial":
+      case "releases":
         return ConfigData.MAP_RELEASES
+    }
+  }
+
+  const getRelease = () => {
+    switch(type) {
+      case "lastofficial":
+        return data.SiteInfo.Releases.sort((a, b) => new Date(b.ReleaseDate) - new Date(a.ReleaseDate))[0].ReleaseId;
+      case "releases":
+        return release;
+      default:
+        return false;
     }
   }
 
@@ -95,7 +111,10 @@ const SDFVisualization = () => {
     if(siteCode !=="" && !isLoading) {
       setIsLoading(true);
       let url;
-      if(type === "release") {
+      if(type === "releases" && release){
+        url = ConfigData.GET_SDF_RELEASE_DATA + "?siteCode=" + siteCode + "&releaseId=" + release;
+      }
+      else if(type === "lastofficial" || type === "releases") {
         url = ConfigData.GET_SDF_RELEASE_DATA + "?siteCode=" + siteCode;
       }
       else {
@@ -109,6 +128,15 @@ const SDFVisualization = () => {
             setData("nodata");
           }
           else {
+            if(type === "releases") {
+              let releases = data.Data.SiteInfo.Releases.sort((a, b) => new Date(b.ReleaseDate) - new Date(a.ReleaseDate));
+              setReleases(releases);
+              if(!release) {
+                let release = releases[0].ReleaseId;
+                setRelease(release);
+                window.location.hash = "#/sdf?sitecode=" + siteCode + "&release=" + release + "&type=" + type;
+              }
+            }
             setData(formatData(data));
           }
         }
@@ -178,6 +206,14 @@ const SDFVisualization = () => {
     setErrorLoading(false);
   }
 
+  const changeRelease = (release) => {
+    window.location.hash = "#/sdf?sitecode=" + siteCode + "&release=" + release + "&type=" + type;
+    setSiteCode("");
+    setRelease("");
+    setData([]);
+    setErrorLoading(false);
+  }
+
   return (
     <div className="container--main min-vh-100">
       <CHeader className="header--custom">
@@ -195,18 +231,33 @@ const SDFVisualization = () => {
                 <NaturaLogo/>
                 <div>
                   <h1>NATURA 2000 - STANDARD DATA FORM</h1>
-                  <b>{type && types.find(a => a.type === type).name}</b>
-                  {type === "release" && !isLoading && data !== "nodata" && Object.keys(data).length > 0 && !errorLoading &&
+                  {
+                    type !== "releases" ?
+                    <b>{type && types.find(a => a.type === type).name}</b>
+                    :                   <b>RELEASE {release && releases.length > 0 && releases.find(a => a.ReleaseId === release)?.ReleaseName}</b>
+                  }
+                 
+                  {type === "lastofficial" && !isLoading && data !== "nodata" && Object.keys(data).length > 0 && !errorLoading &&
                     <b> ({formatDate(data.SiteInfo.Releases.sort((a, b) => new Date(b.ReleaseDate) - new Date(a.ReleaseDate))[0].ReleaseDate, true)})</b>
                   }
                 </div>
               </div>
               <div className="select--right">
-                <CFormSelect aria-label="Select type" className="form-select-reporting" disabled={isLoading || siteCode === "nodata" } value={type} onChange={(e) => {changeType(e.currentTarget.value)}}>
-                  {
-                    types.map((e)=><option value={e.type} key={e.type}>{e.name}</option>)
-                  }
-                </CFormSelect>
+                {
+                  type !== "releases" ?
+                    <CFormSelect aria-label="Select type" className="form-select-reporting" disabled={isLoading || siteCode === "nodata" } value={type} onChange={(e) => {changeType(e.currentTarget.value)}}>
+                      {
+                        types.map((e)=><option value={e.type} key={e.type}>{e.name}</option>)
+                      }
+                    </CFormSelect>
+                  :
+                    <CFormSelect aria-label="Select release" className="form-select-reporting" disabled={isLoading || siteCode === "nodata" || releases.length === 0} value={releases.find(a => a.ReleaseId === release) ? release : ""} onChange={(e) => {changeRelease(e.currentTarget.value)}}>
+                      <option hidden disabled value="">Select a release</option>
+                        {
+                          releases.map((e)=><option value={e.ReleaseId} key={e.ReleaseId}>{e.ReleaseName + " (" + formatDate(e.ReleaseDate, true) + ")"}</option>)
+                        }
+                    </CFormSelect>
+                }
               </div>
             </div>
           </CCol>
