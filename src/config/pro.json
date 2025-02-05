@@ -41,6 +41,7 @@
   "RELEASES_ATTACHMENTS_COMMENT_ADD": "https://n2kbackbone.eea.europa.eu/n2kbackbone_back/api/Release/AddCountryComment",
   "RELEASES_ATTACHMENTS_COMMENT_UPDATE": "https://n2kbackbone.eea.europa.eu/n2kbackbone_back/api/Release/UpdateCountryComment",
   "RELEASES_ATTACHMENTS_COMMENT_DELETE": "https://n2kbackbone.eea.europa.eu/n2kbackbone_back/api/Release/DeleteCountryComment",
+  "RELEASES_DOWNLOAD": "https://n2kbackbone.eea.europa.eu/n2kbackbone_back/api/Release/Download",
   "UNIONLISTS_SUMMARY": "https://n2kbackbone.eea.europa.eu/n2kbackbone_back/api/UnionList/GetUnionListComparerSummary",
   "UNIONLISTS_COMPARER": "https://n2kbackbone.eea.europa.eu/n2kbackbone_back/api/UnionList/GetUnionListComparer",
   "UNIONLISTS_DOWNLOAD": "https://n2kbackbone.eea.europa.eu/n2kbackbone_back/api/UnionList/Download",

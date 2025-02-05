@@ -41,6 +41,7 @@
   "RELEASES_ATTACHMENTS_COMMENT_ADD": "https://n2kbackboneback-dev.azurewebsites.net/api/Release/AddCountryComment",
   "RELEASES_ATTACHMENTS_COMMENT_UPDATE": "https://n2kbackboneback-dev.azurewebsites.net/api/Release/UpdateCountryComment",
   "RELEASES_ATTACHMENTS_COMMENT_DELETE": "https://n2kbackboneback-dev.azurewebsites.net/api/Release/DeleteCountryComment",
+  "RELEASES_DOWNLOAD": "https://n2kbackboneback-dev.azurewebsites.net/api/Release/Download",
   "UNIONLISTS_SUMMARY": "https://n2kbackboneback-dev.azurewebsites.net/api/UnionList/GetUnionListComparerSummary",
   "UNIONLISTS_COMPARER": "https://n2kbackboneback-dev.azurewebsites.net/api/UnionList/GetUnionListComparer",
   "UNIONLISTS_DOWNLOAD": "https://n2kbackboneback-dev.azurewebsites.net/api/UnionList/Download",
