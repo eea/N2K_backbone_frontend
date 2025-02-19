@@ -126,9 +126,9 @@ function Table({ columns, data, setSelected, modalProps, showErrorMessage }) {
           id: 'releaseDownload',
           cellWidth: "48px",
           Cell: ({ row }) => (
-            <div className="btn-icon">
+            <div className="btn-icon" disabled={downloadingFiles.includes(row.original.ID) || !row.original.DownloadReady}>
               <CDropdown>
-                <CDropdownToggle color="link" caret={false} disabled={downloadingFiles.includes(row.original.ID)}>
+                <CDropdownToggle color="link" caret={false} disabled={downloadingFiles.includes(row.original.ID) || !row.original.DownloadReady}>
                   {downloadingFiles.includes(row.original.ID) ? <CSpinner size="sm" className="mx-4"/> : "Download"}
                 </CDropdownToggle>
                 <CDropdownMenu>
