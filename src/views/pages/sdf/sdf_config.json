@@ -52,12 +52,23 @@
     "PF": "PF",
     "NP": "NP",
     "Cover": "Cover [ha]",
-    "Cave": "Cave [number]",
+    "Cave": "Caves [number]",
     "DataQuality": "Data Quality",
     "Representativity": "Representativity",
     "RelativeSurface": "Relative Surface",
     "Conservation": "Conservation",
     "Global": "Global"
+  },
+  "SpeciesGroups": {
+    "Amphibians": "A",
+    "Birds": "B",
+    "Fish": "F",
+    "Fungi": "Fu",
+    "Invertebrates": "I",
+    "Lichens": "L",
+    "Mammals": "M",
+    "Plants": "P",
+    "Reptiles": "R"
   },
   "Species": {
     "Group": "Group",
@@ -76,6 +87,7 @@
     "Isolation": "Isolation",
     "Global": "Global"
   },
+  "SpeciesFilters": ["AnnexIV", "AnnexV", "OtherCategoriesA", "OtherCategoriesB", "OtherCategoriesC", "OtherCategoriesD"],
   "OtherSpecies": {
     "Group": "Group",
     "Code": "Code",
@@ -93,6 +105,7 @@
     "OtherCategoriesC": "Other Cat. C",
     "OtherCategoriesD": "Other Cat. D"
   },
+  "OtherSpeciesFilters": ["Type", "DataQuality", "Population", "Conservation", "Isolation", "Global"],
   "HabitatClasses": {
     "N01": "Marine areas, Sea inlets",
     "N02": "Tidal rivers, Estuaries, Mud flats, Sand flats, Lagoons (including saltwork basins)",
@@ -156,15 +169,15 @@
   },
   "Legend": {
     "HabitatTypes": {
-      "PF": "For the habitat types that can have a non-priority as well as a priority form (6210, 7130, 9430) enter 'X' in the column PF to indicate the priority form.",
+      "PF": "Habitat types 6210, 7130, 9430 priority depend on the habitat characteristics. Letter 'X' indicates that the reported habitat characteristics corresponds to its priority form.",
       "NP": "In case that a habitat type no longer exists in the site enter: x (optional)",
       "Cover": "Decimal values can be entered",
-      "Caves": "For habitat types 8310, 8330 (caves) enter the number of caves if estimated surface is not available.",
-      "Data Quality": "G = 'Good' (e.g. based on surveys), M = 'Moderate' (e.g. based on partial data with some extrapolation), P = 'Poor' (e.g. rough estimation)",
+      "Caves": "For habitat types 8310 and 8330 (caves), the number of caves when the estimated surface is not available.",
+      "Data Quality": "G = Good (e.g. based on surveys), M = Moderate (e.g. based on partial data with some extrapolation), P = Poor (e.g. rough estimation)",
       "Representativity": "A = excellent representativity, B = good representativity, C = significant representativity, D = non-significant presence",
-      "Relative Surface": "A = >15%, B = 2-15%, C = <2%",
+      "Relative Surface": "A ≥ 15%, B = 2-15%, C ≤ 2%",
       "Conservation": "A = excellent conservation, B = good conservation, C = average or reduced conservation",
-      "Global Assesment": "A = excellent value, B = good value, C = significant value"
+      "Global": "A = excellent value, B = good value, C = significant value"
     },
     "Species": {
       "Group": "A = Amphibians, B = Birds, F = Fish, I = Invertebrates, M = Mammals, P = Plants, R = Reptiles",
@@ -172,12 +185,12 @@
       "NP": "In case that a species is no longer present in the site enter: x (optional)",
       "Type": "p = permanent, r = reproducing, c = concentration, w = wintering (for plant and non-migratory species use permanent)",
       "Unit": "i = individuals, p = pairs or other units according to the Standard list of population units and codes in accordance with Article 12 and 17 reporting (see reference portal)",
-      "Abundance Categories": "C = common, R = rare, V = very rare, P = present - to fill if data are deficient (DD) or in addition to population size information",
-      "Data Quality": "G = 'Good' (e.g. based on surveys), M = 'Moderate' (e.g. based on partial data with some extrapolation), P = 'Poor' (e.g. rough estimation), VP = 'Very poor' (use this category only, if not even a rough estimation of the population size can be made, in this case the fields for population size can remain empty, but the field 'Abundance categories' has to be filled in)",
+      "Abundance": "C = common, R = rare, V = very rare, P = present - to fill if data are deficient (DD) or in addition to population size information",
+      "Data Quality": "G = Good (e.g. based on surveys), M = Moderate (e.g. based on partial data with some extrapolation), P = Poor (e.g. rough estimation), DD = Data deficient (use this category only, if not even a rough estimation of the population size can be made, in this case the fields for population size can remain empty, but the field 'Abundance' has to be filled in)",
       "Population": "A = >15%, B = 2-15%, C = <2%, D = non-significant population",
       "Conservation": "A = excellent conservation, B = good conservation, C = average or reduced conservation",
       "Isolation": "A = population (almost) isolated, B = population not-isolated, but on the margins of are of distribution, C = population not-isolated withing extended distribution range",
-      "Global Assessment": "A = excellent value, B = good value, C = significant value"
+      "Global": "A = excellent value, B = good value, C = significant value"
     },
     "OtherSpecies": {
       "Group": "A = Amphibians, B = Birds, F = Fish, Fu = Fungi, I = Invertebrates, L = Lichens, M = Mammals, P = Plants, R = Reptiles",
@@ -185,8 +198,8 @@
       "S": "In case that the data on species are sensitive and therefore have to be blocked for any public access enter: Yes",
       "NP": "In case that a species is no longer present in the site enter: x (optional)",
       "Unit": "i = individuals, p = pairs or other units according to the Standard list of population units and codes in accordance with Article 12 and 17 reporting (see reference portal)",
-      "Abundance Categories": "C = common, R = rare, V = very rare, P = present - to fill if data are deficient (DD) or in addition to population size information",
-      "Motivation Categories": "IV, V: Annex Species (Habitats Directive), A: National Red List data, B: Endemics, C: International Conventions, D: other reasons"
+      "Abundance": "C = common, R = rare, V = very rare, P = present - to fill if data are deficient (DD) or in addition to population size information",
+      "Motivation": "Species Annex IV and Species Annex V: the species is listed under Annex IV or Annex V of the Habitats Directive. A: species listed in the National Red List, B: Endemic species, C: Species listed under an Internation convention, D: other reasons"
     },
     "Threats": {
       "Rank": "H = high, M = medium, L = low",
@@ -276,5 +289,10 @@
   },
   "Colors": {
     "Red": "#f6cbcf"
+  },
+  "Links": {
+    "BiseHabitats": "https://biodiversity.europa.eu/habitats/",
+    "BiseSpecies": "https://biodiversity.europa.eu/species/",
+    "ReferencePortal": "https://cdr.eionet.europa.eu/help/natura2000/"
   }
 }

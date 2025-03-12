@@ -635,7 +635,7 @@ class ModalChanges extends Component {
             </CNavLink>
           </CNavItem>
           <div className="ms-auto">
-            <CButton color="link" href={"/#/sdf?sitecode=" + data.ReferenceSiteCode} target="_blank"
+            <CButton color="link" href={"/#/sdf?site=" + data.ReferenceSiteCode} target="_blank"
               className={!data.ReferenceSiteCode
                 || (this.props.lineageChangeType == "Deletion" && this.state.data.Status == "Accepted")
                 || (this.props.lineageChangeType == "Creation" && this.state.data.Status != "Accepted")
