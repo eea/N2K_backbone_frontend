@@ -32,7 +32,6 @@ const SDFVisualization = () => {
   const [type, setType] = useState("");
   const types = [{"type": "reference", "name": "Reference"}, {"type": "submission", "name": "Submission"}, {"type": "lastofficial", "name": "Last Official Release"}];
   const [release, setRelease] = useState("");
-  const [releases, setReleases] = useState([]);
   const [nav, setNav] = useState("");
   const [showScrollBtn, setShowScrollBtn] = useState(false);
 
@@ -58,17 +57,15 @@ const SDFVisualization = () => {
   const getSiteCode = () => {
     let query = window.location.hash.split("?")[1];
     let params = new URLSearchParams(query);
-    let sitecode = params.get("sitecode");
+    let sitecode = params.get("site");
     let type = params.get("type");
     let nav = params.get("nav");
-    let release = params.get("release");
     if(sitecode && !type) {
       type = "reference";
-      window.location.hash = "#/sdf?sitecode=" + sitecode + "&type=" + type;
+      window.location.hash = "#/sdf?site=" + sitecode + "&type=" + type;
     }
     setType(type);
     setSiteCode(sitecode ? sitecode : "nodata");
-    setRelease(release ? parseInt(release) : "");
     setNav(nav);
   }
 
@@ -91,7 +88,6 @@ const SDFVisualization = () => {
       case "submission":
         return ConfigData.MAP_SUBMISSION
       case "lastofficial":
-      case "releases":
         return ConfigData.MAP_RELEASES
     }
   }
@@ -100,8 +96,6 @@ const SDFVisualization = () => {
     switch(type) {
       case "lastofficial":
         return data.SiteInfo.Releases.sort((a, b) => new Date(b.ReleaseDate) - new Date(a.ReleaseDate))[0].ReleaseId;
-      case "releases":
-        return release;
       default:
         return false;
     }
@@ -111,10 +105,7 @@ const SDFVisualization = () => {
     if(siteCode !=="" && !isLoading) {
       setIsLoading(true);
       let url;
-      if(type === "releases" && release){
-        url = ConfigData.GET_SDF_RELEASE_DATA + "?siteCode=" + siteCode + "&releaseId=" + release;
-      }
-      else if(type === "lastofficial" || type === "releases") {
+      if(type === "lastofficial") {
         url = ConfigData.GET_SDF_RELEASE_DATA + "?siteCode=" + siteCode;
       }
       else {
@@ -128,15 +119,6 @@ const SDFVisualization = () => {
             setData("nodata");
           }
           else {
-            if(type === "releases") {
-              let releases = data.Data.SiteInfo.Releases.sort((a, b) => new Date(b.ReleaseDate) - new Date(a.ReleaseDate));
-              setReleases(releases);
-              if(!release) {
-                let release = releases[0].ReleaseId;
-                setRelease(release);
-                window.location.hash = "#/sdf?sitecode=" + siteCode + "&release=" + release + "&type=" + type;
-              }
-            }
             setData(formatData(data));
           }
         }
@@ -199,17 +181,9 @@ const SDFVisualization = () => {
   }
 
   const changeType = (type) => {
-    window.location.hash = "#/sdf?sitecode=" + siteCode + "&type=" + type;
+    window.location.hash = "#/sdf?site=" + siteCode + "&type=" + type;
     setSiteCode("");
     setType("");
-    setData([]);
-    setErrorLoading(false);
-  }
-
-  const changeRelease = (release) => {
-    window.location.hash = "#/sdf?sitecode=" + siteCode + "&release=" + release + "&type=" + type;
-    setSiteCode("");
-    setRelease("");
     setData([]);
     setErrorLoading(false);
   }
@@ -231,33 +205,18 @@ const SDFVisualization = () => {
                 <NaturaLogo/>
                 <div>
                   <h1>NATURA 2000 - STANDARD DATA FORM</h1>
-                  {
-                    type !== "releases" ?
-                    <b>{type && types.find(a => a.type === type).name}</b>
-                    :                   <b>RELEASE {release && releases.length > 0 && releases.find(a => a.ReleaseId === release)?.ReleaseName}</b>
-                  }
-                 
+                  <b>{type && types.find(a => a.type === type).name}</b>
                   {type === "lastofficial" && !isLoading && data !== "nodata" && Object.keys(data).length > 0 && !errorLoading &&
                     <b> ({formatDate(data.SiteInfo.Releases.sort((a, b) => new Date(b.ReleaseDate) - new Date(a.ReleaseDate))[0].ReleaseDate, true)})</b>
                   }
                 </div>
               </div>
               <div className="select--right">
-                {
-                  type !== "releases" ?
-                    <CFormSelect aria-label="Select type" className="form-select-reporting" disabled={isLoading || siteCode === "nodata" } value={type} onChange={(e) => {changeType(e.currentTarget.value)}}>
-                      {
-                        types.map((e)=><option value={e.type} key={e.type}>{e.name}</option>)
-                      }
-                    </CFormSelect>
-                  :
-                    <CFormSelect aria-label="Select release" className="form-select-reporting" disabled={isLoading || siteCode === "nodata" || releases.length === 0} value={releases.find(a => a.ReleaseId === release) ? release : ""} onChange={(e) => {changeRelease(e.currentTarget.value)}}>
-                      <option hidden disabled value="">Select a release</option>
-                        {
-                          releases.map((e)=><option value={e.ReleaseId} key={e.ReleaseId}>{e.ReleaseName + " (" + formatDate(e.ReleaseDate, true) + ")"}</option>)
-                        }
-                    </CFormSelect>
-                }
+                <CFormSelect aria-label="Select type" className="form-select-reporting" disabled={isLoading || siteCode === "nodata" } value={type} onChange={(e) => {changeType(e.currentTarget.value)}}>
+                  {
+                    types.map((e)=><option value={e.type} key={e.type}>{e.name}</option>)
+                  }
+                </CFormSelect>
               </div>
             </div>
           </CCol>
@@ -425,16 +384,16 @@ const sectionsContent = (activekey, data) => {
           case "Species":
             title = "Species referred to in Article 4 of Directive 2009/147/EC and listed in Annex II of Directive 92/43/EEC and site evaluation for them";
             value = field[1];
-            var filters = ["AnnexIV", "AnnexV", "OtherCategoriesA", "OtherCategoriesB", "OtherCategoriesC", "OtherCategoriesD"];
-            value.map(a => filters.forEach(b => delete a[b]));
+            value.map(a => ConfigSDF.SpeciesFilters.forEach(b => delete a[b]));
+            value = value.map(obj => ({ ...obj, "Group": ConfigSDF.SpeciesGroups[obj.Group] }));
             type = "table";
             legend = ConfigSDF.Legend.Species;
             break;
           case "OtherSpecies":
             title = "Other important species of flora and fauna (optional)";
             value = field[1];
-            var filters = ["Type", "DataQuality", "Population", "Conservation", "Isolation", "Global"];
-            value.map(a => filters.forEach(b => delete a[b]));
+            value.map(a => ConfigSDF.OtherSpeciesFilters.forEach(b => delete a[b]));
+            value = value.map(obj => ({ ...obj, "Group": ConfigSDF.SpeciesGroups[obj.Group] }));
             type = "table";
             legend = ConfigSDF.Legend.OtherSpecies;
             break;
@@ -671,7 +630,7 @@ const sectionsContent = (activekey, data) => {
                   </>
                   :
                   <div className="sdf-legend mt-2">
-                    {Object.keys(legend).map(a => <div key={a}><b>{a}: </b>{legend[a]}</div>)}
+                    {Object.keys(legend).map(a => <div key={a}><b>{a}: </b>{checkLegendLinks(legend[a])}</div>)}
                   </div>
                 )
               }
@@ -768,6 +727,15 @@ const sectionsContent = (activekey, data) => {
     );
   }
   return fields;
+}
+
+const checkLegendLinks = (string) => {
+  if (string.includes("(see reference portal)")) {
+    return <>{string.split("(see reference portal)")} (<a href={ConfigSDF.Links.ReferencePortal} target="_blank">see reference portal</a>)</>
+  }
+  else {
+    return string;
+  }
 }
 
 const renderSections = (data) => {
