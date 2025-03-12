@@ -119,32 +119,8 @@ const Releases = () => {
   }
 
   let forceRefreshData = () => {
-    //setSitecodes([])
     setRefresh(true);
   };
-
-  const deleteReport = (id) => {
-    let body = id;
-    setModalValues((prevState) => ({
-      ...prevState,
-      primaryButton:{
-        text: <><CSpinner size="sm"/> Deleting</>
-      },
-    }));
-    sendRequest(ConfigData.UNIONLIST_DELETE,"DELETE",body)
-    .then(response => response.json())
-    .then(data => {
-      if(data?.Success) {
-        modalValues.close();
-        setRefresh(true);
-      }
-      else {
-        modalValues.close();
-        setErrorRequest(true);
-        setTimeout(() => setErrorRequest(false), UtilsData.MESSAGE_TIMEOUT);
-      }
-    })
-  }
 
   const editReport = (id) => {
     let body = Object.fromEntries(new FormData(document.getElementById("release_form")));
@@ -172,9 +148,6 @@ const Releases = () => {
   }
 
   let modalProps = {
-    showDeleteModal(id) {
-      updateModalValues("Delete Release", "This will delete this Release", "Continue", ()=>deleteReport(id), "Cancel", ()=>{}, true);
-    },
     showEditModal(id, name, final) {
       updateModalValues("Release Edition", renderReleaseForm(name, final), "Continue", ()=>editReport(id), "Cancel", ()=>{}, true);
     },

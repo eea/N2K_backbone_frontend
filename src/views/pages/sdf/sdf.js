@@ -60,6 +60,7 @@ const SDFVisualization = () => {
     let sitecode = params.get("site");
     let type = params.get("type");
     let nav = params.get("nav");
+    let release = params.get("release");
     if(sitecode && !type) {
       type = "reference";
       window.location.hash = "#/sdf?site=" + sitecode + "&type=" + type;
@@ -119,6 +120,15 @@ const SDFVisualization = () => {
             setData("nodata");
           }
           else {
+            if(type === "releases") {
+              let releases = data.Data.SiteInfo.Releases.sort((a, b) => new Date(b.ReleaseDate) - new Date(a.ReleaseDate));
+              setReleases(releases);
+              if(!release) {
+                let release = releases[0].ReleaseId;
+                setRelease(release);
+                window.location.hash = "#/sdf?sitecode=" + siteCode + "&release=" + release + "&type=" + type;
+              }
+            }
             setData(formatData(data));
           }
         }
@@ -188,6 +198,14 @@ const SDFVisualization = () => {
     setErrorLoading(false);
   }
 
+  const changeRelease = (release) => {
+    window.location.hash = "#/sdf?sitecode=" + siteCode + "&release=" + release + "&type=" + type;
+    setSiteCode("");
+    setRelease("");
+    setData([]);
+    setErrorLoading(false);
+  }
+
   return (
     <div className="container--main min-vh-100">
       <CHeader className="header--custom">
@@ -212,11 +230,21 @@ const SDFVisualization = () => {
                 </div>
               </div>
               <div className="select--right">
-                <CFormSelect aria-label="Select type" className="form-select-reporting" disabled={isLoading || siteCode === "nodata" } value={type} onChange={(e) => {changeType(e.currentTarget.value)}}>
-                  {
-                    types.map((e)=><option value={e.type} key={e.type}>{e.name}</option>)
-                  }
-                </CFormSelect>
+                {
+                  type !== "releases" ?
+                    <CFormSelect aria-label="Select type" className="form-select-reporting" disabled={isLoading || siteCode === "nodata" } value={type} onChange={(e) => {changeType(e.currentTarget.value)}}>
+                      {
+                        types.map((e)=><option value={e.type} key={e.type}>{e.name}</option>)
+                      }
+                    </CFormSelect>
+                  :
+                    <CFormSelect aria-label="Select release" className="form-select-reporting" disabled={isLoading || siteCode === "nodata" || releases.length === 0} value={releases.find(a => a.ReleaseId === release) ? release : ""} onChange={(e) => {changeRelease(e.currentTarget.value)}}>
+                      <option hidden disabled value="">Select a release</option>
+                        {
+                          releases.map((e)=><option value={e.ReleaseId} key={e.ReleaseId}>{e.ReleaseName + " (" + formatDate(e.ReleaseDate, true) + ")"}</option>)
+                        }
+                    </CFormSelect>
+                }
               </div>
             </div>
           </CCol>

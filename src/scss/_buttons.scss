@@ -136,6 +136,12 @@
   }
 }
 
+.btn-icon {
+  &[disabled] {
+    pointer-events: none;
+  }
+}
+
 .btn-more {
   background: transparent;
   border: transparent;
