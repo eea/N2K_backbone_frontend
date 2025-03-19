@@ -120,15 +120,6 @@ const SDFVisualization = () => {
             setData("nodata");
           }
           else {
-            if(type === "releases") {
-              let releases = data.Data.SiteInfo.Releases.sort((a, b) => new Date(b.ReleaseDate) - new Date(a.ReleaseDate));
-              setReleases(releases);
-              if(!release) {
-                let release = releases[0].ReleaseId;
-                setRelease(release);
-                window.location.hash = "#/sdf?sitecode=" + siteCode + "&release=" + release + "&type=" + type;
-              }
-            }
             setData(formatData(data));
           }
         }
@@ -723,7 +714,7 @@ const sectionsContent = (activekey, data) => {
           let check = options.map((a, i) => {
             return (
               <div key={"m_" + i}>
-                <div className="checkbox">
+                <div className="checkbox" disabled={checked !== a.value}>
                   <input type="checkbox" className="input-checkbox" id={"management_check_"+i} disabled checked={checked === a.value}/>
                   <label htmlFor={"management_check_"+i} className="input-label">{a.text}</label>
                 </div >

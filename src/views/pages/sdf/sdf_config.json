@@ -199,11 +199,11 @@
       "NP": "In case that a species is no longer present in the site enter: x (optional)",
       "Unit": "i = individuals, p = pairs or other units according to the Standard list of population units and codes in accordance with Article 12 and 17 reporting (see reference portal)",
       "Abundance": "C = common, R = rare, V = very rare, P = present - to fill if data are deficient (DD) or in addition to population size information",
-      "Motivation": "Species Annex IV and Species Annex V: the species is listed under Annex IV or Annex V of the Habitats Directive. A: species listed in the National Red List, B: Endemic species, C: Species listed under an Internation convention, D: other reasons"
+      "Motivation": "Species Annex IV and Species Annex V: the species is listed under Annex IV or Annex V of the Habitats Directive. A = Species listed in the National Red List, B = Endemic species, C = Species listed under an Internation convention, D = Other reasons"
     },
     "Threats": {
       "Rank": "H = high, M = medium, L = low",
-      "Pollution": "N = Nitrogen input, P = Phosphore/Phosphate input, A = Acid input/acidification, T = toxic inorganic chemicals, O = toxic organic chemicals, X = Mixed pollutions",
+      "Pollution": "N = Nitrogen input, P = Phosphore/Phosphate input, A = Acid input/acidification, T = Toxic inorganic chemicals, O = Toxic organic chemicals, X = Mixed pollutions",
       "Occurrence": "i = inside, o = outside, b = both"
     }
   },
