@@ -489,7 +489,7 @@ export class ModalChanges extends Component {
                 {(Number.isNaN(parseFloat(v)) || v.match(/[A-Z]/g)) ? v : Number(v)} </CTableDataCell>)
             } else {
               if(this.state.data.Status === "Pending" && UtilsData.LINEAGETYPES.includes(type)) {
-                return (<CTableDataCell key={v + "_" + index}>{v.split(",").map((a, i) => <>{i > 0 && ", "} <a href={"/#/sdf?sitecode=" + a + "&type=" + fields[index].toLowerCase()} target="_blank">{a}</a></>)}</CTableDataCell>)
+                return (<CTableDataCell key={v + "_" + index}>{v.split(",").map((a, i) => <>{i > 0 && ", "} <a href={"/#/sdf?site=" + a + "&type=" + fields[index].toLowerCase()} target="_blank">{a}</a></>)}</CTableDataCell>)
               }
               else
                 return (<CTableDataCell key={v + "_" + index}>{v} </CTableDataCell>)
@@ -1513,7 +1513,7 @@ export class ModalChanges extends Component {
                 </CNavLink>
               </CNavItem>
               <div className="ms-auto">
-                <CButton color="link" href={"/#/sdf?sitecode=" + sdfSiteCode} target="_blank"
+                <CButton color="link" href={"/#/sdf?site=" + sdfSiteCode} target="_blank"
                   className={sdfSiteCode == null ? "disabled" : ""}>
                   <i className="fas fa-arrow-up-right-from-square me-2"></i>
                   SDF
