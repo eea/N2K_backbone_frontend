@@ -512,7 +512,7 @@ const SDFVisualization = () => {
               return (
                 <th className={order[section+field]?.column === a ? "sorted" : ""} scope="col" key={a} onClick={()=>sortFields(section, field, a)}>
                   {a}
-                  {order[section+field]?.column === a && (<div className="sort-icon">{order[section+field]?.order === "asc" ? <i class="fa-solid fa-caret-up"></i> : <i class="fa-solid fa-caret-up"></i>}</div>)}
+                  {order[section+field]?.column === a && (<div className="sort-icon">{order[section+field]?.order === "asc" ? <i className="fa-solid fa-caret-up"></i> : <i className="fa-solid fa-caret-up"></i>}</div>)}
                 </th>
               )
             });
