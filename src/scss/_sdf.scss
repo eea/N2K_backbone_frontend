@@ -96,6 +96,20 @@
       tr:last-of-type td {
         border-bottom: none;
       }
+      th {
+        position: relative;
+        padding: 0.875rem 1rem;
+        &.sorted, &:hover {
+          cursor: pointer;
+          background-color: #f2f2f2;
+        }
+        .sort-icon {
+          position: absolute;
+          left: 100%;
+          transform: translate(-100%, -100%);
+          line-height: 1rem;
+        }
+      }
     }
     .sdf-link {
       word-break: break-all;
@@ -284,6 +298,14 @@
     }
     .indicators-item + .sdf-row-field {
       width: 100%;
+    }
+  }
+  table {
+    .sorted {
+      background: none !important;
+      .sort-icon {
+        display: none;
+      }
     }
   }
   .sdf-map {
