@@ -512,7 +512,7 @@ const SDFVisualization = () => {
               return (
                 <th className={order[section+field]?.column === a ? "sorted" : ""} scope="col" key={a} onClick={()=>sortFields(section, field, a)}>
                   {a}
-                  {order[section+field]?.column === a && (<div className="sort-icon">{order[section+field]?.order === "asc" ? <i className="fa-solid fa-caret-up"></i> : <i className="fa-solid fa-caret-up"></i>}</div>)}
+                  {order[section+field]?.column === a && (<div className="sort-icon">{order[section+field]?.order === "asc" ? <i className="fa-solid fa-caret-up"></i> : <i className="fa-solid fa-caret-down"></i>}</div>)}
                 </th>
               )
             });
@@ -588,9 +588,9 @@ const SDFVisualization = () => {
             Object.entries(value).map(a => {
               let header = a[1].length > 0 ? Object.keys(a[1][0]).map(b => {
                 return (
-                  <CTableHeaderCell className={order[section+field]?.column === b ? "sorted" : ""} scope="col" key={b} onClick={()=>sortFields(section, a[0], b)}>
+                  <CTableHeaderCell className={order[section+a[0]]?.column === b ? "sorted" : ""} scope="col" key={b} onClick={()=>sortFields(section, a[0], b)}>
                     {b}
-                    {order[section+field]?.column === b && (<div className="sort-icon">{order[section+a[0]]?.order === "asc" ? <i className="ri-arrow-up-s-fill"></i> : <i className="ri-arrow-down-s-fill"></i>}</div>)}
+                    {order[section+a[0]]?.column === b && (<div className="sort-icon">{order[section+a[0]]?.order === "asc" ? <i className="fa-solid fa-caret-up"></i> : <i className="fa-solid fa-caret-down"></i>}</div>)}
                   </CTableHeaderCell>
                 )
               }) : null;
@@ -709,6 +709,7 @@ const SDFVisualization = () => {
           }),
           ...(field.includes("Threats") && {
             ["NegativeThreats"]: {
+              ...prevState[section]["NegativeThreats"],
               [field]: getValue(prevState,[section, path].join('.')).sort((a, b) => collator.compare(b[column] === null ? "" : b[column], a[column] === null ? "" : a[column]))
             }  
           }),
@@ -734,6 +735,7 @@ const SDFVisualization = () => {
           }),
           ...(field.includes("Threats") && {
             ["NegativeThreats"]: {
+              ...prevState[section]["NegativeThreats"],
               [field]: getValue(prevState,[section, path].join('.')).sort((a, b) => collator.compare(a[column] === null ? "" : a[column], b[column] === null ? "" : b[column]))
             }
           }),
