@@ -301,6 +301,10 @@
     }
   }
   table {
+    th[colspan] {
+      background: none !important;
+      cursor: auto !important;
+    }
     .sorted {
       background: none !important;
       .sort-icon {
