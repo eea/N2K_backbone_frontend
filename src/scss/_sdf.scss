@@ -99,6 +99,10 @@
       th {
         position: relative;
         padding: 0.875rem 1rem;
+        &[colspan] {
+          background: none !important;
+          cursor: auto !important;
+        }
         &.sorted, &:hover {
           cursor: pointer;
           background-color: #f2f2f2;
@@ -301,10 +305,6 @@
     }
   }
   table {
-    th[colspan] {
-      background: none !important;
-      cursor: auto !important;
-    }
     .sorted {
       background: none !important;
       .sort-icon {
