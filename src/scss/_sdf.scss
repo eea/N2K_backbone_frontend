@@ -76,6 +76,10 @@
 
 .sdf-row {
   margin-bottom: 1rem;
+  &.col-sm-6 {
+    margin: 0 -0.4rem 1rem;
+    padding: 0 0.4rem;
+  }
   &-title {
     font-weight: bold;
     margin-bottom: 0.5rem;
@@ -114,6 +118,9 @@
           line-height: 1rem;
         }
       }
+    }
+    .sdf-highlight {
+      color: $primary-50;
     }
     .sdf-link {
       word-break: break-all;

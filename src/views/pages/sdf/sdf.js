@@ -32,7 +32,6 @@ const SDFVisualization = () => {
   const [siteCode, setSiteCode] = useState("");
   const [type, setType] = useState("");
   const types = [{"type": "reference", "name": "Reference"}, {"type": "submission", "name": "Submission"}, {"type": "lastofficial", "name": "Last Official Release"}];
-  const [release, setRelease] = useState("");
   const [nav, setNav] = useState("");
   const [showScrollBtn, setShowScrollBtn] = useState(false);
 
@@ -61,7 +60,6 @@ const SDFVisualization = () => {
     let sitecode = params.get("site");
     let type = params.get("type");
     let nav = params.get("nav");
-    let release = params.get("release");
     if(sitecode && !type) {
       type = "reference";
       window.location.hash = "#/sdf?site=" + sitecode + "&type=" + type;
@@ -190,18 +188,10 @@ const SDFVisualization = () => {
     setErrorLoading(false);
   }
 
-  const changeRelease = (release) => {
-    window.location.hash = "#/sdf?sitecode=" + siteCode + "&release=" + release + "&type=" + type;
-    setSiteCode("");
-    setRelease("");
-    setData([]);
-    setErrorLoading(false);
-  }
-
   const scrollTo = (item) => {
     event.stopPropagation();
     event.preventDefault();
-    let element = document.getElementById(item).parentNode;
+    let element = document.getElementById(item);
     const y = element.getBoundingClientRect().top + window.scrollY;
     window.history.pushState(null, null, window.location.href.split("&nav")[0] + "&nav=" + item);
     window.scroll({
@@ -242,11 +232,13 @@ const SDFVisualization = () => {
               title = "Type";
               value = field[1];
               type = "single";
+              layout = 2;
               break;
             case "SiteCode":
               title = "Site Code";
               value = field[1];
               type = "single";
+              layout = 2;
               break;
             case "SiteName":
               title = "Site Name";
@@ -257,11 +249,13 @@ const SDFVisualization = () => {
               title = "First Compilation date";
               value = field[1];
               type = "single";
+              layout = 2;
               break;
             case "UpdateDate":
               title = "Update date";
               value = field[1];
               type = "single";
+              layout = 2;
               break;
             case "Respondent":
               title = "Respondent";
@@ -496,7 +490,7 @@ const SDFVisualization = () => {
           case "single":
             return (
               <div className="sdf-row-field">
-                {typeof data === 'object' ? Object.entries(data).map(a => <p key={"v_"+a}><b>{a[0]}</b>: {a[1] ? parseLinks(a[1]) : "No information provided"}</p>) : parseLinks(data)}
+                {typeof data === 'object' ? Object.entries(data).map(a => <p key={"v_"+a}><b>{a[0]}</b>: {a[1] ? parseLinks(a[1]) : "No information provided"}</p>) : (field === "SiteName" ? <b className="sdf-highlight">{data}</b> : parseLinks(data))}
               </div>
             )
           case "multiple":
@@ -508,7 +502,7 @@ const SDFVisualization = () => {
               )
             )
           case "table":
-            let header = Object.keys(value[0]).map(a => { 
+            let header = Object.keys(value[0]).map(a => {
               return (
                 <th className={order[section+field]?.column === a ? "sorted" : ""} scope="col" key={a} onClick={()=>sortFields(section, field, a)}>
                   {a}
@@ -672,7 +666,7 @@ const SDFVisualization = () => {
       }
       
       fields.push(
-        <CRow className={"sdf-row" + (layout === 2 ? " col-md-6 col-12" : "")} key={index}>
+        <CRow className={"sdf-row" + (layout === 2 ? " col-sm-6 col-12" : "")} key={index}>
           <CCol>
             <div className="sdf-row-title">{index + ' ' + title}</div>
             {dataType(field[0], type, value)}
@@ -760,12 +754,12 @@ const SDFVisualization = () => {
     let sections = [];
     Object.keys(data).filter(a => a !== "SiteInfo").forEach((item, i) => {
       sections.push(
-        <CRow className="p-4" key={i}>
-          <div id={i+1}>
+        <div id={i+1} key={i}>
+          <CRow className="p-4">
             <h2>{i+1}. {ConfigSDF.Titles[i]}</h2>
             {sectionsContent(i+1, data[item], item)}
-          </div>
-        </CRow>
+          </CRow>
+        </div>
       )
     });
     return sections;
@@ -795,21 +789,11 @@ const SDFVisualization = () => {
                 </div>
               </div>
               <div className="select--right">
-                {
-                  type !== "releases" ?
-                    <CFormSelect aria-label="Select type" className="form-select-reporting" disabled={isLoading || siteCode === "nodata" } value={type} onChange={(e) => {changeType(e.currentTarget.value)}}>
-                      {
-                        types.map((e)=><option value={e.type} key={e.type}>{e.name}</option>)
-                      }
-                    </CFormSelect>
-                  :
-                    <CFormSelect aria-label="Select release" className="form-select-reporting" disabled={isLoading || siteCode === "nodata" || releases.length === 0} value={releases.find(a => a.ReleaseId === release) ? release : ""} onChange={(e) => {changeRelease(e.currentTarget.value)}}>
-                      <option hidden disabled value="">Select a release</option>
-                        {
-                          releases.map((e)=><option value={e.ReleaseId} key={e.ReleaseId}>{e.ReleaseName + " (" + formatDate(e.ReleaseDate, true) + ")"}</option>)
-                        }
-                    </CFormSelect>
-                }
+                <CFormSelect aria-label="Select type" className="form-select-reporting" disabled={isLoading || siteCode === "nodata" } value={type} onChange={(e) => {changeType(e.currentTarget.value)}}>
+                  {
+                    types.map((e)=><option value={e.type} key={e.type}>{e.name}</option>)
+                  }
+                </CFormSelect>
               </div>
             </div>
           </CCol>
