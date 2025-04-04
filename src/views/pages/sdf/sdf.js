@@ -153,13 +153,6 @@ const SDFVisualization = () => {
   const showMainData = () => {
     return (
       <CContainer fluid>
-        <CRow className="sdf-title px-4">
-          <CCol className="col-auto ms-auto">
-            <CButton color="primary" onClick={()=>{window.print()}}>
-              <i className="fa-solid fa-download"></i> Download PDF
-            </CButton>
-          </CCol>
-        </CRow>
         <CRow className="sdf-index p-4">
           <CCol>
             <h2>Table of contents</h2>
@@ -787,13 +780,16 @@ const SDFVisualization = () => {
                     <b> ({formatDate(data.SiteInfo.Releases.sort((a, b) => new Date(b.ReleaseDate) - new Date(a.ReleaseDate))[0].ReleaseDate, true)})</b>
                   }
                 </div>
-              </div>
-              <div className="select--right">
-                <CFormSelect aria-label="Select type" className="form-select-reporting" disabled={isLoading || siteCode === "nodata" } value={type} onChange={(e) => {changeType(e.currentTarget.value)}}>
-                  {
-                    types.map((e)=><option value={e.type} key={e.type}>{e.name}</option>)
-                  }
-                </CFormSelect>
+                <div className="select--right">
+                  <CFormSelect aria-label="Select type" className="form-select-reporting" disabled={isLoading || siteCode === "nodata" } value={type} onChange={(e) => {changeType(e.currentTarget.value)}}>
+                    {
+                      types.map((e)=><option value={e.type} key={e.type}>{e.name}</option>)
+                    }
+                  </CFormSelect>
+                  <CButton color="primary" onClick={()=>{window.print()}}>
+                    <i className="fa-solid fa-download"></i> Download PDF
+                  </CButton>
+                </div>
               </div>
             </div>
           </CCol>
