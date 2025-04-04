@@ -602,7 +602,7 @@ const SDFVisualization = () => {
               }
               let tableHeader = ConfigSDF.TableHeader[a[0]];
               tables.push(
-                <CCol xs={12} md={6} lg={6} xl={6} key={a[0]}>
+                <CCol xs={12} md={12} lg={6} xl={6} key={a[0]}>
                   <div className="mb-2">
                     <div className="sdf-row-field">
                       <CTable>
