@@ -781,14 +781,17 @@ const SDFVisualization = () => {
                   }
                 </div>
                 <div className="select--right">
-                  <CFormSelect aria-label="Select type" className="form-select-reporting" disabled={isLoading || siteCode === "nodata" } value={type} onChange={(e) => {changeType(e.currentTarget.value)}}>
+                  <CFormSelect aria-label="Select type" className="form-select-reporting" disabled={isLoading || errorLoading || siteCode === "nodata"} value={type} onChange={(e) => {changeType(e.currentTarget.value)}}>
                     {
                       types.map((e)=><option value={e.type} key={e.type}>{e.name}</option>)
                     }
                   </CFormSelect>
-                  <CButton color="primary" onClick={()=>{window.print()}}>
-                    <i className="fa-solid fa-download"></i> Download PDF
-                  </CButton>
+                  {
+                    !isLoading && siteCode && siteCode !== "nodata" && Object.keys(data).length === 0 && !errorLoading &&
+                    <CButton color="primary" onClick={()=>{window.print()}}>
+                      <i className="fa-solid fa-download"></i> Download PDF
+                    </CButton>
+                  }
                 </div>
               </div>
             </div>
