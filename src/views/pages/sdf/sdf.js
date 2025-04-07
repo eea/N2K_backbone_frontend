@@ -787,7 +787,7 @@ const SDFVisualization = () => {
                     }
                   </CFormSelect>
                   {
-                    !isLoading && siteCode && siteCode !== "nodata" && Object.keys(data).length === 0 && !errorLoading &&
+                    !isLoading && siteCode && siteCode !== "nodata" && Object.keys(data).length > 0 && !errorLoading &&
                     <CButton color="primary" onClick={()=>{window.print()}}>
                       <i className="fa-solid fa-download"></i> Download PDF
                     </CButton>
