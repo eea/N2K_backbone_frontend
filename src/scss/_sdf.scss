@@ -26,6 +26,9 @@
       font-size: 1.5rem;
       margin-top: 0.25rem;
     }
+    h2 {
+      font-size: 1.5rem;
+    }
     svg {
       width: 8rem;
       min-width: 8rem;
@@ -122,9 +125,6 @@
           line-height: 1rem;
         }
       }
-    }
-    .sdf-highlight {
-      color: $primary-50;
     }
     .sdf-link {
       word-break: break-all;

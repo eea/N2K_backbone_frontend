@@ -9,9 +9,9 @@
     "Map of the Site"
   ],
   "SiteType": {
-    "A": "Birds Directive",
-    "B": "Habitats Directive",
-    "C": "Birds and Habitats Directive"
+    "A": "SPA",
+    "B": "SCI",
+    "C": "SPA/SCI"
   },
   "Respondent": {
     "Name": "Name/Organisation",

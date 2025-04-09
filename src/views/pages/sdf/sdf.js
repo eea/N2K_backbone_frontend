@@ -217,7 +217,6 @@ const SDFVisualization = () => {
       let type;
       let layout;
       let legend;
-
       switch(activekey) {
         case 1:
           switch(field[0]) {
@@ -483,7 +482,7 @@ const SDFVisualization = () => {
           case "single":
             return (
               <div className="sdf-row-field">
-                {typeof data === 'object' ? Object.entries(data).map(a => <p key={"v_"+a}><b>{a[0]}</b>: {a[1] ? parseLinks(a[1]) : "No information provided"}</p>) : (field === "SiteName" ? <b className="sdf-highlight">{data}</b> : parseLinks(data))}
+                {typeof data === 'object' ? Object.entries(data).map(a => <p key={"v_"+a}><b>{a[0]}</b>: {a[1] ? parseLinks(a[1]) : "No information provided"}</p>) : parseLinks(data)}
               </div>
             )
           case "multiple":
@@ -778,6 +777,10 @@ const SDFVisualization = () => {
                   <b>{type && types.find(a => a.type === type).name}</b>
                   {type === "lastofficial" && !isLoading && data !== "nodata" && Object.keys(data).length > 0 && !errorLoading &&
                     <b> ({formatDate(data.SiteInfo.Releases.sort((a, b) => new Date(b.ReleaseDate) - new Date(a.ReleaseDate))[0].ReleaseDate, true)})</b>
+                  }
+                  {
+                    !isLoading && siteCode && siteCode !== "nodata" && Object.keys(data).length > 0 && !errorLoading &&
+                    <h2>{data.SiteInfo.SiteName} ({data.SiteInfo.SiteCode} - {ConfigSDF.SiteType[data.SiteInfo.Directive]})</h2>
                   }
                 </div>
                 <div className="select--right">
