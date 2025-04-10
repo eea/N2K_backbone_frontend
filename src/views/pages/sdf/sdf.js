@@ -779,7 +779,7 @@ const SDFVisualization = () => {
                     <b> ({formatDate(data.SiteInfo.Releases.sort((a, b) => new Date(b.ReleaseDate) - new Date(a.ReleaseDate))[0].ReleaseDate, true)})</b>
                   }
                   {
-                    !isLoading && siteCode && siteCode !== "nodata" && Object.keys(data).length > 0 && !errorLoading &&
+                    !isLoading && siteCode && siteCode !== "nodata" && data !== "nodata" && Object.keys(data).length > 0 && !errorLoading &&
                     <h2>{data.SiteInfo.SiteName} ({data.SiteInfo.SiteCode} - {ConfigSDF.SiteType[data.SiteInfo.Directive]})</h2>
                   }
                 </div>
@@ -790,7 +790,7 @@ const SDFVisualization = () => {
                     }
                   </CFormSelect>
                   {
-                    !isLoading && siteCode && siteCode !== "nodata" && Object.keys(data).length > 0 && !errorLoading &&
+                    !isLoading && siteCode && siteCode !== "nodata" && data !== "nodata" && Object.keys(data).length > 0 && !errorLoading &&
                     <CButton color="primary" onClick={()=>{window.print()}}>
                       <i className="fa-solid fa-download"></i> Download PDF
                     </CButton>
