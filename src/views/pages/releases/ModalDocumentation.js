@@ -393,6 +393,7 @@ const ModalDocumentation = (props) => {
           if (data?.Success) {
             setIsLoading(true)
             setNewDocument(false)
+            setSelectedFile(false)
             setUploadingDocument(false)
             loadData(props.item.Code)
           }
