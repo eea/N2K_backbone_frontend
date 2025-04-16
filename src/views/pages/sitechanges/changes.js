@@ -769,70 +769,64 @@ const Sitechanges = () => {
                         />
                       </CTabPane>
                       <CTabPane role="tabpanel" aria-labelledby="accepted-tab" visible={activeTab === 2}>
-                        {siteCodes.pending ?
-                            <TableChanges
-                              status="accepted" 
-                              country = {country}
-                              level = {level}
-                              onlyEdited = {filterEdited}
-                              onlyJustReq = {filterJustification}
-                              onlysci={filterSCI}
-                              siteTypes={siteTypes}
-                              setSelected={(v) => {if(activeTab===2) setSelectedCodes(v)}} 
-                              getRefresh={()=>getRefreshSitechanges("accepted")} 
-                              setRefresh={setRefreshSitechanges}
-                              accept={acceptChanges}
-                              reject={rejectChanges}
-                              setBackToPending={setBackToPending}
-                              updateModalValues={updateModalValues}
-                              setSitecodes = {setCodes}
-                              setShowModal={()=>showModalSitechanges()}
-                              showModal={showModal}
-                              isTabChanged={isTabChanged}
-                              setIsTabChanged={setIsTabChanged}
-                              site={site}
-                              setSite={setSite}
-                              closeModal={closeModal}
-                              modalHasChanges = {modalHasChanges}
-                              setModalHasChanges = {setModalHasChanges}
-                              setLoadingSites={setLoadingSites}
-                              showErrorMessage={showErrorMessage}
-                            />
-                          : <div className="loading-container"><em>Loading...</em></div>
-                        }
+                        <TableChanges
+                          status="accepted" 
+                          country = {country}
+                          level = {level}
+                          onlyEdited = {filterEdited}
+                          onlyJustReq = {filterJustification}
+                          onlysci={filterSCI}
+                          siteTypes={siteTypes}
+                          setSelected={(v) => {if(activeTab===2) setSelectedCodes(v)}} 
+                          getRefresh={()=>getRefreshSitechanges("accepted")} 
+                          setRefresh={setRefreshSitechanges}
+                          accept={acceptChanges}
+                          reject={rejectChanges}
+                          setBackToPending={setBackToPending}
+                          updateModalValues={updateModalValues}
+                          setSitecodes = {setCodes}
+                          setShowModal={()=>showModalSitechanges()}
+                          showModal={showModal}
+                          isTabChanged={isTabChanged}
+                          setIsTabChanged={setIsTabChanged}
+                          site={site}
+                          setSite={setSite}
+                          closeModal={closeModal}
+                          modalHasChanges = {modalHasChanges}
+                          setModalHasChanges = {setModalHasChanges}
+                          setLoadingSites={setLoadingSites}
+                          showErrorMessage={showErrorMessage}
+                        />
                       </CTabPane>
                       <CTabPane role="tabpanel" aria-labelledby="rejected-tab" visible={activeTab === 3}>
-                        {siteCodes.pending ?
-                          <TableChanges
-                            status="rejected" 
-                            country = {country}
-                            level = {level}
-                            onlyEdited = {false}
-                            onlyJustReq = {filterJustification}
-                            onlysci={filterSCI}
-                            siteTypes={siteTypes}
-                            setSelected={(v) => {if(activeTab===3) setSelectedCodes(v)}} 
-                            getRefresh={()=>getRefreshSitechanges("rejected")} 
-                            setRefresh={setRefreshSitechanges}
-                            accept={acceptChanges}
-                            reject={rejectChanges}
-                            setBackToPending={setBackToPending}
-                            updateModalValues={updateModalValues}
-                            setSitecodes = {setCodes}
-                            setShowModal={()=>showModalSitechanges()}
-                            showModal={showModal}
-                            isTabChanged={isTabChanged}
-                            setIsTabChanged={setIsTabChanged}
-                            site={site}
-                            setSite={setSite}
-                            closeModal={closeModal}
-                            modalHasChanges = {modalHasChanges}
-                            setModalHasChanges = {setModalHasChanges}
-                            setLoadingSites={setLoadingSites}
-                            showErrorMessage={showErrorMessage}
-                          />
-                          : <div className="loading-container"><em>Loading...</em></div>
-                        }
+                        <TableChanges
+                          status="rejected" 
+                          country = {country}
+                          level = {level}
+                          onlyEdited = {false}
+                          onlyJustReq = {filterJustification}
+                          onlysci={filterSCI}
+                          siteTypes={siteTypes}
+                          setSelected={(v) => {if(activeTab===3) setSelectedCodes(v)}} 
+                          getRefresh={()=>getRefreshSitechanges("rejected")} 
+                          setRefresh={setRefreshSitechanges}
+                          accept={acceptChanges}
+                          reject={rejectChanges}
+                          setBackToPending={setBackToPending}
+                          updateModalValues={updateModalValues}
+                          setSitecodes = {setCodes}
+                          setShowModal={()=>showModalSitechanges()}
+                          showModal={showModal}
+                          isTabChanged={isTabChanged}
+                          setIsTabChanged={setIsTabChanged}
+                          site={site}
+                          setSite={setSite}
+                          closeModal={closeModal}
+                          modalHasChanges = {modalHasChanges}
+                          setModalHasChanges = {setModalHasChanges}
+                          setLoadingSites={setLoadingSites}
+                          showErrorMessage={showErrorMessage}
+                        />
                       </CTabPane>
                     </CTabContent>
                   </CCol>
