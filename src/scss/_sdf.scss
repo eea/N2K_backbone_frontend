@@ -10,11 +10,11 @@
 .sdf-general {
   width: 100%;
   display: flex;
-  align-items: center;
   .sdf-head {
     display: flex;
     gap: 2rem;
     align-items: start;
+    flex-grow: 1;
     h1 {
       margin-bottom: 0;
       .sensitive {
@@ -26,12 +26,19 @@
       font-size: 1.5rem;
       margin-top: 0.25rem;
     }
+    h2 {
+      font-size: 1.5rem;
+    }
     svg {
       width: 8rem;
       min-width: 8rem;
     }
   }
   .select--right {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: end;
     width: auto;
     margin-left: auto;
   }
@@ -76,6 +83,10 @@
 
 .sdf-row {
   margin-bottom: 1rem;
+  &.col-sm-6 {
+    margin: 0 -0.4rem 1rem;
+    padding: 0 0.4rem;
+  }
   &-title {
     font-weight: bold;
     margin-bottom: 0.5rem;
@@ -95,6 +106,24 @@
       overflow: auto;
       tr:last-of-type td {
         border-bottom: none;
+      }
+      th {
+        position: relative;
+        padding: 0.875rem 1rem;
+        &[colspan] {
+          background: none !important;
+          cursor: auto !important;
+        }
+        &.sorted, &:hover {
+          cursor: pointer;
+          background-color: #f2f2f2;
+        }
+        .sort-icon {
+          position: absolute;
+          left: 100%;
+          transform: translate(-100%, -100%);
+          line-height: 1rem;
+        }
       }
     }
     .sdf-link {
@@ -260,6 +289,9 @@
   .container--main {
     width: 100%;
   }
+  .select--right, .sdf-download, .sdf-scroll, .esri-zoom {
+    display: none !important;
+  }
   .header__links {
     display: none;
   }
@@ -284,6 +316,14 @@
     }
     .indicators-item + .sdf-row-field {
       width: 100%;
+    }
+  }
+  table {
+    .sorted {
+      background: none !important;
+      .sort-icon {
+        display: none;
+      }
     }
   }
   .sdf-map {
