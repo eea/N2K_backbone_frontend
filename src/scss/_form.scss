@@ -137,10 +137,6 @@
   }
 }
 
-.multi-select .multi-select__control {
-  border-color: $gray-400;
-}
-
 textarea {
   border-color: $gray-400;
   &:disabled {
@@ -179,6 +175,7 @@ textarea {
   .multi-select {
     &__control {
       cursor: pointer;
+      border-color: $gray-400;
       &--is-focused {
         border-color: #80b3cc;
         outline: 0;
@@ -186,6 +183,9 @@ textarea {
         &:hover {
           border-color: #80b3cc;
         }
+      }
+      .multi-select__single-value--is-disabled, .multi-select__multi-value--is-disabled {
+        color: $gray-base;
       }
     }
     &__option {

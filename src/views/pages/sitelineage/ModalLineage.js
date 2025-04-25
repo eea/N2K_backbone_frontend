@@ -49,7 +49,7 @@ export class ModalLineage extends Component {
     this.versionChanged = false;
     this.currentVersion = props.version;
     
-    this.typeList = ["Creation","Deletion","Split","Merge","Recode"];
+    this.typeList = UtilsData.CHANGETYPES;
 
     this.state = {
       activeKey: 1,
@@ -302,7 +302,7 @@ export class ModalLineage extends Component {
               defaultValue={options.find(a => a.label === this.state.type)}
               isMulti={false}
               closeMenuOnSelect={true}
-              isDisabled={this.state.status === "Consolidated"}
+              isDisabled={this.state.status === "Consolidated" || this.state.type === "Deletion"}
               onChange={(e) => this.setState({ type: e.label, newPredecessor: e.label !== "Creation" && this.state.predecessors === "", predecessors: e.label === "Deletion" ? this.state.data.SiteCode : this.state.predecessors})}
             />
           </CCol>
@@ -467,7 +467,7 @@ export class ModalLineage extends Component {
           </CModalBody>
           <CModalFooter>
             <div className="ms-auto">
-              {this.state.status === 'Proposed' && <CButton disabled={this.checkChanges() || this.changingStatus} color="primary" onClick={() => this.saveChangesModal()}>
+              {this.state.status === 'Proposed' && <CButton disabled={this.checkChanges() || this.changingStatus || this.state.type === "Deletion"} color="primary" onClick={() => this.saveChangesModal()}>
               {this.state.updatingData && <CSpinner size="sm"/>}
               {this.state.updatingData ? " Saving Changes":"Save Changes"}
                 </CButton>

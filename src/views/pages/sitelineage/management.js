@@ -68,7 +68,7 @@ const Sitelineage = () => {
   const [site, setSite] = useState(openSite);
   const [isLoading, setIsLoading] = useState(false);
   const [forceRefresh, setForceRefresh] = useState(0);
-  const [types, setTypes] = useState(['Creation', 'Deletion', 'Split', 'Merge', 'Recode']);
+  const [types, setTypes] = useState(UtilsData.CHANGETYPES);
   const [disabledSearchBtn, setDisabledSearchBtn] = useState(true);
   const [selectOption, setSelectOption] = useState({});
   const [searchList, setSearchList] = useState({});
@@ -151,7 +151,7 @@ const Sitelineage = () => {
     let values;
     if(type === "All") {
       if(check) {
-        values = ["Creation", "Deletion", "Split", "Merge", "Recode"];
+        values = UtilsData.CHANGETYPES;
       }
       else {
         values = [];
