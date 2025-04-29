@@ -70,15 +70,15 @@ const Sitelineage = () => {
                       <span className="country-card-title">{card.CountryName}</span>
                     </div>
                     <div className="country-card-right">
-                        <i className="fa-solid fa-arrow-right"></i>
+                      <i className="fa-solid fa-arrow-right"></i>
                     </div>
                   </div>
                   <div className="country-card-body">
-                    <span className="badge badge--lineage creation"><b>{card.Creation}</b> Creation</span>
-                    <span className="badge badge--lineage deletion"><b>{card.Deletion}</b> Deletion</span>
-                    <span className="badge badge--lineage split"><b>{card.Split}</b> Split</span>
-                    <span className="badge badge--lineage merge"><b>{card.Merge}</b> Merge</span>
-                    <span className="badge badge--lineage recode"><b>{card.Recode}</b> Recode</span>
+                    {
+                      UtilsData.CHANGETYPES.map((change) => {
+                        return <span className={"badge badge--lineage " + change.toLowerCase()}><b>{card[change]}</b> {change}</span>
+                      })
+                    }
                   </div>
                 </CCard>
               </a>
