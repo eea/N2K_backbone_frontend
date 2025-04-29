@@ -120,7 +120,7 @@ const IndeterminateCheckbox = React.forwardRef(
   
   fuzzyTextFilterFn.autoRemove = val => !val
 
-  function Table({ columns, data, setSelected, siteCodes, currentPage, currentSize, loadPage, status, updateModalValues, isTabChanged, setIsTabChanged }) {
+  function Table({ columns, data, setSelected, siteCodes, currentPage, currentSize, loadPage, status, updateModalValues, isTabChanged, setIsTabChanged, startExpanded }) {
     const [disabledBtn, setDisabledBtn] = useState(false);
     const [pgCount, setPgCount] = useState(Math.ceil(siteCodes.length / currentSize));
     const [selectedRows, setSelectedRows] = useState(0);
@@ -222,11 +222,11 @@ const IndeterminateCheckbox = React.forwardRef(
     }
 
     selectedRows === getSelectableCodes(siteCodes).length && setSelected ?
-      setSelected(siteCodes.map(v =>{return {SiteCode: v.SiteCode, VersionId: v.Version, LineageChangeType: v.LineageChangeType}}))
+      setSelected(siteCodes.map(v => {return {SiteCode: v.SiteCode, VersionId: v.Version, LineageChangeType: v.LineageChangeType}}))
     :
-      setSelected(Object.keys(selectedRowIds).filter(v=>!v.includes(".")).map(v=>{return {SiteCode:data[v].SiteCode, VersionId: data[v].Version, LineageChangeType: data[v].LineageChangeType}}))
+      setSelected(Object.keys(selectedRowIds).filter(v=>!v.includes(".")).map(v => {return {SiteCode:data[v].SiteCode, VersionId: data[v].Version, LineageChangeType: data[v].LineageChangeType}}))
         
-    let changePage = (page,chunk)=>{
+    let changePage = (page,chunk) => {
       loadPage(page,pageSize);
     }    
   
@@ -237,6 +237,12 @@ const IndeterminateCheckbox = React.forwardRef(
         toggleAllRowsSelected(false);
       }
     }, [isTabChanged]);
+
+    useEffect(() => {
+      if (startExpanded && !document.querySelector(".tab-pane.active .expand-all")?.classList.contains("expanded")) {
+        document.querySelector("#sitechanges_expand_all_"+status).click()
+      }
+    }, [startExpanded]);
 
     let countSitesOnPage = () => {
       return page.filter(row => !row.id.includes(".") && row.original.LineageChangeType == "NoChanges").length;
@@ -359,6 +365,7 @@ const IndeterminateCheckbox = React.forwardRef(
     const [currentSize, setCurrentSize] = useState(30);
     const [levelCountry, setLevelCountry] = useState({});
     const [errorRequest, setErrorRequest] = useState(false);
+    const [startExpanded, setStartExpanded] = useState(false);
 
     let dl = new(DataLoader);
 
@@ -375,7 +382,7 @@ const IndeterminateCheckbox = React.forwardRef(
       return {};
     }
 
-    let loadPage = (page,size) =>{
+    let loadPage = (page,size) => {
       setCurrentPage(page);
       setCurrentSize(size);
       forceRefreshData();
@@ -387,12 +394,12 @@ const IndeterminateCheckbox = React.forwardRef(
           openModal(data);
     }
 
-    let openModal = (data, activeKey)=>{
+    let openModal = (data, activeKey) => {
       setModalItem({...data, ActiveKey: activeKey});
       setModalVisible(true);
     }
   
-    let closeModal = ()=>{
+    let closeModal = () => {
       setModalVisible(false);
       setModalItem({});
       props.closeModal();
@@ -405,7 +412,7 @@ const IndeterminateCheckbox = React.forwardRef(
       return setBackToPending(modalItem);
     }
 
-    let setBackToPending = (change, refresh)=>{
+    let setBackToPending = (change, refresh) => {
       return props.setBackToPending(change, refresh)
         .then(data => {
           if(data?.ok){
@@ -417,7 +424,7 @@ const IndeterminateCheckbox = React.forwardRef(
         });
     }
 
-    let acceptChanges = (change, refresh)=>{
+    let acceptChanges = (change, refresh) => {
       return props.accept(change, refresh)
         .then(data => {
           if(data?.ok){
@@ -429,7 +436,7 @@ const IndeterminateCheckbox = React.forwardRef(
       });
     }
 
-    let rejectChanges = (change, refresh)=>{
+    let rejectChanges = (change, refresh) => {
       return props.reject(change, refresh)
       .then(data => {
         if(data?.ok){
@@ -438,10 +445,10 @@ const IndeterminateCheckbox = React.forwardRef(
           }
         }
         return data;
-    });
+      });
     }
 
-    let switchMarkChanges = (change) =>{            
+    let switchMarkChanges = (change) => {         
       return props.mark({"SiteCode":change.SiteCode,"VersionId":change.Version,"Justification":!change.JustificationRequired})
       .then(data => {
         if(data?.ok){
@@ -452,8 +459,17 @@ const IndeterminateCheckbox = React.forwardRef(
       }).catch(e => {
         alert("something went wrong!");
       });    
-   }
-  
+    }
+
+    let checkRowsExpanded = () => {
+      if(document.querySelector(".tab-pane.active .expand-all")?.classList.contains("expanded")) {
+        setStartExpanded(true);
+      }
+      else {
+        setStartExpanded(false);
+      }
+    }
+
     const columns = React.useMemo(
       () => [
         {
@@ -461,7 +477,7 @@ const IndeterminateCheckbox = React.forwardRef(
             return (
               <div
                 {...getToggleAllRowsExpandedProps()}
-                className="row-expand"
+                className={"row-expand expand-all" + (isAllRowsExpanded ? " expanded" : "")}
                 id={"sitechanges_expand_all_" + props.status}
               >
                 {isAllRowsExpanded ? 
@@ -685,7 +701,7 @@ const IndeterminateCheckbox = React.forwardRef(
       []
     )
 
-    let getContextActions = (row, toggleMark)=>{
+    let getContextActions = (row, toggleMark) => {
       switch(props.status){
         case 'pending':
           return {
@@ -718,7 +734,7 @@ const IndeterminateCheckbox = React.forwardRef(
       }
     }
 
-    let getSiteCodes= ()=>{
+    let getSiteCodes= () => {
       let url = ConfigData.SITECODES_GET;
       url += 'country='+props.country;
       url += '&status='+props.status;
@@ -736,11 +752,12 @@ const IndeterminateCheckbox = React.forwardRef(
       });
     }
   
-    let loadData= ()=>{
+    let loadData = () => {
       if(props.getRefresh()||(!isLoading && changesData!=="nodata" && Object.keys(changesData).length===0)){
         let promises = [];
         setIsLoading(true);
         props.setLoadingSites(true);
+        checkRowsExpanded();
         let page = currentPage;
         let size = currentSize;
         
@@ -752,6 +769,7 @@ const IndeterminateCheckbox = React.forwardRef(
             size = 30;
             setCurrentPage(page);
             setCurrentSize(size);
+            setStartExpanded(false);
           }
           setLevelCountry({level:props.level,country:props.country});
         }
@@ -783,7 +801,7 @@ const IndeterminateCheckbox = React.forwardRef(
             }
           })
         )
-        Promise.all(promises).then(() =>{
+        Promise.all(promises).then(() => {
           setIsLoading(false);
           props.setLoadingSites(false);
         });
@@ -831,6 +849,7 @@ const IndeterminateCheckbox = React.forwardRef(
             status={props.status}
             isTabChanged={props.isTabChanged}
             setIsTabChanged={props.setIsTabChanged}
+            startExpanded={startExpanded}
           />
           {props.showModal && showModal(props.showModal)}
           <ModalChanges
