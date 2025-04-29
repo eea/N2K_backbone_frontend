@@ -188,6 +188,13 @@
     "Site Merged",
     "Site Recoded"
   ],
+  "CHANGETYPES" : [
+    "Creation",
+    "Deletion",
+    "Split",
+    "Merge",
+    "Recode"
+  ],
   "COLORS": {
     "White": "#ffffff",
     "Grey": "#e4e4e4",
