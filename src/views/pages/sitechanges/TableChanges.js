@@ -277,14 +277,13 @@ const IndeterminateCheckbox = React.forwardRef(
           </div> 
         )
       }
-        <table  className="table" {...getTableProps()}>
+        <table className="table tablechanges" {...getTableProps()}>
           <thead>
             {headerGroups.map(headerGroup => (
               <tr {...headerGroup.getHeaderGroupProps()}>
                 {headerGroup.headers.map(column => (
                   <th key={column.id} style={{width:column.cellWidth}}>
-                      {column.render('Header')}
-                        {/*<div>{column.canFilter ? column.render('Filter') : null}</div>*/}
+                    {column.render('Header')}
                   </th>
                 ))}
               </tr>
@@ -296,7 +295,7 @@ const IndeterminateCheckbox = React.forwardRef(
             {page.map((row, i) => {
               prepareRow(row)
               return (
-                <tr {...row.getRowProps()}>
+                <tr {...row.getRowProps()} className={row.canExpand ? "siterow" : "subrow"}>
                   {row.cells.map(cell => {
                     return <td {...cell.getCellProps()} className={cell.column.className}>{cell.render('Cell')}</td>
                   })}

@@ -54,6 +54,21 @@
       }
     }
   }
+  &.tablechanges {
+    th {
+      border-bottom: none;
+    }
+    tr {
+      &.siterow td {
+        border-top: solid 1px $gray-100;
+        border-bottom: none;
+      }
+      &.subrow td {
+        border: none;
+        padding: 0.25rem 0.5rem;
+      }
+    }
+  }
   .checkbox {
     margin: auto;
     height: 18px;
