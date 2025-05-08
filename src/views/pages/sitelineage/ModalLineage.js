@@ -273,7 +273,7 @@ export class ModalLineage extends Component {
     let options = this.typeList.map((v, i) => ({
       "value": i,
       "label": v,
-      "isDisabled": (this.state.previousType === "Creation" && v === "Deletion") || (this.state.previousType === "Deletion" && v === "Creation") || (v === "Deletion" && !this.state.referenceSites.some(a => a.SiteCode === this.state.data.SiteCode))
+      "isDisabled": v === "Deletion"
     }));
     return(
       <>
