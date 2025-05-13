@@ -273,7 +273,7 @@ export class ModalLineage extends Component {
     let options = this.typeList.map((v, i) => ({
       "value": i,
       "label": v,
-      "isDisabled": (this.state.previousType === "Creation" && v === "Deletion") || (this.state.previousType === "Deletion" && v === "Creation") || (v === "Deletion" && !this.state.referenceSites.some(a => a.SiteCode === this.state.data.SiteCode))
+      "isDisabled": v === "Deletion"
     }));
     return(
       <>
@@ -291,7 +291,7 @@ export class ModalLineage extends Component {
 
         <CRow className="px-3">
           <CCol key={"changes_editor_label_sitecode"}>
-            <CFormInput type="text" disabled={this.state.type !== "Recode" || this.state.status === "Consolidated"} defaultValue={this.state.data.SiteCode ?? this.props.code} />
+            <CFormInput type="text" disabled defaultValue={this.state.data.SiteCode ?? this.props.code} />
           </CCol>
           <CCol key={"changes_editor_label_type"}>
             <Select
