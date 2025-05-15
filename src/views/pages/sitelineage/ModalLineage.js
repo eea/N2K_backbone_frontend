@@ -136,7 +136,7 @@ export class ModalLineage extends Component {
       changes = [changes]
     if(changes.length === 0)
       return;
-    let heads = Object.keys(changes[0]).filter(v => v !== "ReleaseDate").map(v => {
+    let heads = Object.keys(changes[0]).filter(v => v !== "ReleaseDate" && v !== "SiteStatus").map(v => {
       if(v === "BioRegion")
         return "Biogeographical Region"
       if(v === "AreaSDF")
@@ -158,7 +158,7 @@ export class ModalLineage extends Component {
           {Object.entries(changes[i]).map(([k,v]) => {
             if(k == "SiteType")
               return (<CTableDataCell key={k + "_" + v}> {UtilsData.SITE_TYPES[v]} </CTableDataCell>) 
-            else if(k !== "ReleaseDate")
+            else if(k !== "ReleaseDate" && k !== "SiteStatus")
               return (<CTableDataCell key={k + "_" + v}> {v} </CTableDataCell>) 
             })
           }
@@ -249,7 +249,7 @@ export class ModalLineage extends Component {
             }}
             isMulti={false}
             closeMenuOnSelect={true}
-            isDisabled={this.state.status === "Consolidated" || this.state.type === "Deletion"}
+            isDisabled={this.state.status === "Consolidated" || this.state.type === "Deletion" || this.state.data.SiteStatus === "Rejected"}
             onChange={() => this.setSelectedPredecessors(document.querySelectorAll(".multi-select-predecessor"))}
           />
           <div hidden={this.state.type === "Creation" || this.state.type === "Deletion"}>
@@ -302,7 +302,7 @@ export class ModalLineage extends Component {
               defaultValue={options.find(a => a.label === this.state.type)}
               isMulti={false}
               closeMenuOnSelect={true}
-              isDisabled={this.state.status === "Consolidated" || this.state.type === "Deletion"}
+              isDisabled={this.state.status === "Consolidated" || this.state.type === "Deletion" || this.state.data.SiteStatus === "Rejected"}
               onChange={(e) => this.setState({ type: e.label, newPredecessor: e.label !== "Creation" && this.state.predecessors === "", predecessors: e.label === "Deletion" ? this.state.data.SiteCode : this.state.predecessors})}
             />
           </CCol>
@@ -467,7 +467,10 @@ export class ModalLineage extends Component {
           </CModalBody>
           <CModalFooter>
             <div className="ms-auto">
-              {this.state.status === 'Proposed' && <CButton disabled={this.checkChanges() || this.changingStatus || this.state.type === "Deletion"} color="primary" onClick={() => this.saveChangesModal()}>
+              {this.state.data.SiteStatus === "Rejected" &&
+                <span className="button-text">The site has been rejected</span>
+              }
+              {this.state.status === 'Proposed' && <CButton disabled={this.checkChanges() || this.changingStatus || this.state.type === "Deletion" || this.state.status === "Consolidated" || this.state.type === "Deletion" || this.state.data.SiteStatus === "Rejected"} color="primary" onClick={() => this.saveChangesModal()}>
               {this.state.updatingData && <CSpinner size="sm"/>}
               {this.state.updatingData ? " Saving Changes":"Save Changes"}
                 </CButton>
