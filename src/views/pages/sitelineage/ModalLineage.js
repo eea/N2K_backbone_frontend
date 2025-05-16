@@ -254,7 +254,7 @@ export class ModalLineage extends Component {
           />
           <div hidden={this.state.type === "Creation" || this.state.type === "Deletion"}>
             <CButton color="link" className="btn-icon"
-              hidden={this.state.status === "Consolidated"}
+              hidden={this.state.status === "Consolidated" || this.state.data.SiteStatus === "Rejected"}
               disabled={this.state.predecessors.split(",").length === 1}
               onClick={() => this.deleteSite(s)}>
               <i className="fa-regular fa-trash-can"></i>
@@ -312,14 +312,16 @@ export class ModalLineage extends Component {
               this.addPredecessor()
             }
             {(this.state.type == "" ? this.props.type : this.state.type) !== "Creation" &&
-            <CButton color="link" className="ms-auto p-0" 
-              hidden={this.state.type === "Deletion"
-                || this.state.type === "Creation"
-                || this.state.status === "Consolidated"
-                || this.state.newPredecessor}
-              onClick={() => this.setState({ newPredecessor: true })}>
-              Add site
-            </CButton>
+              <CButton color="link" className="ms-auto p-0" 
+                hidden={this.state.type === "Deletion"
+                  || this.state.type === "Creation"
+                  || this.state.status === "Consolidated"
+                  || this.state.newPredecessor
+                  || this.state.data.SiteStatus === "Rejected"
+                }
+                onClick={() => this.setState({ newPredecessor: true })}>
+                Add site
+              </CButton>
             }
           </CCol>
         </CRow>
