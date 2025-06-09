@@ -18,6 +18,8 @@ import {
   CCard,
   CAlert,
   CCloseButton,
+  CFormSelect,
+  CFormLabel,
   CSpinner,
 } from '@coreui/react'
 
@@ -56,6 +58,8 @@ const ModalDocumentation = (props) => {
   const [errorLoadingComments, setErrorLoadingComments] = useState(false)
   const [errorLoadingDocuments, setErrorLoadingDocuments] = useState(false)
   const [selectedFile, setSelectedFile] = useState()
+  const [releases, setReleases] = useState([{Release: null, ReleaseName: "In progress"}])
+  const [release, setRelease] = useState(null)
   const [error, setError] = useState("")
 
   const closeModal = () => {
@@ -99,6 +103,8 @@ const ModalDocumentation = (props) => {
             setComments("noData")
           }
           else {
+            let releasesList = [...new Map(data.Data.map(item => [item.ReleaseName, item])).values()].map(({Release, ReleaseName, ReleaseDate}) => ({Release, ReleaseName, ReleaseDate}));
+            setReleases(checkReleases(releasesList, releases));
             setComments(sortComments(data.Data))
           }
         else {
@@ -115,6 +121,8 @@ const ModalDocumentation = (props) => {
             setDocuments("noData")
           }
           else {
+            let releasesList = [...new Map(data.Data.map(item => [item.ReleaseName, item])).values()].map(({Release, ReleaseName, ReleaseDate}) => ({Release, ReleaseName, ReleaseDate}));
+            setReleases(checkReleases(releasesList, releases));
             setDocuments(sortDocuments(data.Data))
           }
         else {
@@ -124,6 +132,15 @@ const ModalDocumentation = (props) => {
     )
 
     Promise.all(promises).then(() => setIsLoading(false))
+  }
+
+  const checkReleases = (a, b) => {
+    var missing = a.filter(aa => b.filter(bb => bb.Release === aa.Release).length === 0);
+    var combine = [ ...b, ...missing ];
+    combine.sort((a, b) => new Date(b.ReleaseDate) - new Date(a.ReleaseDate));
+    combine.push(...combine.splice(0, combine.findIndex(friend => friend.Release == 0)));
+    combine = combine.map(obj => obj.Release === null ? { ...obj, ReleaseName: "In progess" } : obj);
+    return combine;
   }
 
   const sendRequest = (url, method, body, path) => {
@@ -152,7 +169,7 @@ const ModalDocumentation = (props) => {
   }, [isLoading])
 
   const attachmentsHeight = () => {
-    let height = document.querySelector(".modal-body").offsetHeight - document.querySelector(".modal-body .nav").offsetHeight - document.querySelector(".attachments--title").offsetHeight - 80;
+    let height = document.querySelector(".modal-body").offsetHeight - document.querySelector(".modal-body .nav").offsetHeight - document.querySelector("#release_select").offsetHeight - document.querySelector(".attachments--title").offsetHeight - 80;
     if(document.querySelector(".document--list").scrollHeight > height) {
       document.querySelector(".document--list").style.height = height + "px";
     }
@@ -287,23 +304,23 @@ const ModalDocumentation = (props) => {
     if (comments && comments !== "noData") {
       comments.forEach(c => {
         cmts.push(
-          createCommentElement(c.Id, c.Comments, c.Date, c.Owner, c.Edited, c.EditedDate, c.EditedBy)
+          createCommentElement(c.Id, c.Comments, c.Date, c.Owner, c.Edited, c.EditedDate, c.EditedBy, c.Release)
         )
       })
     }
     return (
       <div className="attachments--group" id={"changes_comments_" + target}>
         {cmts}
-        {comments == "noData" && !newComment &&
+        {(comments == "noData" && !newComment) || comments.filter(a=>a.Release===release).length === 0 &&
           <em>No comments</em>
         }
       </div>
     )
   }
 
-  const createCommentElement = (id, comment, date, owner, edited, editeddate, editedby) => {
+  const createCommentElement = (id, comment, date, owner, edited, editeddate, editedby, releaseId) => {
     return (
-      <div className="comment--item" key={"cmtItem_" + id} id={"cmtItem_" + id}>
+      <div className="comment--item" key={"cmtItem_" + id} id={"cmtItem_" + id} hidden={releaseId !== release}>
         <div className="comment--row">
           <div className="comment--text">
             <TextareaAutosize
@@ -312,14 +329,16 @@ const ModalDocumentation = (props) => {
               defaultValue={comment}
               className="comment--input" />
           </div>
-          <div className="comment--icons">
-            <CButton color="link" className="btn-link" onClick={(e) => updateComment(e.currentTarget)} key={"cmtUpdate_" + id}>
-              Edit
-            </CButton>
-            <CButton color="link" className="btn-icon" onClick={(e) => deleteCommentMessage(e.currentTarget)} key={"cmtDelete_" + id}>
-              <i className="fa-regular fa-trash-can"></i>
-            </CButton>
-          </div>
+          {releaseId === null &&
+            <div className="comment--icons">
+              <CButton color="link" className="btn-link" onClick={(e) => updateComment(e.currentTarget)} key={"cmtUpdate_" + id}>
+                Edit
+              </CButton>
+              <CButton color="link" className="btn-icon" onClick={(e) => deleteCommentMessage(e.currentTarget)} key={"cmtDelete_" + id}>
+                <i className="fa-regular fa-trash-can"></i>
+              </CButton>
+            </div>
+          }
         </div>
         <label className="comment--date" htmlFor={id}>
           {date && owner &&
@@ -447,23 +466,23 @@ const ModalDocumentation = (props) => {
       documents.forEach(d => {
         const name = d.OriginalName ?? d.Path;
         docs.push(
-          createDocumentElement(d.ID, name, d.ImportDate, d.Username, d.Comment)
+          createDocumentElement(d.ID, name, d.ImportDate, d.Username, d.Comment, d.Release)
         )
       })
     }
     return (
       <div className="attachments--group" id={"changes_documents_" + target}>
         {docs}
-        {documents == "noData" && !newDocument &&
+        {(documents == "noData" && !newDocument) || documents.filter(a=>a.Release===release).length === 0 &&
           <em>No documents</em>
         }
       </div>
     )
   }
 
-  const createDocumentElement = (id, name, date, user, comment) => {
+  const createDocumentElement = (id, name, date, user, comment, releaseId) => {
     return (
-      <div className="document--item" key={"docItem_" + id} id={"docItem_" + id} doc_id={id}>
+      <div className="document--item" key={"docItem_" + id} id={"docItem_" + id} doc_id={id} hidden={releaseId !== release}>
         <div className="document--row">
           <div className="my-auto document--text">
             <div className="document--file">
@@ -475,9 +494,11 @@ const ModalDocumentation = (props) => {
             <CButton color="link" className="btn-link" disabled={downloadingDocuments.includes(id)} onClick={() => downloadAttachments(id, name)}>
               {downloadingDocuments.includes(id) ? <CSpinner size="sm" className="mx-2" /> : <>View</>}
             </CButton>
-            <CButton color="link" className="btn-icon" disabled={downloadingDocuments.includes(id)} onClick={(e) => deleteDocumentMessage(e.currentTarget)}>
-              <i className="fa-regular fa-trash-can"></i>
-            </CButton>
+            {releaseId === null &&
+              <CButton color="link" className="btn-icon" disabled={downloadingDocuments.includes(id)} onClick={(e) => deleteDocumentMessage(e.currentTarget)}>
+                <i className="fa-regular fa-trash-can"></i>
+              </CButton>
+            }
           </div>
         </div>
         {comment &&
@@ -503,6 +524,14 @@ const ModalDocumentation = (props) => {
   const renderAttachments = () => {
     return (
       <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={true}>
+        <div className="select--right mt-3">
+          <CFormLabel htmlFor="release_select" className="form-label form-label-reporting col-md-4 col-form-label">Release</CFormLabel>
+            <CFormSelect id="release_select" aria-label="Release select" className="form-select-reporting" disabled={isLoading} value={release} onChange={(e)=>changeRelease(e.target.value)}>
+            {
+              releases.map((e)=><option value={e.Release} key={e.Release}>{e.ReleaseName}</option>)
+            }
+          </CFormSelect>
+        </div>
         <CRow className="py-3">
           <CCol className="mb-3" xs={12} lg={6}>
             <div className="attachments--title">
@@ -519,7 +548,9 @@ const ModalDocumentation = (props) => {
                 }
                 <div className="d-flex justify-content-between align-items-center pb-2">
                   <b>Country Level</b>
-                  <CButton color="link" className="btn-link--dark" onClick={() => setNewDocument(true)}>Add Document</CButton>
+                  {release === null &&
+                    <CButton color="link" className="btn-link--dark" onClick={() => setNewDocument(true)}>Add Document</CButton>
+                  }
                 </div>
                 {renderDocuments("country")}
               </CCard>
@@ -540,7 +571,9 @@ const ModalDocumentation = (props) => {
                 }
                 <div className="d-flex justify-content-between align-items-center pb-2">
                   <b>Country Level</b>
-                  <CButton color="link" className="btn-link--dark" onClick={() => setNewComment(true)}>Add Comment</CButton>
+                  {release === null && 
+                    <CButton color="link" className="btn-link--dark" onClick={() => setNewComment(true)}>Add Comment</CButton>
+                  }
                 </div>
                 {renderComments("country")}
               </CCard>
@@ -574,6 +607,10 @@ const ModalDocumentation = (props) => {
         setDownloadingDocuments(downloadingDocuments.filter(a => a !== id));
       }
     })
+  }
+
+  const changeRelease = (releaseId) => {
+    setRelease(isNaN(parseInt(releaseId)) ? null : parseInt(releaseId));
   }
 
   const showErrorMessage = (target, message) => {
