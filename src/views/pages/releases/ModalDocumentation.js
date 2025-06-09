@@ -169,7 +169,7 @@ const ModalDocumentation = (props) => {
   }, [isLoading])
 
   const attachmentsHeight = () => {
-    let height = document.querySelector(".modal-body").offsetHeight - document.querySelector(".modal-body .nav").offsetHeight - document.querySelector("#release_select").offsetHeight - document.querySelector(".attachments--title").offsetHeight - 80;
+    let height = document.querySelector(".modal-body").offsetHeight - document.querySelector(".modal-body .nav").offsetHeight - document.querySelector("#release_select").offsetHeight - document.querySelector(".attachments--title").offsetHeight - 96;
     if(document.querySelector(".document--list").scrollHeight > height) {
       document.querySelector(".document--list").style.height = height + "px";
     }

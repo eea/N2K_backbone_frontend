@@ -104,7 +104,7 @@ export class ModalEdition extends Component {
   }
 
   attachmentsHeight = () => {
-    let height = document.querySelector(".modal-body").offsetHeight - document.querySelector(".modal-body .nav").offsetHeight - document.querySelector("#modal_justification_req").parentElement.offsetHeight - document.querySelector(".attachments--title").offsetHeight - document.querySelector("#release_select").offsetHeight - (document.querySelector(".alert-primary") ? document.querySelector(".alert-primary").offsetHeight + 16 : 0 ) - 80;
+    let height = document.querySelector(".modal-body").offsetHeight - document.querySelector(".modal-body .nav").offsetHeight - document.querySelector("#modal_justification_req").parentElement.offsetHeight - document.querySelector(".attachments--title").offsetHeight - document.querySelector("#release_select").offsetHeight - (document.querySelector(".alert-primary") ? document.querySelector(".alert-primary").offsetHeight + 16 : 0 ) - 96;
     if(document.querySelector(".document--list").scrollHeight > height) {
       document.querySelector(".document--list").style.height = height + "px";
     }
