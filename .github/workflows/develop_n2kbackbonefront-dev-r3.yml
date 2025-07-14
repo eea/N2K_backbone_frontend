@@ -53,9 +53,7 @@ jobs:
 
       - name: Clean Azure wwwroot via Kudu API
         run: |
-          curl -X DELETE "https://n2kbackbonefront-dev-r3-e3hhdcfyedb3hkhw.scm.westeurope-01.azurewebsites.net/api/vfs/site/wwwroot/" \
-               -u "n2kbackbonefront-dev-r3\$n2kbackbonefront-dev-r3:qywLv9mGdagB2xHoRpsyKKaFvWLSusYszL3JBkCG6msiNThrdups3K4abn1M"
-      
+          curl -X DELETE "https://n2kbackbonefront-dev-r3-e3hhdcfyedb3hkhw.scm.westeurope-01.azurewebsites.net/api/vfs/site/wwwroot/"   -u "\$n2kbackbonefront-dev-r3:qywLv9mGdagB2xHoRpsyKKaFvWLSusYszL3JBkCG6msiNThrdups3K4abn1M" 
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v2
         id: deploy-to-webapp
