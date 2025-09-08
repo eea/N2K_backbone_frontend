@@ -42,7 +42,7 @@ jobs:
     environment:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-      #url: https://n2kbackbonefront-dev.azurewebsites.net/
+      
     
     steps:
       - name: Download artifact from build job
@@ -51,14 +51,14 @@ jobs:
           name: node-app
       
       - name: 'Deploy to Azure Web App'
-        uses: azure/webapps-deploy@v2
+        uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
         with:
           app-name: 'n2kbackbonefront-dev-r3'
           slot-name: 'Production'
           package: .
-          #publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_25CF31C50E934B0EB9EF2B28AA46E3D1 }}
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_DA397581FD1C4402B1C8C19BDEF9CBBD }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_25CF31C50E934B0EB9EF2B28AA46E3D1 }}
+          #publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_DA397581FD1C4402B1C8C19BDEF9CBBD }}
           
   delete:
     runs-on: windows-latest
