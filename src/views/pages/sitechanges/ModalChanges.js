@@ -213,7 +213,7 @@ export class ModalChanges extends Component {
       target.innerText = "Save";
     } else {
       if (!input.value.trim()) {
-        this.showErrorMessage("comment", "Add comment");
+        this.showErrorMessage("comment", "Add a comment");
       }
       else {
         this.saveComment(id, input, input.value, target);
@@ -318,6 +318,56 @@ export class ModalChanges extends Component {
 
   addNewDocument() {
     this.setState({ newDocument: true })
+  }
+
+  updateDocument(target) {
+    let input = target.closest(".document--item").querySelector("textarea");
+    let id = parseInt(input.id);
+    if (target.innerText === "Edit") {
+      if (!input.value) {
+        input.parentElement.removeAttribute("hidden");
+      }
+      input.disabled = false;
+      input.readOnly = false;
+      input.focus();
+      target.innerText = "Save";
+    } else {
+      if (!input.value.trim()) {
+        this.showErrorMessage("document", "Add a comment");
+      }
+      else {
+        this.saveDocumentComment(id, input, input.value, target);
+      }
+    }
+  }
+
+  saveDocumentComment(id, input, comment, target) {
+    let body = this.state.documents.find(a => a.Id === id);
+    body.Comment = comment;
+    this.sendRequest(ConfigData.UPDATE_ATTACHED_FILE, "PUT", body)
+      .then((data) => {
+        if (data?.ok) {
+          let reader = data.body.getReader();
+          let txt = "";
+          let readData = (data) => {
+            if (data.done)
+              return JSON.parse(txt);
+            else {
+              txt += new TextDecoder().decode(data.value);
+              return reader.read().then(readData);
+            }
+          }
+
+          reader.read().then(readData).then((data) => {
+            this.setState({ documents: data.Data });
+          });
+
+          input.disabled = true;
+          input.readOnly = true;
+          target.innerText = "Edit";
+        } else { this.showErrorMessage("document", "Error saving document comment") }
+      })
+    this.loadDocuments();
   }
 
   deleteDocumentMessage(target) {
@@ -758,7 +808,7 @@ export class ModalChanges extends Component {
           </div>
           {level == "site" &&
             <div className="comment--icons">
-              <CButton color="link" className="btn-link" onClick={(e) => this.updateComment(e.currentTarget)} key={"cmtUpdate_" + id}>
+              <CButton color="link" className="btn-link btn-update" onClick={(e) => this.updateComment(e.currentTarget)} key={"cmtUpdate_" + id}>
                 Edit
               </CButton>
               <CButton color="link" className="btn-icon" onClick={(e) => this.deleteCommentMessage(e.currentTarget)} key={"cmtDelete_" + id}>
@@ -835,7 +885,7 @@ export class ModalChanges extends Component {
       filteredDocuments.forEach(d => {
         const name = d.OriginalName ?? d.Path;
         docs.push(
-          this.createDocumentElement(d.Id, name, d.ImportDate, d.Username, d.Comment, target)
+          this.createDocumentElement(d.Id, name, d.ImportDate, d.Username, d.Comment, d.Edited, d.EditedDate, d.EditedBy, target)
         )
       })
     }
@@ -849,7 +899,7 @@ export class ModalChanges extends Component {
     )
   }
 
-  createDocumentElement(id, name, date, user, comment, level) {
+  createDocumentElement(id, name, date, user, comment, edited, editeddate, editedby, level) {
     return (
       <div className="document--item" key={"docItem_" + id} id={"docItem_" + id} doc_id={id}>
         <div className="document--row">
@@ -861,31 +911,36 @@ export class ModalChanges extends Component {
           </div>
           <div className="document--icons">
             <CButton color="link" className="btn-link" disabled={this.state.downloadingDocuments.includes(id)} onClick={() => this.downloadAttachments(id, name, level)}>
-              {this.state.downloadingDocuments.includes(id) ? <CSpinner size="sm" className="mx-2" /> : <>View</>}
+              {this.state.downloadingDocuments.includes(id) ? <CSpinner size="sm" className="mx-2" /> : <>Download</>}
             </CButton>
             {level == "site" &&
-              <CButton color="link" className="btn-icon" disabled={this.state.downloadingDocuments.includes(id)} onClick={(e) => this.deleteDocumentMessage(e.currentTarget)}>
-                <i className="fa-regular fa-trash-can"></i>
-              </CButton>
+              <>
+                <CButton color="link" className="btn-link btn-update" disabled={this.state.downloadingDocuments.includes(id)} onClick={(e) => this.updateDocument(e.currentTarget)}>
+                  Edit
+                </CButton>
+                <CButton color="link" className="btn-icon" disabled={this.state.downloadingDocuments.includes(id)} onClick={(e) => this.deleteDocumentMessage(e.currentTarget)}>
+                  <i className="fa-regular fa-trash-can"></i>
+                </CButton>
+              </>
             }
           </div>
         </div>
-        {comment &&
-          <div className="document--comment">
-            <TextareaAutosize
-              disabled
-              defaultValue={comment}
-              className="comment--input"
-            ></TextareaAutosize>
-          </div>
-        }
-        {(date || user) &&
-          <label className="document--date" htmlFor={"docItem_" + id}>
-            {"Uploaded"
-            + (date && " on " + date.slice(0, 10).split('-').reverse().join('/'))
-            + (user && " by " + user)}
-          </label>
-        }
+        <div className="document--comment" hidden={!comment}>
+          <TextareaAutosize
+            id={id}
+            disabled
+            defaultValue={comment}
+            className="comment--input"
+          ></TextareaAutosize>
+        </div>
+        <label className="comment--date" htmlFor={id}>
+          {date && user &&
+            "Uploaded on " + date.slice(0, 10).split('-').reverse().join('/') + " by " + user + "."
+          }
+          {((edited >= 1) && (editeddate && editeddate !== undefined) && (editedby && editedby !== undefined)) &&
+            " Last edited on " + editeddate.slice(0, 10).split('-').reverse().join('/') + " by " + editedby + "."
+          }
+        </label>
       </div>
     )
   }
@@ -909,12 +964,12 @@ export class ModalChanges extends Component {
                 }
                 <div className="d-flex justify-content-between align-items-center pb-2">
                   <b>Country Level</b>
-                  <CButton color="link" className="btn-link--dark" href="#/releases/documentation">Release Documentation</CButton>
+                  <CButton color="link" className="btn-link--dark" href={"#/releases/documentation?country=" + this.props.country}>Manage documentation</CButton>
                 </div>
                 {this.renderDocuments("country")}
                 <div className="d-flex justify-content-between align-items-center pb-2">
                   <b>Site Level</b>
-                  <CButton color="link" className="btn-link--dark" onClick={() => this.addNewDocument()}>Add Document</CButton>
+                  <CButton color="link" className="btn-link--dark" onClick={() => this.addNewDocument()}>Add document</CButton>
                 </div>
                 {this.renderDocuments("site")}
               </CCard>
@@ -935,12 +990,12 @@ export class ModalChanges extends Component {
                 }
                 <div className="d-flex justify-content-between align-items-center pb-2">
                   <b>Country Level</b>
-                  <CButton color="link" className="btn-link--dark" href="#/releases/documentation">Release Documentation</CButton>
+                  <CButton color="link" className="btn-link--dark" href={"#/releases/documentation?country=" + this.props.country}>Manage documentation</CButton>
                 </div>
                 {this.renderComments("country")}
                 <div className="d-flex justify-content-between align-items-center pb-2">
                   <b>Site Level</b>
-                  <CButton color="link" className="btn-link--dark" onClick={() => this.addNewComment()}>Add Comment</CButton>
+                  <CButton color="link" className="btn-link--dark" onClick={() => this.addNewComment()}>Add comment</CButton>
                 </div>
                 {this.renderComments("site")}
               </CCard>
@@ -1279,24 +1334,22 @@ export class ModalChanges extends Component {
       && (
         (this.state.newComment && document.querySelector(".comment--item.new textarea")?.value.trim() !== "")
         || (this.state.newDocument && this.state.isSelected)
-        || (this.state.comments !== "noData" && document.querySelectorAll(".comment--item:not(.new) textarea[disabled]").length !== this.state.comments.length));
-    this.props.setHasChanges(check)
-    return check
+        || (this.state.comments !== "noData" && document.querySelectorAll(".comment--item:not(.new) textarea[disabled]").length !== this.state.comments.length))
+        || (this.state.documents !== "noData" && document.querySelectorAll(".document--item:not(.new) textarea[disabled]").length !== this.state.documents.length);
+    this.props.setHasChanges(check);
+    return check;
   }
 
   warningUnsavedChanges(activeKey) {
-    if (this.checkUnsavedChanges() && this.state.activeKey === 4) {
-      this.props.updateModalValues("Unsaved Changes", "There are unsaved changes. Do you want to continue?",
-        "Continue", () => this.cleanUnsavedChanges(activeKey),
-        "Cancel", () => { });
+    if (this.state.activeKey === 3 && this.state.fieldChanged) {
+      this.messageBeforeClose(() => this.cleanEditFields(activeKey));
     }
-    else if (this.state.fieldChanged && this.state.activeKey === 3) {
-      this.props.updateModalValues("Unsaved Changes", "There are unsaved changes. Do you want to continue?",
-        "Continue", () => this.cleanFields(activeKey),
-        "Cancel", () => { });
+    else if (this.state.activeKey === 4 && this.checkUnsavedChanges()) {
+      this.messageBeforeClose(() => this.cleanUnsavedChanges(activeKey));
     }
     else {
-      this.cleanUnsavedChanges(activeKey);
+      if (this.state.activeKey === 4) this.cleanDocumentsAndComments();
+      this.setActiveKey(activeKey);
     }
   }
 
@@ -1304,7 +1357,7 @@ export class ModalChanges extends Component {
     this.props.updateModalValues("Unsaved Changes", "There are unsaved changes. Do you want to continue?", "Continue", action, "Cancel", () => { }, keepOpen);
   }
 
-  cleanFields(activeKey) {
+  cleanEditFields(activeKey) {
     let fields = this.getBody();
     delete fields.Version;
     for (let i in fields) {
@@ -1320,13 +1373,13 @@ export class ModalChanges extends Component {
     this.cleanDocumentsAndComments();
     if (activeKey) {
       this.setActiveKey(activeKey);
-      document.querySelectorAll(".comment--item").forEach((i) => {
-        let input = i.querySelector("textarea");
-        if (!input.disabled) {
-          input.value = input.defaultValue;
-          input.disabled = true;
-          i.querySelector(".btn-icon").innerText = "Edit";
-        }
+      document.querySelectorAll(".comment--input:not([disabled])").forEach((i) => {
+        if (!i.defaultValue) {
+          i.parentElement.setAttribute("hidden", "");
+        }  
+        i.value = i.defaultValue;
+        i.disabled = true;
+        i.closest(".document--item, .comment--item").querySelector(".btn-update").innerText = "Edit";
       });
     }
   }
@@ -1340,12 +1393,12 @@ export class ModalChanges extends Component {
     const body = this.getBody();
     const errorMargin = 0.00000001;
     if (this.state.fields.SiteName != body.SiteName
-      || this.state.fields.Area != body.Area
-      || this.state.fields.Length != body.Length
+      || this.state.fields.Area !== body.Area
+      || this.state.fields.Length !== body.Length
       || (Math.abs(this.state.fields.CentreX - body.CentreX) > errorMargin)
       || (Math.abs(this.state.fields.CentreY - body.CentreY) > errorMargin)
       || (Array.isArray(e) && this.state.fields.BioRegion.sort().toString() !== e.map(b => b.value).sort().toString())
-      || e.value ? this.state.fields.SiteType !== e.value : false
+      || (e && e.value ? this.state.fields.SiteType !== e.value : false)
     ) {
       this.setState({ fieldChanged: true });
       this.props.setHasChanges(true)
@@ -1598,14 +1651,10 @@ export class ModalChanges extends Component {
 
   closeModal() {
     if (this.state.activeKey === 4 && this.checkUnsavedChanges()) {
-      this.props.updateModalValues("Unsaved Changes", "There are unsaved changes. Do you want to continue?",
-        "Continue", () => this.close(),
-        "Cancel", () => { });
+      this.messageBeforeClose(() => this.close());
     }
     else if (this.state.activeKey === 3 && this.state.fieldChanged) {
-      this.props.updateModalValues("Unsaved Changes", "There are unsaved changes. Do you want to continue?",
-        "Continue", () => this.close(),
-        "Cancel", () => { });
+      this.messageBeforeClose(() => this.close());
     } else {
       this.close();
     }

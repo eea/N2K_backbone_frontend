@@ -59,17 +59,13 @@ const ModalDocumentation = (props) => {
   const [error, setError] = useState("")
 
   const closeModal = () => {
-    let hasComment = (document.querySelector(".comment--item.new textarea")?.value ?? "").length > 0
-    let hasEditionComments = document.querySelectorAll(".comment--item:not(.new) textarea[disabled]").length != comments.length 
-    if((newDocument && selectedFile)
-    || ((newComment && hasComment) || (comments !== "noData" && hasEditionComments))
-    ) {
+    if(checkUnsavedChanges()){
       props.updateModalValues("Unsaved Changes", "There are unsaved changes. Do you want to continue?",
         "Continue", () => close(),
         "Cancel", () => { })
     }
     else {
-      close()
+      close();
     }
   }
 
@@ -79,9 +75,17 @@ const ModalDocumentation = (props) => {
     props.close()
   }
 
+  const checkUnsavedChanges = () => {
+    let hasComment = (document.querySelector(".comment--item.new textarea")?.value ?? "").length > 0;
+    let hasEditionComments = document.querySelectorAll(".comment--item:not(.new) textarea[disabled]").length != comments.length;
+    let hasEditionDocumentComments = document.querySelectorAll(".document--item:not(.new) textarea[disabled]").length != documents.length 
+    return (newDocument && selectedFile)
+    || ((newComment && hasComment) || (comments !== "noData" && hasEditionComments) || (documents !== "noData" && hasEditionDocumentComments))
+  }
+
   const cleanUnsavedChanges = () => {
-    setNewComment(false)
-    setNewDocument(false)
+    setNewComment(false);
+    setNewDocument(false);
   }
 
   const showError = (e) => {
@@ -234,7 +238,7 @@ const ModalDocumentation = (props) => {
     }
     else {
       if (!input.value.trim()) {
-        showErrorMessage("comment", "Add comment");
+        showErrorMessage("comment", "Add a comment");
       }
       else {
         saveComment(id, input, input.value, target);
@@ -313,7 +317,7 @@ const ModalDocumentation = (props) => {
               className="comment--input" />
           </div>
           <div className="comment--icons">
-            <CButton color="link" className="btn-link" onClick={(e) => updateComment(e.currentTarget)} key={"cmtUpdate_" + id}>
+            <CButton color="link" className="btn-link btn-update" onClick={(e) => updateComment(e.currentTarget)} key={"cmtUpdate_" + id}>
               Edit
             </CButton>
             <CButton color="link" className="btn-icon" onClick={(e) => deleteCommentMessage(e.currentTarget)} key={"cmtDelete_" + id}>
@@ -331,6 +335,56 @@ const ModalDocumentation = (props) => {
         </label>
       </div>
     )
+  }
+
+  const updateDocument = (target) => {
+    let input = target.closest(".document--item").querySelector("textarea");
+    let id = parseInt(input.id);
+    if (target.innerText === "Edit") {
+      if (!input.value) {
+        input.parentElement.removeAttribute("hidden");
+      }
+      input.disabled = false;
+      input.readOnly = false;
+      input.focus();
+      target.innerText = "Save";
+    } else {
+      if (!input.value.trim()) {
+        showErrorMessage("document", "Add a comment");
+      }
+      else {
+        saveDocumentComment(id, input, input.value, target);
+      }
+    }
+  }
+
+  const saveDocumentComment = (id, input, comment, target) => {
+    let body = documents.find(a => a.ID === id);
+    body.Comment = comment;
+    sendRequest(ConfigData.RELEASES_ATTACHMENTS_DOCUMENTS_UPDATE, "PUT", body)
+      .then((data) => {
+        if (data?.ok) {
+          let reader = data.body.getReader();
+          let txt = "";
+          let readData = (data) => {
+            if (data.done)
+              return JSON.parse(txt);
+            else {
+              txt += new TextDecoder().decode(data.value);
+              return reader.read().then(readData);
+            }
+          }
+
+          reader.read().then(readData).then((data) => {
+            setDocuments(data.Data);
+          });
+
+          input.disabled = true;
+          input.readOnly = true;
+          target.innerText = "Edit";
+        } else { showErrorMessage("document", "Error saving document comment") }
+      })
+    loadData();
   }
 
   const deleteDocumentMessage = (target) => {
@@ -447,7 +501,7 @@ const ModalDocumentation = (props) => {
       documents.forEach(d => {
         const name = d.OriginalName ?? d.Path;
         docs.push(
-          createDocumentElement(d.ID, name, d.ImportDate, d.Username, d.Comment)
+          createDocumentElement(d.ID, name, d.ImportDate, d.Username, d.Comment, d.Edited, d.EditedDate, d.EditedBy)
         )
       })
     }
@@ -461,7 +515,7 @@ const ModalDocumentation = (props) => {
     )
   }
 
-  const createDocumentElement = (id, name, date, user, comment) => {
+  const createDocumentElement = (id, name, date, user, comment, edited, editeddate, editedby) => {
     return (
       <div className="document--item" key={"docItem_" + id} id={"docItem_" + id} doc_id={id}>
         <div className="document--row">
@@ -473,29 +527,32 @@ const ModalDocumentation = (props) => {
           </div>
           <div className="document--icons">
             <CButton color="link" className="btn-link" disabled={downloadingDocuments.includes(id)} onClick={() => downloadAttachments(id, name)}>
-              {downloadingDocuments.includes(id) ? <CSpinner size="sm" className="mx-2" /> : <>View</>}
+              {downloadingDocuments.includes(id) ? <CSpinner size="sm" className="mx-2" /> : <>Download</>}
+            </CButton>
+            <CButton color="link" className="btn-link btn-update" disabled={downloadingDocuments.includes(id)} onClick={(e) => updateDocument(e.currentTarget)}>
+              Edit
             </CButton>
             <CButton color="link" className="btn-icon" disabled={downloadingDocuments.includes(id)} onClick={(e) => deleteDocumentMessage(e.currentTarget)}>
               <i className="fa-regular fa-trash-can"></i>
             </CButton>
           </div>
         </div>
-        {comment &&
-          <div className="document--comment">
-            <TextareaAutosize
-              disabled
-              defaultValue={comment}
-              className="comment--input"
-            ></TextareaAutosize>
-          </div>
-        }
-        {(date || user) &&
-          <label className="document--date" htmlFor={"docItem_" + id}>
-            {"Uploaded"
-            + (date && " on " + date.slice(0, 10).split('-').reverse().join('/'))
-            + (user && " by " + user)}
-          </label>
-        }
+        <div className="document--comment" hidden={!comment}>
+          <TextareaAutosize
+            id={id}
+            disabled
+            defaultValue={comment}
+            className="comment--input"
+          ></TextareaAutosize>
+        </div>
+        <label className="comment--date" htmlFor={id}>
+          {date && user &&
+            "Uploaded on " + date.slice(0, 10).split('-').reverse().join('/') + " by " + user + "."
+          }
+          {((edited >= 1) && (editeddate && editeddate !== undefined) && (editedby && editedby !== undefined)) &&
+            " Last edited on " + editeddate.slice(0, 10).split('-').reverse().join('/') + " by " + editedby + "."
+          }
+        </label>
       </div>
     )
   }
@@ -519,7 +576,7 @@ const ModalDocumentation = (props) => {
                 }
                 <div className="d-flex justify-content-between align-items-center pb-2">
                   <b>Country Level</b>
-                  <CButton color="link" className="btn-link--dark" onClick={() => setNewDocument(true)}>Add Document</CButton>
+                  <CButton color="link" className="btn-link--dark" onClick={() => setNewDocument(true)}>Add document</CButton>
                 </div>
                 {renderDocuments("country")}
               </CCard>
@@ -540,7 +597,7 @@ const ModalDocumentation = (props) => {
                 }
                 <div className="d-flex justify-content-between align-items-center pb-2">
                   <b>Country Level</b>
-                  <CButton color="link" className="btn-link--dark" onClick={() => setNewComment(true)}>Add Comment</CButton>
+                  <CButton color="link" className="btn-link--dark" onClick={() => setNewComment(true)}>Add comment</CButton>
                 </div>
                 {renderComments("country")}
               </CCard>
