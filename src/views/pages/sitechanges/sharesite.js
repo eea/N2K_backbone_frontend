@@ -23,6 +23,8 @@ import {
   CTooltip,
   CCollapse,
   CCard,
+  CFormSelect,
+  CFormLabel,
   CAlert,
   CSpinner
 } from '@coreui/react'
@@ -47,7 +49,9 @@ class ModalChanges extends Component {
   constructor(props) {
     super(props);
     this.dl = new(DataLoader);
-
+    this.isLoadingData = false;
+    this.isLoadingComments = false;
+    this.isLoadingDocuments = false;
     this.errorLoadingComments = false;
     this.errorLoadingDocuments = false;
 
@@ -67,6 +71,8 @@ class ModalChanges extends Component {
       downloadingDocuments: [],
       justificationRequired: false,
       notValidDocument: "",
+      releases: [{ReleaseId: 0, ReleaseName: "In progress"}],
+      release: 0,
       errorLoading: false
     }
   }
@@ -79,7 +85,7 @@ class ModalChanges extends Component {
   }
 
   attachmentsHeight = () => {
-    let height = window.innerHeight - document.querySelector(".header").offsetHeight - document.querySelector(".page-title").offsetHeight - document.querySelector(".nav").offsetHeight - document.querySelector(".attachments--title").offsetHeight - (document.querySelector(".alert-primary") ? document.querySelector(".alert-primary").offsetHeight + 16 : 0 ) - 96;
+    let height = window.innerHeight - document.querySelector(".header").offsetHeight - document.querySelector(".page-title").offsetHeight - document.querySelector(".nav").offsetHeight - document.querySelector(".attachments--title").offsetHeight - document.querySelector("#release_select").offsetHeight - (document.querySelector(".alert-primary") ? document.querySelector(".alert-primary").offsetHeight + 16 : 0 ) - 112;
     if(document.querySelector(".document--list").scrollHeight > height) {
       document.querySelector(".document--list").style.height = height + "px";
     }
@@ -362,23 +368,23 @@ class ModalChanges extends Component {
     if (this.state.comments !== "noData") {
       filteredComments.forEach(c => {
         cmts.push(
-          this.createCommentElement(c.Id, c.Comments, c.Date, c.Owner, c.Edited, c.EditedDate, c.EditedBy, target)
+          this.createCommentElement(c.Id, c.Comments, c.Date, c.Owner, c.Edited, c.EditedDate, c.EditedBy, target, c.ReleaseId)
         )
       })
     }
     return (
       <div className="attachments--group" id={"changes_comments_" + target}>
         {cmts}
-        {filteredComments.length == 0 &&
+        {filteredComments.filter(a=>a.ReleaseId===this.state.release).length == 0 &&
           <em>No comments</em>
         }
       </div>
     )
   }
 
-  createCommentElement(id, comment, date, owner, edited, editeddate, editedby, level) {
+  createCommentElement(id, comment, date, owner, edited, editeddate, editedby, level, releaseId) {
     return (
-      <div className="comment--item" key={"cmtItem_" + id} id={"cmtItem_" + id}>
+      <div className="comment--item" key={"cmtItem_" + id} id={"cmtItem_" + id} hidden={releaseId !== this.state.release}>
         <div className="comment--row">
           <div className="comment--text">
             <TextareaAutosize
@@ -423,23 +429,23 @@ class ModalChanges extends Component {
       filteredDocuments.forEach(d => {
         const name = d.OriginalName ?? d.Path;
         docs.push(
-          this.createDocumentElement(d.Id, name, d.ImportDate, d.Username, d.Comment, target)
+          this.createDocumentElement(d.Id, name, d.ImportDate, d.Username, d.Comment, target, d.ReleaseId)
         )
       })
     }
     return (
       <div className="attachments--group" id={"changes_documents_" + target}>
         {docs}
-        {filteredDocuments.length == 0 &&
+        {filteredDocuments.filter(a=>a.ReleaseId===this.state.release).length == 0 &&
           <em>No documents</em>
         }
       </div>
     )
   }
 
-  createDocumentElement(id, name, date, user, comment, level) {
+  createDocumentElement(id, name, date, user, comment, level, releaseId) {
     return (
-      <div className="document--item" key={"docItem_" + id} id={"docItem_" + id} doc_id={id}>
+      <div className="document--item" key={"docItem_" + id} id={"docItem_" + id} doc_id={id} hidden={releaseId !== this.state.release}>
         <div className="document--row">
           <div className="my-auto document--text">
             <div className="document--file">
@@ -476,6 +482,14 @@ class ModalChanges extends Component {
   renderAttachments() {
     return (
       <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 3}>
+        <div className="select--right mt-3">
+          <CFormLabel htmlFor="release_select" className="form-label form-label-reporting col-md-4 col-form-label">Release</CFormLabel>
+            <CFormSelect id="release_select" aria-label="Release select" className="form-select-reporting" disabled={this.state.loading} value={this.state.release} onChange={(e)=>this.changeRelease(e.target.value)}>
+            {
+              this.state.releases.map((e)=><option value={e.ReleaseId} key={e.ReleaseId}>{e.ReleaseName}</option>)
+            }
+          </CFormSelect>
+        </div>
         <CRow className="py-3">
           <CCol className="mb-3" xs={12} lg={6}>
             <div className="attachments--title">
@@ -549,6 +563,10 @@ class ModalChanges extends Component {
         this.setState({ downloadingDocuments: this.state.downloadingDocuments.filter(a => a !== id) });
       }
     })
+  }
+
+  changeRelease(releaseId) {
+    this.setState({release: parseInt(releaseId)});
   }
 
   showErrorMessage(target, message) {
@@ -656,9 +674,15 @@ class ModalChanges extends Component {
 
   renderData() {
     if(this.state.data !== "noData" && this.state.sitecode && this.state.version !== null && !this.state.errorLoading) {
-      this.loadData();
-      this.loadComments();
-      this.loadDocuments();
+      if (!this.isLoadingData) {
+        this.loadData();
+      }
+      if (!this.isLoadingComments) {
+        this.loadComments();
+      }
+      if (!this.isLoadingDocuments) {
+        this.loadDocuments();
+      }
     }
 
     let contents = (this.state.data === "noData" || (!this.state.sitecode || this.state.version === null))
@@ -695,6 +719,7 @@ class ModalChanges extends Component {
 
   loadData() {
     if (this.state.data.SiteCode !== this.state.sitecode) {
+      this.isLoadingData = true;
       this.dl.fetch(ConfigData.SITECHANGES_DETAIL + `siteCode=${this.state.sitecode}&version=${this.state.version}`)
         .then(response => {
           if (response.status === 200)
@@ -732,8 +757,10 @@ class ModalChanges extends Component {
         if (!data.Success)
           this.errorLoadingComments = true;
         else if (data.Data.length > 0) {
-          if (data.Data[0]?.SiteCode === this.state.sitecode && (this.state.comments.length === 0 || this.state.comments === "noData"))
-            this.setState({ comments: data.Data });
+          if (data.Data[0]?.SiteCode === this.state.sitecode && (this.state.comments.length === 0 || this.state.comments === "noData")) {
+            let releasesList = [...new Map(data.Data.map(item => [item.ReleaseName, item])).values()].map(({ReleaseId, ReleaseName, ReleaseDate}) => ({ReleaseId, ReleaseName, ReleaseDate}));
+            this.setState({ comments: data.Data, releases: this.checkReleases(releasesList, this.state.releases) });
+          }
         }
         else {
           this.setState({ comments: "noData" });
@@ -756,14 +783,25 @@ class ModalChanges extends Component {
           if (!data.Success)
             this.errorLoadingDocuments = true;
           else if (data.Data.length > 0) {
-            if (data.Data[0]?.SiteCode === this.state.sitecode && (this.state.documents.length === 0 || this.state.documents === "noData"))
-              this.setState({ documents: data.Data });
+            if (data.Data[0]?.SiteCode === this.state.sitecode && (this.state.documents.length === 0 || this.state.documents === "noData")) {
+              let releasesList = [...new Map(data.Data.map(item => [item.ReleaseName, item])).values()].map(({ReleaseId, ReleaseName, ReleaseDate}) => ({ReleaseId, ReleaseName, ReleaseDate}));
+              this.setState({ documents: data.Data, releases: this.checkReleases(releasesList, this.state.releases) });
+            }
           }
           else {
             this.setState({ documents: "noData" });
           }
         });
     }
+  }
+
+  checkReleases(a, b) {
+    var missing = a.filter(aa => b.filter(bb => bb.ReleaseId === aa.ReleaseId).length === 0);
+    var combine = [ ...b, ...missing ];
+    combine.sort((a, b) => new Date(b.ReleaseDate) - new Date(a.ReleaseDate));
+    combine.push(...combine.splice(0, combine.findIndex(friend => friend.ReleaseId == 0)));
+    combine = combine.map(obj => obj.ReleaseId === 0 ? { ...obj, ReleaseName: "In progess" } : obj);
+    return combine;
   }
 }
 export default ModalChanges;

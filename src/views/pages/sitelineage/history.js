@@ -403,8 +403,8 @@ const Sitelineage = () => {
               </CCol>
               <CCol sm={12} md={6} lg={6} className="mb-4">
                   <div className="select--right">
-                    <CFormLabel className="form-label form-label-reporting col-md-4 col-form-label">Country </CFormLabel>
-                    <CFormSelect aria-label="Default select example" className='form-select-reporting' disabled={isLoading || !country} value={country} onChange={(e)=>changeCountry(e.target.value)}>
+                    <CFormLabel htmlFor="country_select" className="form-label form-label-reporting col-md-4 col-form-label">Country </CFormLabel>
+                    <CFormSelect id="country_select" aria-label="Default select example" className="form-select-reporting" disabled={isLoading || !country} value={country} onChange={(e)=>changeCountry(e.target.value)}>
                       {
                         countries.map((e)=><option value={e.code} key={e.code}>{e.name}</option>)
                       }
