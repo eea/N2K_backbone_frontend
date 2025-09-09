@@ -1052,7 +1052,7 @@ export class ModalChanges extends Component {
   createFieldElement() {
     let fields = [];
     let data = this.state.fields;
-    data = JSON.parse(JSON.stringify(data, ["SiteCode", "SiteName", "SiteType", "BioRegion", "Area", "Length", "CentreY", "CentreX"]));
+    data = JSON.parse(JSON.stringify(data, ["SiteCode", "SiteName", "SiteType", "BioRegion", "Area"]));
     for (let i in Object.keys(data)) {
       let field = Object.keys(data)[i]
       let id = "field_" + field;
@@ -1096,18 +1096,6 @@ export class ModalChanges extends Component {
         case "Area":
           label = "Area";
           placeholder = "Site area";
-          break;
-        case "Length":
-          label = "Length";
-          placeholder = "Site length";
-          break;
-        case "CentreY":
-          label = "Latitude";
-          placeholder = "Site centre location latitude";
-          break;
-        case "CentreX":
-          label = "Longitude";
-          placeholder = "Site centre location longitude";
           break;
       }
       fields.push(
@@ -1176,48 +1164,6 @@ export class ModalChanges extends Component {
           {field === "Area" &&
             <>
               <label>{label} (ha)</label><span className="mandatory">*</span>
-              <CFormInput
-                id={id}
-                name={name}
-                type="number"
-                defaultValue={value}
-                placeholder={placeholder}
-                autoComplete="off"
-                onChange={(e) => this.onChangeField(e)}
-              />
-            </>
-          }
-          {field === "Length" &&
-            <>
-              <label>{label} (km)</label>
-              <CFormInput
-                id={id}
-                name={name}
-                type="number"
-                defaultValue={value}
-                placeholder={placeholder}
-                autoComplete="off"
-                onChange={(e) => this.onChangeField(e)}
-              />
-            </>
-          }
-          {field === "CentreX" &&
-            <>
-              <label>{label} (deg)</label><span className="mandatory">*</span>
-              <CFormInput
-                id={id}
-                name={name}
-                type="number"
-                defaultValue={value}
-                placeholder={placeholder}
-                autoComplete="off"
-                onChange={(e) => this.onChangeField(e)}
-              />
-            </>
-          }
-          {field === "CentreY" &&
-            <>
-              <label>{label} (deg)</label><span className="mandatory">*</span>
               <CFormInput
                 id={id}
                 name={name}
@@ -1338,12 +1284,8 @@ export class ModalChanges extends Component {
 
   checkForChanges(e) {
     const body = this.getBody();
-    const errorMargin = 0.00000001;
     if (this.state.fields.SiteName != body.SiteName
       || this.state.fields.Area != body.Area
-      || this.state.fields.Length != body.Length
-      || (Math.abs(this.state.fields.CentreX - body.CentreX) > errorMargin)
-      || (Math.abs(this.state.fields.CentreY - body.CentreY) > errorMargin)
       || (Array.isArray(e) && this.state.fields.BioRegion.sort().toString() !== e.map(b => b.value).sort().toString())
       || e.value ? this.state.fields.SiteType !== e.value : false
     ) {
@@ -1361,9 +1303,6 @@ export class ModalChanges extends Component {
     let body = Object.fromEntries(new FormData(document.querySelector("form")));
     body.BioRegion = Array.from(document.getElementsByName("BioRegion")).map(el => el.value).sort().toString();
     body.Area = body.Area == "" ? null : Number(body.Area);
-    body.Length = body.Length == "" ? null : Number(body.Length);
-    body.CentreX = body.CentreX == "" ? null : Number.parseFloat(body.CentreX);
-    body.CentreY = body.CentreY == "" ? null : Number.parseFloat(body.CentreY);
     body.Version = this.props.version;
     body.SiteCode = this.props.item;
 
@@ -1720,7 +1659,7 @@ export class ModalChanges extends Component {
             this.setState({ fields: "noData", informedFields: [] })
           } else if (data.Data.SiteCode === this.props.item && Object.keys(this.state.data).length === 0) {
             let informed = [];
-            let a = JSON.parse(JSON.stringify(data.Data, ["SiteName", "BioRegion", "Area", "Length", "CentreY", "CentreX"]));
+            let a = JSON.parse(JSON.stringify(data.Data, ["SiteName", "BioRegion", "Area"]));
             Object.keys(a).forEach(key => {
               if (a[key]?.toString() != '' && a[key]?.toString() != undefined)
                 informed.push(key);
