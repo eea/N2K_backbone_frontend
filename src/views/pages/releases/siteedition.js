@@ -341,7 +341,7 @@ const Releases = () => {
                     <CFormLabel className="form-label form-label-reporting col-md-4 col-form-label">
                       Country
                     </CFormLabel>
-                    <CFormSelect aria-label="Default select example" className='form-select-reporting' disabled={Object.keys(siteCodes).length === 0} value={country} onChange={(e)=>changeCountry(e.target.value)}>
+                    <CFormSelect aria-label="Default select example" className="form-select-reporting" disabled={Object.keys(siteCodes).length === 0} value={country} onChange={(e)=>changeCountry(e.target.value)}>
                       {
                         countries.map((e)=><option value={e.code} key={e.code}>{e.name}</option>)
                       }
