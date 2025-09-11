@@ -351,7 +351,7 @@ const Releases = () => {
               <CCol>
                 <div className="unionlist-compare">
                   <b>Compare</b>
-                  <CFormSelect aria-label="Default select example" className="form-select-reporting" defaultValue="default" disabled={isLoading || noData} onChange={(e)=>selectRelease1(e.target.value)}>/
+                  <CFormSelect aria-label="Default select example" className='form-select-reporting' defaultValue="default" disabled={isLoading || noData} onChange={(e)=>selectRelease1(e.target.value)}>/
                     <option disabled value="default" hidden>Select a Release</option>
                     {
                       releaseList.map((e)=><option value={e.ID} key={"c1-"+e.ID}>{e.Title} {' (' + dateFormatter(e.CreateDate) + ')'}</option>)
@@ -360,7 +360,7 @@ const Releases = () => {
                   <div>
                     <i className="fa-solid fa-code-compare"></i>
                   </div>
-                  <CFormSelect aria-label="Default select example" className="form-select-reporting" defaultValue={!selectedRelease2 && "default" || selectedRelease2 ==="noData" && "noData"} value={selectedRelease2 === "noData" ? "noData" : selectedRelease2} disabled={isLoading || !selectedRelease1 || selectedRelease2 === "noData"} onChange={(e)=>setSelectedRelease2(e.target.value)}>
+                  <CFormSelect aria-label="Default select example" className='form-select-reporting' defaultValue={!selectedRelease2 && "default" || selectedRelease2 ==="noData" && "noData"} value={selectedRelease2 === "noData" ? "noData" : selectedRelease2} disabled={isLoading || !selectedRelease1 || selectedRelease2 === "noData"} onChange={(e)=>setSelectedRelease2(e.target.value)}>
                     <option disabled value="default" hidden>Select a Release</option>
                     {
                       selectedRelease1 &&
