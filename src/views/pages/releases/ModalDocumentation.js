@@ -141,6 +141,23 @@ const ModalDocumentation = (props) => {
     return dl.fetch(url, options)
   }
 
+  const readResponse = async (stream) => {
+    const reader = stream.getReader();
+    const decoder = new TextDecoder();
+    let txt = "";
+
+    const readData = ({ done, value }) => {
+      if (done) {
+        return JSON.parse(txt);
+      } else {
+        txt += decoder.decode(value);
+        return reader.read().then(readData);
+      }
+    };
+
+    return reader.read().then(readData);
+  }
+
   useEffect(() => {
     try {
       if (props.visible)
@@ -210,12 +227,12 @@ const ModalDocumentation = (props) => {
   const deleteComment = (target) => {
     if (target) {
       let input = target.closest(".comment--item").querySelector("textarea");
-      let id = input.getAttribute("id");
-      sendRequest(ConfigData.RELEASES_ATTACHMENTS_COMMENT_DELETE + "?commentId=" + parseInt(id), "DELETE", "")
+      let id = parseInt(input.getAttribute("id"));
+      sendRequest(ConfigData.RELEASES_ATTACHMENTS_COMMENT_DELETE + "?commentId=" + id, "DELETE", "")
         .then((data) => {
           if (data?.ok) {
-            setIsLoading(true)
-            loadData(props.item.Code)
+            let cmts = comments.filter(e => e.Id !== id);
+            setComments(cmts.length > 0 ? cmts : "noData");
           }
           else {
             showErrorMessage("comment", "Error deleting comment")
@@ -252,11 +269,12 @@ const ModalDocumentation = (props) => {
     sendRequest(ConfigData.RELEASES_ATTACHMENTS_COMMENT_UPDATE, "PUT", body)
       .then((data) => {
         if (data?.ok) {
+          readResponse(data.body).then((json) => {
+            setComments(sortComments(json.Data));
+          });
           input.disabled = true;
           input.readOnly = true;
-          target.innerText === "Edit";
-          setIsLoading(true);
-          loadData(props.item.Code);
+          target.innerText = "Edit";
         }
         else {
           showErrorMessage("comment", "Error saving comment")
@@ -359,32 +377,21 @@ const ModalDocumentation = (props) => {
   }
 
   const saveDocumentComment = (id, input, comment, target) => {
-    let body = documents.find(a => a.ID === id);
-    body.Comment = comment;
-    sendRequest(ConfigData.RELEASES_ATTACHMENTS_DOCUMENTS_UPDATE, "PUT", body)
+    sendRequest(ConfigData.RELEASES_ATTACHMENTS_DOCUMENT_UPDATE + "?documentId=" + id + "&comment=" + comment, "DELETE", "")
       .then((data) => {
         if (data?.ok) {
-          let reader = data.body.getReader();
-          let txt = "";
-          let readData = (data) => {
-            if (data.done)
-              return JSON.parse(txt);
-            else {
-              txt += new TextDecoder().decode(data.value);
-              return reader.read().then(readData);
-            }
-          }
-
-          reader.read().then(readData).then((data) => {
-            setDocuments(data.Data);
+          readResponse(data.body).then((json) => {
+            setDocuments(sortDocuments(json.Data));
           });
 
           input.disabled = true;
           input.readOnly = true;
           target.innerText = "Edit";
-        } else { showErrorMessage("document", "Error saving document comment") }
+        }
+        else {
+          showErrorMessage("document", "Error saving document comment")
+        }
       })
-    loadData();
   }
 
   const deleteDocumentMessage = (target) => {
@@ -399,12 +406,12 @@ const ModalDocumentation = (props) => {
   const deleteDocument = (target) => {
     if (target) {
       let doc = target.closest(".document--item");
-      let id = doc.getAttribute("doc_id");
+      let id = parseInt(doc.getAttribute("doc_id"));
       sendRequest(ConfigData.RELEASES_ATTACHMENTS_DOCUMENT_DELETE + "?documentId=" + id, "DELETE", "")
         .then((data) => {
           if (data?.ok) {
-            setIsLoading(true)
-            loadData(props.item.Code)
+            let docs = documents.filter(e => e.ID !== id);
+            setDocuments(docs.length > 0 ? docs : "noData");
           }
           else {
             showErrorMessage("document", "Error deleting document")

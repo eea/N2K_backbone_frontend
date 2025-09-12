@@ -589,29 +589,20 @@ export class ModalEdition extends Component {
   saveComment(id, input, comment, target) {
     let body = this.state.comments.find(a => a.Id === id);
     body.Comments = comment;
-
     this.sendRequest(ConfigData.UPDATE_COMMENT, "PUT", body)
       .then((data) => {
-        let reader = data.body.getReader();
-        let txt = "";
-        let readData = (data) => {
-          if (data.done)
-            return JSON.parse(txt);
-          else {
-            txt += new TextDecoder().decode(data.value);
-            return reader.read().then(readData);
-          }
-        }
-
-        reader.read().then(readData).then((data) => {
-          this.setState({ comments: data.Data })
-        });
-
         if (data?.ok) {
+          this.readResponse(data.body).then((json) => {
+            this.setState({ comments: json.Data })
+          });
+
           input.disabled = true;
           input.readOnly = true;
           target.innerText = "Edit";
-        } else { this.showErrorMessage("comment", "Error saving comment") }
+        }
+        else {
+          this.showErrorMessage("comment", "Error saving comment")
+        }
       })
     this.loadComments();
   }
@@ -628,14 +619,17 @@ export class ModalEdition extends Component {
   deleteComment(target) {
     if (target) {
       let input = target.closest(".comment--item").querySelector("textarea");
-      let id = input.getAttribute("id");
+      let id = parseInt(input.getAttribute("id"));
       let body = id;
       this.sendRequest(ConfigData.DELETE_COMMENT, "DELETE", body)
         .then((data) => {
           if (data?.ok) {
-            let cmts = this.state.comments.filter(e => e.Id !== parseInt(id));
+            let cmts = this.state.comments.filter(e => e.Id !== id);
             this.setState({ comments: cmts.length > 0 ? cmts : "noData" });
-          } else { this.showErrorMessage("comment", "Error deleting comment") }
+          }
+          else {
+            this.showErrorMessage("comment", "Error deleting comment")
+          }
         });
     }
     else {
@@ -671,28 +665,20 @@ export class ModalEdition extends Component {
   saveDocumentComment(id, input, comment, target) {
     let body = this.state.documents.find(a => a.Id === id);
     body.Comment = comment;
-    this.sendRequest(ConfigData.UPDATE_ATTACHED_FILE, "PUT", body)
+    this.sendRequest(ConfigData.UPDATE_ATTACHED_FILE + "?justificationId=" + id + "&comment=" + comment, "DELETE", "")
       .then((data) => {
         if (data?.ok) {
-          let reader = data.body.getReader();
-          let txt = "";
-          let readData = (data) => {
-            if (data.done)
-              return JSON.parse(txt);
-            else {
-              txt += new TextDecoder().decode(data.value);
-              return reader.read().then(readData);
-            }
-          }
-
-          reader.read().then(readData).then((data) => {
-            this.setState({ documents: data.Data });
+          this.readResponse(data.body).then((json) => {
+            this.setState({ documents: json.Data })
           });
 
           input.disabled = true;
           input.readOnly = true;
           target.innerText = "Edit";
-        } else { this.showErrorMessage("document", "Error saving document comment") }
+        }
+        else {
+          this.showErrorMessage("document", "Error saving document comment")
+        }
       })
     this.loadDocuments();
   }
@@ -709,13 +695,16 @@ export class ModalEdition extends Component {
   deleteDocument(target) {
     if (target) {
       let doc = target.closest(".document--item");
-      let id = doc.getAttribute("doc_id");
+      let id = parseInt(doc.getAttribute("doc_id"));
       this.sendRequest(ConfigData.DELETE_ATTACHED_FILE + "?justificationId=" + id, "DELETE", "")
         .then((data) => {
           if (data?.ok) {
-            let docs = this.state.documents.filter(e => e.Id !== parseInt(id));
+            let docs = this.state.documents.filter(e => e.Id !== id);
             this.setState({ documents: docs.length > 0 ? docs : "noData" });
-          } else { this.showErrorMessage("document", "Error deleting document") }
+          }
+          else {
+            this.showErrorMessage("document", "Error deleting document")
+          }
         });
     }
     else {
@@ -1078,7 +1067,7 @@ export class ModalEdition extends Component {
     if (this.state.activeKey === 1 && this.state.fieldChanged) {
       this.messageBeforeClose(() => this.close());
     }
-    if (this.state.activeKey === 2 && this.checkUnsavedChanges) {
+    else if (this.state.activeKey === 2 && this.checkUnsavedChanges()) {
       this.messageBeforeClose(() => this.close());
     }
     else {
@@ -1306,5 +1295,22 @@ export class ModalEdition extends Component {
       body: JSON.stringify(body),
     };
     return this.dl.fetch(url, options)
+  }
+
+  async readResponse (stream) {
+    const reader = stream.getReader();
+    const decoder = new TextDecoder();
+    let txt = "";
+
+    const readData = ({ done, value }) => {
+      if (done) {
+        return JSON.parse(txt);
+      } else {
+        txt += decoder.decode(value);
+        return reader.read().then(readData);
+      }
+    };
+
+    return reader.read().then(readData);
   }
 }
