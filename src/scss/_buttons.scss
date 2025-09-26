@@ -25,6 +25,21 @@
     &:disabled {
       opacity: 0.5;
     }
+    &.green {
+      background-color: $secondary-base;
+      color: $white;
+      transition: $transition-base;
+      &:hover {
+        background-color: $white;
+        color: $secondary-base;
+        border-color: $secondary-base;
+      }
+      &:focus, &:active, &:focus:active, &:disabled {
+        background-color: $secondary-base;
+        color: $white;
+        border-color: $secondary-base;
+      }
+    }
   }
   &-secondary {
     background-color: $white;
@@ -58,12 +73,7 @@
         color: $white;
         border-color: $danger-base;
       }
-      &:focus, &:active, &:focus:active {
-        background-color: $white;
-        color: $danger-base;
-        border-color: $danger-base;
-      }
-      &:disabled {
+      &:focus, &:active, &:focus:active, &:disabled {
         background-color: $white;
         color: $danger-base;
         border-color: $danger-base;

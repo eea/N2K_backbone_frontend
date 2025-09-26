@@ -567,7 +567,7 @@ const Sitechanges = () => {
                           </CButton>
                         </li>
                         <li>
-                          <CButton color="primary" disabled={updatingData || disabledBtn || activeTab!==1}
+                          <CButton className="green" color="primary" disabled={updatingData || disabledBtn || activeTab!==1}
                             onClick={()=>updateModalValues("Accept Changes", "This will accept all the site changes",
                               "Continue", ()=>acceptChanges(selectedCodes, true).catch(e => {showErrorMessage("Accept changes"); console.log(e)}),
                               "Cancel", ()=>{})}>
