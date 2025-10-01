@@ -26,18 +26,19 @@
       opacity: 0.5;
     }
     &.green {
-      background-color: $secondary-base;
+      background-color: $success-base;
       color: $white;
+      border-color: $success-base;
       transition: $transition-base;
       &:hover {
         background-color: $white;
-        color: $secondary-base;
-        border-color: $secondary-base;
+        color: $success-base;
+        border-color: $success-base;
       }
       &:focus, &:active, &:focus:active, &:disabled {
-        background-color: $secondary-base;
+        background-color: $success-base;
         color: $white;
-        border-color: $secondary-base;
+        border-color: $success-base;
       }
     }
   }
