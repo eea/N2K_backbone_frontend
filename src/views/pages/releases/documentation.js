@@ -15,12 +15,22 @@ import { ConfirmationModal } from './../sitechanges/components/ConfirmationModal
 import ModalDocumentation from './ModalDocumentation';
 import TableDocumentation from './TableDocumentation';
 
+const openCountryModal = () =>{
+  const searchParams = new URLSearchParams(window.location.href.split('?')[1]);
+  const country = searchParams.get('country');
+  // if (country) {
+  //   openModal(data.find(a => a.Code === country))
+  // }
+  return country ?? "";
+}
+
 const Releases = () => {
   const [showModal, setShowModal] = useState(false)
   const [modalItem, setModalItem] = useState({})
   const [error, setError] = useState('')
   const [refresh, setRefresh] = useState(false)
   const [showDescription, setShowDescription] = useState(false);
+  const [documentationData, setDocumentationData] = useState({});
 
   useEffect(() => {
     if(!showDescription) {
@@ -33,15 +43,34 @@ const Releases = () => {
     }
   });
 
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.href.split('?')[1]);
+    const country = searchParams.get('country');
+    if (country && documentationData.length > 0) {
+      openModal(documentationData.find(a => a.Code === country));
+    }
+
+  },[documentationData]); 
+
   const openModal = (data) => {
     setModalItem(data)
     setShowModal(true)
   }
 
+  const cleanCountryParm = () => {
+    const base = window.location.href.split('?')[0];
+    const parms = new URLSearchParams(window.location.href.split('?')[1]);
+    parms.delete("country");
+    location.href = base;
+  }
+
   const closeModal = () => {
-    setModalItem({})
-    setShowModal(false)
-    forceRefreshData()
+    if(openCountryModal() !== "" ) {
+      cleanCountryParm();
+    }
+    setModalItem({});
+    setShowModal(false);
+    forceRefreshData();
   }
 
   let forceRefreshData = () => {
@@ -120,6 +149,7 @@ const Releases = () => {
               showError={showError}
               refresh = {refresh}
               setRefresh = {(v)=>{setRefresh(v)}}
+              setDocumentationData={setDocumentationData}
             />
             {showModal &&
               <ModalDocumentation
