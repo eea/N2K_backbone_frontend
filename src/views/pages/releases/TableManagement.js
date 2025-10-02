@@ -137,7 +137,7 @@ function Table({ columns, data, setSelected, modalProps, showErrorMessage }) {
                   </CDropdownItemPlain>
                   <CDropdownDivider />
                   {Object.entries(UtilsData.RELEASE_DOWNLOAD).map((obj) =>
-                    <CDropdownItem data-option={obj[0]} onClick={() => downloadRelease(row.original.ID, obj[0])}>
+                    <CDropdownItem data-option={obj[0]} onClick={() => downloadRelease(row.original.ID, obj[0])} key={obj[0]}>
                       <div className="btn-icon"><i className="fa-solid fa-download me-2"></i></div>{obj[1]}
                     </CDropdownItem>
                   )}

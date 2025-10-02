@@ -114,7 +114,7 @@ function Table({ columns, data, setSelected, modalProps, currentPage, currentSiz
 					Cell: ({ row }) => {
 						return (
 							<CButton color="link" onClick={() => modalProps.openModal(row.original)}>
-								Add documentation
+								Manage documentation
 							</CButton>
 						)
 					},
@@ -244,7 +244,8 @@ function TableDocumentation(props) {
 			.then(response => response.json())
 			.then(data => {
 				if (data?.Success) {
-					setIsLoading(false)
+					setIsLoading(false);
+					props.setDocumentationData(data.Data);
 					if (data.Data.length == 0) {
 						setData("noData")
 					} else {
