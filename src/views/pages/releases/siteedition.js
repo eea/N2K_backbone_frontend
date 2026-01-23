@@ -375,6 +375,7 @@ const Releases = () => {
             updateModalValues={updateModalValues}
             regions={bioRegions}
             types={siteTypes}
+            country={country}
           />
           <ConfirmationModal modalValues={modalValues}/>
         </div>
