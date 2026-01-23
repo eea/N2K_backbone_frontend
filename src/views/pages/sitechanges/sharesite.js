@@ -423,7 +423,7 @@ class ModalChanges extends Component {
       filteredDocuments.forEach(d => {
         const name = d.OriginalName ?? d.Path;
         docs.push(
-          this.createDocumentElement(d.Id, name, d.ImportDate, d.Username, d.Comment, target)
+          this.createDocumentElement(d.Id, name, d.ImportDate, d.Username, d.Comment, d.Edited, d.EditedDate, d.EditedBy, target)
         )
       })
     }
@@ -437,7 +437,7 @@ class ModalChanges extends Component {
     )
   }
 
-  createDocumentElement(id, name, date, user, comment, level) {
+  createDocumentElement(id, name, date, user, comment, edited, editeddate, editedby, level) {
     return (
       <div className="document--item" key={"docItem_" + id} id={"docItem_" + id} doc_id={id}>
         <div className="document--row">
@@ -449,7 +449,7 @@ class ModalChanges extends Component {
           </div>
           <div className="document--icons">
             <CButton color="link" className="btn-link" disabled={this.state.downloadingDocuments.includes(id)} onClick={() => this.downloadAttachments(id, name, level)}>
-              {this.state.downloadingDocuments.includes(id) ? <CSpinner size="sm" className="mx-2" /> : <>View</>}
+              {this.state.downloadingDocuments.includes(id) ? <CSpinner size="sm" className="mx-2" /> : <>Download</>}
             </CButton>
           </div>
         </div>
@@ -462,13 +462,14 @@ class ModalChanges extends Component {
             ></TextareaAutosize>
           </div>
         }
-        {(date || user) &&
-          <label className="document--date" htmlFor={"docItem_" + id}>
-            {"Uploaded"
-            + (date && " on " + date.slice(0, 10).split('-').reverse().join('/'))
-            + (user && " by " + user)}
-          </label>
-        }
+        <label className="comment--date" htmlFor={id}>
+          {date && user &&
+            "Uploaded on " + date.slice(0, 10).split('-').reverse().join('/') + " by " + user + "."
+          }
+          {((edited >= 1) && (editeddate && editeddate !== undefined) && (editedby && editedby !== undefined)) &&
+            " Last edited on " + editeddate.slice(0, 10).split('-').reverse().join('/') + " by " + editedby + "."
+          }
+        </label>
       </div>
     )
   }
