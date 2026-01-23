@@ -133,7 +133,7 @@
         "path": "/#/reports/status",
         "name": "Sites Status",
         "option": "status",
-        "description": "Shows status (accepted, rejected, no change detected), for all sites in the database. \nImportant: when sharing with Member States, remove the columns “Justification missing”, “Comments” and “Documents”."
+        "description": "Shows status (accepted, rejected, no change detected), for all sites in the database."
       },
       {
         "path": "/#/reports/bioregions",
