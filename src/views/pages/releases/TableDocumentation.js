@@ -114,7 +114,7 @@ function Table({ columns, data, setSelected, modalProps, currentPage, currentSiz
 					Cell: ({ row }) => {
 						return (
 							<CButton color="link" onClick={() => modalProps.openModal(row.original)}>
-								Add documentation
+								Manage documentation
 							</CButton>
 						)
 					},
