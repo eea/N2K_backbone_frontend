@@ -374,13 +374,13 @@ const SDFVisualization = () => {
             case "F_2_2_administrative_region":
               index = "2.2";
               title = "Administrative region (optional)";
-              value = field[1];
+              value = field[1].length > 1 || Object.values(field[1][0]).some(v => v != null) ? field[1] : [];
               type = "table";
               break;
             case "F_2_3_biogeographical_regions":
               index = "2.3";
               title = "Biogeographical and marine regions";
-              value = field[1];
+              value = field[1].length > 1 || Object.values(field[1][0]).some(v => v != null) ? field[1] : [];
               type = "table";
               break;
             default:
@@ -458,6 +458,7 @@ const SDFVisualization = () => {
                 F_4_3_2_pressure_rank: ConfigSDF.PressureRank[item.F_4_3_2_pressure_rank],
                 F_4_3_3_pressure_location: ConfigSDF.PressureLocation[item.F_4_3_3_pressure_location]
               }));
+              value = value.length > 1 || Object.values(value[0]).some(v => v != null) ? value : [];
               type = "table";
               legend = ConfigSDF.Legend.F_4_3_pressures;
               break;
@@ -532,7 +533,7 @@ const SDFVisualization = () => {
             case "F_5_2_2_management_list":
               index = "5.2.2";
               title = "Reference and validity of the management plan(s)";
-              value = field[1];
+              value = field[1].length > 1 || Object.values(field[1][0]).some(v => v != null) ? field[1] : [];
               type = "table";
               break;
             case "F_5_2_3_a_management_text":
@@ -550,7 +551,7 @@ const SDFVisualization = () => {
             case "F_5_3_1_measures_list":
               index = "";
               title = "Necessary conservation measures are described in the following document(s)";
-              value = field[1];
+              value = field[1].length > 1 || Object.values(field[1][0]).some(v => v != null) ? field[1] : [];
               type = "table";
               break;
             case "F_5_3_1_d_measures_text":
@@ -611,16 +612,6 @@ const SDFVisualization = () => {
         if (Array.isArray(value)) {
           value = value.map(a => { let b = {}; Object.keys(a).forEach(key => b[labels[key]] = a[key] ? (isNaN(a[key]) && !isNaN(Date.parse(a[key].replaceAll(' ', ""))) ? formatDate(a[key]) : a[key]) : a[key]); return b });
         }
-        else if (type === "double-table") {
-          let c = {};
-          Object.keys(value).forEach(i => c[i] = value[i].map(a => { let b = {}; Object.keys(a).forEach(key => b[ConfigSDF[i][key]] = a[key]); return b }))
-          value = c;
-        }
-        else if (typeof value === "object" && type !== "double-table") {
-          let b = {};
-          Object.keys(value).forEach(key => b[labels[key]] = value[key] ? (isNaN(value[key]) && !isNaN(Date.parse(value[key].replaceAll(' ', ""))) ? formatDate(value[key]) : value[key]) : value[key]);
-          value = b;
-        }
       }
       else {
         value = typeof value !== "object" && isNaN(value) && !isNaN(Date.parse(value.replaceAll(' ', ""))) ? formatDate(value) : value;
@@ -659,7 +650,7 @@ const SDFVisualization = () => {
               return (
                 <th className={order[section + field]?.column === a ? "sorted" : ""} scope="col" key={a} onClick={() => sortFields(section, field, a)}>
                   {a}
-                  {order[section + field]?.column === a && (<div className="sort-icon">{order[section + field]?.order === "asc" ? <i className="ri-arrow-up-s-fill"></i> : <i className="ri-arrow-down-s-fill"></i>}</div>)}
+                  {order[section + field]?.column === a && (<div className="sort-icon">{order[section + field]?.order === "asc" ? <i className="fa-solid fa-caret-up"></i> : <i className="fa-solid fa-caret-down"></i>}</div>)}
                 </th>
               )
             });
@@ -692,25 +683,25 @@ const SDFVisualization = () => {
             return (
               <>
                 <div className="sdf-row-field">
-                  <CTable>
-                    <CTableHead>
+                  <table className="table">
+                    <thead>
                       {tableHeader &&
-                        <CTableRow>
+                        <tr>
                           {tableHeader.map((a, i) =>
                             <th colSpan={a.span} key={"th_" + i}>
                               {a.text}
                             </th>
                           )}
-                        </CTableRow>
+                        </tr>
                       }
-                      <CTableRow>
+                      <tr className={field.startsWith("F_3_") ? "th-rotate" : ""}>
                         {header}
-                      </CTableRow>
-                    </CTableHead>
-                    <CTableBody>
+                      </tr>
+                    </thead>
+                    <tbody>
                       {body}
-                    </CTableBody>
-                  </CTable>
+                    </tbody>
+                  </table>
                 </div>
                 {legend &&
                   (field === "GeneralCharacter" ?
@@ -729,91 +720,6 @@ const SDFVisualization = () => {
                   )
                 }
               </>
-            )
-          case "double-table":
-            let tables = [];
-            Object.entries(value).forEach(a => {
-              let header = a[1].length > 0 ? Object.keys(a[1][0]).map(b => {
-                return (
-                  <CTableHeaderCell className={order[section + a[0]]?.column === b ? "sorted" : ""} scope="col" key={b} onClick={() => sortFields(section, a[0], b)}>
-                    {b}
-                    {order[section + a[0]]?.column === b && (<div className="sort-icon">{order[section + a[0]]?.order === "asc" ? <i className="ri-arrow-up-s-fill"></i> : <i className="ri-arrow-down-s-fill"></i>}</div>)}
-                  </CTableHeaderCell>
-                )
-              }) : null;
-              let body = a[1].length > 0 && a[1].map((row, i) => {
-                return (
-                  <tr key={"tr_" + i}>
-                    {Object.keys(a[1][0]).map((cell, ii) => {
-                      return <CTableDataCell key={"tc_" + i + ii}>{row[cell]}</CTableDataCell>
-                    })}
-                  </tr>
-                )
-              });
-              if (!body.length) {
-                body = <tr><td>No data</td></tr>;
-              }
-              let tableHeader = ConfigSDF.TableHeader[a[0]];
-              tables.push(
-                <CCol xs={12} md={6} lg={6} xl={6} key={a[0]}>
-                  <div className="mb-2">
-                    <div className="sdf-row-field">
-                      <CTable>
-                        <CTableHead>
-                          <CTableRow>
-                            {tableHeader.map((a, i) =>
-                              <th colSpan={a.span} key={"th_" + i}>
-                                {a.text}
-                              </th>
-                            )}
-                          </CTableRow>
-                          <CTableRow>
-                            {header}
-                          </CTableRow>
-                        </CTableHead>
-                        <CTableBody>
-                          {body}
-                        </CTableBody>
-                      </CTable>
-                    </div>
-                  </div>
-                </CCol>
-              );
-            });
-            return (
-              <CRow>
-                {tables}
-                {legend &&
-                  <div className="sdf-legend">
-                    {Object.keys(legend).map(a => <div key={a}><b>{a}: </b>{legend[a]}</div>)}
-                  </div>
-                }
-              </CRow>
-            );
-          case "check":
-            let options = ConfigSDF.TableHeader.ManagementPlan;
-            let checked = value[0].Exists ? value[0].Exists : "N";
-            let check = options.map((a, i) => {
-              return (
-                <div key={"m_" + i}>
-                  <div className="ui checkbox">
-                    <input type="checkbox" className="input-checkbox" id={"management_check_" + i} defaultChecked={checked === a.value} disabled={checked !== a.value} />
-                    <label htmlFor={"management_check_" + i} className="input-label">{a.text}</label>
-                  </div >
-                  {checked === "Y" && checked === a.value &&
-                    Array.isArray(data) && data.map((a, i) =>
-                      <div className="mb-3" key={"a_" + i}>
-                        {typeof a === "object" ? Object.entries(a).map(b => b[0] !== "Exists" && <p className="mb-1" key={"b_" + b}><b>{b[0]}</b>: {b[1] ? parseLinks(b[1]) : ""}</p>) : parseLinks(a[1])}
-                      </div>
-                    )
-                  }
-                </div>
-              )
-            });
-            return (
-              <div className="sdf-row-field">
-                {check}
-              </div>
             )
           default:
             break;
