@@ -455,7 +455,6 @@ const SDFVisualization = () => {
               value = field[1];
               value = value.map(item => ({
                 ...item,
-                F_4_3_2_pressure_rank: ConfigSDF.PressureRank[item.F_4_3_2_pressure_rank],
                 F_4_3_3_pressure_location: ConfigSDF.PressureLocation[item.F_4_3_3_pressure_location]
               }));
               value = value.length > 1 || Object.values(value[0]).some(v => v != null) ? value : [];
