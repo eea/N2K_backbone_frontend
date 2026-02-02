@@ -136,15 +136,10 @@
     "F_5_3_1_b_measures_title": "5.3.1.b Title",
     "F_5_3_1_c_measures_URI": "5.3.1.c Link to online resource"
   },
-  "PressureRank": {
-    "L": "Low",
-    "M": "Medium",
-    "H": "High"
-  },
   "PressureLocation": {
-    "i": "Inside",
-    "o": "Outside",
-    "b": "Inside and outside"
+    "in": "inside",
+    "out": "outside",
+    "inout": "inside and outside"
   },
   "HabitatClasses": {
     "N01": "Marine areas, Sea inlets",
