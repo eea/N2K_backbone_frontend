@@ -374,13 +374,13 @@ const SDFVisualization = () => {
             case "F_2_2_administrative_region":
               index = "2.2";
               title = "Administrative region (optional)";
-              value = field[1].length > 1 || Object.values(field[1][0]).some(v => v != null) ? field[1] : [];
+              value = field[1];
               type = "table";
               break;
             case "F_2_3_biogeographical_regions":
               index = "2.3";
               title = "Biogeographical and marine regions";
-              value = field[1].length > 1 || Object.values(field[1][0]).some(v => v != null) ? field[1] : [];
+              value = field[1];
               type = "table";
               break;
             default:
@@ -457,7 +457,6 @@ const SDFVisualization = () => {
                 ...item,
                 F_4_3_3_pressure_location: ConfigSDF.PressureLocation[item.F_4_3_3_pressure_location]
               }));
-              value = value.length > 1 || Object.values(value[0]).some(v => v != null) ? value : [];
               type = "table";
               legend = ConfigSDF.Legend.F_4_3_pressures;
               break;
@@ -532,7 +531,7 @@ const SDFVisualization = () => {
             case "F_5_2_2_management_list":
               index = "5.2.2";
               title = "Reference and validity of the management plan(s)";
-              value = field[1].length > 1 || Object.values(field[1][0]).some(v => v != null) ? field[1] : [];
+              value = field[1];
               type = "table";
               break;
             case "F_5_2_3_a_management_text":
@@ -550,7 +549,7 @@ const SDFVisualization = () => {
             case "F_5_3_1_measures_list":
               index = "";
               title = "Necessary conservation measures are described in the following document(s)";
-              value = field[1].length > 1 || Object.values(field[1][0]).some(v => v != null) ? field[1] : [];
+              value = field[1];
               type = "table";
               break;
             case "F_5_3_1_d_measures_text":
