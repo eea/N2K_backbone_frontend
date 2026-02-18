@@ -666,7 +666,7 @@ const SDFVisualization = () => {
             }
             let body = value.map((row, i) => {
               let color;
-              if ((field === "Species" || field === "OtherSpecies") && Object.entries(row).find(a => a[0] === "S" && a[1] === "Yes")) {
+              if ((field === "F_3_2_a_essential_information" || field === "F_3_3_other_species") && Object.entries(row).find(a => (a[0] === "3.2.4 Sensitive" || a[0] === "3.3.4 Sensitive") && a[1] === "Yes")) {
                 color = ConfigSDF.Colors.Red;
               }
               return (
