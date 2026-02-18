@@ -39,14 +39,14 @@
     width: 8rem;
     min-width: 8rem;
   }
-}
-.select--right {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  align-items: end;
-  width: auto;
-  margin-left: auto;
+  .select--right {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: end;
+    width: auto;
+    margin-left: auto;
+  }
 }
 
 .sdf-index {

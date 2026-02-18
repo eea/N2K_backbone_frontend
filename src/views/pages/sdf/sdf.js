@@ -702,20 +702,9 @@ const SDFVisualization = () => {
                   </table>
                 </div>
                 {legend &&
-                  (field === "GeneralCharacter" ?
-                    <>
-                      <div className="sdf-legend mt-2">
-                        <b>Other Site Characteristics</b>
-                      </div>
-                      <div className="sdf-row-field">
-                        {typeof legend === "object" ? Object.entries(legend).map(a => <p key={"v_" + a}><b>{a[0]}</b>: {a[1] ? parseLinks(a[1]) : ""}</p>) : parseLinks(legend)}
-                      </div>
-                    </>
-                    :
-                    <div className="sdf-legend mt-2">
-                      {Object.keys(legend).map(a => <div key={a}><b>{a}: </b>{checkLegendLinks(legend[a])}</div>)}
-                    </div>
-                  )
+                  <div className="sdf-legend mt-2">
+                    {Object.keys(legend).map(a => <div key={a}><b>{a}: </b>{checkLegendLinks(legend[a])}</div>)}
+                  </div>
                 }
               </>
             )
@@ -750,7 +739,7 @@ const SDFVisualization = () => {
       const properties = path.split('.');
       return getValue(obj[properties.shift()], properties.join('.'))
     }
-    let path = field === "GeneralCharacter" || field === "NegativeThreats" ? [field, field].join(".") : field === "PositiveThreats" ? ["NegativeThreats", field].join(".") : field;
+
     if(order[section+field]?.column === colName && order[section+field].order === "asc") {
       setOrder((prevState) => ({
         ...prevState,
@@ -760,20 +749,7 @@ const SDFVisualization = () => {
         ...prevState,
         [section]: {
           ...prevState[section],
-          ...(field === "GeneralCharacter" && {
-            [field]: {
-              [field]: getValue(prevState,[section, path].join('.')).sort((a, b) => collator.compare(field === "GeneralCharacter" && column === "HabitatClass" ? ConfigSDF.HabitatClasses[b.Code] : b[column] === null ? "" : b[column], field === "GeneralCharacter" && column === "HabitatClass" ? ConfigSDF.HabitatClasses[a.Code] : a[column] === null ? "" : a[column]))
-            }  
-          }),
-          ...(field.includes("Threats") && {
-            ["NegativeThreats"]: {
-              ...prevState[section]["NegativeThreats"],
-              [field]: getValue(prevState,[section, path].join('.')).sort((a, b) => collator.compare(b[column] === null ? "" : b[column], a[column] === null ? "" : a[column]))
-            }  
-          }),
-          ...((field !== "GeneralCharacter" && !field.includes("Threats")) && {
-            [field]: getValue(prevState,[section, path].join('.')).sort((a, b) => collator.compare(b[column] === null ? "" : b[column], a[column] === null ? "" : a[column]))
-          }),
+          [field]: getValue(prevState,[section, field].join('.')).sort((a, b) => collator.compare(b[column] === null ? "" : b[column], a[column] === null ? "" : a[column]))
         }
       }));
     }
@@ -786,20 +762,7 @@ const SDFVisualization = () => {
         ...prevState,
         [section]: {
           ...prevState[section],
-          ...(field === "GeneralCharacter" && {
-            [field]: {
-              [field]: getValue(prevState,[section, path].join('.')).sort((a, b) => collator.compare(field === "GeneralCharacter" && column === "HabitatClass" ? ConfigSDF.HabitatClasses[a.Code] : a[column] === null ? "" : a[column], field === "GeneralCharacter" && column === "HabitatClass" ? ConfigSDF.HabitatClasses[b.Code] : b[column] === null ? "" : b[column]))
-            }  
-          }),
-          ...(field.includes("Threats") && {
-            ["NegativeThreats"]: {
-              ...prevState[section]["NegativeThreats"],
-              [field]: getValue(prevState,[section, path].join('.')).sort((a, b) => collator.compare(a[column] === null ? "" : a[column], b[column] === null ? "" : b[column]))
-            }
-          }),
-          ...((field !== "GeneralCharacter" && !field.includes("Threats")) && {
-            [field]: getValue(prevState,[section, path].join('.')).sort((a, b) => collator.compare(a[column] === null ? "" : a[column], b[column] === null ? "" : b[column]))
-          }),
+          [field]: getValue(prevState,[section, field].join('.')).sort((a, b) => collator.compare(a[column] === null ? "" : a[column], b[column] === null ? "" : b[column]))
         }
       }));
     }  
