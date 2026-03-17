@@ -1,6 +1,7 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, useRef} from 'react'
 import { useTable, usePagination, useFilters,useGlobalFilter, useRowSelect, useAsyncDebounce, useSortBy, useExpanded, initialExpanded } from 'react-table'
 import DropdownSiteChanges from './components/DropdownSiteChanges';
+import * as signalR from '@microsoft/signalr';
 import {
   CPagination,
   CPaginationItem,
@@ -26,11 +27,11 @@ const IndeterminateCheckbox = React.forwardRef(
     ({ indeterminate, ...rest }, ref) => {
       const defaultRef = React.useRef()
       const resolvedRef = ref || defaultRef
-  
+
       React.useEffect(() => {
         resolvedRef.current.indeterminate = indeterminate
       }, [resolvedRef, indeterminate])
-  
+
       return (
         <>
           <div className={"checkbox" + (rest.hidden ? " d-none" :"")} >
@@ -46,11 +47,11 @@ const IndeterminateCheckbox = React.forwardRef(
     ({ indeterminate, ...rest }, ref) => {
       const defaultRef = React.useRef()
       const resolvedRef = ref || defaultRef
-  
+
       React.useEffect(() => {
         resolvedRef.current.indeterminate = indeterminate
       }, [resolvedRef, indeterminate])
-  
+
       return (
         <>
          <div className={"hiddenCheckbox" + (rest.hidden ? " d-none" :"")} >
@@ -63,7 +64,7 @@ const IndeterminateCheckbox = React.forwardRef(
       )
     }
   )
-  
+
   function GlobalFilter({
     preGlobalFilteredRows,
     globalFilter,
@@ -74,7 +75,7 @@ const IndeterminateCheckbox = React.forwardRef(
     const onChange = useAsyncDebounce(value => {
       setGlobalFilter(value || undefined)
     }, 200)
-  
+
     return (
       <span>
         Search:{' '}
@@ -98,7 +99,7 @@ const IndeterminateCheckbox = React.forwardRef(
   }) {
     const count = preFilteredRows.length
     const _filteredRows = filteredRows.length
-  
+
     return (
       /*
       <input
@@ -113,16 +114,15 @@ const IndeterminateCheckbox = React.forwardRef(
      <></>
     )
   }
-  
+
   function fuzzyTextFilterFn(rows, id, filterValue) {
     return matchSorter(rows, filterValue, { keys: [row => row.values[id]] })
   }
-  
+
   fuzzyTextFilterFn.autoRemove = val => !val
 
   function Table({ columns, data, setSelected, siteCodes, currentPage, currentSize, loadPage, status, updateModalValues, isTabChanged, setIsTabChanged, startExpanded }) {
-    const [disabledBtn, setDisabledBtn] = useState(false);
-    const [pgCount, setPgCount] = useState(Math.ceil(siteCodes.length / currentSize));
+    const pgCount = Math.ceil(siteCodes.length / currentSize);
     const [selectedRows, setSelectedRows] = useState(0);
 
     const filterTypes = React.useMemo(
@@ -144,7 +144,7 @@ const IndeterminateCheckbox = React.forwardRef(
 
     const defaultColumn = React.useMemo(
         () => ({
-            Filter: DefaultColumnFilter,            
+            Filter: DefaultColumnFilter,
         })
     )
     const {
@@ -152,7 +152,7 @@ const IndeterminateCheckbox = React.forwardRef(
       getTableBodyProps,
       headerGroups,
       prepareRow,
-      page, 
+      page,
       canPreviousPage,
       canNextPage,
       pageOptions,
@@ -160,10 +160,10 @@ const IndeterminateCheckbox = React.forwardRef(
       gotoPage,
       nextPage,
       previousPage,
-      setPageSize, 
-      isAllPageRowsSelected,      
+      setPageSize,
+      isAllPageRowsSelected,
       toggleAllRowsSelected,
-      getToggleAllPageRowsSelectedProps,   
+      getToggleAllPageRowsSelectedProps,
       getToggleAllRowsExpandedProps,
       isAllRowsExpanded,
       state: { pageIndex, pageSize, selectedRowIds, expanded, expandSubRows },
@@ -225,11 +225,11 @@ const IndeterminateCheckbox = React.forwardRef(
       setSelected(siteCodes.map(v => {return {SiteCode: v.SiteCode, VersionId: v.Version, LineageChangeType: v.LineageChangeType}}))
     :
       setSelected(Object.keys(selectedRowIds).filter(v=>!v.includes(".")).map(v => {return {SiteCode:data[v].SiteCode, VersionId: data[v].Version, LineageChangeType: data[v].LineageChangeType}}))
-        
+
     let changePage = (page,chunk) => {
       loadPage(page,pageSize);
-    }    
-  
+    }
+
     // clear selection when tab is changed
     useEffect(() => {
       if(isTabChanged) {
@@ -274,7 +274,7 @@ const IndeterminateCheckbox = React.forwardRef(
             <span className="message-board-link"
               onClick={() =>(setSelectedRows(getSelectableCodes(siteCodes).length), setSelected(getSelectableCodes(siteCodes)))}>
             Select {getSelectableCodes(siteCodes).length} sites</span>
-          </div> 
+          </div>
         )
       }
         <table className="table tablechanges" {...getTableProps()}>
@@ -305,12 +305,8 @@ const IndeterminateCheckbox = React.forwardRef(
           </tbody>
         </table>
         <pre>
-            
+
         </pre>
-        {/* 
-          Pagination can be built however you'd like. 
-          This is just a very basic UI implementation:
-        */}
         <CPagination>
           <CPaginationItem onClick={() => changePage(0,gotoPage(0))} disabled={!canPreviousPage}>
             <i className="fa-solid fa-angles-left"></i>
@@ -337,9 +333,9 @@ const IndeterminateCheckbox = React.forwardRef(
               className='form-select'
               value={pageSize}
               onChange={e => {
-                setPgCount(Math.ceil(siteCodes.length / Number(e.target.value)));
-                setPageSize(Number(e.target.value));
-                loadPage(0,Number(e.target.value));
+                  const newSize = Number(e.target.value);
+                  setPageSize(newSize);
+                  loadPage(0, newSize);
               }}
             >
               {[10, 20, 30, 40, 50].map(pageSize => (
@@ -353,7 +349,7 @@ const IndeterminateCheckbox = React.forwardRef(
       </>
     )
   }
-  
+
   function TableChanges(props) {
     const [modalItem, setModalItem] = useState({});
     const [modalVisible, setModalVisible] = useState(false);
@@ -365,10 +361,58 @@ const IndeterminateCheckbox = React.forwardRef(
     const [levelCountry, setLevelCountry] = useState({});
     const [errorRequest, setErrorRequest] = useState(false);
     const [startExpanded, setStartExpanded] = useState(false);
-
     let dl = new(DataLoader);
+    const connectionRef = useRef(null);
+    const countryRef = useRef(props.country);
 
-    let forceRefreshData = ()=> setChangesData({});
+    useEffect(() => {
+      countryRef.current = props.country;
+
+      if (connectionRef.current) {
+        connectionRef.current.stop();
+        connectionRef.current = null;
+      }
+
+      const connection = new signalR.HubConnectionBuilder()
+        .withUrl(ConfigData.SERVER_API_ENDPOINT + "ws/", {
+          accessTokenFactory: () => dl.token,
+          withCredentials: true,
+        })
+        .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
+        .build();
+      connection.serverTimeoutInMilliseconds = 120000;
+      connection.keepAliveIntervalInMilliseconds = 30000;
+
+      const handleFirstMessage = async (message) => {
+        try {
+          const parsed = JSON.parse(message);
+          if (parsed.CountryCode === countryRef.current) {
+            props.setDisabledFilters(false);
+            await connection.stop();
+            connectionRef.current = null;
+          }
+        } catch (err) {
+          console.error("Error parsing message:", err);
+        }
+      };
+
+      connection.on("ChangeCacheLoaded", handleFirstMessage);
+
+      connection.start()
+        .then(() => {
+          connectionRef.current = connection;
+        })
+        .catch(err => console.error("SignalR connection error:", err));
+
+      return () => {
+        if (connectionRef.current) {
+          connectionRef.current.stop();
+          connectionRef.current = null;
+        }
+      };
+    }, [props.country]);
+
+    let forceRefreshData = () => setChangesData({});
 
     let getSite = () => {
       if(siteCodes.length > 0) {
@@ -397,7 +441,7 @@ const IndeterminateCheckbox = React.forwardRef(
       setModalItem({...data, ActiveKey: activeKey});
       setModalVisible(true);
     }
-  
+
     let closeModal = () => {
       setModalVisible(false);
       setModalItem({});
@@ -447,7 +491,7 @@ const IndeterminateCheckbox = React.forwardRef(
       });
     }
 
-    let switchMarkChanges = (change) => {         
+    let switchMarkChanges = (change) => {
       return props.mark({"SiteCode":change.SiteCode,"VersionId":change.Version,"Justification":!change.JustificationRequired})
       .then(data => {
         if(data?.ok){
@@ -457,7 +501,7 @@ const IndeterminateCheckbox = React.forwardRef(
         return data;
       }).catch(e => {
         alert("something went wrong!");
-      });    
+      });
     }
 
     let checkRowsExpanded = () => {
@@ -479,9 +523,9 @@ const IndeterminateCheckbox = React.forwardRef(
                 className={"row-expand expand-all" + (isAllRowsExpanded ? " expanded" : "")}
                 id={"sitechanges_expand_all_" + props.status}
               >
-                {isAllRowsExpanded ? 
+                {isAllRowsExpanded ?
                   <i className="fa-solid fa-square-minus"></i>
-                  : 
+                  :
                   <i className="fa-solid fa-square-plus"></i>
                 }
               </div>
@@ -499,9 +543,9 @@ const IndeterminateCheckbox = React.forwardRef(
                 })}
                 className="row-expand"
               >
-                {row.isExpanded ? 
+                {row.isExpanded ?
                   <i className="fa-solid fa-square-minus"></i>
-                  : 
+                  :
                   <i className="fa-solid fa-square-plus"></i>
                 }
               </div>
@@ -626,15 +670,15 @@ const IndeterminateCheckbox = React.forwardRef(
           }
         },
         {
-          Header: () => null,          
-          accessor: 'Justification',          
+          Header: () => null,
+          accessor: 'Justification',
           Cell: ({row}) => (
             <>
-              {row.values.JustificationRequired ? 
+              {row.values.JustificationRequired ?
                 <CTooltip
                   content="Justification Missing"
                   placement="top"
-                > 
+                >
                   <div className="btn-icon btn-hover">
                     <CImage src={justificationrequired} className="ico--md "></CImage>
                   </div>
@@ -649,7 +693,7 @@ const IndeterminateCheckbox = React.forwardRef(
           Cell: ({ row }) => {
             return (
               row.values.EditedDate && row.values.EditedBy ? (
-                  <CTooltip 
+                  <CTooltip
                     content={"Edited"
                       + (row.values.EditedDate && " on " + row.values.EditedDate.slice(0,10).split('-').reverse().join('/'))
                       + (row.values.EditedBy && " by " + row.values.EditedBy)}>
@@ -663,7 +707,7 @@ const IndeterminateCheckbox = React.forwardRef(
         },
         {
           Header: () => null,
-          accessor: "JustificationRequired",                            
+          accessor: "JustificationRequired",
         },
         {
           Header: () => null,
@@ -674,12 +718,12 @@ const IndeterminateCheckbox = React.forwardRef(
           accessor: "EditedBy",
         },
         {
-          Header: () => null, 
+          Header: () => null,
           id: 'dropdownsiteChanges',
           cellWidth: '48px',
           Cell: ({ row }) => {
               const toggleMark = row.values.JustificationRequired ? "Unmark" : "Mark";
-          
+
               let sdfSiteCode = row.original.ReferenceSiteCode
               if(row.original.LineageChangeType == "Creation" && props.status != "accepted"
                 || row.original.LineageChangeType == "Deletion" && props.status == "accepted") {
@@ -711,7 +755,7 @@ const IndeterminateCheckbox = React.forwardRef(
             reject: ()=>props.updateModalValues("Reject Changes",
               "This will reject all the site changes" + (row.original.AffectedSites ? ", including lineage changes. Those sites related to this by lineage changes will also be rejected: " + row.original.AffectedSites : ""),
               "Continue", ()=>rejectChanges(row.original, true).catch(e => {props.showErrorMessage("Reject changes"); console.log(e)}), "Cancel", ()=>{}),
-            mark: ()=>props.updateModalValues(`${toggleMark} Changes`, `This will ${toggleMark.toLowerCase()} all the site changes`, "Continue", ()=>switchMarkChanges(row.original), "Cancel", ()=>{}),            
+            mark: ()=>props.updateModalValues(`${toggleMark} Changes`, `This will ${toggleMark.toLowerCase()} all the site changes`, "Continue", ()=>switchMarkChanges(row.original), "Cancel", ()=>{}),
           }
         case 'accepted':
           return {
@@ -733,24 +777,57 @@ const IndeterminateCheckbox = React.forwardRef(
       }
     }
 
+    const getFiltersBody = () => {
+      const body = {
+        Country: props.country,
+        Filters: [
+          {
+            "Name": "Status",
+            "Value": props.status.replace(/^./, (char) => char.toUpperCase())
+          },
+          {
+            "Name": "Level",
+            "Value": props.level.replace(/^./, (char) => char.toUpperCase())
+          }
+        ],
+        SortedBy: [
+          {
+            "FieldName": Object.values(UtilsData.FILTERS).flat().find(i => i.name === props.order)?.label,
+            "SortOrder": 0
+          }
+        ]
+      };
+
+      Object.keys(UtilsData.FILTERS).filter(category => category !== "Order").forEach(category => {
+        UtilsData.FILTERS[category].forEach(filter => {
+          if (props.filters?.includes(filter.name)) {
+            if (category === "SiteType") {
+              body.Filters.push({
+                Name: category,
+                Value: filter.label
+              });
+            } else {
+              body.Filters.push({
+                Name: filter.label,
+              });
+            }
+          }
+        });
+      });
+      return body;
+    }
+
     let getSiteCodes= () => {
-      let url = ConfigData.SITECODES_GET;
-      url += 'country='+props.country;
-      url += '&status='+props.status;
-      url += '&level='+props.level;
-      url += '&onlyedited='+props.onlyEdited;
-      url += '&onlyjustreq='+props.onlyJustReq;
-      url += '&onlysci='+props.onlysci;
-      return dl.fetch(url)
+      sendRequest(ConfigData.SITECODES_GET,"POST",getFiltersBody())
       .then(response => response.json())
       .then(data => {
         if(data?.Success) {
           props.setSitecodes(props.status,data.Data);
           setSitecodes(data.Data);
         }
-      });
+      })
     }
-  
+
     let loadData = () => {
       if(props.getRefresh()||(!isLoading && changesData!=="nodata" && Object.keys(changesData).length===0)){
         let promises = [];
@@ -761,7 +838,7 @@ const IndeterminateCheckbox = React.forwardRef(
         let size = currentSize;
         
         if(props.getRefresh()||(levelCountry==={})||(levelCountry.level!==props.level)||(levelCountry.country!==props.country)){
-          props.setRefresh(props.status,false);  //For the referred status, data is updated
+          props.setRefresh(props.status,false);
           promises.push(getSiteCodes());
           if(levelCountry.country!==props.country || levelCountry.level!==props.level){
             page = 0;
@@ -773,17 +850,8 @@ const IndeterminateCheckbox = React.forwardRef(
           setLevelCountry({level:props.level,country:props.country});
         }
 
-        let url = ConfigData.SITECHANGES_GET;
-        url += 'country='+ props.country;
-        url += '&status='+props.status;
-        url += '&level='+props.level;
-        url += '&page='+(page+1);
-        url += '&limit='+size;
-        url += '&onlyedited='+props.onlyEdited;
-        url += '&onlyjustreq='+props.onlyJustReq;
-        url += '&onlysci='+props.onlysci;
         promises.push(
-          dl.fetch(url)
+          sendRequest(ConfigData.SITECHANGES_GET+'page='+(page+1)+'&limit='+size,"POST",getFiltersBody())
           .then(response => response.json())
           .then(data => {
             if(data?.Success) {
@@ -797,6 +865,7 @@ const IndeterminateCheckbox = React.forwardRef(
             else {
               setChangesData("nodata");
               setErrorRequest(true);
+              console.log("Error: " + data.Message);
             }
           })
         )
@@ -806,7 +875,18 @@ const IndeterminateCheckbox = React.forwardRef(
         });
       }
     }
-    
+
+    const sendRequest = (url,method,body,path) => {
+      const options = {
+        method: method,
+        headers: {
+        'Content-Type': path? 'multipart/form-data' :'application/json',
+        },
+        body: path ? body : JSON.stringify(body),
+      };
+      return dl.fetch(url, options)
+    }
+
     if(!props.country) {
       if(changesData !== "nodata") {
         setChangesData("nodata");
@@ -825,7 +905,7 @@ const IndeterminateCheckbox = React.forwardRef(
       if(changesData==="nodata")
         if(errorRequest)
           return (<CAlert color="danger" className="mt-3">Something went wrong</CAlert>)
-        else 
+        else
           return (<div className="nodata-container"><em>No Data</em></div>)
       else{
         if(Array.isArray(changesData)){
@@ -834,16 +914,16 @@ const IndeterminateCheckbox = React.forwardRef(
             showModal(data);
           }
         }
-        
+
         return (
         <>
-          <Table 
-            columns={columns} 
-            data={changesData} 
-            setSelected={props.setSelected} 
-            siteCodes={siteCodes} 
+          <Table
+            columns={columns}
+            data={changesData}
+            setSelected={props.setSelected}
+            siteCodes={siteCodes}
             currentPage={currentPage}
-            currentSize={currentSize} 
+            currentSize={currentSize}
             loadPage = {loadPage}
             status={props.status}
             isTabChanged={props.isTabChanged}
@@ -873,7 +953,6 @@ const IndeterminateCheckbox = React.forwardRef(
         </>
         )
       }
-  
   }
-  
+
 export default TableChanges

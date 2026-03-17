@@ -23,6 +23,7 @@ import {
 } from '@coreui/react'
 
 import { ConfirmationModal } from './components/ConfirmationModal';
+import { ModalFilters } from './ModalFilters';
 import ConfigData from '../../../config.json';
 import UtilsData from '../../../data/utils.json';
 import {DataLoader} from '../../../components/DataLoader';
@@ -100,6 +101,10 @@ const Sitechanges = () => {
   const [textValue, setTextValue] = useState('');
   const [searchText, setSearchText] = useState('');
   const [showDescription, setShowDescription] = useState(false);
+  const [showModalFilters, setShowModalFilters] = useState(false);
+  const [filters, setFilters] = useState([]);
+  const [order, setOrder] = useState("site-code");
+  const [disabledFilters, setDisabledFilters] = useState(true);
   let dl = new(DataLoader);
 
   useEffect(() => {
@@ -493,6 +498,21 @@ const Sitechanges = () => {
     forceRefreshData();
   }
 
+  let applyFilters = (filters) => {
+    setFilters(filters);
+    forceRefreshData();
+  }
+
+  let removeFilter = (name) => {
+    setFilters(prev => prev.filter(f => f !== name));
+    forceRefreshData();
+  };
+
+  let changeOrder = () => {
+    setOrder(e.target.value);
+    forceRefreshData();
+  }
+
   let changeCountry = (country)=>{
     setCountry(country);
     setSitecodes({});
@@ -502,6 +522,8 @@ const Sitechanges = () => {
     turnstoneRef.current?.blur();
     setTextValue('');
     setSearchText('');
+    setFilters([]);
+    setDisabledFilters(true);
     if(country !== "") {
       forceRefreshData();
       changeCountryParam(country);
@@ -669,7 +691,7 @@ const Sitechanges = () => {
                 </CCol>
                 <CCol sm={12} md={6} lg={6} className="mb-4">
                   <div className="select--right">
-                    <CFormLabel htmlFor="exampleFormControlInput1" className='form-label form-label-reporting col-md-4 col-form-label'>Country </CFormLabel>
+                    <CFormLabel htmlFor="exampleFormControlInput1" className='form-label form-label-reporting col-md-4 col-form-label' disabled={loadingSites || statusLoaded.length !== 3}>Country</CFormLabel>
                       <CFormSelect aria-label="Default select example" className='form-select-reporting' disabled={loadingSites || statusLoaded.length !== 3} value={country} onChange={(e)=>changeCountry(e.target.value)}>
                       {
                         countries.map((e)=><option value={e.code} key={e.code}>{e.name}</option>)
@@ -678,164 +700,178 @@ const Sitechanges = () => {
                   </div>
                 </CCol>
               </CRow>
-
               <CRow>
-                  <CCol md={12} lg={12}>
-                    {/*   tabs */}
-                    <CNav variant="tabs" role="tablist">
-                      <CNavItem>
-                        <CNavLink
-                          href="javascript:void(0);"
-                          active={activeTab === 1}
-                          onClick={() => {changeStatus(1);}}
-                        >
-                          Pending <span className="badge status--pending">{Object.keys(siteCodes).length === 3 && siteCodes.pending?.length}</span>
-                        </CNavLink>
-                      </CNavItem>
-                      <CNavItem>
-                        <CNavLink
-                          href="javascript:void(0);"
-                          active={activeTab === 2}
-                          onClick={() => {changeStatus(2);}}
-                        >
-                          Accepted <span className="badge status--accepted">{Object.keys(siteCodes).length === 3 && siteCodes.accepted?.length}</span>
-                        </CNavLink>
-                      </CNavItem>
-                      <CNavItem>
-                        <CNavLink
-                          href="javascript:void(0);"
-                          active={activeTab === 3}
-                          onClick={() => {changeStatus(3);}}
-                        >
-                          Rejected <span className="badge status--rejected">{Object.keys(siteCodes).length === 3 && siteCodes.rejected?.length}</span>
-                        </CNavLink>
-                      </CNavItem>
-                    </CNav>
-                    <div className="d-flex flex-start align-items-center p-2 card-site-level-filter">
-                      <div className="me-4"><h2 className="card-site-level-title">Filter by:</h2></div>
-                      <ul className="btn--list">
-                        <li>
-                          <div className="checkbox" disabled={loadingSites || statusLoaded.length !== 3}>
-                            <input type="checkbox" className="input-checkbox" id="site_check_justification" checked={filterJustification===true} onClick={(e)=>changeFilter("justification", e.currentTarget.checked)} />
-                            <label htmlFor="site_check_justification" className="input-label badge color--default">Justification missing</label>
-                          </div>
-                        </li>
-                        {activeTab === 2 && 
-                          <li>
-                            <div className="checkbox" disabled={loadingSites || statusLoaded.length !== 3}>
-                              <input type="checkbox" className="input-checkbox" id="site_check_edited" checked={filterEdited===true} onClick={(e)=>changeFilter("edited", e.currentTarget.checked)} />
-                              <label htmlFor="site_check_edited" className="input-label badge color--default">Edited</label>
-                            </div>
-                          </li>
-                        }
-                        <li>
-                          <div className="checkbox" disabled={loadingSites || statusLoaded.length !== 3}>
-                            <input type="checkbox" className="input-checkbox" id="site_check_sci" checked={filterSCI===true} onClick={(e)=>changeFilter("sci", e.currentTarget.checked)} />
-                            <label htmlFor="site_check_sci" className="input-label badge color--default">SCI (Type B+C)</label>
-                          </div>
-                        </li>
-                      </ul>
+                <CCol md={12} lg={12}>
+                  <div className="site-filters mb-3">
+                    <div className="filters-container">
+                      <button className="filters-button" disabled={loadingSites || statusLoaded.length !== 3 || disabledFilters} onClick={() => setShowModalFilters(true)}>
+                        <i className="fa-solid fa-sliders"></i>Filters
+                      </button>
+                      <div className="filters-order">
+                        <CFormLabel className='form-label col-md-4 col-form-label' disabled={loadingSites || statusLoaded.length !== 3 || disabledFilters}>Sort by</CFormLabel>
+                        <CFormSelect aria-label="Sort by" className='form-select-reporting' disabled={loadingSites || statusLoaded.length !== 3 || disabledFilters} value={order} onChange={(e) => changeOrder(e)}>
+                          {
+                            UtilsData.FILTERS.Order.map((e)=><option value={e.name} key={e.name}>{e.label}</option>)
+                          }
+                        </CFormSelect>
+                      </div>
                     </div>
-                    <CTabContent>
-                      <CTabPane role="tabpanel" aria-labelledby="pending-tab" visible={activeTab === 1}>
-                        <TableChanges
-                          status="pending" 
-                          country = {country}
-                          level = {level}
-                          onlyEdited = {false}
-                          onlyJustReq = {filterJustification}
-                          onlysci={filterSCI}
-                          siteTypes={siteTypes}
-                          setSelected={(v) => {if(activeTab===1) setSelectedCodes(v)}} 
-                          getRefresh={()=>getRefreshSitechanges("pending")} 
-                          setRefresh={setRefreshSitechanges}
-                          accept={acceptChanges}
-                          reject={rejectChanges}
-                          setBackToPending={setBackToPending}
-                          mark={switchMarkChanges}
-                          updateModalValues={updateModalValues}
-                          setSitecodes = {setCodes}
-                          setShowModal={()=>showModalSitechanges()}
-                          showModal={showModal}
-                          isTabChanged={isTabChanged}
-                          setIsTabChanged={setIsTabChanged}
-                          site={site}
-                          setSite={setSite}
-                          closeModal={closeModal}
-                          modalHasChanges = {modalHasChanges}
-                          setModalHasChanges = {setModalHasChanges}
-                          setLoadingSites={setLoadingSites}
-                          showErrorMessage={showErrorMessage}
-                        />
-                      </CTabPane>
-                      <CTabPane role="tabpanel" aria-labelledby="accepted-tab" visible={activeTab === 2}>
-                        <TableChanges
-                          status="accepted" 
-                          country = {country}
-                          level = {level}
-                          onlyEdited = {filterEdited}
-                          onlyJustReq = {filterJustification}
-                          onlysci={filterSCI}
-                          siteTypes={siteTypes}
-                          setSelected={(v) => {if(activeTab===2) setSelectedCodes(v)}} 
-                          getRefresh={()=>getRefreshSitechanges("accepted")} 
-                          setRefresh={setRefreshSitechanges}
-                          accept={acceptChanges}
-                          reject={rejectChanges}
-                          setBackToPending={setBackToPending}
-                          updateModalValues={updateModalValues}
-                          setSitecodes = {setCodes}
-                          setShowModal={()=>showModalSitechanges()}
-                          showModal={showModal}
-                          isTabChanged={isTabChanged}
-                          setIsTabChanged={setIsTabChanged}
-                          site={site}
-                          setSite={setSite}
-                          closeModal={closeModal}
-                          modalHasChanges = {modalHasChanges}
-                          setModalHasChanges = {setModalHasChanges}
-                          setLoadingSites={setLoadingSites}
-                          showErrorMessage={showErrorMessage}
-                        />
-                      </CTabPane>
-                      <CTabPane role="tabpanel" aria-labelledby="rejected-tab" visible={activeTab === 3}>
-                        <TableChanges
-                          status="rejected" 
-                          country = {country}
-                          level = {level}
-                          onlyEdited = {false}
-                          onlyJustReq = {filterJustification}
-                          onlysci={filterSCI}
-                          siteTypes={siteTypes}
-                          setSelected={(v) => {if(activeTab===3) setSelectedCodes(v)}} 
-                          getRefresh={()=>getRefreshSitechanges("rejected")} 
-                          setRefresh={setRefreshSitechanges}
-                          accept={acceptChanges}
-                          reject={rejectChanges}
-                          setBackToPending={setBackToPending}
-                          updateModalValues={updateModalValues}
-                          setSitecodes = {setCodes}
-                          setShowModal={()=>showModalSitechanges()}
-                          showModal={showModal}
-                          isTabChanged={isTabChanged}
-                          setIsTabChanged={setIsTabChanged}
-                          site={site}
-                          setSite={setSite}
-                          closeModal={closeModal}
-                          modalHasChanges = {modalHasChanges}
-                          setModalHasChanges = {setModalHasChanges}
-                          setLoadingSites={setLoadingSites}
-                          showErrorMessage={showErrorMessage}
-                        />
-                      </CTabPane>
-                    </CTabContent>
-                  </CCol>
-                </CRow>
+                    {filters.length> 0 &&
+                      <div className="filters-tags">
+                        {filters.map(filter => (
+                          <span className="filters-tag" key={filter.name} disabled={loadingSites || statusLoaded.length !== 3 || disabledFilters}>
+                            {Object.values(UtilsData.FILTERS).flat().find(i => i.name === filter)?.label}
+                            <button onClick={() => removeFilter(filter)}><i className="fa-solid fa-xmark"></i></button>
+                          </span>
+                        ))}
+                      </div>
+                    }
+                  </div>
+                  <CNav variant="tabs" role="tablist">
+                    <CNavItem>
+                      <CNavLink
+                        href="javascript:void(0);"
+                        active={activeTab === 1}
+                        onClick={() => {changeStatus(1);}}
+                      >
+                        Pending <span className="badge status--pending">{Object.keys(siteCodes).length === 3 && siteCodes.pending?.length}</span>
+                      </CNavLink>
+                    </CNavItem>
+                    <CNavItem>
+                      <CNavLink
+                        href="javascript:void(0);"
+                        active={activeTab === 2}
+                        onClick={() => {changeStatus(2);}}
+                      >
+                        Accepted <span className="badge status--accepted">{Object.keys(siteCodes).length === 3 && siteCodes.accepted?.length}</span>
+                      </CNavLink>
+                    </CNavItem>
+                    <CNavItem>
+                      <CNavLink
+                        href="javascript:void(0);"
+                        active={activeTab === 3}
+                        onClick={() => {changeStatus(3);}}
+                      >
+                        Rejected <span className="badge status--rejected">{Object.keys(siteCodes).length === 3 && siteCodes.rejected?.length}</span>
+                      </CNavLink>
+                    </CNavItem>
+                  </CNav>
+                  <CTabContent>
+                    <CTabPane role="tabpanel" aria-labelledby="pending-tab" visible={activeTab === 1}>
+                      <TableChanges
+                        status="pending" 
+                        country = {country}
+                        level = {level}
+                        filters = {filters}
+                        order={order}
+                        setDisabledFilters = {setDisabledFilters}
+                        onlyEdited = {false}
+                        onlyJustReq = {filterJustification}
+                        onlysci={filterSCI}
+                        siteTypes={siteTypes}
+                        setSelected={(v) => {if(activeTab===1) setSelectedCodes(v)}} 
+                        getRefresh={()=>getRefreshSitechanges("pending")} 
+                        setRefresh={setRefreshSitechanges}
+                        accept={acceptChanges}
+                        reject={rejectChanges}
+                        setBackToPending={setBackToPending}
+                        mark={switchMarkChanges}
+                        updateModalValues={updateModalValues}
+                        setSitecodes = {setCodes}
+                        setShowModal={()=>showModalSitechanges()}
+                        showModal={showModal}
+                        isTabChanged={isTabChanged}
+                        setIsTabChanged={setIsTabChanged}
+                        site={site}
+                        setSite={setSite}
+                        closeModal={closeModal}
+                        modalHasChanges = {modalHasChanges}
+                        setModalHasChanges = {setModalHasChanges}
+                        setLoadingSites={setLoadingSites}
+                        showErrorMessage={showErrorMessage}
+                      />
+                    </CTabPane>
+                    <CTabPane role="tabpanel" aria-labelledby="accepted-tab" visible={activeTab === 2}>
+                      <TableChanges
+                        status="accepted" 
+                        country = {country}
+                        level = {level}
+                        filters = {filters}
+                        order={order}
+                        setDisabledFilters = {setDisabledFilters}
+                        onlyEdited = {filterEdited}
+                        onlyJustReq = {filterJustification}
+                        onlysci={filterSCI}
+                        siteTypes={siteTypes}
+                        setSelected={(v) => {if(activeTab===2) setSelectedCodes(v)}} 
+                        getRefresh={()=>getRefreshSitechanges("accepted")} 
+                        setRefresh={setRefreshSitechanges}
+                        accept={acceptChanges}
+                        reject={rejectChanges}
+                        setBackToPending={setBackToPending}
+                        updateModalValues={updateModalValues}
+                        setSitecodes = {setCodes}
+                        setShowModal={()=>showModalSitechanges()}
+                        showModal={showModal}
+                        isTabChanged={isTabChanged}
+                        setIsTabChanged={setIsTabChanged}
+                        site={site}
+                        setSite={setSite}
+                        closeModal={closeModal}
+                        modalHasChanges = {modalHasChanges}
+                        setModalHasChanges = {setModalHasChanges}
+                        setLoadingSites={setLoadingSites}
+                        showErrorMessage={showErrorMessage}
+                      />
+                    </CTabPane>
+                    <CTabPane role="tabpanel" aria-labelledby="rejected-tab" visible={activeTab === 3}>
+                      <TableChanges
+                        status="rejected" 
+                        country = {country}
+                        level = {level}
+                        filters = {filters}
+                        order={order}
+                        setDisabledFilters = {setDisabledFilters}
+                        onlyEdited = {false}
+                        onlyJustReq = {filterJustification}
+                        onlysci={filterSCI}
+                        siteTypes={siteTypes}
+                        setSelected={(v) => {if(activeTab===3) setSelectedCodes(v)}} 
+                        getRefresh={()=>getRefreshSitechanges("rejected")} 
+                        setRefresh={setRefreshSitechanges}
+                        accept={acceptChanges}
+                        reject={rejectChanges}
+                        setBackToPending={setBackToPending}
+                        updateModalValues={updateModalValues}
+                        setSitecodes = {setCodes}
+                        setShowModal={()=>showModalSitechanges()}
+                        showModal={showModal}
+                        isTabChanged={isTabChanged}
+                        setIsTabChanged={setIsTabChanged}
+                        site={site}
+                        setSite={setSite}
+                        closeModal={closeModal}
+                        modalHasChanges = {modalHasChanges}
+                        setModalHasChanges = {setModalHasChanges}
+                        setLoadingSites={setLoadingSites}
+                        showErrorMessage={showErrorMessage}
+                      />
+                    </CTabPane>
+                  </CTabContent>
+                </CCol>
+              </CRow>
             </CContainer>
           </div>
         </div>
       </div>
       <ConfirmationModal modalValues={modalValues}/>
+      <ModalFilters
+        visible={showModalFilters}
+        closeModal={setShowModalFilters}
+        filters={filters}
+        setFilters={(f) => applyFilters(f)}
+        order={order}
+      />
     </>
   )
 }
