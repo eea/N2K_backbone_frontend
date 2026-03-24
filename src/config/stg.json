@@ -1,6 +1,6 @@
 {
   "SERVER_API_ENDPOINT": "https://blackneckedswan:490/n2kbackbone_back/",
-  "SITECHANGES_GET": "https://blackneckedswan:490/n2kbackbone_back/api/sitechanges/get/",
+  "SITECHANGES_GET": "https://blackneckedswan:490/n2kbackbone_back/api/sitechanges/Fetch/",
   "NOCHANGES_GET": "https://blackneckedswan:490/n2kbackbone_back/api/sitechanges/GetNoChanges/",
   "SITECODES_GET": "https://blackneckedswan:490/n2kbackbone_back/api/sitechanges/GetSiteCodes/",
   "SITECHANGES_DETAIL": "https://blackneckedswan:490/n2kbackbone_back/api/SiteChanges/GetSiteChangesDetail/",

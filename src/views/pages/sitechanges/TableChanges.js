@@ -362,55 +362,29 @@ const IndeterminateCheckbox = React.forwardRef(
     const [errorRequest, setErrorRequest] = useState(false);
     const [startExpanded, setStartExpanded] = useState(false);
     let dl = new(DataLoader);
-    const connectionRef = useRef(null);
-    const countryRef = useRef(props.country);
 
     useEffect(() => {
-      countryRef.current = props.country;
+      if (!props.connection) return;
 
-      if (connectionRef.current) {
-        connectionRef.current.stop();
-        connectionRef.current = null;
-      }
-
-      const connection = new signalR.HubConnectionBuilder()
-        .withUrl(ConfigData.SERVER_API_ENDPOINT + "ws/", {
-          accessTokenFactory: () => dl.token,
-          withCredentials: true,
-        })
-        .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
-        .build();
-      connection.serverTimeoutInMilliseconds = 120000;
-      connection.keepAliveIntervalInMilliseconds = 30000;
-
-      const handleFirstMessage = async (message) => {
+      const handleMessage = async (message) => {
         try {
           const parsed = JSON.parse(message);
-          if (parsed.CountryCode === countryRef.current) {
+          if (parsed.CountryCode === props.country) {
             props.setDisabledFilters(false);
-            await connection.stop();
-            connectionRef.current = null;
+            props.connection.off("ChangeCacheLoaded", handleMessage);
+            await props.connection.stop();
           }
         } catch (err) {
           console.error("Error parsing message:", err);
         }
       };
 
-      connection.on("ChangeCacheLoaded", handleFirstMessage);
-
-      connection.start()
-        .then(() => {
-          connectionRef.current = connection;
-        })
-        .catch(err => console.error("SignalR connection error:", err));
+      props.connection.on("ChangeCacheLoaded", handleMessage);
 
       return () => {
-        if (connectionRef.current) {
-          connectionRef.current.stop();
-          connectionRef.current = null;
-        }
+        props.connection.off("ChangeCacheLoaded", handleMessage);
       };
-    }, [props.country]);
+    }, [props.connection, props.country]);
 
     let forceRefreshData = () => setChangesData({});
 
@@ -777,7 +751,8 @@ const IndeterminateCheckbox = React.forwardRef(
       }
     }
 
-    const getFiltersBody = () => {
+    const getFiltersBody = (sorting) => {
+      let order = Object.values(UtilsData.ORDER).flat().find(i => i.name === props.order);
       const body = {
         Country: props.country,
         Filters: [
@@ -790,15 +765,17 @@ const IndeterminateCheckbox = React.forwardRef(
             "Value": props.level.replace(/^./, (char) => char.toUpperCase())
           }
         ],
-        SortedBy: [
-          {
-            "FieldName": Object.values(UtilsData.FILTERS).flat().find(i => i.name === props.order)?.label,
-            "SortOrder": 0
-          }
-        ]
+        ...(sorting && {
+          SortedBy: [
+            {
+              "FieldName": order?.label,
+              "SortOrder": order?.sort
+            }
+          ]
+        })
       };
 
-      Object.keys(UtilsData.FILTERS).filter(category => category !== "Order").forEach(category => {
+      Object.keys(UtilsData.FILTERS).forEach(category => {
         UtilsData.FILTERS[category].forEach(filter => {
           if (props.filters?.includes(filter.name)) {
             if (category === "SiteType") {
@@ -850,8 +827,9 @@ const IndeterminateCheckbox = React.forwardRef(
           setLevelCountry({level:props.level,country:props.country});
         }
 
+        const connectionId = props?.connection?.connectionId;
         promises.push(
-          sendRequest(ConfigData.SITECHANGES_GET+'page='+(page+1)+'&limit='+size,"POST",getFiltersBody())
+          sendRequest(ConfigData.SITECHANGES_GET+'page='+(page+1)+'&limit='+size,"POST",getFiltersBody(true),false,{"SocketID":connectionId})
           .then(response => response.json())
           .then(data => {
             if(data?.Success) {
@@ -876,11 +854,12 @@ const IndeterminateCheckbox = React.forwardRef(
       }
     }
 
-    const sendRequest = (url,method,body,path) => {
+    const sendRequest = (url,method,body,path,customHeaders = {}) => {
       const options = {
         method: method,
         headers: {
-        'Content-Type': path? 'multipart/form-data' :'application/json',
+          'Content-Type': path? 'multipart/form-data' :'application/json',
+          ...customHeaders
         },
         body: path ? body : JSON.stringify(body),
       };

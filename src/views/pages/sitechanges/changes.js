@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import { AppFooter, AppHeader, AppSidebar } from '../../../components/index'
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import Turnstone from 'turnstone';
+import * as signalR from '@microsoft/signalr';
 
 import TableChanges from './TableChanges';
 import {
@@ -79,9 +80,6 @@ const Sitechanges = () => {
   const [loadingSites, setLoadingSites] = useState(true);
   const [country, setCountry] = useState(defaultCountry);
   const [level, setLevel] = useState('Critical');
-  const [filterEdited, setFilterEdited] = useState(false);
-  const [filterJustification, setFilterJustification] = useState(false);
-  const [filterSCI, setFilterSCI] = useState(false);
   const [siteTypes, setSiteTypes] = useState([]);
   const [disabledBtn, setDisabledBtn] = useState(true);
   const [disabledSearchBtn, setDisabledSearchBtn] = useState(true);
@@ -105,6 +103,7 @@ const Sitechanges = () => {
   const [filters, setFilters] = useState([]);
   const [order, setOrder] = useState("site-code");
   const [disabledFilters, setDisabledFilters] = useState(true);
+  const [connection, setConnection] = useState(null);
   let dl = new(DataLoader);
 
   useEffect(() => {
@@ -141,6 +140,31 @@ const Sitechanges = () => {
       }
     }
   });
+
+  useEffect(() => {
+    if (!country) return;
+
+    const newConnection = new signalR.HubConnectionBuilder()
+      .withUrl(ConfigData.SERVER_API_ENDPOINT + "ws/", {
+        accessTokenFactory: () => dl.token,
+        withCredentials: true,
+      })
+      .withAutomaticReconnect()
+      .build();
+
+    newConnection.start()
+      .then(() => {
+        setConnection(newConnection);
+      })
+      .catch(err => console.error("Error conectando:", err));
+
+    return () => {
+      if (newConnection) {
+        newConnection.stop();
+        setConnection(null);
+      }
+    };
+  }, [country]);
 
   let setCodes = (status,data) => {
     if(data) {
@@ -469,9 +493,6 @@ const Sitechanges = () => {
   }
 
   let changeStatus = (tabNum) => {
-    if(tabNum !== 2 && filterEdited) {
-      changeFilter("edited", false);
-    }
     setActiveTab(tabNum);
     setIsTabChanged(true);
   }
@@ -481,20 +502,6 @@ const Sitechanges = () => {
     setLevel(level);
     turnstoneRef.current?.clear();
     setTextValue(text);
-    forceRefreshData();
-  }
-
-  let changeFilter = (type, value) => {
-    if (type === "edited") {
-      setFilterEdited(value);
-    }
-    else if (type === "justification") {
-      setFilterJustification(value);
-    }
-    else if (type == "sci") {
-      setFilterSCI(value);
-    }
-    clearSearch();
     forceRefreshData();
   }
 
@@ -508,8 +515,8 @@ const Sitechanges = () => {
     forceRefreshData();
   };
 
-  let changeOrder = () => {
-    setOrder(e.target.value);
+  let changeOrder = (value) => {
+    setOrder(value);
     forceRefreshData();
   }
 
@@ -523,6 +530,7 @@ const Sitechanges = () => {
     setTextValue('');
     setSearchText('');
     setFilters([]);
+    setOrder("site-code");
     setDisabledFilters(true);
     if(country !== "") {
       forceRefreshData();
@@ -709,9 +717,9 @@ const Sitechanges = () => {
                       </button>
                       <div className="filters-order">
                         <CFormLabel className='form-label col-md-4 col-form-label' disabled={loadingSites || statusLoaded.length !== 3 || disabledFilters}>Sort by</CFormLabel>
-                        <CFormSelect aria-label="Sort by" className='form-select-reporting' disabled={loadingSites || statusLoaded.length !== 3 || disabledFilters} value={order} onChange={(e) => changeOrder(e)}>
+                        <CFormSelect aria-label="Sort by" className='form-select-reporting' disabled={loadingSites || statusLoaded.length !== 3 || disabledFilters} value={order} onChange={(e) => changeOrder(e.target.value)}>
                           {
-                            UtilsData.FILTERS.Order.map((e)=><option value={e.name} key={e.name}>{e.label}</option>)
+                            UtilsData.ORDER.map((e)=><option value={e.name} key={e.name}>{e.label}</option>)
                           }
                         </CFormSelect>
                       </div>
@@ -765,9 +773,6 @@ const Sitechanges = () => {
                         filters = {filters}
                         order={order}
                         setDisabledFilters = {setDisabledFilters}
-                        onlyEdited = {false}
-                        onlyJustReq = {filterJustification}
-                        onlysci={filterSCI}
                         siteTypes={siteTypes}
                         setSelected={(v) => {if(activeTab===1) setSelectedCodes(v)}} 
                         getRefresh={()=>getRefreshSitechanges("pending")} 
@@ -789,6 +794,7 @@ const Sitechanges = () => {
                         setModalHasChanges = {setModalHasChanges}
                         setLoadingSites={setLoadingSites}
                         showErrorMessage={showErrorMessage}
+                        connection={connection}
                       />
                     </CTabPane>
                     <CTabPane role="tabpanel" aria-labelledby="accepted-tab" visible={activeTab === 2}>
@@ -799,9 +805,6 @@ const Sitechanges = () => {
                         filters = {filters}
                         order={order}
                         setDisabledFilters = {setDisabledFilters}
-                        onlyEdited = {filterEdited}
-                        onlyJustReq = {filterJustification}
-                        onlysci={filterSCI}
                         siteTypes={siteTypes}
                         setSelected={(v) => {if(activeTab===2) setSelectedCodes(v)}} 
                         getRefresh={()=>getRefreshSitechanges("accepted")} 
@@ -822,6 +825,7 @@ const Sitechanges = () => {
                         setModalHasChanges = {setModalHasChanges}
                         setLoadingSites={setLoadingSites}
                         showErrorMessage={showErrorMessage}
+                        connection={connection}
                       />
                     </CTabPane>
                     <CTabPane role="tabpanel" aria-labelledby="rejected-tab" visible={activeTab === 3}>
@@ -832,9 +836,6 @@ const Sitechanges = () => {
                         filters = {filters}
                         order={order}
                         setDisabledFilters = {setDisabledFilters}
-                        onlyEdited = {false}
-                        onlyJustReq = {filterJustification}
-                        onlysci={filterSCI}
                         siteTypes={siteTypes}
                         setSelected={(v) => {if(activeTab===3) setSelectedCodes(v)}} 
                         getRefresh={()=>getRefreshSitechanges("rejected")} 
@@ -855,6 +856,7 @@ const Sitechanges = () => {
                         setModalHasChanges = {setModalHasChanges}
                         setLoadingSites={setLoadingSites}
                         showErrorMessage={showErrorMessage}
+                        connection={connection}
                       />
                     </CTabPane>
                   </CTabContent>
