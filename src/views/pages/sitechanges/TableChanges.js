@@ -1,7 +1,6 @@
 import React, {useState, useEffect, useRef} from 'react'
 import { useTable, usePagination, useFilters,useGlobalFilter, useRowSelect, useAsyncDebounce, useSortBy, useExpanded, initialExpanded } from 'react-table'
 import DropdownSiteChanges from './components/DropdownSiteChanges';
-import * as signalR from '@microsoft/signalr';
 import {
   CPagination,
   CPaginationItem,
