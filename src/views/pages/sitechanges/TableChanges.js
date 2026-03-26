@@ -573,7 +573,14 @@ const IndeterminateCheckbox = React.forwardRef(
             const num = (() => {
               if (change.match(/((specie)|(habitat)).+((add)|(del)).+/gi)) return row.original.NumChanges
               if (change.match(/priorityform change/gi)) return row.original.NumChanges
-              if (change.match(/((del).+(area)+)|(spatial area decrease)/gi)) return (Math.abs(row.original.OldValue - row.original.NewValue)).toFixed(4)
+              if (change.match(/((del).+(area)+)/gi)) {
+                const res = (Math.abs(row.original.NewValue * 100 / row.original.Detail)).toFixed(4);
+                return parseFloat(res) + "%";
+              }
+              if (change.match(/(spatial area decrease)/gi)) {
+                const res = (Math.abs((row.original.OldValue - row.original.NewValue) * 100 / row.original.OldValue)).toFixed(4);
+                return parseFloat(res) + "%";
+              }
               else return undefined
             })()
             return change + (num != undefined ? ' ('+ num +')' : "")
