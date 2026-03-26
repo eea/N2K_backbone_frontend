@@ -1,6 +1,6 @@
 {
   "SERVER_API_ENDPOINT": "https://n2kbackboneback-dev-r3-czbkfthrf5dyhyha.westeurope-01.azurewebsites.net/",
-  "SITECHANGES_GET": "https://n2kbackboneback-dev-r3-czbkfthrf5dyhyha.westeurope-01.azurewebsites.net/api/sitechanges/get/",
+  "SITECHANGES_GET": "https://n2kbackboneback-dev-r3-czbkfthrf5dyhyha.westeurope-01.azurewebsites.net/api/sitechanges/Fetch/",
   "NOCHANGES_GET": "https://n2kbackboneback-dev-r3-czbkfthrf5dyhyha.westeurope-01.azurewebsites.net/api/sitechanges/GetNoChanges/",
   "SITECODES_GET": "https://n2kbackboneback-dev-r3-czbkfthrf5dyhyha.westeurope-01.azurewebsites.net/api/sitechanges/GetSiteCodes/",
   "SITECHANGES_DETAIL": "https://n2kbackboneback-dev-r3-czbkfthrf5dyhyha.westeurope-01.azurewebsites.net/api/SiteChanges/GetSiteChangesDetail/",

@@ -477,7 +477,7 @@ const Sitelineage = () => {
                 </CCol>
                 <CCol sm={12} md={6} lg={6} className="mb-4">
                   <div className="select--right">
-                    <CFormLabel htmlFor="exampleFormControlInput1" className='form-label form-label-reporting col-md-4 col-form-label'>Country </CFormLabel>
+                    <CFormLabel htmlFor="exampleFormControlInput1" className='form-label form-label-reporting col-md-4 col-form-label' disabled={Object.keys(siteCodes).length < 2}>Country</CFormLabel>
                       <CFormSelect aria-label="Default select example" className='form-select-reporting'
                         disabled={Object.keys(siteCodes).length < 2} value={country} onChange={(e)=>changeCountry(e.target.value)}>
                       {
@@ -489,27 +489,27 @@ const Sitelineage = () => {
               </CRow>
               <CRow>
                 <CCol md={12} lg={12}>
-                    <CNav variant="tabs" role="tablist">
-                      <CNavItem>
-                        <CNavLink
-                          href="javascript:void(0);"
-                          active={activeTab === 1}
-                          onClick={() => {changeStatus(1);}}
-                        >
-                          Proposed <span className="badge status--pending">{changesCount[0]}</span>
-                        </CNavLink>
-                      </CNavItem>
-                      <CNavItem>
-                        <CNavLink
-                          href="javascript:void(0);"
-                          active={activeTab === 2}
-                          onClick={() => {changeStatus(2);}}
-                        >
-                          Consolidated <span className="badge status--accepted">{changesCount[1]}</span>
-                        </CNavLink>
-                      </CNavItem>
-                    </CNav>
-                    <CTabContent>
+                  <CNav variant="tabs" role="tablist">
+                    <CNavItem>
+                      <CNavLink
+                        href="javascript:void(0);"
+                        active={activeTab === 1}
+                        onClick={() => {changeStatus(1);}}
+                      >
+                        Proposed <span className="badge status--pending">{changesCount[0]}</span>
+                      </CNavLink>
+                    </CNavItem>
+                    <CNavItem>
+                      <CNavLink
+                        href="javascript:void(0);"
+                        active={activeTab === 2}
+                        onClick={() => {changeStatus(2);}}
+                      >
+                        Consolidated <span className="badge status--accepted">{changesCount[1]}</span>
+                      </CNavLink>
+                    </CNavItem>
+                  </CNav>
+                  <CTabContent>
                     <CTabPane role="tabpanel" aria-labelledby="pending-tab" visible={activeTab === 1}>
                       <TableManagement
                         status="Proposed" 
