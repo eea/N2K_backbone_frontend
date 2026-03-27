@@ -53,7 +53,7 @@
     "F_3_1_12_1_habitat_conserv_degree": "3.1.12.1 Conservation",
     "F_3_1_12_2_habitat_area_condition": "3.1.12.2 Conservation area",
     "F_3_1_12_3_habitat_conserv_method": "3.1.12.3 Conservation method",
-    "F_3_1_13_habitat_objectives": "3.1.13 Conservation objetives",
+    "F_3_1_13_habitat_objectives": "3.1.13 Conservation objectives",
     "F_3_1_14_a_habitat_objectives_text": "3.1.14 Objectives further explanation",
     "F_3_1_15_habitat_global": "3.1.15 Global",
     "F_3_1_16_habitat_date": "3.1.16 Update date"
@@ -84,8 +84,8 @@
     "F_3_2_15_1_species_conserv_degree": "3.2.15 Conservation",
     "F_3_2_15_2_species_qual": "3.2.15.2 Conservation occupied % area (optional)",
     "F_3_2_15_3_species_qual_class": "3.2.15.3 Conservation occupied % class",
-    "F_3_2_16_species_objectives": "3.2.16 Conservation objetives",
-    "F_3_2_17_a_species_objectives_text": "3.2.17 Objetives further explanation",
+    "F_3_2_16_species_objectives": "3.2.16 Conservation objectives",
+    "F_3_2_17_a_species_objectives_text": "3.2.17 Objectives further explanation",
     "F_3_2_18_species_isolation": "3.2.18 Isolation",
     "F_3_2_19_species_global": "3.2.19 Global",
     "F_3_2_20_species_date": "3.2.20 Update date"
