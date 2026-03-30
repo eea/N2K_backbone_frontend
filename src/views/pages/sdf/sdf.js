@@ -1,6 +1,7 @@
 import ConfigData from '../../../config.json';
 import ConfigSDF from './sdf_config.json';
 import React, { useState, useEffect } from 'react'
+import { AppHeader } from '../../../components/index'
 import {ReactComponent as NaturaLogo} from './../../../../src/assets/images/natura2000_logo.svg';
 import {DataLoader} from '../../../components/DataLoader';
 import SDFStructure from "./SDFStructure";
