@@ -365,6 +365,8 @@ const IndeterminateCheckbox = React.forwardRef(
     useEffect(() => {
       if (!props.connection) return;
 
+      if (!props.connection.connectionId) return;
+
       const handleMessage = async (message) => {
         try {
           const parsed = JSON.parse(message);
@@ -384,6 +386,15 @@ const IndeterminateCheckbox = React.forwardRef(
         props.connection.off("ChangeCacheLoaded", handleMessage);
       };
     }, [props.connection, props.country]);
+
+    useEffect(() => {
+      if (!props.country) return;
+
+      if (!props.connection?.connectionId) return;
+
+      loadData();
+
+    }, [props.country, props.connection?.connectionId, props.status, props.level, currentPage, currentSize]);
 
     let forceRefreshData = () => setChangesData({});
 
@@ -820,7 +831,7 @@ const IndeterminateCheckbox = React.forwardRef(
         let page = currentPage;
         let size = currentSize;
         
-        if(props.getRefresh()||(levelCountry==={})||(levelCountry.level!==props.level)||(levelCountry.country!==props.country)){
+        if(props.getRefresh()||(Object.keys(levelCountry).length === 0)||(levelCountry.level!==props.level)||(levelCountry.country!==props.country)){
           props.setRefresh(props.status,false);
           promises.push(getSiteCodes());
           if(levelCountry.country!==props.country || levelCountry.level!==props.level){
@@ -879,9 +890,6 @@ const IndeterminateCheckbox = React.forwardRef(
         props.setSitecodes({});
         setIsLoading(false);
       }
-      //return(<></>);
-    } else {
-      loadData();
     }
 
     if(isLoading)
@@ -904,7 +912,7 @@ const IndeterminateCheckbox = React.forwardRef(
         <>
           <Table
             columns={columns}
-            data={changesData}
+            data={Array.isArray(changesData) ? changesData : []}
             setSelected={props.setSelected}
             siteCodes={siteCodes}
             currentPage={currentPage}
