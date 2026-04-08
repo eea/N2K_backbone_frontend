@@ -771,7 +771,7 @@ const Sitechanges = () => {
                         country = {country}
                         level = {level}
                         filters = {filters}
-                        order={order}
+                        order = {order}
                         setDisabledFilters = {setDisabledFilters}
                         siteTypes={siteTypes}
                         setSelected={(v) => {if(activeTab===1) setSelectedCodes(v)}} 
@@ -803,7 +803,7 @@ const Sitechanges = () => {
                         country = {country}
                         level = {level}
                         filters = {filters}
-                        order={order}
+                        order = {order}
                         setDisabledFilters = {setDisabledFilters}
                         siteTypes={siteTypes}
                         setSelected={(v) => {if(activeTab===2) setSelectedCodes(v)}} 
@@ -834,7 +834,7 @@ const Sitechanges = () => {
                         country = {country}
                         level = {level}
                         filters = {filters}
-                        order={order}
+                        order = {order}
                         setDisabledFilters = {setDisabledFilters}
                         siteTypes={siteTypes}
                         setSelected={(v) => {if(activeTab===3) setSelectedCodes(v)}} 

@@ -360,6 +360,9 @@ const IndeterminateCheckbox = React.forwardRef(
     const [levelCountry, setLevelCountry] = useState({});
     const [errorRequest, setErrorRequest] = useState(false);
     const [startExpanded, setStartExpanded] = useState(false);
+    const [cacheReady, setCacheReady] = useState(false);
+    const prevFilters = useRef(props.filters);
+    const prevOrder = useRef(props.order);
     let dl = new(DataLoader);
 
     useEffect(() => {
@@ -372,6 +375,7 @@ const IndeterminateCheckbox = React.forwardRef(
           const parsed = JSON.parse(message);
           if (parsed.CountryCode === props.country) {
             props.setDisabledFilters(false);
+            setCacheReady(true);
             props.connection.off("ChangeCacheLoaded", handleMessage);
             await props.connection.stop();
           }
@@ -389,12 +393,20 @@ const IndeterminateCheckbox = React.forwardRef(
 
     useEffect(() => {
       if (!props.country) return;
+      if (!cacheReady && !props.connection?.connectionId) return;
 
-      if (!props.connection?.connectionId) return;
+      const isResetNeeded = prevFilters.current !== props.filters || prevOrder.current !== props.order;
 
-      loadData();
+      prevFilters.current = props.filters;
+      prevOrder.current = props.order;
 
-    }, [props.country, props.connection?.connectionId, props.status, props.level, currentPage, currentSize]);
+      if (isResetNeeded) {
+        setCurrentPage(0);
+        loadData(0);
+      } else {
+        loadData();
+      }
+    }, [props.country, props.connection?.connectionId, props.status, props.level, currentPage, currentSize, props.filters, props.order]);
 
     let forceRefreshData = () => setChangesData({});
 
@@ -808,6 +820,7 @@ const IndeterminateCheckbox = React.forwardRef(
           }
         });
       });
+      console.log(body)
       return body;
     }
 
@@ -822,13 +835,13 @@ const IndeterminateCheckbox = React.forwardRef(
       })
     }
 
-    let loadData = () => {
+    let loadData = (forcedPage) => {
       if(props.getRefresh()||(!isLoading && changesData!=="nodata" && Object.keys(changesData).length===0)){
         let promises = [];
         setIsLoading(true);
         props.setLoadingSites(true);
         checkRowsExpanded();
-        let page = currentPage;
+        let page = forcedPage !== undefined ? forcedPage : currentPage;
         let size = currentSize;
         
         if(props.getRefresh()||(Object.keys(levelCountry).length === 0)||(levelCountry.level!==props.level)||(levelCountry.country!==props.country)){
@@ -892,27 +905,27 @@ const IndeterminateCheckbox = React.forwardRef(
       }
     }
 
-    if(isLoading)
-      return (<div className="loading-container"><em>Loading...</em></div>)
-    else
-      if(changesData==="nodata")
-        if(errorRequest)
-          return (<CAlert color="danger" className="mt-3">Something went wrong</CAlert>)
-        else
-          return (<div className="nodata-container"><em>No Data</em></div>)
-      else{
-        if(Array.isArray(changesData)){
+    if (changesData === "nodata") {
+  if (errorRequest) {
+    return (<CAlert color="danger" className="mt-3">Something went wrong</CAlert>);
+  } else {
+    return (<div className="nodata-container"><em>No Data</em></div>);
+  }
+} else if (isLoading || !Array.isArray(changesData)) {
+  return (<div className="loading-container"><em>Loading...</em></div>);
+} else {
+        
           const data = getSite();
           if(data.SiteCode){
             showModal(data);
           }
-        }
+        
 
         return (
         <>
           <Table
             columns={columns}
-            data={Array.isArray(changesData) ? changesData : []}
+            data={changesData}
             setSelected={props.setSelected}
             siteCodes={siteCodes}
             currentPage={currentPage}
