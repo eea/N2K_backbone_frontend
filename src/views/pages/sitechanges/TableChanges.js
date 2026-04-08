@@ -391,19 +391,6 @@ const IndeterminateCheckbox = React.forwardRef(
       };
     }, [props.connection, props.country]);
 
-    // useEffect(() => {
-    //   if (!props.country) return;
-
-    //   if (!cacheReady && !props.connection?.connectionId) return;
-
-    //   loadData();
-
-    // }, [props.country, props.connection?.connectionId, props.status, props.level, currentPage, currentSize, props.filters, props.order]);
-
-    // useEffect(() => {
-    //   setCurrentPage(0);
-    // }, [props.filters, props.order, props.level, props.status]);
-
     useEffect(() => {
       if (!props.country) return;
       if (!cacheReady && !props.connection?.connectionId) return;
