@@ -34,7 +34,7 @@ const SDFVisualization = (props) => {
 
   const showMap = () => {
     return (
-      <div className="sdf-map">
+      <div className="sdf-map px-4 pb-5">
         <MapViewer
           siteCode={siteCode}
           release={release}
