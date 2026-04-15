@@ -30,7 +30,6 @@ const SDFVisualization = (props) => {
   const showMap = () => {
     return (
       <div className="sdf-map px-4 pb-5">
-              <i className="fas fa-arrow-up"></i>
         <MapViewer
           siteCode={siteCode}
           release={release}
