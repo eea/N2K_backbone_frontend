@@ -229,14 +229,40 @@
     }
   },
   "TableHeader": {
-    "F_3_2_a_essential_information": [
-       {
+    "F_3_1_a_essential_information": [
+      {
+        "span": 8,
+        "text": "3.1.a Essential information (habitat type)"
+      }
+    ],
+    "F_3_1_b_site_assessment": [
+      {
         "span": 6,
-        "text": "Species"
+        "text": "3.1.b Site assessment (habitat type)"
+      },
+      {
+        "span": 7,
+        "text": "Conservation"
+      }
+    ],
+    "F_3_2_a_essential_information": [
+      {
+        "span": 5,
+        "text": "3.2.a Essential information (species)"
       },
       {
         "span": 7,
         "text": "Population in the site"
+      }
+    ],
+    "F_3_2_b_site_assessment": [
+      {
+        "span": 8,
+        "text": "3.2.b Site assessment (species)"
+      },
+      {
+        "span": 5,
+        "text": "Conservation"
       }
     ]
   },

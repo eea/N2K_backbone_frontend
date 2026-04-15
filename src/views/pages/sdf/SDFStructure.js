@@ -30,7 +30,6 @@ const SDFVisualization = (props) => {
   const showMap = () => {
     return (
       <div className="sdf-map px-4 pb-5">
-              <i className="fas fa-arrow-up"></i>
         <MapViewer
           siteCode={siteCode}
           release={release}
@@ -270,28 +269,28 @@ const SDFVisualization = (props) => {
           switch (field[0]) {
             case "F_3_1_a_essential_information":
               index = "3.1.a";
-              title = "Essential information (habitat type)";
+              title = "";
               value = field[1];
               type = "table";
               legend = ConfigSDF.Legend.F_3_1_a_essential_information;
               break;
             case "F_3_1_b_site_assessment":
               index = "3.1.b";
-              title = "Site assessment (habitat type)";
+              title = "";
               value = field[1];
               type = "table";
               legend = ConfigSDF.Legend.F_3_1_b_site_assessment;
               break;
             case "F_3_2_a_essential_information":
               index = "3.2.a";
-              title = "Essential information (species)";
+              title = "";
               value = field[1];
               type = "table";
               legend = ConfigSDF.Legend.F_3_2_a_essential_information;
               break;
             case "F_3_2_b_site_assessment":
               index = "3.2.b";
-              title = "Site assessment (species)";
+              title = "";
               value = field[1];
               type = "table";
               legend = ConfigSDF.Legend.F_3_2_b_site_assessment;
@@ -304,7 +303,7 @@ const SDFVisualization = (props) => {
               legend = ConfigSDF.Legend.F_3_3_other_species;
               break;
             case "F_3_3_8_species_motivation":
-              index = "";
+              index = "3.3.8";
               title = "Motivation";
               value = field[1];
               type = "table";
@@ -552,7 +551,13 @@ const SDFVisualization = (props) => {
               return (
                 <tr style={{ backgroundColor: color ? color : "" }} key={"tr_" + i}>
                   {Object.keys(value[0]).map((cell, ii) => {
-                    return <CTableDataCell key={"tc_" + i + ii}>{cell.includes("Scientific name") ? <i>{row[cell]}</i> : <span>{checkCellLink(cell, row[cell])}</span>}</CTableDataCell>
+                    const cellValue = row[cell];
+                    const isStrictlyNumeric = typeof cellValue === 'number';
+                    return (
+                      <CTableDataCell key={"tc_" + i + ii} style={{ textAlign: isStrictlyNumeric ? 'right' : 'left' }}>
+                        {cell.includes("Scientific name") ? <i>{cellValue}</i> : <span>{checkCellLink(cell, cellValue)}</span>}
+                      </CTableDataCell>
+                    );
                   })}
                 </tr>
               )
@@ -601,7 +606,7 @@ const SDFVisualization = (props) => {
         ),
         <CRow className={"sdf-row" + (layout === 2 ? " col-sm-6 col-12" : "")} key={section + "-" + field[0] + "-row"}>
           <CCol>
-            <div className="sdf-row-title">{index + " " + title}</div>
+            {index && title && <div className="sdf-row-title">{index + " " + title}</div>}
             {dataType(field[0], type, value)}
           </CCol>
         </CRow>
