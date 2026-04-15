@@ -30,6 +30,7 @@ const SDFVisualization = (props) => {
   const showMap = () => {
     return (
       <div className="sdf-map px-4 pb-5">
+              <i className="fas fa-arrow-up"></i>
         <MapViewer
           siteCode={siteCode}
           release={release}
@@ -606,7 +607,7 @@ const SDFVisualization = (props) => {
         ),
         <CRow className={"sdf-row" + (layout === 2 ? " col-sm-6 col-12" : "")} key={section + "-" + field[0] + "-row"}>
           <CCol>
-            {index && title && <div className="sdf-row-title">{index + " " + title}</div>}
+            {title && <div className="sdf-row-title">{index + " " + title}</div>}
             {dataType(field[0], type, value)}
           </CCol>
         </CRow>
