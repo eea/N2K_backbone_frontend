@@ -168,7 +168,7 @@ export class ModalEdition extends Component {
 
   fieldValidator() {
     let body = Object.fromEntries(new FormData(document.querySelector("form")));
-    let data = JSON.parse(JSON.stringify(body, ["SiteCode", "SiteName", "SiteType", "BioRegion", "Area", "Length", "CentreY", "CentreX"]));
+    let data = JSON.parse(JSON.stringify(body, ["SiteCode", "SiteName", "SiteType", "BioRegion", "Area"]));
     this.state.notValidField = [];
     for (let i in Object.keys(data)) {
       let field = Object.keys(data)[i]
@@ -798,7 +798,7 @@ export class ModalEdition extends Component {
   createFieldElement() {
     let fields = [];
     let data = this.state.data;
-    data = JSON.parse(JSON.stringify(data, ["SiteCode", "SiteName", "SiteType", "BioRegion", "Area", "Length", "CentreY", "CentreX"]));
+    data = JSON.parse(JSON.stringify(data, ["SiteCode", "SiteName", "SiteType", "BioRegion", "Area"]));
     for (let i in Object.keys(data)) {
       let field = Object.keys(data)[i]
       let id = "field_" + field;
@@ -842,18 +842,6 @@ export class ModalEdition extends Component {
         case "Area":
           label = "Area";
           placeholder = "Site area";
-          break;
-        case "Length":
-          label = "Length";
-          placeholder = "Site length";
-          break;
-        case "CentreY":
-          label = "Latitude";
-          placeholder = "Site centre location latitude";
-          break;
-        case "CentreX":
-          label = "Longitude";
-          placeholder = "Site centre location longitude";
           break;
       }
       fields.push(
@@ -922,48 +910,6 @@ export class ModalEdition extends Component {
           {field === "Area" &&
             <>
               <label>{label} (ha)</label><span className="mandatory">*</span>
-              <CFormInput
-                id={id}
-                name={name}
-                type="number"
-                defaultValue={value}
-                placeholder={placeholder}
-                autoComplete="off"
-                onChange={(e) => this.onChangeField(e)}
-              />
-            </>
-          }
-          {field === "Length" &&
-            <>
-              <label>{label} (km)</label>
-              <CFormInput
-                id={id}
-                name={name}
-                type="number"
-                defaultValue={value}
-                placeholder={placeholder}
-                autoComplete="off"
-                onChange={(e) => this.onChangeField(e)}
-              />
-            </>
-          }
-          {field === "CentreX" &&
-            <>
-              <label>{label} (deg)</label><span className="mandatory">*</span>
-              <CFormInput
-                id={id}
-                name={name}
-                type="number"
-                defaultValue={value}
-                placeholder={placeholder}
-                autoComplete="off"
-                onChange={(e) => this.onChangeField(e)}
-              />
-            </>
-          }
-          {field === "CentreY" &&
-            <>
-              <label>{label} (deg)</label><span className="mandatory">*</span>
               <CFormInput
                 id={id}
                 name={name}
@@ -1204,12 +1150,8 @@ export class ModalEdition extends Component {
 
   checkForChanges(e) {
     let body = this.getBody();
-    let errorMargin = 0.00000001;
     if (this.state.data.SiteName !== body.SiteName
       || this.state.data.Area !== body.Area
-      || this.state.data.Length !== body.Length
-      || (Math.abs(this.state.data.CentreX - body.CentreX) > errorMargin)
-      || (Math.abs(this.state.data.CentreY - body.CentreY) > errorMargin)
       || (Array.isArray(e) && this.state.data.BioRegion.sort().toString() !== e.map(b => b.value).sort().toString())
       || (e && e.value ? this.state.data.SiteType !== e.value : false)
     ) {
@@ -1225,9 +1167,6 @@ export class ModalEdition extends Component {
     let body = Object.fromEntries(new FormData(document.querySelector("form")));
     body.BioRegion = Array.from(document.getElementsByName("BioRegion")).map(el => el.value).sort().toString();
     body.Area = body.Area ? +body.Area : body.Area;
-    body.Length = body.Length ? +body.Length : null;
-    body.CentreX = body.CentreX ? +body.CentreX : body.CentreX;
-    body.CentreY = body.CentreY ? +body.CentreY : body.CentreY;
     body.Version = this.props.version;
     body.SiteCode = this.props.item;
 

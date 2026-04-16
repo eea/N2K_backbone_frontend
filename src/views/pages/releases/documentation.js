@@ -18,9 +18,6 @@ import TableDocumentation from './TableDocumentation';
 const openCountryModal = () =>{
   const searchParams = new URLSearchParams(window.location.href.split('?')[1]);
   const country = searchParams.get('country');
-  // if (country) {
-  //   openModal(data.find(a => a.Code === country))
-  // }
   return country ?? "";
 }
 

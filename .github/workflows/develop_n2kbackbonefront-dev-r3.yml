@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy Node.js app to Azure Web App - n2kbackbonefront-dev
+name: Build and deploy Node.js app to Azure Web App - n2kbackbonefront-dev-r3
 
 on:
   push:
@@ -36,30 +36,29 @@ jobs:
         with:
           name: node-app
           path: build
-
   deploy:
     runs-on: windows-latest
     needs: build
     environment:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-      #url: https://n2kbackbonefront-dev.azurewebsites.net/
-
+      
+    
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: node-app
-
-      - name: Azure WebApp Node20-fix
-        #uses: michealmueller/webapps-deploy@v3-node20
-        uses: azure/webapps-deploy@v2
+      
+      - name: 'Deploy to Azure Web App'
+        uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
         with:
-          app-name: n2kbackbonefront-dev
-          slot-name: Production
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_602DDF7028A344D58C6FD13A93BF5845 }}
+          app-name: 'n2kbackbonefront-dev-r3'
+          slot-name: 'Production'
           package: .
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_25CF31C50E934B0EB9EF2B28AA46E3D1 }}
+          #publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_DA397581FD1C4402B1C8C19BDEF9CBBD }}
           
   delete:
     runs-on: windows-latest
@@ -70,4 +69,4 @@ jobs:
         id: artifact
         uses: geekyeggo/delete-artifact@v4
         with:
-          name: node-app
+          name: node-app          
