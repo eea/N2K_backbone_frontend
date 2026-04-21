@@ -1,7 +1,6 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef, useMemo } from 'react'
 import { AppFooter, AppHeader, AppSidebar } from '../../../components/index'
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import Turnstone from 'turnstone';
 import * as signalR from '@microsoft/signalr';
 
 import TableChanges from './TableChanges';
@@ -95,9 +94,9 @@ const Sitechanges = () => {
   const [rejecting, setRejecting] = useState(false);
   const [backing, setBacking] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const turnstoneRef = useRef();
+  const searchWrapperRef = useRef(null);
+  const [showDropdown, setShowDropdown] = useState(false);
   const [textValue, setTextValue] = useState('');
-  const [searchText, setSearchText] = useState('');
   const [showDescription, setShowDescription] = useState(false);
   const [showModalFilters, setShowModalFilters] = useState(false);
   const [filters, setFilters] = useState([]);
@@ -124,11 +123,24 @@ const Sitechanges = () => {
 
   useEffect(() => {
     if(statusLoaded.length === 3 && textValue) {
-      turnstoneRef.current?.focus();
-      turnstoneRef.current?.query(textValue);
-      setSearchText(textValue);
+      setShowDropdown(true);
     }
-  }, [statusLoaded])
+  }, [statusLoaded]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        searchWrapperRef.current &&
+        !searchWrapperRef.current.contains(event.target)
+      ) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    }
+  }, []);
 
   useEffect(() => {
     if(!showDescription) {
@@ -166,29 +178,23 @@ const Sitechanges = () => {
     };
   }, [country]);
 
-  let setCodes = (status,data) => {
+  let setCodes = (status, data) => {
     if(data) {
-      let codes = siteCodes;
-      codes[status] = data;
-      setSitecodes(codes);
-      setSearchList(getSitesList());
-      setStatusLoaded(statusLoaded => [...statusLoaded, status]);
+      setSitecodes(prev => ({
+        ...prev,
+        [status]: data
+      }));
+
+      setStatusLoaded(prev =>
+        prev.includes(status) ? prev : [...prev, status]
+      );
+    }
+    else if (country){
       setIsLoading(false);
     }
     else if (country){
       setIsLoading(false);
     }
-  }
-
-  let getSitesList = () =>{
-    return Object.keys(siteCodes).map( v=>{
-        return {
-          name: v,
-          data: siteCodes[v].map?siteCodes[v].map(x=>({"search":x.SiteCode+" - "+x.Name,"status":v,...x})):[],
-          searchType: "contains",
-        }
-      }
-    )
   }
 
   let showModalSitechanges = (data) => {
@@ -232,18 +238,18 @@ const Sitechanges = () => {
     setModalHasChanges(false);
     clearSearch();
     forceRefreshData();
-    setForceRefresh(forceRefresh+1);
+    setForceRefresh(prev => prev + 1);
   }
 
-  let forceRefreshData = ()=>{
+  let forceRefreshData = () => {
     setIsLoading(true);
     setStatusLoaded([]);
     setLoadingSites(true);
     setSitecodes({});
     setSearchList({});
-    for(let i in refreshSitechanges)
-      setRefreshSitechanges(i,true)
-    setIsLoading(false);
+    for (let i in refreshSitechanges) {
+      setRefreshSitechanges(i, true);
+    }
   };
 
   let postRequest = (url,body)=>{
@@ -295,75 +301,89 @@ const Sitechanges = () => {
     }
   }
 
-  let setBackToPending = (changes, refresh)=>{
+  let setBackToPending = (changes, refresh) => {
     setBacking(true);
     setUpdatingData(true);
     let rBody = getChangesBody(changes);
 
     return postRequest(ConfigData.MOVE_TO_PENDING, rBody)
     .then(data => {
-      if(data?.ok){
-        setUpdatingData(false);
-        setBacking(false);
-        let response = readResponse(data, "Back To Pending");
-        if(refresh){
-          forceRefreshData();
-          setForceRefresh(forceRefresh+1);
-        }
-        return response;
-      } else {
-        setBacking(false);
-        setUpdatingData(false);
-        throw("Service returned Success: false")
+      if (!data.ok) {
+        throw "Service returned Success: false";
       }
+      return readResponse(data, "Back To Pending");
+    })
+    .then(response => {
+      setUpdatingData(false);
+      setBacking(false);
+      if (refresh) {
+        forceRefreshData();
+        setForceRefresh(prev => prev + 1);
+      }
+      return response;
+    })
+    .catch(e => {
+      setBacking(false);
+      setUpdatingData(false);
+      throw e;
     });
   }
 
-  let acceptChanges = (changes, refresh)=>{
+  let acceptChanges = (changes, refresh) => {
     setAccepting(true);
     setUpdatingData(true);
     let rBody = getChangesBody(changes);
 
     return postRequest(ConfigData.ACCEPT_CHANGES, rBody)
     .then(data => {
-      if(data.ok){
-        setUpdatingData(false);
-        setAccepting(false);
-        let response = readResponse(data, "Accept Changes");
-        if(refresh){
-          forceRefreshData();
-          setForceRefresh(forceRefresh+1);
-        }
-        return response;
-      } else {
+      if (!data.ok) {
         setAccepting(false);
         setUpdatingData(false);
-        throw "Service returned Success: false"
+        throw "Service returned Success: false";
       }
+      return readResponse(data, "Accept Changes");
+    })
+    .then(response => {
+      setUpdatingData(false);
+      setAccepting(false);
+      if (refresh) {
+        forceRefreshData();
+        setForceRefresh(prev => prev + 1);
+      }
+      return response;
+    })
+    .catch(e => {
+      setAccepting(false);
+      setUpdatingData(false);
+      throw e;
     });
   }
 
-  let rejectChanges = (changes, refresh)=>{
+  let rejectChanges = (changes, refresh) => {
     setRejecting(true);
     setUpdatingData(true);
     let rBody = getChangesBody(changes);
 
     return postRequest(ConfigData.REJECT_CHANGES, rBody)
     .then(data => {
-      if(data.ok){
-        setUpdatingData(false);
-        setRejecting(false);
-        let response = readResponse(data, "Reject Changes");
-        if(refresh){
-          forceRefreshData();
-          setForceRefresh(forceRefresh+1);
-        }
-        return response;
-      } else {
-        setRejecting(false);
-        setUpdatingData(false);
-        throw("Service returned Success: false")
+      if (!data.ok) {
+        throw "Service returned Success: false";
       }
+      return readResponse(data, "Reject Changes");
+    })
+    .then(response => {
+      setUpdatingData(false);
+      setRejecting(false);
+      if (refresh) {
+        forceRefreshData();
+        setForceRefresh(prev => prev + 1);
+      }
+      return response;
+    })
+    .catch(e => {
+      setRejecting(false);
+      setUpdatingData(false);
+      throw e;
     });
   }
 
@@ -402,18 +422,22 @@ const Sitechanges = () => {
     return dl.fetch(url, options)
   }
 
-  let switchMarkChanges = (changes)=>{
-    let rBody =!Array.isArray(changes)?[changes]:changes 
+  let switchMarkChanges = (changes) => {
+    let rBody = !Array.isArray(changes) ? [changes] : changes;
 
     return postRequest(ConfigData.MARK_AS_JUSTIFICATION_REQUIRED, rBody)
     .then(data => {
-      if(data.ok){
-        forceRefreshData();
+      if (!data.ok) {
+        throw "Service returned Success: false";
       }
-      else 
-        showErrorMessage("Switch Mark Changes");
-      return data;
-    }).catch(e => {
+      return readResponse(data, "Switch Mark Changes");
+    })
+    .then(response => {
+      forceRefreshData();
+      setForceRefresh(prev => prev + 1);
+      return response;
+    })
+    .catch(e => {
       showErrorMessage("Switch Mark Changes");
       console.log(e);
     });
@@ -453,43 +477,10 @@ const Sitechanges = () => {
   }
 
   let clearSearch = () => {
-    turnstoneRef.current?.clear();
-    turnstoneRef.current?.blur();
-    setDisabledSearchBtn(true);
-    setSelectOption({});
     setTextValue('');
-    setSearchText('');
-  }
-
-  let selectSearchOption = (e) => {
-    if (e) {
-      setDisabledSearchBtn(false);
-      setSelectOption(e);
-      if(document.querySelector("#sitechanges_search-listbox")) {
-        document.querySelector("#sitechanges_search-listbox").style.display="none";
-      }
-    }
-    else {
-      setDisabledSearchBtn(true);
-    }
-  }
-
-  const item = (props) => {
-    return (
-      <div className="search--option">
-        {/* <div><span className={"badge status--" + props.item.status}>{props.item.status}</span></div> */}
-        <div>{props.item.Name}</div>
-        <div className="search--suboption">{props.item.SiteCode}</div>
-      </div>
-    )
-  }
-
-  const group = (props) => {
-    return (
-      <div>
-        <span className={"badge status--" + props.children}>{props.children}</span>
-      </div>
-    )
+    setSelectOption({});
+    setDisabledSearchBtn(true);
+    setShowDropdown(false);
   }
 
   let changeStatus = (tabNum) => {
@@ -497,11 +488,9 @@ const Sitechanges = () => {
     setIsTabChanged(true);
   }
 
-  let changeLevel = (level)=>{
-    const text = document.getElementById("sitechanges_search").value;
-    setLevel(level);
-    turnstoneRef.current?.clear();
-    setTextValue(text);
+  let changeLevel = (newLevel) => {
+    setLevel(newLevel);
+    setDisabledSearchBtn(true);
     forceRefreshData();
   }
 
@@ -525,10 +514,7 @@ const Sitechanges = () => {
     setSitecodes({});
     setSearchList({});
     setDisabledBtn(true);
-    turnstoneRef.current?.clear();
-    turnstoneRef.current?.blur();
     setTextValue('');
-    setSearchText('');
     setFilters([]);
     setOrder("site-code");
     setDisabledFilters(true);
@@ -560,7 +546,6 @@ const Sitechanges = () => {
     });
   }
 
-  //Initial set for countries
   if(countries.length === 0 && !countriesLoaded){
     loadCountries();
   }
@@ -669,24 +654,53 @@ const Sitechanges = () => {
               </div>
               <CRow>
                 <CCol sm={12} md={6} lg={6} className="d-flex mb-4">
-                  <div className="search--input">
-                    <Turnstone
-                      id="sitechanges_search"
+                  <div className="search--input" ref={searchWrapperRef}>
+                    <input
                       className="form-control"
-                      listbox = {searchList}
-                      listboxIsImmutable = {false}
-                      placeholder={textValue && (loadingSites || statusLoaded.length !== 3) ? textValue : "Search sites by site name or site code"}
-                      noItemsMessage="Site not found"
-                      styles={{input:"form-control", listbox:"search--results", groupHeading:"search--group", noItemsMessage:"search--option"}}
-                      onSelect={(e)=>selectSearchOption(e)}
-                      ref={turnstoneRef}
-                      Item={item}
-                      GroupName={group}
-                      typeahead={false}
+                      placeholder="Search sites by site name or site code"
                       disabled={loadingSites || statusLoaded.length !== 3}
-                      text={searchText}
+                      value={textValue}
+                      onChange={(e) => {
+                        setTextValue(e.target.value);
+                        setShowDropdown(true);
+                      }}
+                      onFocus={() => setShowDropdown(true)}
                     />
-                    {Object.keys(selectOption).length !== 0 &&
+                    {showDropdown && textValue && (
+                      <div className="search--results">
+                        {Object.keys(groupedFilteredSites).length > 0 ? (
+                          Object.entries(groupedFilteredSites).map(([status, items]) => (
+                            <React.Fragment key={status}>
+                              <div className="search--group">
+                                <span className={"badge status--" + status}>
+                                  {status}
+                                </span>
+                              </div>
+                              {items.slice(0, 50).map(item => (
+                                <div
+                                  key={item.SiteCode}
+                                  className="search--option"
+                                  onClick={() => {
+                                    setSelectOption(item);
+                                    setTextValue(`${item.SiteCode} - ${item.Name}`);
+                                    setDisabledSearchBtn(false);
+                                    setShowDropdown(false);
+                                  }}
+                                >
+                                  <div>{item.Name}</div>
+                                  <div className="search--suboption">
+                                    {item.SiteCode}
+                                  </div>
+                                </div>
+                              ))}
+                            </React.Fragment>
+                          ))
+                        ) : (
+                          <div className="search--no-data">No data</div>
+                        )}
+                      </div>
+                    )}
+                    {textValue || Object.keys(selectOption).length !== 0 &&
                       <span className="btn-icon" onClick={()=>clearSearch(true)}>
                         <i className="fa-solid fa-xmark"></i>
                       </span>
@@ -795,6 +809,7 @@ const Sitechanges = () => {
                         setLoadingSites={setLoadingSites}
                         showErrorMessage={showErrorMessage}
                         connection={connection}
+                        forceRefresh={forceRefresh}
                       />
                     </CTabPane>
                     <CTabPane role="tabpanel" aria-labelledby="accepted-tab" visible={activeTab === 2}>
@@ -826,6 +841,7 @@ const Sitechanges = () => {
                         setLoadingSites={setLoadingSites}
                         showErrorMessage={showErrorMessage}
                         connection={connection}
+                        forceRefresh={forceRefresh}
                       />
                     </CTabPane>
                     <CTabPane role="tabpanel" aria-labelledby="rejected-tab" visible={activeTab === 3}>
@@ -857,6 +873,7 @@ const Sitechanges = () => {
                         setLoadingSites={setLoadingSites}
                         showErrorMessage={showErrorMessage}
                         connection={connection}
+                        forceRefresh={forceRefresh}
                       />
                     </CTabPane>
                   </CTabContent>

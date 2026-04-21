@@ -406,7 +406,7 @@ const IndeterminateCheckbox = React.forwardRef(
       } else {
         loadData();
       }
-    }, [props.country, props.connection?.connectionId, props.status, props.level, currentPage, currentSize, props.filters, props.order]);
+    }, [props.country, props.connection?.connectionId, props.status, props.level, currentPage, currentSize, props.filters, props.order, props.forceRefresh]);
 
     let forceRefreshData = () => setChangesData({});
 
@@ -490,7 +490,7 @@ const IndeterminateCheckbox = React.forwardRef(
     let switchMarkChanges = (change) => {
       return props.mark({"SiteCode":change.SiteCode,"VersionId":change.Version,"Justification":!change.JustificationRequired})
       .then(data => {
-        if(data?.ok){
+        if(data?.Success){
           forceRefreshData();
         }else
           alert("something went wrong!");
@@ -820,7 +820,6 @@ const IndeterminateCheckbox = React.forwardRef(
           }
         });
       });
-      console.log(body)
       return body;
     }
 
