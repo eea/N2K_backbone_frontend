@@ -178,6 +178,22 @@ const Sitechanges = () => {
     };
   }, [country]);
 
+  const groupedFilteredSites = useMemo(() => {
+    const result = {};
+    Object.entries(siteCodes).forEach(([status, list]) => {
+      if (!list) return;
+      const filtered = list.filter(item =>
+        `${item.SiteCode} - ${item.Name}`
+          .toLowerCase()
+          .includes(textValue.toLowerCase())
+      );
+      if (filtered.length > 0) {
+        result[status] = filtered;
+      }
+    });
+    return result;
+  }, [siteCodes, textValue]);
+
   let setCodes = (status, data) => {
     if(data) {
       setSitecodes(prev => ({
@@ -700,11 +716,11 @@ const Sitechanges = () => {
                         )}
                       </div>
                     )}
-                    {textValue || Object.keys(selectOption).length !== 0 &&
-                      <span className="btn-icon" onClick={()=>clearSearch(true)}>
+                    {(textValue || Object.keys(selectOption).length !== 0) && (
+                      <span className="btn-icon" onClick={() => clearSearch()}>
                         <i className="fa-solid fa-xmark"></i>
                       </span>
-                    }
+                    )}
                   </div>
                   <CButton disabled={disabledSearchBtn} onClick={()=>showModalSitechanges(selectOption)}>
                     <i className="fa-solid fa-magnifying-glass"></i>
