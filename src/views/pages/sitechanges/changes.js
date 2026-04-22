@@ -182,11 +182,16 @@ const Sitechanges = () => {
     const result = {};
     Object.entries(siteCodes).forEach(([status, list]) => {
       if (!list) return;
-      const filtered = list.filter(item =>
-        `${item.SiteCode} - ${item.Name}`
-          .toLowerCase()
-          .includes(textValue.toLowerCase())
-      );
+      const filtered = list
+        .filter(item =>
+          `${item.SiteCode} - ${item.Name}`
+            .toLowerCase()
+            .includes(textValue.toLowerCase())
+        )
+        .map(item => ({
+          ...item,
+          status
+        }));
       if (filtered.length > 0) {
         result[status] = filtered;
       }
