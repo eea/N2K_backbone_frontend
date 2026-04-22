@@ -168,8 +168,8 @@
         "label": "Deletion of Spatial Area"
       },
       {
-        "name": "habitat-deleted",
-        "label": "Habitat Deleted"
+        "name": "habitats-deleted",
+        "label": "Habitats Deleted"
       },
       {
         "name": "lineage",
