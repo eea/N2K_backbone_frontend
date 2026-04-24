@@ -408,7 +408,7 @@ const SDFVisualization = (props) => {
               break;
             case "F_5_2_2_management_list":
               index = "5.2.2";
-              title = "Reference and validity of the management plan(s)";
+              title = "";
               value = field[1];
               type = "table";
               break;
@@ -420,21 +420,35 @@ const SDFVisualization = (props) => {
               break;
             case "F_5_3_1_a_measures_MP_included":
               index = "5.3.1";
-              title = "Detailed information on measures \nNecessary conservation measures are included in the management plan(s)";
+              title = "Detailed information on measures \n5.3.1.a Necessary conservation measures are included in the management plan(s)";
               value = field[1];
               type = "single";
               break;
             case "F_5_3_1_measures_list":
               index = "";
-              title = "Necessary conservation measures are described in the following document(s)";
+              title = "";
               value = field[1];
               type = "table";
               break;
             case "F_5_3_1_d_measures_text":
-              index = "";
+              index = "5.3.1.d";
               title = "Further explanations on detailed conservation measures";
               value = field[1];
               type = "single";
+              break;
+            case "F_5_3_2_a_measures_established":
+              index = "";
+              title = "Are the necessary measures established?";
+              value = field[1];
+              type = "single";
+              layout = 2;
+              break;
+            case "F_5_3_2_b_measures_implemented":
+              index = "";
+              title = "Are the established measures implemented?";
+              value = field[1];
+              type = "single";
+              layout = 2;
               break;
             case "F_5_4_a_measures_effectiveness":
               index = "";
@@ -444,7 +458,7 @@ const SDFVisualization = (props) => {
               break;
             case "F_5_4_b_measures_results":
               index = "";
-              title = "Further explanations on detailed conservation measures";
+              title = "Are the conservation measures delivering the set conservation objectives?";
               value = field[1];
               type = "single";
               break;
