@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef, useMemo } from 'react'
 import { AppFooter, AppHeader, AppSidebar } from '../../../components/index'
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import Turnstone from 'turnstone';
+import * as signalR from '@microsoft/signalr';
 
 import TableChanges from './TableChanges';
 import {
@@ -23,6 +23,7 @@ import {
 } from '@coreui/react'
 
 import { ConfirmationModal } from './components/ConfirmationModal';
+import { ModalFilters } from './ModalFilters';
 import ConfigData from '../../../config.json';
 import UtilsData from '../../../data/utils.json';
 import {DataLoader} from '../../../components/DataLoader';
@@ -78,9 +79,6 @@ const Sitechanges = () => {
   const [loadingSites, setLoadingSites] = useState(true);
   const [country, setCountry] = useState(defaultCountry);
   const [level, setLevel] = useState('Critical');
-  const [filterEdited, setFilterEdited] = useState(false);
-  const [filterJustification, setFilterJustification] = useState(false);
-  const [filterSCI, setFilterSCI] = useState(false);
   const [siteTypes, setSiteTypes] = useState([]);
   const [disabledBtn, setDisabledBtn] = useState(true);
   const [disabledSearchBtn, setDisabledSearchBtn] = useState(true);
@@ -96,10 +94,15 @@ const Sitechanges = () => {
   const [rejecting, setRejecting] = useState(false);
   const [backing, setBacking] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const turnstoneRef = useRef();
+  const searchWrapperRef = useRef(null);
+  const [showDropdown, setShowDropdown] = useState(false);
   const [textValue, setTextValue] = useState('');
-  const [searchText, setSearchText] = useState('');
   const [showDescription, setShowDescription] = useState(false);
+  const [showModalFilters, setShowModalFilters] = useState(false);
+  const [filters, setFilters] = useState([]);
+  const [order, setOrder] = useState("site-code");
+  const [disabledFilters, setDisabledFilters] = useState(true);
+  const [connection, setConnection] = useState(null);
   let dl = new(DataLoader);
 
   useEffect(() => {
@@ -120,11 +123,24 @@ const Sitechanges = () => {
 
   useEffect(() => {
     if(statusLoaded.length === 3 && textValue) {
-      turnstoneRef.current?.focus();
-      turnstoneRef.current?.query(textValue);
-      setSearchText(textValue);
+      setShowDropdown(true);
     }
-  }, [statusLoaded])
+  }, [statusLoaded]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        searchWrapperRef.current &&
+        !searchWrapperRef.current.contains(event.target)
+      ) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    }
+  }, []);
 
   useEffect(() => {
     if(!showDescription) {
@@ -137,29 +153,69 @@ const Sitechanges = () => {
     }
   });
 
-  let setCodes = (status,data) => {
+  useEffect(() => {
+    if (!country) return;
+
+    const newConnection = new signalR.HubConnectionBuilder()
+      .withUrl(ConfigData.SERVER_API_ENDPOINT + "ws/", {
+        accessTokenFactory: () => dl.token,
+        withCredentials: true,
+      })
+      .withAutomaticReconnect()
+      .build();
+
+    newConnection.start()
+      .then(() => {
+        setConnection(newConnection);
+      })
+      .catch(err => console.error("Error conectando:", err));
+
+    return () => {
+      if (newConnection) {
+        newConnection.stop();
+        setConnection(null);
+      }
+    };
+  }, [country]);
+
+  const groupedFilteredSites = useMemo(() => {
+    const result = {};
+    Object.entries(siteCodes).forEach(([status, list]) => {
+      if (!list) return;
+      const filtered = list
+        .filter(item =>
+          `${item.SiteCode} - ${item.Name}`
+            .toLowerCase()
+            .includes(textValue.toLowerCase())
+        )
+        .map(item => ({
+          ...item,
+          status
+        }));
+      if (filtered.length > 0) {
+        result[status] = filtered;
+      }
+    });
+    return result;
+  }, [siteCodes, textValue]);
+
+  let setCodes = (status, data) => {
     if(data) {
-      let codes = siteCodes;
-      codes[status] = data;
-      setSitecodes(codes);
-      setSearchList(getSitesList());
-      setStatusLoaded(statusLoaded => [...statusLoaded, status]);
+      setSitecodes(prev => ({
+        ...prev,
+        [status]: data
+      }));
+
+      setStatusLoaded(prev =>
+        prev.includes(status) ? prev : [...prev, status]
+      );
+    }
+    else if (country){
       setIsLoading(false);
     }
     else if (country){
       setIsLoading(false);
     }
-  }
-
-  let getSitesList = () =>{
-    return Object.keys(siteCodes).map( v=>{
-        return {
-          name: v,
-          data: siteCodes[v].map?siteCodes[v].map(x=>({"search":x.SiteCode+" - "+x.Name,"status":v,...x})):[],
-          searchType: "contains",
-        }
-      }
-    )
   }
 
   let showModalSitechanges = (data) => {
@@ -203,18 +259,18 @@ const Sitechanges = () => {
     setModalHasChanges(false);
     clearSearch();
     forceRefreshData();
-    setForceRefresh(forceRefresh+1);
+    setForceRefresh(prev => prev + 1);
   }
 
-  let forceRefreshData = ()=>{
+  let forceRefreshData = () => {
     setIsLoading(true);
     setStatusLoaded([]);
     setLoadingSites(true);
     setSitecodes({});
     setSearchList({});
-    for(let i in refreshSitechanges)
-      setRefreshSitechanges(i,true)
-    setIsLoading(false);
+    for (let i in refreshSitechanges) {
+      setRefreshSitechanges(i, true);
+    }
   };
 
   let postRequest = (url,body)=>{
@@ -266,75 +322,89 @@ const Sitechanges = () => {
     }
   }
 
-  let setBackToPending = (changes, refresh)=>{
+  let setBackToPending = (changes, refresh) => {
     setBacking(true);
     setUpdatingData(true);
     let rBody = getChangesBody(changes);
 
     return postRequest(ConfigData.MOVE_TO_PENDING, rBody)
     .then(data => {
-      if(data?.ok){
-        setUpdatingData(false);
-        setBacking(false);
-        let response = readResponse(data, "Back To Pending");
-        if(refresh){
-          forceRefreshData();
-          setForceRefresh(forceRefresh+1);
-        }
-        return response;
-      } else {
-        setBacking(false);
-        setUpdatingData(false);
-        throw("Service returned Success: false")
+      if (!data.ok) {
+        throw "Service returned Success: false";
       }
+      return readResponse(data, "Back To Pending");
+    })
+    .then(response => {
+      setUpdatingData(false);
+      setBacking(false);
+      if (refresh) {
+        forceRefreshData();
+        setForceRefresh(prev => prev + 1);
+      }
+      return response;
+    })
+    .catch(e => {
+      setBacking(false);
+      setUpdatingData(false);
+      throw e;
     });
   }
 
-  let acceptChanges = (changes, refresh)=>{
+  let acceptChanges = (changes, refresh) => {
     setAccepting(true);
     setUpdatingData(true);
     let rBody = getChangesBody(changes);
 
     return postRequest(ConfigData.ACCEPT_CHANGES, rBody)
     .then(data => {
-      if(data.ok){
-        setUpdatingData(false);
-        setAccepting(false);
-        let response = readResponse(data, "Accept Changes");
-        if(refresh){
-          forceRefreshData();
-          setForceRefresh(forceRefresh+1);
-        }
-        return response;
-      } else {
+      if (!data.ok) {
         setAccepting(false);
         setUpdatingData(false);
-        throw "Service returned Success: false"
+        throw "Service returned Success: false";
       }
+      return readResponse(data, "Accept Changes");
+    })
+    .then(response => {
+      setUpdatingData(false);
+      setAccepting(false);
+      if (refresh) {
+        forceRefreshData();
+        setForceRefresh(prev => prev + 1);
+      }
+      return response;
+    })
+    .catch(e => {
+      setAccepting(false);
+      setUpdatingData(false);
+      throw e;
     });
   }
 
-  let rejectChanges = (changes, refresh)=>{
+  let rejectChanges = (changes, refresh) => {
     setRejecting(true);
     setUpdatingData(true);
     let rBody = getChangesBody(changes);
 
     return postRequest(ConfigData.REJECT_CHANGES, rBody)
     .then(data => {
-      if(data.ok){
-        setUpdatingData(false);
-        setRejecting(false);
-        let response = readResponse(data, "Reject Changes");
-        if(refresh){
-          forceRefreshData();
-          setForceRefresh(forceRefresh+1);
-        }
-        return response;
-      } else {
-        setRejecting(false);
-        setUpdatingData(false);
-        throw("Service returned Success: false")
+      if (!data.ok) {
+        throw "Service returned Success: false";
       }
+      return readResponse(data, "Reject Changes");
+    })
+    .then(response => {
+      setUpdatingData(false);
+      setRejecting(false);
+      if (refresh) {
+        forceRefreshData();
+        setForceRefresh(prev => prev + 1);
+      }
+      return response;
+    })
+    .catch(e => {
+      setRejecting(false);
+      setUpdatingData(false);
+      throw e;
     });
   }
 
@@ -373,18 +443,22 @@ const Sitechanges = () => {
     return dl.fetch(url, options)
   }
 
-  let switchMarkChanges = (changes)=>{
-    let rBody =!Array.isArray(changes)?[changes]:changes 
+  let switchMarkChanges = (changes) => {
+    let rBody = !Array.isArray(changes) ? [changes] : changes;
 
     return postRequest(ConfigData.MARK_AS_JUSTIFICATION_REQUIRED, rBody)
     .then(data => {
-      if(data.ok){
-        forceRefreshData();
+      if (!data.ok) {
+        throw "Service returned Success: false";
       }
-      else 
-        showErrorMessage("Switch Mark Changes");
-      return data;
-    }).catch(e => {
+      return readResponse(data, "Switch Mark Changes");
+    })
+    .then(response => {
+      forceRefreshData();
+      setForceRefresh(prev => prev + 1);
+      return response;
+    })
+    .catch(e => {
       showErrorMessage("Switch Mark Changes");
       console.log(e);
     });
@@ -424,72 +498,35 @@ const Sitechanges = () => {
   }
 
   let clearSearch = () => {
-    turnstoneRef.current?.clear();
-    turnstoneRef.current?.blur();
-    setDisabledSearchBtn(true);
-    setSelectOption({});
     setTextValue('');
-    setSearchText('');
-  }
-
-  let selectSearchOption = (e) => {
-    if (e) {
-      setDisabledSearchBtn(false);
-      setSelectOption(e);
-      if(document.querySelector("#sitechanges_search-listbox")) {
-        document.querySelector("#sitechanges_search-listbox").style.display="none";
-      }
-    }
-    else {
-      setDisabledSearchBtn(true);
-    }
-  }
-
-  const item = (props) => {
-    return (
-      <div className="search--option">
-        {/* <div><span className={"badge status--" + props.item.status}>{props.item.status}</span></div> */}
-        <div>{props.item.Name}</div>
-        <div className="search--suboption">{props.item.SiteCode}</div>
-      </div>
-    )
-  }
-
-  const group = (props) => {
-    return (
-      <div>
-        <span className={"badge status--" + props.children}>{props.children}</span>
-      </div>
-    )
+    setSelectOption({});
+    setDisabledSearchBtn(true);
+    setShowDropdown(false);
   }
 
   let changeStatus = (tabNum) => {
-    if(tabNum !== 2 && filterEdited) {
-      changeFilter("edited", false);
-    }
     setActiveTab(tabNum);
     setIsTabChanged(true);
   }
 
-  let changeLevel = (level)=>{
-    const text = document.getElementById("sitechanges_search").value;
-    setLevel(level);
-    turnstoneRef.current?.clear();
-    setTextValue(text);
+  let changeLevel = (newLevel) => {
+    setLevel(newLevel);
+    setDisabledSearchBtn(true);
     forceRefreshData();
   }
 
-  let changeFilter = (type, value) => {
-    if (type === "edited") {
-      setFilterEdited(value);
-    }
-    else if (type === "justification") {
-      setFilterJustification(value);
-    }
-    else if (type == "sci") {
-      setFilterSCI(value);
-    }
-    clearSearch();
+  let applyFilters = (filters) => {
+    setFilters(filters);
+    forceRefreshData();
+  }
+
+  let removeFilter = (name) => {
+    setFilters(prev => prev.filter(f => f !== name));
+    forceRefreshData();
+  };
+
+  let changeOrder = (value) => {
+    setOrder(value);
     forceRefreshData();
   }
 
@@ -498,10 +535,10 @@ const Sitechanges = () => {
     setSitecodes({});
     setSearchList({});
     setDisabledBtn(true);
-    turnstoneRef.current?.clear();
-    turnstoneRef.current?.blur();
     setTextValue('');
-    setSearchText('');
+    setFilters([]);
+    setOrder("site-code");
+    setDisabledFilters(true);
     if(country !== "") {
       forceRefreshData();
       changeCountryParam(country);
@@ -530,7 +567,6 @@ const Sitechanges = () => {
     });
   }
 
-  //Initial set for countries
   if(countries.length === 0 && !countriesLoaded){
     loadCountries();
   }
@@ -639,28 +675,57 @@ const Sitechanges = () => {
               </div>
               <CRow>
                 <CCol sm={12} md={6} lg={6} className="d-flex mb-4">
-                  <div className="search--input">
-                    <Turnstone
-                      id="sitechanges_search"
+                  <div className="search--input" ref={searchWrapperRef}>
+                    <input
                       className="form-control"
-                      listbox = {searchList}
-                      listboxIsImmutable = {false}
-                      placeholder={textValue && (loadingSites || statusLoaded.length !== 3) ? textValue : "Search sites by site name or site code"}
-                      noItemsMessage="Site not found"
-                      styles={{input:"form-control", listbox:"search--results", groupHeading:"search--group", noItemsMessage:"search--option"}}
-                      onSelect={(e)=>selectSearchOption(e)}
-                      ref={turnstoneRef}
-                      Item={item}
-                      GroupName={group}
-                      typeahead={false}
+                      placeholder="Search sites by site name or site code"
                       disabled={loadingSites || statusLoaded.length !== 3}
-                      text={searchText}
+                      value={textValue}
+                      onChange={(e) => {
+                        setTextValue(e.target.value);
+                        setShowDropdown(true);
+                      }}
+                      onFocus={() => setShowDropdown(true)}
                     />
-                    {Object.keys(selectOption).length !== 0 &&
-                      <span className="btn-icon" onClick={()=>clearSearch(true)}>
+                    {showDropdown && textValue && (
+                      <div className="search--results">
+                        {Object.keys(groupedFilteredSites).length > 0 ? (
+                          Object.entries(groupedFilteredSites).map(([status, items]) => (
+                            <React.Fragment key={status}>
+                              <div className="search--group">
+                                <span className={"badge status--" + status}>
+                                  {status}
+                                </span>
+                              </div>
+                              {items.slice(0, 50).map(item => (
+                                <div
+                                  key={item.SiteCode}
+                                  className="search--option"
+                                  onClick={() => {
+                                    setSelectOption(item);
+                                    setTextValue(`${item.SiteCode} - ${item.Name}`);
+                                    setDisabledSearchBtn(false);
+                                    setShowDropdown(false);
+                                  }}
+                                >
+                                  <div>{item.Name}</div>
+                                  <div className="search--suboption">
+                                    {item.SiteCode}
+                                  </div>
+                                </div>
+                              ))}
+                            </React.Fragment>
+                          ))
+                        ) : (
+                          <div className="search--no-data">No data</div>
+                        )}
+                      </div>
+                    )}
+                    {(textValue || Object.keys(selectOption).length !== 0) && (
+                      <span className="btn-icon" onClick={() => clearSearch()}>
                         <i className="fa-solid fa-xmark"></i>
                       </span>
-                    }
+                    )}
                   </div>
                   <CButton disabled={disabledSearchBtn} onClick={()=>showModalSitechanges(selectOption)}>
                     <i className="fa-solid fa-magnifying-glass"></i>
@@ -669,7 +734,7 @@ const Sitechanges = () => {
                 </CCol>
                 <CCol sm={12} md={6} lg={6} className="mb-4">
                   <div className="select--right">
-                    <CFormLabel htmlFor="exampleFormControlInput1" className='form-label form-label-reporting col-md-4 col-form-label'>Country </CFormLabel>
+                    <CFormLabel htmlFor="exampleFormControlInput1" className='form-label form-label-reporting col-md-4 col-form-label' disabled={loadingSites || statusLoaded.length !== 3}>Country</CFormLabel>
                       <CFormSelect aria-label="Default select example" className='form-select-reporting' disabled={loadingSites || statusLoaded.length !== 3} value={country} onChange={(e)=>changeCountry(e.target.value)}>
                       {
                         countries.map((e)=><option value={e.code} key={e.code}>{e.name}</option>)
@@ -678,164 +743,175 @@ const Sitechanges = () => {
                   </div>
                 </CCol>
               </CRow>
-
               <CRow>
-                  <CCol md={12} lg={12}>
-                    {/*   tabs */}
-                    <CNav variant="tabs" role="tablist">
-                      <CNavItem>
-                        <CNavLink
-                          href="javascript:void(0);"
-                          active={activeTab === 1}
-                          onClick={() => {changeStatus(1);}}
-                        >
-                          Pending <span className="badge status--pending">{Object.keys(siteCodes).length === 3 && siteCodes.pending?.length}</span>
-                        </CNavLink>
-                      </CNavItem>
-                      <CNavItem>
-                        <CNavLink
-                          href="javascript:void(0);"
-                          active={activeTab === 2}
-                          onClick={() => {changeStatus(2);}}
-                        >
-                          Accepted <span className="badge status--accepted">{Object.keys(siteCodes).length === 3 && siteCodes.accepted?.length}</span>
-                        </CNavLink>
-                      </CNavItem>
-                      <CNavItem>
-                        <CNavLink
-                          href="javascript:void(0);"
-                          active={activeTab === 3}
-                          onClick={() => {changeStatus(3);}}
-                        >
-                          Rejected <span className="badge status--rejected">{Object.keys(siteCodes).length === 3 && siteCodes.rejected?.length}</span>
-                        </CNavLink>
-                      </CNavItem>
-                    </CNav>
-                    <div className="d-flex flex-start align-items-center p-2 card-site-level-filter">
-                      <div className="me-4"><h2 className="card-site-level-title">Filter by:</h2></div>
-                      <ul className="btn--list">
-                        <li>
-                          <div className="checkbox" disabled={loadingSites || statusLoaded.length !== 3}>
-                            <input type="checkbox" className="input-checkbox" id="site_check_justification" checked={filterJustification===true} onClick={(e)=>changeFilter("justification", e.currentTarget.checked)} />
-                            <label htmlFor="site_check_justification" className="input-label badge color--default">Justification missing</label>
-                          </div>
-                        </li>
-                        {activeTab === 2 && 
-                          <li>
-                            <div className="checkbox" disabled={loadingSites || statusLoaded.length !== 3}>
-                              <input type="checkbox" className="input-checkbox" id="site_check_edited" checked={filterEdited===true} onClick={(e)=>changeFilter("edited", e.currentTarget.checked)} />
-                              <label htmlFor="site_check_edited" className="input-label badge color--default">Edited</label>
-                            </div>
-                          </li>
-                        }
-                        <li>
-                          <div className="checkbox" disabled={loadingSites || statusLoaded.length !== 3}>
-                            <input type="checkbox" className="input-checkbox" id="site_check_sci" checked={filterSCI===true} onClick={(e)=>changeFilter("sci", e.currentTarget.checked)} />
-                            <label htmlFor="site_check_sci" className="input-label badge color--default">SCI (Type B+C)</label>
-                          </div>
-                        </li>
-                      </ul>
+                <CCol md={12} lg={12}>
+                  <div className="site-filters mb-3">
+                    <div className="filters-container">
+                      <button className="filters-button" disabled={loadingSites || statusLoaded.length !== 3 || disabledFilters} onClick={() => setShowModalFilters(true)}>
+                        <i className="fa-solid fa-sliders"></i>Filters
+                      </button>
+                      <div className="filters-order">
+                        <CFormLabel className='form-label col-md-4 col-form-label' disabled={loadingSites || statusLoaded.length !== 3 || disabledFilters}>Sort by</CFormLabel>
+                        <CFormSelect aria-label="Sort by" className='form-select-reporting' disabled={loadingSites || statusLoaded.length !== 3 || disabledFilters} value={order} onChange={(e) => changeOrder(e.target.value)}>
+                          {
+                            UtilsData.ORDER.map((e)=><option value={e.name} key={e.name}>{e.label}</option>)
+                          }
+                        </CFormSelect>
+                      </div>
                     </div>
-                    <CTabContent>
-                      <CTabPane role="tabpanel" aria-labelledby="pending-tab" visible={activeTab === 1}>
-                        <TableChanges
-                          status="pending" 
-                          country = {country}
-                          level = {level}
-                          onlyEdited = {false}
-                          onlyJustReq = {filterJustification}
-                          onlysci={filterSCI}
-                          siteTypes={siteTypes}
-                          setSelected={(v) => {if(activeTab===1) setSelectedCodes(v)}} 
-                          getRefresh={()=>getRefreshSitechanges("pending")} 
-                          setRefresh={setRefreshSitechanges}
-                          accept={acceptChanges}
-                          reject={rejectChanges}
-                          setBackToPending={setBackToPending}
-                          mark={switchMarkChanges}
-                          updateModalValues={updateModalValues}
-                          setSitecodes = {setCodes}
-                          setShowModal={()=>showModalSitechanges()}
-                          showModal={showModal}
-                          isTabChanged={isTabChanged}
-                          setIsTabChanged={setIsTabChanged}
-                          site={site}
-                          setSite={setSite}
-                          closeModal={closeModal}
-                          modalHasChanges = {modalHasChanges}
-                          setModalHasChanges = {setModalHasChanges}
-                          setLoadingSites={setLoadingSites}
-                          showErrorMessage={showErrorMessage}
-                        />
-                      </CTabPane>
-                      <CTabPane role="tabpanel" aria-labelledby="accepted-tab" visible={activeTab === 2}>
-                        <TableChanges
-                          status="accepted" 
-                          country = {country}
-                          level = {level}
-                          onlyEdited = {filterEdited}
-                          onlyJustReq = {filterJustification}
-                          onlysci={filterSCI}
-                          siteTypes={siteTypes}
-                          setSelected={(v) => {if(activeTab===2) setSelectedCodes(v)}} 
-                          getRefresh={()=>getRefreshSitechanges("accepted")} 
-                          setRefresh={setRefreshSitechanges}
-                          accept={acceptChanges}
-                          reject={rejectChanges}
-                          setBackToPending={setBackToPending}
-                          updateModalValues={updateModalValues}
-                          setSitecodes = {setCodes}
-                          setShowModal={()=>showModalSitechanges()}
-                          showModal={showModal}
-                          isTabChanged={isTabChanged}
-                          setIsTabChanged={setIsTabChanged}
-                          site={site}
-                          setSite={setSite}
-                          closeModal={closeModal}
-                          modalHasChanges = {modalHasChanges}
-                          setModalHasChanges = {setModalHasChanges}
-                          setLoadingSites={setLoadingSites}
-                          showErrorMessage={showErrorMessage}
-                        />
-                      </CTabPane>
-                      <CTabPane role="tabpanel" aria-labelledby="rejected-tab" visible={activeTab === 3}>
-                        <TableChanges
-                          status="rejected" 
-                          country = {country}
-                          level = {level}
-                          onlyEdited = {false}
-                          onlyJustReq = {filterJustification}
-                          onlysci={filterSCI}
-                          siteTypes={siteTypes}
-                          setSelected={(v) => {if(activeTab===3) setSelectedCodes(v)}} 
-                          getRefresh={()=>getRefreshSitechanges("rejected")} 
-                          setRefresh={setRefreshSitechanges}
-                          accept={acceptChanges}
-                          reject={rejectChanges}
-                          setBackToPending={setBackToPending}
-                          updateModalValues={updateModalValues}
-                          setSitecodes = {setCodes}
-                          setShowModal={()=>showModalSitechanges()}
-                          showModal={showModal}
-                          isTabChanged={isTabChanged}
-                          setIsTabChanged={setIsTabChanged}
-                          site={site}
-                          setSite={setSite}
-                          closeModal={closeModal}
-                          modalHasChanges = {modalHasChanges}
-                          setModalHasChanges = {setModalHasChanges}
-                          setLoadingSites={setLoadingSites}
-                          showErrorMessage={showErrorMessage}
-                        />
-                      </CTabPane>
-                    </CTabContent>
-                  </CCol>
-                </CRow>
+                    {filters.length> 0 &&
+                      <div className="filters-tags">
+                        {filters.map(filter => (
+                          <span className="filters-tag" key={filter.name} disabled={loadingSites || statusLoaded.length !== 3 || disabledFilters}>
+                            {Object.values(UtilsData.FILTERS).flat().find(i => i.name === filter)?.label}
+                            <button onClick={() => removeFilter(filter)}><i className="fa-solid fa-xmark"></i></button>
+                          </span>
+                        ))}
+                      </div>
+                    }
+                  </div>
+                  <CNav variant="tabs" role="tablist">
+                    <CNavItem>
+                      <CNavLink
+                        href="javascript:void(0);"
+                        active={activeTab === 1}
+                        onClick={() => {changeStatus(1);}}
+                      >
+                        Pending <span className="badge status--pending">{Object.keys(siteCodes).length === 3 && siteCodes.pending?.length}</span>
+                      </CNavLink>
+                    </CNavItem>
+                    <CNavItem>
+                      <CNavLink
+                        href="javascript:void(0);"
+                        active={activeTab === 2}
+                        onClick={() => {changeStatus(2);}}
+                      >
+                        Accepted <span className="badge status--accepted">{Object.keys(siteCodes).length === 3 && siteCodes.accepted?.length}</span>
+                      </CNavLink>
+                    </CNavItem>
+                    <CNavItem>
+                      <CNavLink
+                        href="javascript:void(0);"
+                        active={activeTab === 3}
+                        onClick={() => {changeStatus(3);}}
+                      >
+                        Rejected <span className="badge status--rejected">{Object.keys(siteCodes).length === 3 && siteCodes.rejected?.length}</span>
+                      </CNavLink>
+                    </CNavItem>
+                  </CNav>
+                  <CTabContent>
+                    <CTabPane role="tabpanel" aria-labelledby="pending-tab" visible={activeTab === 1}>
+                      <TableChanges
+                        status="pending" 
+                        country = {country}
+                        level = {level}
+                        filters = {filters}
+                        order = {order}
+                        setDisabledFilters = {setDisabledFilters}
+                        siteTypes={siteTypes}
+                        setSelected={(v) => {if(activeTab===1) setSelectedCodes(v)}} 
+                        getRefresh={()=>getRefreshSitechanges("pending")} 
+                        setRefresh={setRefreshSitechanges}
+                        accept={acceptChanges}
+                        reject={rejectChanges}
+                        setBackToPending={setBackToPending}
+                        mark={switchMarkChanges}
+                        updateModalValues={updateModalValues}
+                        setSitecodes = {setCodes}
+                        setShowModal={()=>showModalSitechanges()}
+                        showModal={showModal}
+                        isTabChanged={isTabChanged}
+                        setIsTabChanged={setIsTabChanged}
+                        site={site}
+                        setSite={setSite}
+                        closeModal={closeModal}
+                        modalHasChanges = {modalHasChanges}
+                        setModalHasChanges = {setModalHasChanges}
+                        setLoadingSites={setLoadingSites}
+                        showErrorMessage={showErrorMessage}
+                        connection={connection}
+                        forceRefresh={forceRefresh}
+                      />
+                    </CTabPane>
+                    <CTabPane role="tabpanel" aria-labelledby="accepted-tab" visible={activeTab === 2}>
+                      <TableChanges
+                        status="accepted" 
+                        country = {country}
+                        level = {level}
+                        filters = {filters}
+                        order = {order}
+                        setDisabledFilters = {setDisabledFilters}
+                        siteTypes={siteTypes}
+                        setSelected={(v) => {if(activeTab===2) setSelectedCodes(v)}} 
+                        getRefresh={()=>getRefreshSitechanges("accepted")} 
+                        setRefresh={setRefreshSitechanges}
+                        accept={acceptChanges}
+                        reject={rejectChanges}
+                        setBackToPending={setBackToPending}
+                        updateModalValues={updateModalValues}
+                        setSitecodes = {setCodes}
+                        setShowModal={()=>showModalSitechanges()}
+                        showModal={showModal}
+                        isTabChanged={isTabChanged}
+                        setIsTabChanged={setIsTabChanged}
+                        site={site}
+                        setSite={setSite}
+                        closeModal={closeModal}
+                        modalHasChanges = {modalHasChanges}
+                        setModalHasChanges = {setModalHasChanges}
+                        setLoadingSites={setLoadingSites}
+                        showErrorMessage={showErrorMessage}
+                        connection={connection}
+                        forceRefresh={forceRefresh}
+                      />
+                    </CTabPane>
+                    <CTabPane role="tabpanel" aria-labelledby="rejected-tab" visible={activeTab === 3}>
+                      <TableChanges
+                        status="rejected" 
+                        country = {country}
+                        level = {level}
+                        filters = {filters}
+                        order = {order}
+                        setDisabledFilters = {setDisabledFilters}
+                        siteTypes={siteTypes}
+                        setSelected={(v) => {if(activeTab===3) setSelectedCodes(v)}} 
+                        getRefresh={()=>getRefreshSitechanges("rejected")} 
+                        setRefresh={setRefreshSitechanges}
+                        accept={acceptChanges}
+                        reject={rejectChanges}
+                        setBackToPending={setBackToPending}
+                        updateModalValues={updateModalValues}
+                        setSitecodes = {setCodes}
+                        setShowModal={()=>showModalSitechanges()}
+                        showModal={showModal}
+                        isTabChanged={isTabChanged}
+                        setIsTabChanged={setIsTabChanged}
+                        site={site}
+                        setSite={setSite}
+                        closeModal={closeModal}
+                        modalHasChanges = {modalHasChanges}
+                        setModalHasChanges = {setModalHasChanges}
+                        setLoadingSites={setLoadingSites}
+                        showErrorMessage={showErrorMessage}
+                        connection={connection}
+                        forceRefresh={forceRefresh}
+                      />
+                    </CTabPane>
+                  </CTabContent>
+                </CCol>
+              </CRow>
             </CContainer>
           </div>
         </div>
       </div>
       <ConfirmationModal modalValues={modalValues}/>
+      <ModalFilters
+        visible={showModalFilters}
+        closeModal={setShowModalFilters}
+        filters={filters}
+        setFilters={(f) => applyFilters(f)}
+        order={order}
+      />
     </>
   )
 }

@@ -289,6 +289,61 @@ textarea {
     font-weight: bold;
   }
 }
+
+/* Radio */
+.radio {
+  margin-right: 1rem;
+  label {
+    display: inline-block;
+    position: relative;
+    padding: 0px 0px 0px 2rem;
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: normal;
+    line-height: normal;
+    cursor: pointer;
+    -webkit-transition: $transition-base;
+    -o-transition: $transition-base;
+    transition: $transition-base;
+    &:before {
+      content: "";
+      width: 18px;
+      height: 18px;
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      border: 2px solid $gray-100;
+      border-radius: 1rem;
+      cursor: pointer;
+    }
+  }
+  &[disabled] {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  input[type="radio"] {
+    display: none;
+    &:checked + label:after {
+      content:"";
+      position: absolute;
+      font-size: 0.875rem;
+      left: 4px;
+      bottom: 4px;
+      width: 10px;
+      height: 10px;
+      opacity: 1;
+      cursor: pointer;
+      border-radius: 1rem;
+      background: $blue;
+      border: solid 1px $blue;
+      transform: rotate(45deg);
+    }
+    &:checked + label:before {
+      border-color: $blue;
+    }
+  }
+}
+
 form {
   label {
     font-weight: bold;
