@@ -16,6 +16,7 @@
     "5.1.1": "5.1 Body responsible for the site management",
     "5.2.1": "5.2 Management plans",
     "5.3.1": "5.3 Conservation measures",
+    "Are the necessary measures established?": "5.3.2 Status of conservation measures",
     "Is the effectiveness of the conservation measures periodically assessed?": "5.4 Management effectiveness",
     "6.1.1": "6.1 INSPIRE identifier"
   },
@@ -263,6 +264,18 @@
       {
         "span": 5,
         "text": "Conservation"
+      }
+    ],
+    "F_5_2_2_management_list": [
+      {
+        "span": 4,
+        "text": "Reference and validity of the management plan(s)"
+      }
+    ],
+    "F_5_3_1_measures_list" : [
+      {
+        "span": 2,
+        "text": "Necessary conservation measures are described in the following document(s)"
       }
     ]
   },
