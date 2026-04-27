@@ -218,6 +218,16 @@ textarea {
       }
     }
   }
+  &.disabled {
+    pointer-events: none;
+    cursor: not-allowed;
+    .multi-select__control {
+      background: #f2f2f2;
+      .multi-select__multi-value {
+        background-color: white;
+      }
+    }
+  }
 }
 
 /* Checkbox */
