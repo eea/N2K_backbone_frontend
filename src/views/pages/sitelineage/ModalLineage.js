@@ -81,6 +81,7 @@ export class ModalLineage extends Component {
       siteTypeValue: "",
       siteRegionValue: "",
       showCopyTooltip: false,
+      allOptions: []
     };
   }
 
@@ -177,16 +178,21 @@ export class ModalLineage extends Component {
       </CTable>
     )
   }
+
+  getPredecessorsArray = () => {
+    return (this.state.predecessors || "")
+      .split(',')
+      .filter(Boolean);
+  };
+
+  setPredecessorsArray = (arr) => {
+    this.setState({ predecessors: arr.join(',') });
+  };
   
   addPredecessor() {
-    const getNewSite = () => {
-      return document.querySelector(".add-predecessor .multi-select__single-value")?.textContent.split('-')[0].trim();
-    }
-    if(this.state.referenceSites.length !== this.state.predecessors?.split(',').length) {
-      let options = this.state.referenceSites?.filter(r => 
-        !this.state.predecessors?.split(',')
-        .includes(r.SiteCode))
-        .map(v => ({ "value": v.SiteCode, "label": v.SiteCode + ' - ' + v.Name }));
+    const predecessors = this.state.predecessors?.split(',').filter(s => s !== "") || [];
+
+    if (this.state.allOptions.length !== predecessors.length) {
       return (
         <div className="d-flex mb-2">
           <Select
@@ -195,78 +201,140 @@ export class ModalLineage extends Component {
             className="multi-select multi-select-predecessor add-predecessor w-100"
             classNamePrefix="multi-select"
             placeholder="Select a site"
-            options={options}
             isMulti={false}
             closeMenuOnSelect={true}
-            onChange={(e) => this.setState({ predecessors: this.state.predecessors ? (this.state.predecessors + ',' + e.value) : e.value, newPredecessor: false })}
+            options={
+              this.getFilteredOptions(
+                this.state.inputValues?.["new"],
+                predecessors
+              )
+            }
+            filterOption={null}
+            onInputChange={(value) => {
+              this.setState(prev => ({
+                inputValues: {
+                  ...prev.inputValues,
+                  new: value
+                }
+              }));
+            }}
+            onChange={(e) => {
+              if (!e) return;
+              const list = this.getPredecessorsArray();
+              this.setPredecessorsArray([...list, e.value]);
+              this.setState({ newPredecessor: false });
+            }}
           />
-            <CButton color="link" className="btn-icon"
-              disabled={this.state.predecessors === ""}
-              onClick={() => {getNewSite()? this.deleteSite(getNewSite()):""; this.setState({ newPredecessor: false})}}
-            >
-              <i className="fa-regular fa-trash-can"></i>
-            </CButton>
+          <CButton
+            color="link"
+            className="btn-icon"
+            disabled={!this.state.predecessors}
+            onClick={() => this.setState({ newPredecessor: false })}
+          >
+            <i className="fa-regular fa-trash-can"></i>
+          </CButton>
         </div>
       );
     }
-    else
-      return (
-        <div>
-          <em>No data</em>
-        </div>
-      )
+    return <em>No data</em>;
   }
-  
-  setSelectedPredecessors(options) {
-    this.setState(() => ({
-      predecessors: Object.values(options)
-        .map(s => s.textContent.split('-')[0].trim()
-        .replace("option ", ""))
-        .join(',')
-    }));
-  }
-  
+
+  getFilteredOptions = (inputValue, excludedValues = []) => {
+    const { allOptions } = this.state;
+    if (!allOptions) return [];
+    let filtered = allOptions.filter(
+      opt => !excludedValues.includes(opt.value)
+    );
+    if (inputValue) {
+      filtered = filtered.filter(opt =>
+        opt.label.toLowerCase().includes(inputValue.toLowerCase())
+      );
+    }
+    return filtered.slice(0, 20);
+  };
+
   predecessorList() {
-    let predecessors = this.state.predecessors?.split(',');
-    let options = this.state.referenceSites?.filter(r => 
-      !this.state.predecessors?.split(',')
-      .includes(r.SiteCode))
-      .map(v => ({ "value": v.SiteCode, "label": v.SiteCode + ' - ' + v.Name }));
-    if(predecessors?.length > 0 && options.length > 0)
-      return predecessors?.map((s) => 
+    const rawPredecessors = this.state.predecessors ?? this.props.reference ?? "";
+    const predecessors = rawPredecessors.split(',').filter(s => s !== "");
+    const isOptionsLoaded = this.state.allOptions?.length > 0;
+
+    if (predecessors.length === 0) return null;
+
+    return predecessors.map((s) => {
+      const site = this.state.referenceSites?.find(v => v.SiteCode === s);
+
+      const selectedValue = site
+        ? { value: site.SiteCode, label: `${site.SiteCode} - ${site.Name}` }
+        : { value: s, label: s };
+
+      return (
         <div key={s} className="d-flex mb-2">
           <Select
             id={"select-" + s}
             name={"select-" + s}
             className="multi-select multi-select-option multi-select-predecessor w-100"
             classNamePrefix="multi-select"
-            placeholder="Select a site"
-            options={options}
-            defaultValue={() => {
-              let site = this.state.referenceSites?.find(v => v.SiteCode === s);
-              if(site)
-                return {"value": site.SiteCode, "label": site.SiteCode + ' - ' + site.Name}
-            }}
+            placeholder={isOptionsLoaded ? "Select a site" : "Loading..."}
+            value={selectedValue}
             isMulti={false}
             closeMenuOnSelect={true}
-            isDisabled={this.state.status === "Consolidated" || this.state.type === "Deletion" || this.state.data.SiteStatus === "Rejected"}
-            onChange={() => this.setSelectedPredecessors(document.querySelectorAll(".multi-select-predecessor"))}
+            options={
+              isOptionsLoaded
+                ? this.getFilteredOptions(
+                    this.state.inputValues?.[s],
+                    predecessors.filter(p => p !== s)
+                  )
+                : []
+            }
+            filterOption={null}
+            onInputChange={(value) => {
+              this.setState(prev => ({
+                inputValues: {
+                  ...prev.inputValues,
+                  [s]: value
+                }
+              }));
+            }}
+            isDisabled={
+              this.state.updatingData ||
+              !isOptionsLoaded ||
+              this.state.status === "Consolidated" || 
+              this.state.type === "Deletion" || 
+              this.state.data.SiteStatus === "Rejected"
+            }
+            onChange={(e) => {
+              if (!e) return;
+              const list = this.getPredecessorsArray();
+              const updated = list.map(p =>
+                p === s ? e.value : p
+              );
+              this.setPredecessorsArray(updated);
+            }}
           />
           <div hidden={this.state.type === "Creation" || this.state.type === "Deletion"}>
-            <CButton color="link" className="btn-icon"
+            <CButton 
+              color="link" 
+              className="btn-icon"
               hidden={this.state.status === "Consolidated" || this.state.data.SiteStatus === "Rejected"}
-              disabled={this.state.predecessors.split(",").length === 1}
-              onClick={() => this.deleteSite(s)}>
+              disabled={
+                this.state.updatingData ||
+                !isOptionsLoaded ||
+                predecessors.length === 1
+              }
+              onClick={() => this.deleteSite(s)}
+            >
               <i className="fa-regular fa-trash-can"></i>
             </CButton>
           </div>
         </div>
       );
+    });
   }
   
-  deleteSite(e) {
-    let newList = this.state.predecessors?.split(',').filter(s => s !== e).join();
-    this.setState({ predecessors: newList })
+  deleteSite(value) {
+    const list = this.getPredecessorsArray();
+    const updated = list.filter(p => p !== value);
+    this.setPredecessorsArray(updated);
   }
   
   lineageEditor() {
@@ -302,7 +370,7 @@ export class ModalLineage extends Component {
               defaultValue={options.find(a => a.label === this.state.type)}
               isMulti={false}
               closeMenuOnSelect={true}
-              isDisabled={this.state.status === "Consolidated" || this.state.type === "Deletion" || this.state.data.SiteStatus === "Rejected"}
+              isDisabled={this.state.updatingData || this.state.status === "Consolidated" || this.state.type === "Deletion" || this.state.data.SiteStatus === "Rejected"}
               onChange={(e) => this.setState({ type: e.label, newPredecessor: e.label !== "Creation" && this.state.predecessors === "", predecessors: e.label === "Deletion" ? this.state.data.SiteCode : this.state.predecessors})}
             />
           </CCol>
@@ -312,7 +380,8 @@ export class ModalLineage extends Component {
               this.addPredecessor()
             }
             {(this.state.type == "" ? this.props.type : this.state.type) !== "Creation" &&
-              <CButton color="link" className="ms-auto p-0" 
+              <CButton color="link" className="ms-auto p-0"
+                disabled={this.state.updatingData}
                 hidden={this.state.type === "Deletion"
                   || this.state.type === "Creation"
                   || this.state.status === "Consolidated"
@@ -584,8 +653,13 @@ export class ModalLineage extends Component {
       .then(data => {
         if (!data.Success)
           this.errorLoadingReference = true;
-        else
-          this.setState({ referenceSites: data.Data })
+        else {
+          const allOptions = data.Data.map(v => ({
+            value: v.SiteCode,
+            label: v.SiteCode + " - " + v.Name
+          }));
+          this.setState({ referenceSites: data.Data, allOptions })
+        }
       });
     }
   }
