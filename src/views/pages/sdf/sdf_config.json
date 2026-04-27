@@ -225,7 +225,6 @@
       "Motivation": "The motivation for listing additional species: H.D. Annex II = Species of Annex II Habitats Directive in SPA; H.D. Annex IV = Species of Annex IV Habitats Directive; H.D. Annex V = Species of Annex V Habitats Directive; B.D. Annex I = Bird species of Annex I Birds Directive in a pSCI, SCI, SAC; Migratory birds = Migratory bird species in a pSCI, SCI, SAC; CFP prohib. = Prohibited species of Annex I of the Technical Measures Regulation under the common fisheries policy (EU Regulation 2019/1241); Int. conv. = Species listed/protected under international Conventions; H.D. Annex I = Typical species of Annex I habitat types; CWR/FRG = Crop Wild Relatives (CWR) / Forest Genetic Resources (FGR); IAS Union = Invasive alien species of Union concern (EU Regulation 1143/2014 on invasive alien species)"
     },
     "F_4_3_pressures": {
-      "Pressure code": "The code according to the pressure list from the Natura 2000 reference portal.",
       "Rank": "Relative importance of a pressure in the categories high, medium, low."
     }
   },
@@ -269,7 +268,7 @@
     "F_5_2_2_management_list": [
       {
         "span": 4,
-        "text": "Reference and validity of the management plan(s)"
+        "text": "5.2.2 Reference and validity of the management plan(s)"
       }
     ],
     "F_5_3_1_measures_list" : [
