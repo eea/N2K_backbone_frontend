@@ -1150,7 +1150,7 @@ export class ModalChanges extends Component {
               <Select
                 id={id}
                 name={name}
-                className="multi-select"
+                className="multi-select disabled"
                 classNamePrefix="multi-select"
                 placeholder={placeholder}
                 value={this.state.siteRegionValue}
