@@ -360,24 +360,22 @@ const IndeterminateCheckbox = React.forwardRef(
     const [levelCountry, setLevelCountry] = useState({});
     const [errorRequest, setErrorRequest] = useState(false);
     const [startExpanded, setStartExpanded] = useState(false);
-    const [cacheReady, setCacheReady] = useState(false);
+    const [isCacheReady, setIsCacheReady] = useState(false);
     const prevFilters = useRef(props.filters);
     const prevOrder = useRef(props.order);
     let dl = new(DataLoader);
 
     useEffect(() => {
+      setIsCacheReady(false);
+      props.setDisabledFilters(true);
+
       if (!props.connection) return;
-
-      if (!props.connection.connectionId) return;
-
-      const handleMessage = async (message) => {
+      const handleMessage = (message) => {
         try {
           const parsed = JSON.parse(message);
           if (parsed.CountryCode === props.country) {
+            setIsCacheReady(true);
             props.setDisabledFilters(false);
-            setCacheReady(true);
-            props.connection.off("ChangeCacheLoaded", handleMessage);
-            await props.connection.stop();
           }
         } catch (err) {
           console.error("Error parsing message:", err);
@@ -393,10 +391,15 @@ const IndeterminateCheckbox = React.forwardRef(
 
     useEffect(() => {
       if (!props.country) return;
-      if (!cacheReady && !props.connection?.connectionId) return;
+      if (!props.connection || !props.connection.connectionId || props.connection.state !== "Connected") {
+        return; 
+      }
+      if (!isCacheReady) {
+        loadData(); 
+        return;
+      }
 
       const isResetNeeded = prevFilters.current !== props.filters || prevOrder.current !== props.order;
-
       prevFilters.current = props.filters;
       prevOrder.current = props.order;
 
@@ -406,7 +409,7 @@ const IndeterminateCheckbox = React.forwardRef(
       } else {
         loadData();
       }
-    }, [props.country, props.connection?.connectionId, props.status, props.level, currentPage, currentSize, props.filters, props.order, props.forceRefresh]);
+    }, [props.country, props.connection?.connectionId, isCacheReady, props.connection?.state, props.status, props.level, currentPage, currentSize, props.filters, props.order, props.forceRefresh]);
 
     let forceRefreshData = () => setChangesData({});
 
