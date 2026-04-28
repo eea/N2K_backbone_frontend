@@ -164,7 +164,7 @@ const SDFVisualization = (props) => {
               break;
             case "F_1_5_2_b_SPA_act_freetext":
               index = "";
-              title = "";
+              title = " ";
               value = field[1];
               type = "single";
               layout = 2;
@@ -198,7 +198,7 @@ const SDFVisualization = (props) => {
               break;
             case "F_1_5_5_b_SAC_act_freetext":
               index = "";
-              title = "";
+              title = " ";
               value = field[1];
               type = "single";
               layout = 2;
