@@ -219,9 +219,6 @@ const Sitechanges = () => {
     else if (country){
       setIsLoading(false);
     }
-    else if (country){
-      setIsLoading(false);
-    }
   }
 
   let showModalSitechanges = (data) => {
