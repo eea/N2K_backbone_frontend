@@ -32,7 +32,7 @@ const Home = (props) => {
             <CRow>
               <CCol md={12} lg={12}>
                 <div className="page-title text-center p-3 mt-5">
-                  <h1 className="h1">Natura Change Manager R3</h1>
+                  <h1 className="h1">Natura Change Manager</h1>
                   <p>
                     This application is accessible only to authorised user, using their EU login. Please click on “Log In”.
                   </p>
