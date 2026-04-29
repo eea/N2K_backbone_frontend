@@ -128,6 +128,12 @@ const Sitechanges = () => {
   }, [statusLoaded]);
 
   useEffect(() => {
+    if (statusLoaded.length === 3) {
+      setIsLoading(false);
+    }
+  }, [statusLoaded]);
+
+  useEffect(() => {
     const handleClickOutside = (event) => {
       if (
         searchWrapperRef.current &&
@@ -213,9 +219,6 @@ const Sitechanges = () => {
     else if (country){
       setIsLoading(false);
     }
-    else if (country){
-      setIsLoading(false);
-    }
   }
 
   let showModalSitechanges = (data) => {
@@ -268,8 +271,8 @@ const Sitechanges = () => {
     setLoadingSites(true);
     setSitecodes({});
     setSearchList({});
-    for (let i in refreshSitechanges) {
-      setRefreshSitechanges(i, true);
+    for(let i in refreshSitechanges) {
+      setRefreshSitechanges(i,true)
     }
   };
 
@@ -591,10 +594,10 @@ const Sitechanges = () => {
                 </div>
                 <div>
                   <ul className="btn--list">
-                    {!isLoading && country && activeTab === 1 &&
+                    {country && activeTab === 1 &&
                       <>
                         <li>
-                          <CButton className="red" color="secondary" disabled={updatingData || disabledBtn || activeTab!==1}
+                          <CButton className="red" color="secondary" disabled={isLoading || updatingData || disabledBtn || activeTab!==1}
                             onClick={()=>updateModalValues("Reject Changes", "This will reject all the site changes",
                               "Continue", ()=>rejectChanges(selectedCodes, true).catch(e => {showErrorMessage("Reject changes"); console.log(e)}),
                               "Cancel", ()=>{})}>
@@ -603,7 +606,7 @@ const Sitechanges = () => {
                           </CButton>
                         </li>
                         <li>
-                          <CButton className="green" color="primary" disabled={updatingData || disabledBtn || activeTab!==1}
+                          <CButton className="green" color="primary" disabled={isLoading || updatingData || disabledBtn || activeTab!==1}
                             onClick={()=>updateModalValues("Accept Changes", "This will accept all the site changes",
                               "Continue", ()=>acceptChanges(selectedCodes, true).catch(e => {showErrorMessage("Accept changes"); console.log(e)}),
                               "Cancel", ()=>{})}>
@@ -613,9 +616,9 @@ const Sitechanges = () => {
                         </li>
                       </>
                     }
-                    {!isLoading && country && activeTab !== 1 &&
+                    {country && activeTab !== 1 &&
                       <li>
-                        <CButton color="primary" disabled={updatingData || disabledBtn || activeTab===1}
+                        <CButton color="primary" disabled={isLoading || updatingData || disabledBtn || activeTab===1}
                           onClick={()=>updateModalValues("Back to Pending", "This will set the changes back to Pending",
                             "Continue", ()=>setBackToPending(selectedCodes, true).catch(e => {showErrorMessage("Back to pending");console.log(e)}),
                             "Cancel", ()=>{})}>
@@ -624,9 +627,9 @@ const Sitechanges = () => {
                         </CButton>
                       </li>
                     }
-                    {!isLoading && country &&
+                    {country &&
                       <li>
-                        <CButton color="primary" onClick={()=>updateModalValues("Complete Envelopes", "This will complete the envelope", "Continue", ()=>completeEnvelope(), "Cancel", ()=>{})} disabled={updatingData}>
+                        <CButton color="primary" onClick={()=>updateModalValues("Complete Envelopes", "This will complete the envelope", "Continue", ()=>completeEnvelope(), "Cancel", ()=>{})} disabled={isLoading || updatingData}>
                           {completingEnvelope && <CSpinner size="sm"/>}
                           {completingEnvelope ? " Completing Envelope" : "Complete Envelope"}
                         </CButton>
