@@ -122,16 +122,16 @@ const Sitechanges = () => {
   }, [modalHasChanges])
 
   useEffect(() => {
-    if(statusLoaded.length === 3 && textValue) {
-      setShowDropdown(true);
-    }
-  }, [statusLoaded]);
-
-  useEffect(() => {
     if (statusLoaded.length === 3) {
       setIsLoading(false);
     }
   }, [statusLoaded]);
+
+  useEffect(() => {
+    if(statusLoaded.length === 3 && textValue) {
+      setShowDropdown(true);
+    }
+  }, [statusLoaded, textValue]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -215,9 +215,6 @@ const Sitechanges = () => {
       setStatusLoaded(prev =>
         prev.includes(status) ? prev : [...prev, status]
       );
-    }
-    else if (country){
-      setIsLoading(false);
     }
     else if (country){
       setIsLoading(false);
