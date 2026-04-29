@@ -1,111 +1,147 @@
 {
   "Titles": [
-    "Site Identification",
-    "Site Location",
-    "Ecological Information",
-    "Site Description",
-    "Site Protection Status",
-    "Site Management",
-    "Map of the Site"
+    "Site identification",
+    "Site location",
+    "Ecological information",
+    "Site description",
+    "Site management",
+    "Geospatial representation of the site"
   ],
+  "Subtitles" : {
+    "1.4.1": "1.4 Respondent",
+    "1.5.1": "1.5 Site classification/proposal/designation dates",
+    "Longitude": "2.1 Location calculated by the European Environment Agency",
+    "3.1.a": "3.1 Habitat types of Annex I of Council Directive 92/43/EEC present on the site",
+    "3.2.a": "3.2 Species referred to in Article 4 of Directive 2009/147/EC and species listed in Annex II to Directive 92/43/EEC present on the site",
+    "5.1.1": "5.1 Body responsible for the site management",
+    "5.2.1": "5.2 Management plans",
+    "5.3.1": "5.3 Conservation measures",
+    "Are the necessary measures established?": "5.3.2 Status of conservation measures",
+    "Is the effectiveness of the conservation measures periodically assessed?": "5.4 Management effectiveness",
+    "6.1.1": "6.1 INSPIRE identifier"
+  },
   "SiteType": {
     "A": "SPA",
     "B": "SCI",
     "C": "SPA/SCI"
   },
-  "Respondent": {
-    "Name": "Name/Organisation",
-    "Address": "Address",
-    "Email": "Email"
+  "F_2_2_administrative_region": {
+    "F_2_2_1_site_nutscode": "2.2.1 Administrative region code",
+    "F_2_2_2_site_nutsname": "2.2.2 Administrative region name"
   },
-  "SiteDesignation": {
-    "ClassifiedSPA": "Date site classified as SPA",
-    "ReferenceSPA": "National legal reference of SPA designation",
-    "ProposedSCI": "Date site proposed as SCI",
-    "ConfirmedSCI": "Date site confirmed as SCI",
-    "DesignatedSAC": "Date site designated as SAC",
-    "ReferenceSAC": "National legal reference of SAC designation",
-    "Explanations": "Explanations"
+  "F_2_3_biogeographical_regions": {
+    "F_2_3_1_biogeo_marine_code": "2.3.1 Region code",
+    "F_2_3_2_biogeo_marine_percent": "2.3.2 Percentage",
+    "F_2_3_3_marine_relationship_biogeo": "Fully marine SCI/SAC (100 %) must be attributed to a biogeographical region"
   },
-  "Region": {
-    "NUTSLevel2Code": "NUTS Level 2 Code",
-    "RegionName": "Region Name"
+  "F_3_1_a_essential_information": {
+    "F_3_1_1_habitat_code": "3.1.1 Code",
+    "habitat_name": "Name",
+    "F_3_1_2_habitat_priority": "3.1.2 Priority form",
+    "F_3_1_3_not_present": "3.1.3 Not present",
+    "F_3_1_4_habitat_cover": "3.1.4 Cover [ha]",
+    "F_3_1_5_habitat_caves": "3.1.5 Caves [number]",
+    "F_3_1_6_habitat_method": "3.1.6 Method cover",
+    "F_3_1_7_habitat_date": "3.1.7 Last data collection"
   },
-  "BiogeographicalRegions": {
-    "Name": "Name",
-    "Value": "Cover [%]"
+  "F_3_1_b_site_assessment": {
+    "F_3_1_1_habitat_code": "3.1.1 Code",
+    "habitat_name": "Name",
+    "F_3_1_2_habitat_priority": "3.1.2 Priority form",
+    "F_3_1_8_habitat_significance": "3.1.8 Significance",
+    "F_3_1_9_habitat_representivity": "3.1.9 Representativity",
+    "F_3_1_10_habitat_relative_surface": "3.1.10 Relative surface",
+    "F_3_1_12_1_habitat_conserv_degree": "3.1.12.1 Conservation",
+    "F_3_1_12_2_habitat_area_condition": "3.1.12.2 Conservation area",
+    "F_3_1_12_3_habitat_conserv_method": "3.1.12.3 Conservation method",
+    "F_3_1_13_habitat_objectives": "3.1.13 Conservation objectives",
+    "F_3_1_14_a_habitat_objectives_text": "3.1.14 Objectives further explanation",
+    "F_3_1_15_habitat_global": "3.1.15 Global",
+    "F_3_1_16_habitat_date": "3.1.16 Update date"
   },
-  "HabitatTypess": {
-    "1":"Coastal and halophytic habitats",
-    "2":"Coastal sand dunes and inland dunes",
-    "3":"Freshwater habitats",
-    "4":"Temperate heath and scrub",
-    "5":"Sclerophyllous scrub (matorral)",
-    "6":"Natural and semi-natural grassland formations",
-    "7":"Raised bogs and mires and fens",
-    "8":"Rocky habitats and caves",
-    "9":"Forests"
+  "F_3_2_a_essential_information": {
+    "F_3_2_1_species_group": "3.2.1 Group",
+    "F_3_2_2_species_code": "3.2.2 Code",
+    "F_3_2_3_species_name": "3.2.3 Scientific name",
+    "F_3_2_4_species_sensitive": "3.2.4 Sensitive",
+    "F_3_2_5_species_NP": "3.2.5 Not present",
+    "F_3_2_6_species_poptype": "3.2.6 Type",
+    "F_3_2_7_1_a_species_pop_min": "3.2.7.1 Size min",
+    "F_3_2_7_1_b_species_pop_max": "3.2.7.1 Size max",
+    "F_3_2_7_2_species_pop_unit": "3.2.7.2 Unit",
+    "F_3_2_8_species_abundance": "3.2.8 Abundance",
+    "F_3_2_9_species_method": "3.2.9 Method population size",
+    "F_3_2_10_species_date": "3.2.10 Last data collection"
   },
-  "HabitatTypes": {
-    "Code": "Code",
-    "HabitatName": "Name",
-    "PF": "PF",
-    "NP": "NP",
-    "Cover": "Cover [ha]",
-    "Cave": "Caves [number]",
-    "DataQuality": "Data Quality",
-    "Representativity": "Representativity",
-    "RelativeSurface": "Relative Surface",
-    "Conservation": "Conservation",
-    "Global": "Global"
+  "F_3_2_b_site_assessment": {
+    "F_3_2_1_species_group": "3.2.1 Group",
+    "F_3_2_2_species_code": "3.2.2 Code",
+    "F_3_2_3_species_name": "3.2.3 Scientific name",
+    "F_3_2_6_species_poptype": "3.2.6 Type",
+    "F_3_2_11_species_significance": "3.2.11 Significance",
+    "F_3_2_12_species_SPA_class": "3.2.12 SPA classification",
+    "F_3_2_13_species_rel_pop": "3.2.13 Population",
+    "F_3_2_14_a_species_rel_pop_text": "3.2.14 Population further explanation",
+    "F_3_2_15_1_species_conserv_degree": "3.2.15 Conservation",
+    "F_3_2_15_2_species_qual": "3.2.15.2 Conservation occupied % area (optional)",
+    "F_3_2_15_3_species_qual_class": "3.2.15.3 Conservation occupied % class",
+    "F_3_2_16_species_objectives": "3.2.16 Conservation objectives",
+    "F_3_2_17_a_species_objectives_text": "3.2.17 Objectives further explanation",
+    "F_3_2_18_species_isolation": "3.2.18 Isolation",
+    "F_3_2_19_species_global": "3.2.19 Global",
+    "F_3_2_20_species_date": "3.2.20 Update date"
   },
-  "SpeciesGroups": {
-    "Amphibians": "A",
-    "Birds": "B",
-    "Fish": "F",
-    "Fungi": "Fu",
-    "Invertebrates": "I",
-    "Lichens": "L",
-    "Mammals": "M",
-    "Plants": "P",
-    "Reptiles": "R"
+  "F_3_3_other_species": {
+    "F_3_3_1_species_group": "3.3.1 Group",
+    "F_3_3_2_species_code": "3.3.2 Code",
+    "F_3_3_3_species_name": "3.3.3 Scientific name",
+    "F_3_3_4_species_sensitive": "3.3.4 Sensitive",
+    "F_3_3_5_species_NP": "3.3.5 Not present",
+    "F_3_3_6_1_a_species_pop_min": "3.3.6.1 Size min",
+    "F_3_3_6_1_b_species_pop_max": "3.3.6.1 Size max",
+    "F_3_3_6_2_species_pop_unit": "3.3.6.2 Unit",
+    "F_3_3_7_species_abundance": "3.3.7 Abundance"
   },
-  "Species": {
-    "Group": "Group",
-    "Code": "Code",
-    "SpeciesName": "Scientific Name",
-    "Sensitive": "S",
-    "NP": "NP",
-    "Type": "Type",
-    "Min": "Size Min",
-    "Max": "Size Max",
-    "Unit": "Unit",
-    "Category": "Abundance",
-    "DataQuality": "Data Quality",
-    "Population": "Population",
-    "Conservation": "Conservation",
-    "Isolation": "Isolation",
-    "Global": "Global"
+  "F_3_3_8_species_motivation": {
+    "F_3_3_2_species_code": "Code",
+    "F_3_3_3_species_name": "Scientific name",
+    "F_3_3_8_hd_annexii": "H.D. Annex II",
+    "F_3_3_8_hd_annexiv": "H.D. Annex IV",
+    "F_3_3_8_hd_annexv": "H.D. Annex V",
+    "F_3_3_8_bd_annexi": "B.D. Annex I",
+    "F_3_3_8_migratory": "Migratory birds",
+    "F_3_3_8_cfp_prohib": "CFP prohib.",
+    "F_3_3_8_national_red_list": "National red list",
+    "F_3_3_8_eu_red_list": "EU red list",
+    "F_3_3_8_global_red_list": "Global red list",
+    "F_3_3_8_endemic": "Endemic species",
+    "F_3_3_8_international_convention": "Int. conv.",
+    "F_3_3_8_hd_annexi": "H.D. Annex I",
+    "F_3_3_8_cwr_frg": "CWR/FRG",
+    "F_3_3_8_ias_union": "IAS Union",
+    "F_3_3_8_other": "Other reason"
   },
-  "SpeciesFilters": ["AnnexIV", "AnnexV", "OtherCategoriesA", "OtherCategoriesB", "OtherCategoriesC", "OtherCategoriesD"],
-  "OtherSpecies": {
-    "Group": "Group",
-    "Code": "Code",
-    "SpeciesName": "Scientific Name",
-    "Sensitive": "S",
-    "NP": "NP",
-    "Min": "Size Min",
-    "Max": "Size Max",
-    "Unit": "Unit",
-    "Category": "Abundance",
-    "AnnexIV": "Species Annex IV",
-    "AnnexV": "Species Annex V",
-    "OtherCategoriesA": "Other Cat. A",
-    "OtherCategoriesB": "Other Cat. B",
-    "OtherCategoriesC": "Other Cat. C",
-    "OtherCategoriesD": "Other Cat. D"
+  "F_4_3_pressures": {
+    "F_4_3_1_pressure_code": "4.3.1 Pressure code",
+    "F_4_3_2_pressure_rank": "4.3.2 Rank",
+    "F_4_3_3_pressure_location": "4.3.3 Location",
+    "F_4_3_4_a_pressure_text": "4.3.4 Further details"
   },
-  "OtherSpeciesFilters": ["Type", "DataQuality", "Population", "Conservation", "Isolation", "Global"],
+  "F_5_2_2_management_list": {
+    "F_5_2_2_a_management_plan_name": "Name of the plan",
+    "F_5_2_2_b_management_plan_URI": "Link to the plan (URI)",
+    "F_5_2_2_c_management_startdate": "Validity of the plan (start date)",
+    "F_5_2_2_d_management_duration": "Duration (number of months)"
+  },
+  "F_5_3_1_measures_list": {
+    "F_5_3_1_b_measures_title": "5.3.1.b Title",
+    "F_5_3_1_c_measures_URI": "5.3.1.c Link to online resource"
+  },
+  "PressureLocation": {
+    "in": "inside",
+    "out": "outside",
+    "inout": "inside and outside"
+  },
   "HabitatClasses": {
     "N01": "Marine areas, Sea inlets",
     "N02": "Tidal rivers, Estuaries, Mud flats, Sand flats, Lagoons (including saltwork basins)",
@@ -135,155 +171,110 @@
     "N26": "Woodland habitats (general)",
     "N27": "Agricultural habitats (general)"
   },
-  "GeneralCharacter": {
-    "Code": "Code",
-    "HabitatClass": "Habitat Class",
-    "Cover": "Cover [%]"
-  },
-  "NegativeThreats": {
-    "Rank": "Rank",
-    "Impacts": "Threats and pressures [code]",
-    "Pollution": "Pollution (optional) [code]",
-    "Origin": "Occurrence [i|o|b]"
-  },
-  "PositiveThreats": {
-    "Rank": "Rank",
-    "Impacts": "Activities, management [code]",
-    "Pollution": "Pollution (optional) [code]",
-    "Origin": "Occurrence [i|o|b]"
-  },
-  "Ownership": {
-    "Type": "Type",
-    "Percent": "[%]"
-  },
-  "DesignationTypes": {
-    "Code": "Code",
-    "Cover": "Cover [%]"
-  },
-  "RelationSites": {
-    "DesignationLevel": "Designation Level",
-    "TypeCode": "Type Code",
-    "SiteName": "Site Name",
-    "Type": "Type",
-    "Percent": "Cover [%]"
-  },
   "Legend": {
-    "HabitatTypes": {
-      "PF": "Habitat types 6210, 7130, 9430 priority depend on the habitat characteristics. Letter 'X' indicates that the reported habitat characteristics corresponds to its priority form.",
-      "NP": "In case that a habitat type no longer exists in the site enter: x (optional)",
-      "Cover": "Decimal values can be entered",
-      "Caves": "For habitat types 8310 and 8330 (caves), the number of caves when the estimated surface is not available.",
-      "Data Quality": "G = Good (e.g. based on surveys), M = Moderate (e.g. based on partial data with some extrapolation), P = Poor (e.g. rough estimation)",
-      "Representativity": "A = excellent representativity, B = good representativity, C = significant representativity, D = non-significant presence",
-      "Relative Surface": "A ≥ 15%, B = 2-15%, C ≤ 2%",
-      "Conservation": "A = excellent conservation, B = good conservation, C = average or reduced conservation",
-      "Global": "A = excellent value, B = good value, C = significant value"
+    "F_3_1_a_essential_information": {
+      "Priority form": "For habitat types 6210, 7130, 9430 priority depends on the habitat characteristics. Indicated as Yes/No.",
+      "Not present": "Indicates whether the habitat type is no longer present (noLongerPresent) on the site, or its re-establishment is planned (reEstablishment).",
+      "Cover": "Shows the size of habitat type as decimal values.",
+      "Caves": "For habitat types 8310 and 8330 (caves), the number of caves can be entered when a surface area is not available or appropriate.",
+      "Method cover": "Method used for cover: complete = complete survey or a statistically robust estimate; limited = based mainly on extrapolation from a limited amount of data; insufficient = insufficient or no data available",
+      "Last data collection": "Date or period of the last data collection."
     },
-    "Species": {
-      "Group": "A = Amphibians, B = Birds, F = Fish, I = Invertebrates, M = Mammals, P = Plants, R = Reptiles",
-      "S": "In case that the data on species are sensitive and therefore have to be blocked for any public access enter: Yes",
-      "NP": "In case that a species is no longer present in the site enter: x (optional)",
-      "Type": "p = permanent, r = reproducing, c = concentration, w = wintering (for plant and non-migratory species use permanent)",
-      "Unit": "i = individuals, p = pairs or other units according to the Standard list of population units and codes in accordance with Article 12 and 17 reporting (see reference portal)",
-      "Abundance": "C = common, R = rare, V = very rare, P = present - to fill if data are deficient (DD) or in addition to population size information",
-      "Data Quality": "G = Good (e.g. based on surveys), M = Moderate (e.g. based on partial data with some extrapolation), P = Poor (e.g. rough estimation), DD = Data deficient (use this category only, if not even a rough estimation of the population size can be made, in this case the fields for population size can remain empty, but the field 'Abundance' has to be filled in)",
-      "Population": "A = >15%, B = 2-15%, C = <2%, D = non-significant population",
-      "Conservation": "A = excellent conservation, B = good conservation, C = average or reduced conservation",
-      "Isolation": "A = population (almost) isolated, B = population not-isolated, but on the margins of are of distribution, C = population not-isolated withing extended distribution range",
-      "Global": "A = excellent value, B = good value, C = significant value"
+    "F_3_1_b_site_assessment": {
+      "Priority form": "For habitat types 6210, 7130, 9430 priority depends on the habitat characteristics. Indicated as Yes/No.",
+      "Significance": "Indicates if the occurrence is significant or not.",
+      "Representativity": "Degree of representativity of the habitat type on the site: A = excellent; B = good; C = significant",
+      "Relative surface": "Area of the site covered by the habitat type in relation to the total area covered by that habitat type within the national territory, assigned to following percentage classes: A1 = 75-100%; A2 = 50-75%; A3 = 25-50%; A4 = 15-25%; B = 2-15%; C = smaller than 2%",
+      "Conservation": "Degree of conservation: A = excellent (nearly all of the habitat area in good condition); B = good (most of the habitat area in good condition); C = reduced (most of the habitat area in not good condition); X = unknown (most or all of the habitat area in unknown condition).",
+      "Conservation area": "Area of conservation degree categories in good (A + B), not good (C), unknown (X) conditions as hectare values.",
+      "Conservation method": "Method used for degree of conservation: complete = Complete survey or statistically robust estimate in hectares (for example taken from mapping in management plans); limited = Based mainly on extrapolation from a limited amount of data (expert judgement); veryLimited = Based mainly on expert opinion with very limited data (based on partial mapping data); insufficient = Insufficient or no data available",
+      "Conservation objectives": "prevent = Prevent deterioration; maintain = Maintain the habitat type's surface area and its good condition; enlarge = Enlarge the area of the habitat type; improve = Improve the habitat type condition; reestablish = Re-establish the habitat type; other = Other",
+      "Global": "Global assessment of the habitat type in the site: A = excellent; B = good; C = significant.",
+      "Update date": "Date or period of the last update."
     },
-    "OtherSpecies": {
-      "Group": "A = Amphibians, B = Birds, F = Fish, Fu = Fungi, I = Invertebrates, L = Lichens, M = Mammals, P = Plants, R = Reptiles",
-      "Code": "For Birds, Annex IV and V species the code as provided in the reference portal should be used in addition to the scientific name",
-      "S": "In case that the data on species are sensitive and therefore have to be blocked for any public access enter: Yes",
-      "NP": "In case that a species is no longer present in the site enter: x (optional)",
-      "Unit": "i = individuals, p = pairs or other units according to the Standard list of population units and codes in accordance with Article 12 and 17 reporting (see reference portal)",
-      "Abundance": "C = common, R = rare, V = very rare, P = present - to fill if data are deficient (DD) or in addition to population size information",
-      "Motivation": "Species Annex IV and Species Annex V: the species is listed under Annex IV or Annex V of the Habitats Directive. A = Species listed in the National Red List, B = Endemic species, C = Species listed under an Internation convention, D = Other reasons"
+    "F_3_2_a_essential_information": {
+      "Group": "The taxonomic group to which the species belongs: A = Amphibians; B = Birds; F = Fish; Fu = Fungi; I = Invertebrates; L = Lichens; M = Mammals; P = Plants including bryophytes and algae; R = Reptiles",
+      "Sensitive": "Species indicated with “true” are classified as sensitive.",
+      "Not present": "Indicates whether the species is no longer present (noLongerPresent) on the site, or its re-establishment is planned (reEstablishment).",
+      "Type": "Population type of species in the site: p = Permanent: to be found throughout the year on the site (non-migratory species, plants, resident population of migratory species); r = Reproducing: uses the site to raise young (e.g. breeding, nesting); c = Concentration: site used for staging or roosting or migration stop/over or for moulting outside the breeding grounds and excluding wintering; w = Wintering: uses the site during the winter",
+      "Unit": "The unit of population size values, the standard is i = individuals, p = pairs. For exceptions see reference portal.",
+      "Abundance": "Abundance category to be provided if no number of population size is available: C = Common; R = Rare, V = Very rare; P = Present",
+      "Method population size": "Method used for population size: complete = complete survey or a statistically robust estimate; limited = based mainly on extrapolation from a limited amount of data; veryLimited = Based mainly on expert opinion with very limited data; insufficient = insufficient or no data available",
+      "Last data collection": "Date or period of the last data collection."
     },
-    "Threats": {
-      "Rank": "H = high, M = medium, L = low",
-      "Pollution": "N = Nitrogen input, P = Phosphore/Phosphate input, A = Acid input/acidification, T = Toxic inorganic chemicals, O = Toxic organic chemicals, X = Mixed pollutions",
-      "Occurrence": "i = inside, o = outside, b = both"
+    "F_3_2_b_site_assessment": {
+      "Group": "The taxonomic group to which the species belongs: A = Amphibians; B = Birds; F = Fish; Fu = Fungi; I = Invertebrates; L = Lichens; M = Mammals; P = Plants including bryophytes and algae; R = Reptiles",
+      "Significance": "Indicates if the occurrence is significant or not.",
+      "SPA classification": "Indicate if the bird species met the ornithological criteria used to justify SPA classification.",
+      "Population": "Size and density of the population of the species present on the site in relation to the populations present within national territory, assigned to following percentage classes: A1 = 75-100%; A2 = 50-75%; A3 = 25-50%; A4 = 15-25%; B = 2-15%; C = smaller than 2%",
+      "Conservation": "Degree of conservation: A = excellent (nearly all of the habitat occupied by the species has sufficient quality); B = good (most of the habitat occupied by the species has sufficient quality); C = reduced (most of the habitat occupied by the species has non-sufficient quality); X = unknown (most of the habitat occupied by the species has unknown quality).",
+      "Conservation objectives": "prevent = Prevent deterioration; maintain = Maintain the extent and good quality of the habitat of the species and the population size; enlarge = Enlarge area of the habitat of the species; improve = Improve the quality of the habitat of the species (considering also disturbance and mortality factors); reestablish = Re-establish habitat for the species; increase = Increase the population size; reduce = Reduce pressure on the population (e.g. reduce mortality or disturbance); reestablishPopulation = Re-establish the population at the site; other = Other",
+      "Isolation": "Degree of isolation: A = population (almost) isolated, B = population not-isolated, but on the margins of are of distribution, C = population not-isolated within extended distribution range",
+      "Global": "Global assessment of the species in the site: A = excellent; B = good; C = significant",
+      "Update date": "Date or period of the last update"
+    },
+    "F_3_3_other_species": {
+      "Group": "The taxonomic group to which the species belongs: A = Amphibians; B = Birds; F = Fish; Fu = Fungi; I = Invertebrates; L = Lichens; M = Mammals; P = Plants including bryophytes and algae; R = Reptiles",
+      "Code": "For Birds, Annex II, IV and V species the code from the official code list as provided in the reference portal.",
+      "Sensitive": "For Birds, Annex II, IV and V species the code from the official code list as provided in the reference portal.",
+      "Not present": "Indicates whether the species is no longer present (noLongerPresent) on the site.",
+      "Unit": "The unit of population size values, the standard is i = individuals, p = pairs. For exceptions see reference portal.",
+      "Abundance": "Abundance category to be provided if no number of population size is available: C = Common; R = Rare, V = Very rare; P = Present"
+    },
+    "F_3_3_8_species_motivation": {
+      "Motivation": "The motivation for listing additional species: H.D. Annex II = Species of Annex II Habitats Directive in SPA; H.D. Annex IV = Species of Annex IV Habitats Directive; H.D. Annex V = Species of Annex V Habitats Directive; B.D. Annex I = Bird species of Annex I Birds Directive in a pSCI, SCI, SAC; Migratory birds = Migratory bird species in a pSCI, SCI, SAC; CFP prohib. = Prohibited species of Annex I of the Technical Measures Regulation under the common fisheries policy (EU Regulation 2019/1241); Int. conv. = Species listed/protected under international Conventions; H.D. Annex I = Typical species of Annex I habitat types; CWR/FRG = Crop Wild Relatives (CWR) / Forest Genetic Resources (FGR); IAS Union = Invasive alien species of Union concern (EU Regulation 1143/2014 on invasive alien species)"
+    },
+    "F_4_3_pressures": {
+      "Rank": "Relative importance of a pressure in the categories high, medium, low."
     }
   },
   "TableHeader": {
-    "SiteDesignationGroup": {
-      "a": ["ClassifiedSPA", "ReferenceSPA"],
-      "b": ["ProposedSCI", "ConfirmedSCI", "DesignatedSAC", "ReferenceSAC"],
-      "e": ["Explanations"]
-    },
-    "HabitatTypes": [
+    "F_3_1_a_essential_information": [
+      {
+        "span": 8,
+        "text": "3.1.a Essential information (habitat type)"
+      }
+    ],
+    "F_3_1_b_site_assessment": [
+      {
+        "span": 6,
+        "text": "3.1.b Site assessment (habitat type)"
+      },
       {
         "span": 7,
-        "text": "Annex I Habitat Types"
-      },
-      {
-        "span": 4,
-        "text": "Site Assessment"
+        "text": "Conservation"
       }
     ],
-    "Species": [
+    "F_3_2_a_essential_information": [
       {
         "span": 5,
-        "text": "Species"
+        "text": "3.2.a Essential information (species)"
       },
       {
-        "span": 6,
+        "span": 7,
         "text": "Population in the site"
-      },
-      {
-        "span": 4,
-        "text": "Site Assessment"
       }
     ],
-    "OtherSpecies": [
+    "F_3_2_b_site_assessment": [
+      {
+        "span": 8,
+        "text": "3.2.b Site assessment (species)"
+      },
       {
         "span": 5,
-        "text": "Species"
-      },
-      {
-        "span": 4,
-        "text": "Population in the site"
-      },
-      {
-        "span": 6,
-        "text": "Motivation"
+        "text": "Conservation"
       }
     ],
-    "NegativeThreats": [
+    "F_5_2_2_management_list": [
       {
         "span": 4,
-        "text": "Negative Impacts"
+        "text": "5.2.2 Reference and validity of the management plan(s)"
       }
     ],
-    "PositiveThreats": [
+    "F_5_3_1_measures_list" : [
       {
-        "span": 4,
-        "text": "Positive Impacts"
-      }
-    ],
-    "OwnershipType": {
-      "publicnational": "Public - National/Federal",
-      "publicstate": "Public - State/Province",
-      "publiclocal": "Public - Local/Municipal",
-      "publicany": "Public - Any Public",
-      "joint": "Joint or Co-Ownership",
-      "private": "Private",
-      "unknown": "Unknown"
-    },
-    "ManagementPlan": [
-      {
-        "value": "Y",
-        "text": "Yes"
-      },
-      {
-        "value": "P",
-        "text": "No, but in preparation"
-      },
-      {
-        "value": "N",
-        "text": "No"
+        "span": 2,
+        "text": "Necessary conservation measures are described in the following document(s)"
       }
     ]
   },
