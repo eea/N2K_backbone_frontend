@@ -7,32 +7,37 @@
   }
 }
 
-.sdf-general {
-  width: 100%;
+.sdf {
+  h2 {
+    font-size: 1.25rem;
+    width: 100%;
+    margin: 0;
+    margin-bottom: 0.25rem;
+  }
+}
+
+.sdf-head {
   display: flex;
-  .sdf-head {
-    display: flex;
-    gap: 2rem;
-    align-items: start;
-    flex-grow: 1;
-    h1 {
-      margin-bottom: 0;
-      .sensitive {
-        color: $danger-base;
-      }
+  gap: 2rem;
+  align-items: start;
+  flex-grow: 1;
+  width: 100%;
+  h1 {
+    margin-bottom: 0;
+    .sensitive {
+      color: $danger-base;
     }
-    b {
-      color: $blue;
-      font-size: 1.5rem;
-      margin-top: 0.25rem;
-    }
-    h2 {
-      font-size: 1.5rem;
-    }
-    svg {
-      width: 8rem;
-      min-width: 8rem;
-    }
+  }
+  b {
+    color: $blue;
+    font-size: 1.25rem;
+    margin-top: 0.25rem;
+    display: block;
+    line-height: normal;
+  }
+  svg {
+    width: 8rem;
+    min-width: 8rem;
   }
   .select--right {
     display: flex;
@@ -54,30 +59,12 @@
   }
 }
 
-.sdf-header {
-  display: flex;
-  flex-direction: column;
-  padding: 2rem;
-  border: none;
-  background: #033166;
-  color: #fff;
-  font-size: 1.25rem;
-  gap: 1.5rem;
-  .sdf-title {
-    display: flex;
-    gap: 0.5rem;
-    justify-content: space-between;
-    h1 {
-      color: white;
-      margin-bottom: 0;
-      font-size: 1.75rem;
-    }
-  }
-  &-items {
-    row-gap: 0.5rem;
-    b {
-      font-size: 1.5rem;
-    }
+.sdf-subtitle {
+  width: 100%;
+  h3 {
+    font-size: 1.125rem;
+    margin-bottom: 0.5rem;
+    margin-top: 0.25rem;
   }
 }
 
@@ -90,11 +77,15 @@
   &-title {
     font-weight: bold;
     margin-bottom: 0.5rem;
+    font-size: 1rem;
+    min-height: 1.5rem;
+    white-space: pre-line;
   }
   &-field {
     border: solid 1px $gray-100;
     padding: 0.5rem 0.75rem;
     border-radius: 0.25rem;
+    min-height: 2.5rem;
     ~ .sdf-row-field {
       margin-top: 0.5rem;
     }
@@ -109,7 +100,9 @@
       }
       th {
         position: relative;
-        padding: 0.875rem 1rem;
+        padding: 0.75rem 0.5rem;
+        vertical-align: top;
+        font-size: 0.875rem;
         &[colspan] {
           background: none !important;
           cursor: auto !important;
@@ -120,10 +113,27 @@
         }
         .sort-icon {
           position: absolute;
-          left: 100%;
-          transform: translate(-100%, -100%);
-          line-height: 1rem;
+          right: 0.25rem;
+          top: 50%;
+          transform: translateY(-50%);
         }
+      }
+      .th-rotate th {
+        writing-mode: sideways-lr;
+        text-orientation: mixed;
+        text-align: start;
+        white-space: nowrap;
+        padding: 0.5rem;
+        padding-top: 1rem;
+        .sort-icon {
+          position: absolute;
+          top: 0.25rem;
+          left: 0.5rem;
+          transform: none;
+        }
+      }
+      td {
+        font-size: 0.875rem;
       }
     }
     .sdf-link {
@@ -338,5 +348,20 @@
   }
   .sdf-scroll {
     display: none;
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  .sdf-head {
+    flex-direction: column;
+    .select--right {
+      margin-left: 0;
+    }
+  }
+  .sdf-download .ui.button {
+    margin-left: 0;
+  }
+  .sdf-row-title {
+    min-height: 0;
   }
 }
