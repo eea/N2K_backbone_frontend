@@ -1046,7 +1046,7 @@ export class ModalChanges extends Component {
               mapReference={ConfigData.MAP_REFERENCE}
               mapSubmission={ConfigData.MAP_SUBMISSION}
               mapChanges={ConfigData.MAP_GEOMETRY_CHANGES}
-              showGeometryChanges={this.state.data?.Critical?.SiteInfo?.ChangesByCategory?.some(a => a.ChangeType.includes("Deletion of Spatial Area")) || this.state.data?.Info?.SiteInfo?.ChangesByCategory?.some(a => a.ChangeType.includes("Addition of Spatial Area"))}
+              showGeometryChanges={["Critical","Info","Warning"].some(l => this.state.data?.[l]?.SiteInfo?.ChangesByCategory?.some(a => a.ChangeType.includes("Deletion of Spatial Area") || a.ChangeType.includes("Addition of Spatial Area")))}
             />
           </CRow>
         }
