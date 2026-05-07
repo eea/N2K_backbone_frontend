@@ -538,8 +538,9 @@ const SDFVisualization = (props) => {
             )
           case "table":
             let header = Object.keys(value[0]).map(a => {
+              const isStrictlyNumeric = typeof value[0][a] === 'number';
               return (
-                <th className={order[section + field]?.column === a ? "sorted" : ""} scope="col" key={a} onClick={() => sortFields(section, field, a)}>
+                <th className={order[section + field]?.column === a ? "sorted" : ""} scope="col" key={a} onClick={() => sortFields(section, field, a)} style={{ verticalAlign: isStrictlyNumeric ? 'bottom' : 'top' }}>
                   {a}
                   {order[section + field]?.column === a && (<div className="sort-icon">{order[section + field]?.order === "asc" ? <i className="fa-solid fa-caret-up"></i> : <i className="fa-solid fa-caret-down"></i>}</div>)}
                 </th>
