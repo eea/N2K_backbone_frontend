@@ -219,25 +219,30 @@ const SDFVisualization = (props) => {
             case "Ownership":
               title = "Ownership (optional)";
               value = field[1];
-              if (value.length) {
-                let tableHeader = ConfigSDF.TableHeader.OwnershipType;
-                let val = [];
-                value.forEach(item => {
-                  let check = Object.entries(tableHeader).find(a => a[1].toLowerCase().includes(item.Type.toLowerCase()));
-                  if (check) {
-                    item.Type = check[0];
-                  }
-                  let found = val.find(a => a.Type === item.Type);
-                  if (found) {
-                    found.Percent += item.Percent;
-                  }
-                  else {
-                    val.push({ "Type": item.Type, "Percent": item.Percent });
-                  }
-                });
-                value = Object.keys(tableHeader).map(a => ({ "Type": tableHeader[a], "Percent": val.filter(b => b.Type === a).length ? val.find(b => b.Type === a).Percent : 0 }));
-                let total = value.map(a => a["Percent"]).reduce((a, b) => a + b, 0);
-                value.push({ "Type": "Total", "Percent": parseFloat((total).toFixed(4)) });
+              if(value && value.length) {
+                value = value.filter(item => item && item.Type !== null);
+                if (value.length > 0) {
+                  let tableHeader = ConfigSDF.TableHeader.OwnershipType;
+                  let val = [];
+                  value.forEach(item => {
+                    let check = Object.entries(tableHeader).find(a => a[1].toLowerCase().includes(item.Type.toLowerCase()));
+                    if (check) {
+                      item.Type = check[0];
+                    }
+                    let found = val.find(a => a.Type === item.Type);
+                    if (found) {
+                      found.Percent += item.Percent;
+                    }
+                    else {
+                      val.push({ "Type": item.Type, "Percent": item.Percent });
+                    }
+                  });
+                  value = Object.keys(tableHeader).map(a => ({ "Type": tableHeader[a], "Percent": val.filter(b => b.Type === a).length ? val.find(b => b.Type === a).Percent : 0 }));
+                  let total = value.map(a => a["Percent"]).reduce((a, b) => a + b, 0);
+                  value.push({ "Type": "Total", "Percent": parseFloat((total).toFixed(4)) });
+                } else {
+                  value = [];
+                }
               }
               type = "table";
               break;

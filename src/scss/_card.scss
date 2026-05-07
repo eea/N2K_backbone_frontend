@@ -292,11 +292,17 @@
   }
 }
 
+.form-label {
+  &[disabled] {
+    opacity: 0.4;
+  }
+}
 
 .form-label-reporting {
   float: left;
   text-align: end;
   margin-right: 1rem;
+  font-weight: bold;
   white-space: nowrap;
   padding: 0;
 }
