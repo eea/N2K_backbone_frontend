@@ -35,6 +35,7 @@ const Releases = () => {
   const [isDownloadingAll, setIsDownloadingAll] = useState(false);
   const [downloadError, setDownloadError] = useState(false);
   const [showDescription, setShowDescription] = useState(false);
+  const [errorRequest, setErrorRequest] = useState(false);
   let dl = new(DataLoader);
   const checkTerrestrial = useRef();
   const checkMarine = useRef();
@@ -105,6 +106,9 @@ const Releases = () => {
                 bioRegionsData = data.Data;
               }
             }
+            else {
+              setErrorRequest(true);
+            }
           })
         );
       }
@@ -126,6 +130,9 @@ const Releases = () => {
                 setActiveBioregions("ALP");
               }
               setIsLoading(false);
+            }
+            else {
+              setErrorRequest(true);
             }
           })
         );
@@ -433,7 +440,7 @@ const Releases = () => {
     document.body.removeChild(link);
   }
 
-  !isLoading && (!tableData || (tableData1.length === 0 && tableData2.length === 0)) && loadData();
+  !isLoading && (!tableData || (tableData1.length === 0 && tableData2.length === 0)) && !errorRequest && loadData();
 
   const page = UtilsData.SIDEBAR["releases"].find(a => a.option === "unionlists");
 
@@ -486,11 +493,13 @@ const Releases = () => {
             {downloadError &&
               <CAlert color="danger">An error occurred while downloading</CAlert>
             }
-            {isLoading && !tableData ?
-              <div className="loading-container"><em>Loading...</em></div>
-            : (bioRegionsSummary.length === 0 ? 
+            {isLoading && !tableData ? (
+                <div className="loading-container"><em>Loading...</em></div>
+              ) : errorRequest ? (
+                <div><CAlert color="danger">Error loading data</CAlert></div>
+              ) : bioRegionsSummary.length === 0 ? (
                 <div className="nodata-container"><em>No Data</em></div>
-              :
+              ) : (
                 <>
                   <CRow>
                     <CCol>

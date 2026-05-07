@@ -338,7 +338,7 @@ const Releases = () => {
               </CCol>
               <CCol sm={12} md={6} lg={6} className="mb-4">
                   <div className="select--right">
-                    <CFormLabel className="form-label form-label-reporting col-md-4 col-form-label">
+                    <CFormLabel className="form-label form-label-reporting col-md-4 col-form-label" disabled={Object.keys(siteCodes).length === 0}>
                       Country
                     </CFormLabel>
                     <CFormSelect aria-label="Default select example" className='form-select-reporting' disabled={Object.keys(siteCodes).length === 0} value={country} onChange={(e)=>changeCountry(e.target.value)}>
