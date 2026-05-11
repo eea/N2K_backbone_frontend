@@ -329,7 +329,7 @@ const SDFVisualization = (props) => {
               break;
             case "F_4_3_pressures":
               index = "4.3";
-              title = "Pressures on the site";
+              title = "";
               value = field[1];
               value = value.map(item => ({
                 ...item,
