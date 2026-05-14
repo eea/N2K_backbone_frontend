@@ -164,91 +164,97 @@
   "FILTERS": {
     "ChangeType": [
       {
-        "name": "spatial-area-deletion",
+        "name": "Deletion of Spatial Area",
         "label": "Deletion of Spatial Area"
       },
       {
-        "name": "habitats-deleted",
-        "label": "Habitats Deleted"
+        "name": "Habitats Deleted",
+        "label": "Habitats Delisted"
       },
       {
-        "name": "lineage",
+        "name": "Lineage",
         "label": "Lineage"
       },
       {
-        "name": "sdf-area-decrease",
+        "name": "SDF Area Decrease",
         "label": "SDF Area Decrease"
       },
       {
-        "name": "spatial-area-decrease",
-        "label": "Spatial Area Decrease"
+        "name": "Spatial Area Decrease",
+        "label": "Total Spatial Area Decrease"
       },
       {
-        "name": "species-deleted",
-        "label": "Species Deleted"
+        "name": "Species Deleted",
+        "label": "Species Delisted"
       }
     ],
     "SiteType": [
       {
-        "name": "all",
-        "label": "All"
+        "name": "A",
+        "label": "Site type A"
       },
       {
-        "name": "spa",
-        "label": "SPA"
+        "name": "B",
+        "label": "Site type B"
       },
       {
-        "name": "sci",
-        "label": "SCI"
-      },
-      {
-        "name": "spa-sci",
-        "label": "SPA/SCI"
+        "name": "C",
+        "label": "Site type C"
       }
     ],
     "General": [
       {
-        "name": "files",
+        "name": "Attached files",
         "label": "Attached files"
       },
       {
-        "name": "edited",
+        "name": "Edited",
         "label": "Edited"
       },
       {
-        "name": "justification",
+        "name": "Justification missing",
         "label": "Justification missing"
       }
     ]
   },
   "ORDER": [
     {
-      "name": "spatial-area-deletion",
-      "label": "Deletion of Spatial Area",
+      "name": "Deletion of Spatial Area (ha)",
+      "label": "Deletion of Spatial Area (ha)",
       "sort": "Desc"
     },
     {
-      "name": "habitats-deleted",
+      "name": "Habitats Deleted",
       "label": "Habitats Deleted",
       "sort": "Desc"
     },
     {
-      "name": "site-code",
+      "name": "Proportion of Deleted Area (%)",
+      "label": "Proportion of Deleted Area (%)",
+      "sort": "Desc"
+    },
+    {
+      "name": "Proportion of Spatial Area Decrease (%)",
+      "label": "Proportion of Spatial Area Decrease (%)",
+      "sort": "Desc"
+    },
+    {
+      "name": "Site Code",
       "label": "Site Code",
       "sort": "Asc"
     },
     {
-      "name": "site-name",
+      "name": "Site Name",
       "label": "Site Name",
       "sort": "Asc"
     },
     {
-      "name": "spatial-area-decrease",
-      "label": "Spatial Area Decrease",
+      "name": "Spatial Area Decrease (ha)",
+      "label": "Spatial Area Decrease (ha)",
       "sort": "Desc"
     },
     {
-      "name": "species-deleted",
+      "name": "Species Deleted",
       "label": "Species Deleted",
       "sort": "Desc"
     }
