@@ -61,6 +61,7 @@
   "ATTACHMENTS_DOWNLOAD": "https://n2kbackboneback-dev-r3-czbkfthrf5dyhyha.westeurope-01.azurewebsites.net/api/Download/Get/",
   "GET_SDF_DATA": "https://n2kbackboneback-dev-r3-czbkfthrf5dyhyha.westeurope-01.azurewebsites.net/api/SDF/GetExtraData",
   "GET_SDF_RELEASE_DATA": "https://n2kbackboneback-dev-r3-czbkfthrf5dyhyha.westeurope-01.azurewebsites.net/api/SDF/GetReleaseData",
+  "GET_LAST_RELEASE_ID": "https://n2kbackboneback-dev-r3-czbkfthrf5dyhyha.westeurope-01.azurewebsites.net/api/SDF/GetLastReleaseId",
   "REPORTING_PERIOD_GET": "https://n2kbackboneback-dev-r3-czbkfthrf5dyhyha.westeurope-01.azurewebsites.net/api/ReportingPeriod/Get",
   "REPORTING_PERIOD_EDIT": "https://n2kbackboneback-dev-r3-czbkfthrf5dyhyha.westeurope-01.azurewebsites.net/api/ReportingPeriod/Edit",
   "REPORTING_PERIOD_CREATE": "https://n2kbackboneback-dev-r3-czbkfthrf5dyhyha.westeurope-01.azurewebsites.net/api/ReportingPeriod/Create",
