@@ -547,14 +547,16 @@ const SDFVisualization = (props) => {
               )
             });
             let checkCellLink = (cell, value) => {
-              if (field === "HabitatTypes" && cell === "Code") {
+              if ((field === "F_3_1_a_essential_information" || field === "F_3_1_b_site_assessment") && cell === "3.1.1 Code") {
                 value = <a href={"https://eunis.eea.europa.eu/habitats_code2000/" + value} target="blank">{value}</a>
               }
-              else if ((field === "Species" || field === "OtherSpecies") && cell === "Scientific Name" && value !== "-") {
-                value = <a href={"https://eunis.eea.europa.eu/species/" + value} target="blank">{value}</a>
-              }
-              else if ((field === "Species" || field === "OtherSpecies") && cell === "Code" && value !== "-") {
-                value = <a href={"https://eunis.eea.europa.eu/species_code2000/" + value} target="blank">{value}</a>
+              else if (field === "F_3_2_a_essential_information" || field === "F_3_2_b_site_assessment" || field === "F_3_3_other_species" || field === "F_3_3_8_species_motivation") {
+                if (cell.includes("Code") && value !== "-") {
+                  value = <a href={"https://eunis.eea.europa.eu/species_code2000/" + value} target="blank">{value}</a>
+                }
+                else if (cell.includes("Scientific name") && value !== "-") {
+                  value = <a href={"https://eunis.eea.europa.eu/species/" + value} target="blank">{value}</a>
+                }
               }
               return parseLinks(value);
             }
@@ -570,7 +572,7 @@ const SDFVisualization = (props) => {
                     const isStrictlyNumeric = typeof cellValue === 'number';
                     return (
                       <CTableDataCell key={"tc_" + i + ii} style={{ textAlign: isStrictlyNumeric ? 'right' : 'left' }}>
-                        {cell.includes("Scientific name") ? <i>{cellValue}</i> : <span>{checkCellLink(cell, cellValue)}</span>}
+                        {cell.includes("Scientific name") ? <i>{checkCellLink(cell, cellValue)}</i> : <span>{checkCellLink(cell, cellValue)}</span>}
                       </CTableDataCell>
                     );
                   })}
@@ -633,7 +635,7 @@ const SDFVisualization = (props) => {
   const sortFields = (section, field, column) => {
     let colName = column;
     column = ConfigSDF[field] && Object.keys(ConfigSDF[field]).find(key => ConfigSDF[field][key] === column);
-    var collator = new Intl.Collator([], { numeric: true });
+    var collator = new Intl.Collator([], { numeric: false, sensitivity: 'base' });
     function getValue(obj, path) {
       if (!path) return obj;
       const properties = path.split('.');
