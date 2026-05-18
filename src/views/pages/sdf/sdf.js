@@ -82,31 +82,58 @@ const SDFVisualization = () => {
   }
 
   const loadData = () => {
-    if(siteCode !=="" && !isLoading) {
+    if(siteCode !== "" && !isLoading) {
       setIsLoading(true);
-      let url;
       if(type === "lastofficial") {
-        url = ConfigData.GET_SDF_RELEASE_DATA + (type === "lastofficial" ? "Legacy" : "") + "?siteCode=" + siteCode;
-      }
-      else {
-        url = ConfigData.GET_SDF_DATA + "?siteCode=" + siteCode + "&submission=" + types.map(item => item.type).indexOf(type);
-      }
-      dl.fetch(url)
-      .then(response =>response.json())
-      .then(data => {
-        if(data?.Success) {
-          if(!data.Data.SiteInfo.SiteCode) {
-            setData("nodata");
+        let releaseUrl = ConfigData.GET_LAST_RELEASE_ID + "?siteCode=" + siteCode;
+        dl.fetch(releaseUrl)
+        .then(response => response.json())
+        .then(releaseData => {
+          if(releaseData?.Success) {
+            let releaseId = releaseData.Data;
+            let url = ConfigData.GET_SDF_RELEASE_DATA + (releaseId < 100 ? "Legacy" : "") + "?siteCode=" + siteCode;
+            dl.fetch(url)
+            .then(response => response.json())
+            .then(data => {
+              if(data?.Success) {
+                if(!data.Data.SiteInfo.SiteCode) {
+                  setData("nodata");
+                }
+                else {
+                  setData(formatData(data));
+                }
+              }
+              else {
+                setErrorLoading(true);
+              }
+              setIsLoading(false);
+            });
           }
           else {
-            setData(type === "lastofficial" ? formatData(data) : data.Data);
+            setErrorLoading(true);
+            setIsLoading(false);
           }
-        }
-        else {
-          setErrorLoading(true);
-        }
-        setIsLoading(false);
-      });
+        });
+      }
+      else {
+        let url = ConfigData.GET_SDF_DATA + "?siteCode=" + siteCode + "&submission=" + types.map(item => item.type).indexOf(type);
+        dl.fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          if(data?.Success) {
+            if(!data.Data.SiteInfo.SiteCode) {
+              setData("nodata");
+            }
+            else {
+              setData(data.Data);
+            }
+          }
+          else {
+            setErrorLoading(true);
+          }
+          setIsLoading(false);
+        });
+      }
     }
     else {
       setData("nodata");
@@ -227,7 +254,7 @@ const SDFVisualization = () => {
       siteCode === "nodata" || data === "nodata" ? <div className="nodata-container"><em>No Data</em></div> :
       siteCode && Object.keys(data).length > 0 &&
         <>
-          {type === "lastofficial" ?
+          {type === "lastofficial" && getRelease() < 100 ?
             <SDFLegacyStructure
               data={data}
               siteCode={siteCode}
