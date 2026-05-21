@@ -800,26 +800,32 @@ const IndeterminateCheckbox = React.forwardRef(
         ...(sorting && {
           SortedBy: [
             {
-              "FieldName": order?.label,
+              "FieldName": order?.name,
               "SortOrder": order?.sort
             }
           ]
         })
       };
 
+      const selectedSiteTypes = UtilsData.FILTERS.SiteType
+        ?.filter(filter => props.filters?.includes(filter.name))
+        .map(filter => filter.name);
+
+      if (selectedSiteTypes && selectedSiteTypes.length > 0) {
+        body.Filters.push({
+          Name: "SiteType",
+          Value: selectedSiteTypes.join(",")
+        });
+      }
+
       Object.keys(UtilsData.FILTERS).forEach(category => {
+        if (category === "SiteType") return;
+
         UtilsData.FILTERS[category].forEach(filter => {
           if (props.filters?.includes(filter.name)) {
-            if (category === "SiteType") {
-              body.Filters.push({
-                Name: category,
-                Value: filter.label
-              });
-            } else {
-              body.Filters.push({
-                Name: filter.label,
-              });
-            }
+            body.Filters.push({
+              Name: filter.name,
+            });
           }
         });
       });
