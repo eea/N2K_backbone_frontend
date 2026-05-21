@@ -72,22 +72,11 @@ export class ModalFilters extends Component {
     this.setState((prevState) => {
       let newFilters = [...prevState.filters];
 
-      if (type === "radio") {
-        const siteTypeNames = UtilsData.FILTERS.SiteType.map(f => f.name);
-
-        newFilters = newFilters.filter(f => !siteTypeNames.includes(f));
-
-        if (value !== "all") {
-          newFilters.push(value);
-        }
+      if (checked) {
+        newFilters.push(name);
       } else {
-        if (checked) {
-          newFilters.push(name);
-        } else {
-          newFilters = newFilters.filter(f => f !== name);
-        }
+        newFilters = newFilters.filter(f => f !== name);
       }
-
       return { filters: newFilters };
     });
   };
@@ -135,40 +124,14 @@ export class ModalFilters extends Component {
           </div>
           <div className="filters-group">
             <div className="filters-title">Site Type</div>
-            {UtilsData.FILTERS.SiteType.map(filter => {
-              const siteTypeNames = UtilsData.FILTERS.SiteType.map(f => f.name);
-              const hasSelectedSiteType = this.state.filters.some(f =>
-                siteTypeNames.includes(f)
-              );
-
-              const isAll = filter.name === "all";
-
-              return (
-                <div className="filter-item" key={filter.name}>
-                  <div className="radio">
-                    <input
-                      type="radio"
-                      className="input-radio"
-                      id={"filter_check_" + filter.name}
-                      name="site-type"
-                      value={filter.name}
-                      checked={
-                        isAll
-                          ? !hasSelectedSiteType
-                          : this.state.filters.includes(filter.name)
-                      }
-                      onChange={this.handleCheckboxChange}
-                    />
-                    <label
-                      htmlFor={"filter_check_" + filter.name}
-                      className="input-label"
-                    >
-                      {filter.label}
-                    </label>
-                  </div>
+            {UtilsData.FILTERS.SiteType.map(filter => (
+              <div className="filter-item" key={filter.name}>
+                <div className="checkbox">
+                  <input type="checkbox" className="input-checkbox" id={"filter_check_" + filter.name} name={filter.name} checked={this.state.filters.includes(filter.name)} onChange={this.handleCheckboxChange}/>
+                  <label htmlFor={"filter_check_" + filter.name} className="input-label">{filter.label}</label>
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
           <div className="filters-group">
             {UtilsData.FILTERS.General.map(filter => (

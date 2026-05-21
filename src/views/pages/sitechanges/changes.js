@@ -100,7 +100,7 @@ const Sitechanges = () => {
   const [showDescription, setShowDescription] = useState(false);
   const [showModalFilters, setShowModalFilters] = useState(false);
   const [filters, setFilters] = useState([]);
-  const [order, setOrder] = useState("site-code");
+  const [order, setOrder] = useState("Site Code");
   const [disabledFilters, setDisabledFilters] = useState(true);
   const [connection, setConnection] = useState(null);
   let dl = new(DataLoader);
@@ -540,7 +540,7 @@ const Sitechanges = () => {
     setDisabledBtn(true);
     setTextValue('');
     setFilters([]);
-    setOrder("site-code");
+    setOrder("Site Code");
     setDisabledFilters(true);
     if(country !== "") {
       forceRefreshData();
