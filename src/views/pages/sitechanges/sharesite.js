@@ -155,10 +155,18 @@ class ModalChanges extends Component {
       rows.push(
         <CTableRow key={"row_" + i}>
           {values.map((v, index) => {
-            if (fields.includes("Difference") || fields.includes("Percentage"))
+            if (fields.includes("Difference") || fields.includes("Percentage")) {
               return (<CTableDataCell key={v + "_" + index}
                 style={{ backgroundColor: (pos.includes(index) ? colorizeValue(v) : "") }}>
-                {v == 0 ? 0 : v} </CTableDataCell>)
+                {(Number.isNaN(parseFloat(v)) || v.match(/[A-Z]/g)) ? ( v) : Number(v)} </CTableDataCell>)
+            }
+            else if (this.state.data.Status === "Pending" && UtilsData.LINEAGETYPES.includes(type)) {
+              return (<CTableDataCell key={v + "_" + index}>{v.split(",").map((a, i) => <>{i > 0 && ", "} <a href={"/#/sdf?site=" + a + "&type=" + fields[index].toLowerCase()} target="_blank">{a}</a></>)}</CTableDataCell>)
+            }
+            // Remove for next year
+            else if (type === "Relative surface Decrease" && heads.concat(fields).indexOf("Reference") === index && v === "significant") {
+              return (<CTableDataCell key={v + "_" + index}></CTableDataCell>)
+            }
             else
               return (<CTableDataCell key={v + "_" + index}>{v} </CTableDataCell>)
           })}
@@ -191,32 +199,37 @@ class ModalChanges extends Component {
           let title = "";
           title += (title ? ' - ' : "") + (changes[i][j].ChangeType ? changes[i][j].ChangeType : "");
           title += changes[i].FieldName ? ' - ' + changes[i][j].FieldName : "";
-          list.push(
-            <div key={"change_" + levels[l] + "_" + j + "_" + title} className="collapse-container">
-              <div className="d-flex gap-2 align-items-center justify-content-between" key={i + "_" + j}>
-                <div>
-                  <span className={"badge badge--" + level.toLocaleLowerCase() + " me-2"}>{level}</span>
-                  <span className="me-3"> {title} {(changes[i][j].ChangeCategory === "Species" || changes[i][j].ChangeCategory === "Habitats") && " (" + changes[i][j].ChangedCodesDetail.length + ")"}</span>
+          list.push({
+            level: level.toLowerCase(),
+            element: (
+              <div key={"change_" + levels[l] + "_" + j + "_" + title} className="collapse-container">
+                <div className="d-flex gap-2 align-items-center justify-content-between" key={i + "_" + j}>
+                  <div>
+                    <span className={"badge badge--" + level.toLocaleLowerCase() + " me-2"}>{level}</span>
+                    <span className="me-3"> {title} {(changes[i][j].ChangeCategory === "Species" || changes[i][j].ChangeCategory === "Habitats") && " (" + changes[i][j].ChangedCodesDetail.length + ")"}</span>
+                  </div>
+                  <div>
+                    <CButton color="link" className="btn-link--dark text-nowrap" onClick={() => this.toggleDetail(changes[i][j].ChangeCategory + title)}>
+                      {(this.state.showDetail.includes(changes[i][j].ChangeCategory + title)) ? "Hide detail" : "View detail"}
+                    </CButton>
+                  </div>
                 </div>
-                <div>
-                  <CButton color="link" className="btn-link--dark text-nowrap" onClick={() => this.toggleDetail(changes[i][j].ChangeCategory + title)}>
-                    {(this.state.showDetail.includes(changes[i][j].ChangeCategory + title)) ? "Hide detail" : "View detail"}
-                  </CButton>
-                </div>
+                <CCollapse visible={this.state.showDetail.includes(changes[i][j].ChangeCategory + title)}>
+                  <CCard>
+                    {this.state.showDetail && this.renderValuesTable(changes[i][j].ChangedCodesDetail, changes[i][j].ChangeType)}
+                  </CCard>
+                </CCollapse>
               </div>
-              <CCollapse visible={this.state.showDetail.includes(changes[i][j].ChangeCategory + title)}>
-                <CCard>
-                  {this.state.showDetail && this.renderValuesTable(changes[i][j].ChangedCodesDetail, changes[i][j].ChangeType)}
-                </CCard>
-              </CCollapse>
-            </div>
-          );
+            )
+          });
         }
       }
     }
+    const order = ['critical', 'warning', 'info'];
+    list.sort((a, b) => order.indexOf(a.level) - order.indexOf(b.level));
     return (
       <>
-        {list}
+        {list.map(item => item.element)}
       </>
     )
   }
@@ -296,7 +309,19 @@ class ModalChanges extends Component {
     } else {
       levels.push(level);
     }
-    this.setState({ levels: levels, bookmark: "", bookmarkUpdate: true });
+    let bookmarkExists = false;
+    for (let l in levels) {
+      const levelBookmarks = this.state.data[levels[l]] || {};
+      if (
+        this.state.bookmark &&
+        levelBookmarks[this.state.bookmark] &&
+        !this.bookmarkIsEmpty(levelBookmarks[this.state.bookmark])
+      ) {
+        bookmarkExists = true;
+        break;
+      }
+    }
+    this.setState({ levels, bookmark: bookmarkExists ? this.state.bookmark : "", bookmarkUpdate: !bookmarkExists});
   }
 
   renderChanges() {
