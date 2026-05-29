@@ -79,7 +79,6 @@ const Sitechanges = () => {
   const [loadingSites, setLoadingSites] = useState(true);
   const [country, setCountry] = useState(defaultCountry);
   const [level, setLevel] = useState('Critical');
-  const [siteTypes, setSiteTypes] = useState([]);
   const [disabledBtn, setDisabledBtn] = useState(true);
   const [disabledSearchBtn, setDisabledSearchBtn] = useState(true);
   const [site, setSite] = useState(openSite())
@@ -811,7 +810,6 @@ const Sitechanges = () => {
                         filters = {filters}
                         order = {order}
                         setDisabledFilters = {setDisabledFilters}
-                        siteTypes={siteTypes}
                         setSelected={(v) => {if(activeTab===1) setSelectedCodes(v)}} 
                         getRefresh={()=>getRefreshSitechanges("pending")} 
                         setRefresh={setRefreshSitechanges}
@@ -844,7 +842,6 @@ const Sitechanges = () => {
                         filters = {filters}
                         order = {order}
                         setDisabledFilters = {setDisabledFilters}
-                        siteTypes={siteTypes}
                         setSelected={(v) => {if(activeTab===2) setSelectedCodes(v)}} 
                         getRefresh={()=>getRefreshSitechanges("accepted")} 
                         setRefresh={setRefreshSitechanges}
@@ -876,7 +873,6 @@ const Sitechanges = () => {
                         filters = {filters}
                         order = {order}
                         setDisabledFilters = {setDisabledFilters}
-                        siteTypes={siteTypes}
                         setSelected={(v) => {if(activeTab===3) setSelectedCodes(v)}} 
                         getRefresh={()=>getRefreshSitechanges("rejected")} 
                         setRefresh={setRefreshSitechanges}
