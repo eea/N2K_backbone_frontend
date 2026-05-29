@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import { useTable, usePagination, useFilters,useGlobalFilter, useRowSelect, useAsyncDebounce, useSortBy, useExpanded } from 'react-table'
 import {
   CButton,
@@ -179,7 +179,7 @@ function DefaultColumnFilter({
   }
   
   function TableNoChanges(props) {
-    const [isLoading, setIsLoading] = useState(props.isLoading);
+    const [isLoading, setIsLoading] = useState(props.loadingCountries);
     const [sitesData, setSitesData] = useState([]);
     const [errorRequest, setErrorRequest] = useState(false);
 
@@ -221,64 +221,63 @@ function DefaultColumnFilter({
     )
 
     let loadData = () => {
-      if((!isLoading && props.refresh) || (!isLoading && props.siteCodes !== "nodata" && Object.keys(props.siteCodes).length===0)){
-        if(props.refresh){
-          props.setRefresh(false);
-        } 
-        setIsLoading(true);
-        let url = ConfigData.NOCHANGES_GET;
-        url += 'country='+props.country;
-        dl.fetch(url)
-        .then(response =>response.json())
-        .then(data => {
-          if(data?.Success) {
-            if(Object.keys(data.Data).length === 0){
-              setSitesData("nodata");
-              props.setSitecodes("nodata");
-            }
-            else {
-              data.Data.map(a => {let row = a; a.Type = UtilsData.SITE_TYPES[a.Type]; return row});
-              setSitesData(data.Data);
-              props.setSitecodes(data.Data);
-            }
-          }
-          else {
+      if(props.refresh){
+        props.setRefresh(false);
+      } 
+      setIsLoading(true);
+      let url = ConfigData.NOCHANGES_GET;
+      url += 'country='+props.country;
+      dl.fetch(url)
+      .then(response =>response.json())
+      .then(data => {
+        if(data?.Success) {
+          if(Object.keys(data.Data).length === 0){
             setSitesData("nodata");
             props.setSitecodes("nodata");
-            setErrorRequest(true);
           }
-          setIsLoading(false);
-        });
-      }
+          else {
+            data.Data.map(a => {let row = a; a.Type = UtilsData.SITE_TYPES[a.Type]; return row});
+            setSitesData(data.Data);
+            props.setSitecodes(data.Data);
+          }
+        }
+        else {
+          setSitesData("nodata");
+          props.setSitecodes("nodata");
+          setErrorRequest(true);
+        }
+        setIsLoading(false);
+      });
     }
     
-    if(!props.country) {
-      if(sitesData !== "nodata") {
+    useEffect(() => {
+      if(props.loadingCountries) return;
+      if(!props.country) {
         setSitesData("nodata");
         props.setSitecodes({});
         setIsLoading(false);
+        return;
       }
-    } else {
       loadData();
-    }
+    }, [props.country, props.loadingCountries, props.refresh]);
 
-    if(isLoading)
+    if(isLoading || props.loadingCountries) {
       return (<div className="loading-container"><em>Loading...</em></div>)
-    else
-      if(sitesData==="nodata")
-        if(errorRequest)
-          return (<CAlert color="danger" className="mt-3">Something went wrong</CAlert>)
-        else 
-          return (<div className="nodata-container"><em>No Data</em></div>)
-      else
-        return (
-          <>
-            <Table
-              columns={columns}
-              data={sitesData}
-            />
-          </>
-        )
+    }
+    if(sitesData === "nodata") {
+      if(errorRequest) {
+        return (<CAlert color="danger" className="mt-3">Something went wrong</CAlert>)
+      }
+      return (<div className="nodata-container"><em>No Data</em></div>)
+    }
+    return (
+      <>
+        <Table
+          columns={columns}
+          data={sitesData}
+        />
+      </>
+    )
   }
 
 export default TableNoChanges

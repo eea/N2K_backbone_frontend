@@ -177,8 +177,6 @@ import {DataLoader} from '../../../components/DataLoader';
 
     let dl = new(DataLoader);
 
-    useEffect(() => {props.country && loadData()}, [country, props.typeFilter, props.getRefresh()])
-
     let getSite = () => {
       if(changesData.length > 0) {
         const site = changesData.filter(v => v.SiteCode === props.site)[0];
@@ -391,61 +389,63 @@ import {DataLoader} from '../../../components/DataLoader';
         Promise.all(promises).then(v=>{setIsLoaded(true); props.setSitecodes(props.status, changesData == "nodata" ? {} : changesData)});
       }
     }
-    
-    if(!props.country) {
-      if(changesData !== "nodata") {
+
+    useEffect(() => {
+      if(props.loadingCountries) return;
+      if(!props.country) {
         setChangesData("nodata");
         setIsLoaded(true);
         props.setSitecodes({});
+        return;
+      }
+      loadData();
+    }, [props.country, props.loadingCountries, props.typeFilter, props.getRefresh()]);
+
+    if(!isLoaded) {
+      return (<div className="loading-container"><em>Loading...</em></div>)
+    }
+    if(errorRequest) {
+      return (<CAlert color="danger" className="mt-3">Something went wrong</CAlert>)
+    }
+    if(changesData === "nodata") {
+      return (<div className="nodata-container"><em>No Data</em></div>)
+    }
+    if(isLoaded && Array.isArray(changesData)) {
+      const data = getSite();
+      if(data?.SiteCode) {
+        showModal(data);
       }
     }
-
-    if(!isLoaded)
-      return (<div className="loading-container"><em>Loading...</em></div>)
-    else
-      if(changesData==="nodata")
-        if(errorRequest)
-          return (<CAlert color="danger" className="mt-3">Something went wrong</CAlert>)
-        else 
-          return (<div className="nodata-container"><em>No Data</em></div>)
-      else{
-        if(Array.isArray(changesData)) {
-          const data = getSite();
-          if(data.SiteCode)
-            showModal(data);
-        }
-        return (
-        <>
-          <Table 
-            columns={columns} 
-            data={changesData} 
-            currentPage={currentPage}
-            currentSize={currentSize} 
-            loadPage = {loadPage}
-            status={props.status}
-            isTabChanged={props.isTabChanged}
-            setIsTabChanged={props.setIsTabChanged}
-          />
-          {props.showModal && showModal(props.showModal)}
-          <ModalLineage
-            visible = {modalVisible}
-            close = {closeModal}
-            status={props.status}
-            change={modalItem.ChangeId}
-            code={modalItem.SiteCode}
-            name={modalItem.SiteName}
-            type={modalItem.Type}
-            reference={modalItem.Reference}
-            submission={modalItem.Submission}
-            country={props.country}
-            errorMessage={props.errorMessage}
-            updateModalValues = {props.updateModalValues}
-            activeKey={modalItem.ActiveKey}
-          />
-        </>
-        )
-      }
-  
+    return (
+      <>
+        <Table 
+          columns={columns} 
+          data={changesData} 
+          currentPage={currentPage}
+          currentSize={currentSize} 
+          loadPage = {loadPage}
+          status={props.status}
+          isTabChanged={props.isTabChanged}
+          setIsTabChanged={props.setIsTabChanged}
+        />
+        {props.showModal && showModal(props.showModal)}
+        <ModalLineage
+          visible = {modalVisible}
+          close = {closeModal}
+          status={props.status}
+          change={modalItem.ChangeId}
+          code={modalItem.SiteCode}
+          name={modalItem.SiteName}
+          type={modalItem.Type}
+          reference={modalItem.Reference}
+          submission={modalItem.Submission}
+          country={props.country}
+          errorMessage={props.errorMessage}
+          updateModalValues = {props.updateModalValues}
+          activeKey={modalItem.ActiveKey}
+        />
+      </>
+    )
   }
 
 export default TableManagement

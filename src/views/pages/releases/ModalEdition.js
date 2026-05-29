@@ -820,13 +820,13 @@ export class ModalEdition extends Component {
         case "SiteType":
           label = "Site Type";
           placeholder = "Select site type";
-          options = this.props.types.map(x => x = { label: x.Classification, value: x.Code });
+          options = Object.entries(UtilsData.SITE_TYPES).map(([value, label]) => ({value,label}));
           value = options.find(y => y.value === value);
           this.siteTypeDefault = value;
           if (this.state.siteTypeValue === "") {
             this.setState({ siteTypeValue: value })
           }
-          original = original && this.props.types.find(y => y.Code === original).Classification;
+          original = original && UtilsData.SITE_TYPES[original];
           break;
         case "BioRegion":
           label = "Biogeographical Region";
@@ -939,7 +939,7 @@ export class ModalEdition extends Component {
         <CModalHeader closeButton={false}>
           <CModalTitle>
             {data.SiteCode} - {data.SiteName}
-            <span className="ms-2 fw-normal">({this.props.types.find(a => a.Code === data.SiteType).Classification})</span>
+            <span className="ms-2 fw-normal">({UtilsData.SITE_TYPES[data.SiteType]})</span>
           </CModalTitle>
           <CCloseButton onClick={() => this.closeModal()} />
         </CModalHeader>
