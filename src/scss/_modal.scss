@@ -43,6 +43,21 @@
   }
   &--group {
     padding-bottom: 1rem;
+    &:last-of-type {
+      padding-bottom: 0;
+    }
+  }
+}
+
+.year-separator {
+  border-top: solid 1px $gray-100;
+  padding: 0.75rem 0;
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: $primary-base;
+  &:first-of-type {
+    border: none;
+    padding-top: 0;
   }
 }
 

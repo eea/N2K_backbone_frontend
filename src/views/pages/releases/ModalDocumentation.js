@@ -307,7 +307,18 @@ const ModalDocumentation = (props) => {
       </div>
     )
     if (comments && comments !== "noData") {
+      let lastYear = null;
       comments.forEach(c => {
+        const dateString = c.EditedDate || c.Date;
+        const currentYear = dateString.substring(0, 4);
+        if (currentYear !== lastYear) {
+          cmts.push(
+            <div key={currentYear} className="year-separator">
+              <span>{currentYear}</span>
+            </div>
+          );
+          lastYear = currentYear;
+        }
         cmts.push(
           createCommentElement(c.Id, c.Comments, c.Date, c.Owner, c.Edited, c.EditedDate, c.EditedBy)
         )
@@ -505,7 +516,18 @@ const ModalDocumentation = (props) => {
       </div>
     )
     if (documents !== "noData") {
+      let lastYear = null;
       documents.forEach(d => {
+        const dateString = d.EditedDate || d.ImportDate;
+        const currentYear = dateString.substring(0, 4);
+        if (currentYear !== lastYear) {
+          docs.push(
+            <div key={currentYear} className="year-separator">
+              <span>{currentYear}</span>
+            </div>
+          );
+          lastYear = currentYear;
+        }
         const name = d.OriginalName ?? d.Path;
         docs.push(
           createDocumentElement(d.ID, name, d.ImportDate, d.Username, d.Comment, d.Edited, d.EditedDate, d.EditedBy)
