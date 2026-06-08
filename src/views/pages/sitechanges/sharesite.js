@@ -385,7 +385,18 @@ class ModalChanges extends Component {
       }
     }
     if (this.state.comments !== "noData") {
+      let lastYear = null;
       filteredComments.forEach(c => {
+        const dateString = c.EditedDate || c.Date;
+        const currentYear = dateString.substring(0, 4);
+        if (currentYear !== lastYear) {
+          cmts.push(
+            <div key={currentYear} className="year-separator">
+              <span>{currentYear}</span>
+            </div>
+          );
+          lastYear = currentYear;
+        }
         cmts.push(
           this.createCommentElement(c.Id, c.Comments, c.Date, c.Owner, c.Edited, c.EditedDate, c.EditedBy, target)
         )
@@ -445,7 +456,18 @@ class ModalChanges extends Component {
         filteredDocuments = this.state.documents?.filter(d => !d.Release)
     }
     if (this.state.documents !== "noData") {
+      let lastYear = null;
       filteredDocuments.forEach(d => {
+        const dateString = d.EditedDate || d.ImportDate;
+        const currentYear = dateString.substring(0, 4);
+        if (currentYear !== lastYear) {
+          docs.push(
+            <div key={currentYear} className="year-separator">
+              <span>{currentYear}</span>
+            </div>
+          );
+          lastYear = currentYear;
+        }
         const name = d.OriginalName ?? d.Path;
         docs.push(
           this.createDocumentElement(d.Id, name, d.ImportDate, d.Username, d.Comment, d.Edited, d.EditedDate, d.EditedBy, target)
