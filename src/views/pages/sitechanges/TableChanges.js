@@ -904,32 +904,31 @@ const IndeterminateCheckbox = React.forwardRef(
       return dl.fetch(url, options)
     }
 
-    if(!props.country) {
-      if(changesData !== "nodata") {
+    useEffect(() => {
+      if(props.country === "") return;
+      if(!props.country) {
         setChangesData("nodata");
         setSitecodes([]);
         props.setSitecodes({});
         setIsLoading(false);
       }
-    }
+    }, [props.country]);
 
     if (changesData === "nodata") {
-  if (errorRequest) {
-    return (<CAlert color="danger" className="mt-3">Something went wrong</CAlert>);
-  } else {
-    return (<div className="nodata-container"><em>No Data</em></div>);
-  }
-} else if (isLoading || !Array.isArray(changesData)) {
-  return (<div className="loading-container"><em>Loading...</em></div>);
-} else {
-        
-          const data = getSite();
-          if(data.SiteCode){
-            showModal(data);
-          }
-        
+      if (errorRequest) {
+        return (<CAlert color="danger" className="mt-3">Something went wrong</CAlert>);
+      } else {
+        return (<div className="nodata-container"><em>No Data</em></div>);
+      }
+    } else if (isLoading || !Array.isArray(changesData)) {
+      return (<div className="loading-container"><em>Loading...</em></div>);
+    } else {
+      const data = getSite();
+      if(data.SiteCode){
+        showModal(data);
+      }
 
-        return (
+      return (
         <>
           <Table
             columns={columns}
@@ -965,8 +964,8 @@ const IndeterminateCheckbox = React.forwardRef(
             setHasChanges = {props.setModalHasChanges}
           />
         </>
-        )
-      }
+      )
+    }
   }
 
 export default TableChanges

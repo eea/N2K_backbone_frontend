@@ -64,7 +64,7 @@ const cleanSiteParm = () => {
 const Sitelineage = () => {
   const [countries, setCountries] = useState([]);
   const [country, setCountry] = useState(defaultCountry);
-  const [loadingCountries, setLoadingCountries] = useState(false);
+  const [loadingCountries, setLoadingCountries] = useState(true);
   const [site, setSite] = useState(openSite);
   const [isLoading, setIsLoading] = useState(false);
   const [forceRefresh, setForceRefresh] = useState(0);
@@ -96,7 +96,6 @@ const Sitelineage = () => {
   });
 
   let loadCountries = () => {
-    setLoadingCountries(true);
     dl.fetch(ConfigData.COUNTRIES_WITH_DATA)
     .then(response => response.json())
     .then(data => {
@@ -116,6 +115,7 @@ const Sitelineage = () => {
           setIsLoading(false);
         }
       }
+      setLoadingCountries(false);
     });
   }
 
@@ -324,9 +324,11 @@ const Sitelineage = () => {
     setIsLoadingCount(false);
   }
 
-  if(countries.length === 0 && !loadingCountries){
-    loadCountries();
-  }
+  useEffect(() => {
+    if(countries.length === 0 ){
+      loadCountries();
+    }
+  }, []);
 
   let getChangesCount = () => {
     setIsLoadingCount(true);
@@ -525,6 +527,7 @@ const Sitelineage = () => {
                         site={site}
                         setSite={setSite}
                         closeModal={closeModal}
+                        loadingCountries={loadingCountries}
                       />
                     </CTabPane>
                     <CTabPane role="tabpanel" aria-labelledby="accepted-tab" visible={activeTab === 2}>
@@ -542,6 +545,7 @@ const Sitelineage = () => {
                         site={site}
                         setSite={setSite}
                         closeModal={closeModal}
+                        loadingCountries={loadingCountries}
                     />
                     </CTabPane>
                   </CTabContent>
