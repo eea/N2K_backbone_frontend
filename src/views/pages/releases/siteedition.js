@@ -43,20 +43,17 @@ const Releases = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalItem, setModalItem] = useState({});
   const [siteCodes, setSitecodes] = useState([]);
-  const [filterEdited, setFilterEdited] = useState(false);
-  const [filterJustification, setFilterJustification] = useState(false);
-  const [filterSCI, setFilterSCI] = useState(false);
+  const [filters, setFilters] = useState({ edited: false, justification: false, sci: false });
   const [searchList, setSearchList] = useState({});
   const [selectOption, setSelectOption] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const [loadingCountries, setLoadingCountries] = useState(false);
+  const [loadingCountries, setLoadingCountries] = useState(true);
   const [disabledSearchBtn, setDisabledSearchBtn] = useState(true);
   const [countries, setCountries] = useState([]);
   const [country, setCountry] = useState(defaultCountry);
   const [bioRegions, setBioRegions] = useState([]);
-  const [siteTypes, setSiteTypes] = useState([]);
   const turnstoneRef = useRef();
-  const [refresh,setRefresh] = useState(false);
+  const [refresh, setRefresh] = useState(0);
   const [modalValues, setModalValues] = useState({
     visibility: false,
     close: () => {
@@ -93,7 +90,6 @@ const Releases = () => {
   }
 
   let loadCountries = () => {
-    setLoadingCountries(true);
     dl.fetch(ConfigData.GET_CLOSED_COUNTRIES)
     .then(response => response.json())
     .then(data => {
@@ -114,12 +110,15 @@ const Releases = () => {
           setIsLoading(false);
         }
       }
+      setLoadingCountries(false);
     });
   }
 
-  if(countries.length === 0 && !loadingCountries){
-    loadCountries();
-  }
+  useEffect(() => {
+    if(countries.length === 0 ){
+      loadCountries();
+    }
+  }, []);
 
   if(bioRegions.length === 0){
     dl.fetch(ConfigData.BIOREGIONS_GET)
@@ -128,17 +127,6 @@ const Releases = () => {
       if(data?.Success) {
         let regionsList = data.Data;
         setBioRegions(regionsList);
-      }
-    });
-  }
-
-  if(siteTypes.length === 0){
-    dl.fetch(ConfigData.SITETYPES_GET)
-    .then(response => response.json())
-    .then(data => {
-      if(data?.Success) {
-        let typesList = data.Data;
-        setSiteTypes(typesList);
       }
     });
   }
@@ -163,15 +151,10 @@ const Releases = () => {
   }
 
   let changeFilter = (type, value) => {
-    if (type === "edited") {
-      setFilterEdited(value);
-    }
-    else if (type === "justification") {
-      setFilterJustification(value);
-    }
-    else if (type === "sci") {
-      setFilterSCI(value);
-    }
+    setFilters(prev => ({
+      ...prev,
+      [type]: value
+    }));
     clearSearch();
     forceRefreshData();
   }
@@ -200,7 +183,11 @@ const Releases = () => {
     }
   }
 
-  let forceRefreshData = () => setSitecodes([]);
+  let forceRefreshData = () => {
+    setIsLoading(true);
+    setSearchList({});
+    setSitecodes([]);
+  }
 
   let clearSearch = (focus) => {
     turnstoneRef.current?.clear();
@@ -290,19 +277,19 @@ const Releases = () => {
                   <ul className="btn--list">
                     <li>
                       <div className="checkbox" disabled={Object.keys(siteCodes).length === 0}>
-                        <input type="checkbox" className="input-checkbox" id="edition_check_justification" checked={filterJustification} onClick={(e)=>changeFilter("justification", e.currentTarget.checked)} />
+                        <input type="checkbox" className="input-checkbox" id="edition_check_justification" checked={filters.justification} onClick={(e)=>changeFilter("justification", e.currentTarget.checked)} />
                         <label htmlFor="edition_check_justification" className="input-label badge color--default">Justification missing</label>
                       </div>
                     </li>
                     <li>
                       <div className="checkbox" disabled={Object.keys(siteCodes).length === 0}>
-                        <input type="checkbox" className="input-checkbox" id="edition_check_edited" checked={filterEdited} onClick={(e)=>changeFilter("edited", e.currentTarget.checked)} />
+                        <input type="checkbox" className="input-checkbox" id="edition_check_edited" checked={filters.edited} onClick={(e)=>changeFilter("edited", e.currentTarget.checked)} />
                         <label htmlFor="edition_check_edited" className="input-label badge color--default">Edited</label>
                       </div>
                     </li>
                     <li>
                       <div className="checkbox" disabled={Object.keys(siteCodes).length === 0}>
-                        <input type="checkbox" className="input-checkbox" id="edition_check_sci" checked={filterSCI} onClick={(e)=>changeFilter("sci", e.currentTarget.checked)} />
+                        <input type="checkbox" className="input-checkbox" id="edition_check_sci" checked={filters.sci} onClick={(e)=>changeFilter("sci", e.currentTarget.checked)} />
                         <label htmlFor="edition_check_sci" className="input-label badge color--default">SCI (Type B+C)</label>
                       </div>
                     </li>
@@ -359,10 +346,8 @@ const Releases = () => {
                   country={country}
                   setSitecodes={setCodes}
                   siteCodes={siteCodes}
-                  onlyEdited={filterEdited}
-                  onlySCI={filterSCI}
-                  onlyJustReq = {filterJustification}
-                  types={siteTypes}
+                  filters={filters} 
+                  loadingCountries={loadingCountries}
                 />
               </>
             </CRow>
@@ -374,7 +359,6 @@ const Releases = () => {
             version={modalItem.Version}
             updateModalValues={updateModalValues}
             regions={bioRegions}
-            types={siteTypes}
             country={country}
           />
           <ConfirmationModal modalValues={modalValues}/>
