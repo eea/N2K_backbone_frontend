@@ -44,7 +44,7 @@ const Sitechanges = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [refresh,setRefresh] = useState(false);
   const [countries, setCountries] = useState([]);
-  const [loadingCountries, setLoadingCountries] = useState(false);
+  const [loadingCountries, setLoadingCountries] = useState(true);
   const [country, setCountry] = useState(defaultCountry);
   const [disabledSearchBtn, setDisabledSearchBtn] = useState(true);
   const [siteCodes, setSitecodes] = useState({});
@@ -168,7 +168,6 @@ const Sitechanges = () => {
   }
 
   let loadCountries = () => {
-    setLoadingCountries(true);
     dl.fetch(ConfigData.COUNTRIES_WITH_DATA)
     .then(response => response.json())
     .then(data => {
@@ -188,13 +187,15 @@ const Sitechanges = () => {
           setIsLoading(false);
         }
       }
+      setLoadingCountries(false);
     });
   }
 
-  //Initial set for countries
-  if(countries.length === 0 && !loadingCountries){
-    loadCountries();
-  }
+  useEffect(() => {
+    if(countries.length === 0 ){
+      loadCountries();
+    }
+  }, []);
 
   const page = UtilsData.SIDEBAR["sitechanges"].find(a => a.option === "nochanges");
 
@@ -280,6 +281,7 @@ const Sitechanges = () => {
                         setSitecodes={setCodes}
                         siteCodes={siteCodes}
                         showErrorMessage={showErrorMessage}
+                        loadingCountries={loadingCountries}
                       />
                     </CTabPane>
                   </CTabContent>

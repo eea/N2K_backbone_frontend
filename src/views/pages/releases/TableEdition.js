@@ -1,7 +1,8 @@
-import React, {useState} from 'react'
+import React, { useState, useEffect } from 'react'
 import { useTable, usePagination, useFilters,useGlobalFilter, useRowSelect, useAsyncDebounce, useSortBy, useExpanded } from 'react-table'
 import {matchSorter} from 'match-sorter'
 import ConfigData from '../../../config.json';
+import UtilsData from '../../../data/utils.json';
 import {
   CButton,
   CTooltip,
@@ -217,7 +218,7 @@ function Table({ columns, data, setSelected, modalProps, updateModalValues }) {
 }
 
 function TableEdition(props) {
-  const [isLoading, setIsLoading] = useState(props.isLoading);
+  const [isLoading, setIsLoading] = useState(false);
   const [sitesData, setSitesData] = useState([]);
   const [errorRequest, setErrorRequest] = useState(false);
 
@@ -252,7 +253,7 @@ function TableEdition(props) {
       },
       {
         Header: 'Site Type',
-        accessor: 'Type',
+        accessor: 'SiteType',
       },
       {
         Header: 'Justification',
@@ -271,70 +272,66 @@ function TableEdition(props) {
   )
 
   let loadData = () => {
-    if((!isLoading && props.refresh) || (!isLoading && props.siteCodes !== "nodata" && Object.keys(props.siteCodes).length===0)){
-      if(props.refresh){
-        props.setRefresh(false);
-      } 
-      setIsLoading(true);
-      dl.fetch(ConfigData.SITEEDITION_NON_PENDING_GET+
-        'country='+props.country+
-        '&onlyedited='+props.onlyEdited+
-        '&onlyjustreq='+props.onlyJustReq+
-        '&onlysci='+props.onlySCI)
-      .then(response =>response.json())
-      .then(data => {
-        if(data?.Success) {
-          if(Object.keys(data.Data).length === 0){
-            setSitesData("nodata");
-            props.setSitecodes("nodata");
-          }
-          else {
-            data.Data.map(a => {let row = a; a.Type = props.types.find(b => b.Code === a.Type).Classification; return row});
-            setSitesData(data.Data);
-            props.setSitecodes(data.Data);
-          }
-        }
-        else {
+    if (isLoading) return;
+    setIsLoading(true);
+    dl.fetch(ConfigData.SITEEDITION_NON_PENDING_GET+
+      'country='+props.country+
+      '&onlyedited='+props.filters.edited+
+      '&onlyjustreq='+props.filters.justification+
+      '&onlysci='+props.filters.sci)
+    .then(response =>response.json())
+    .then(data => {
+      if(data?.Success) {
+        if(Object.keys(data.Data).length === 0){
           setSitesData("nodata");
           props.setSitecodes("nodata");
-          setErrorRequest(true);
         }
-        setIsLoading(false);
-      });
-    }
+        else {
+          data.Data.map(a => {let row = a; a.SiteType = UtilsData.SITE_TYPES[a.Type]; return row});
+          setSitesData(data.Data);
+          props.setSitecodes(data.Data);
+        }
+      }
+      else {
+        setSitesData("nodata");
+        props.setSitecodes("nodata");
+        setErrorRequest(true);
+      }
+      setIsLoading(false);
+    });
+  
   }
 
-  if(!props.country) {
-    if(sitesData !== "nodata") {
+  useEffect(() => {
+    if(props.loadingCountries) return;
+    if(!props.country) {
       setSitesData("nodata");
       props.setSitecodes({});
       setIsLoading(false);
+      return;
     }
-  }
-  else {
-    if(props.types.length > 0)
-      loadData();
-  }
+    loadData();
+  }, [props.country, props.loadingCountries,  props.filters, props.siteCodes]);
 
-  if(isLoading)
+  if(isLoading || props.loadingCountries) {
     return (<div className="loading-container"><em>Loading...</em></div>)
-  else
-    if(sitesData==="nodata")
-      if(errorRequest)
-        return (<CAlert color="danger" className="mt-3">Something went wrong</CAlert>)
-      else 
-        return (<div className="nodata-container"><em>No Data</em></div>)
-    else
-      return (
-        <>
-          <Table
-            columns={columns}
-            data={sitesData}
-            modalProps={props.modalProps}
-            updateModalValues={props.updateModalValues}
-          />
-        </>
-      )
+  }
+  if(sitesData === "nodata") {
+    if(errorRequest) {
+      return (<CAlert color="danger" className="mt-3">Something went wrong</CAlert>)
+    }
+    return (<div className="nodata-container"><em>No Data</em></div>)
+  }
+  return (
+    <>
+      <Table
+        columns={columns}
+        data={sitesData}
+        modalProps={props.modalProps}
+        updateModalValues={props.updateModalValues}
+      />
+    </>
+  )
 }
 
 export default TableEdition
