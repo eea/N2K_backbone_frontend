@@ -52,10 +52,12 @@ export class ModalChanges extends Component {
     this.isLoadingData = false;
     this.isLoadingComments = false;
     this.isLoadingDocuments = false;
+    this.isLoadingRelease = false;
 
     this.errorLoadingFields = false;
     this.errorLoadingComments = false;
     this.errorLoadingDocuments = false;
+    this.errorLoadingRelease = false;
 
     this.changingStatus = false;
 
@@ -78,6 +80,7 @@ export class ModalChanges extends Component {
       uploadingDocument: false,
       downloadingDocuments: [],
       justificationRequired: false,
+      lastRelease: null,
       updateOnClose: false,
       selectedFile: "",
       isSelected: false,
@@ -1076,9 +1079,10 @@ export class ModalChanges extends Component {
   renderGeometry() {
     return (
       <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 2}>
-        {this.state.errorLoading ?
+        {this.errorLoadingRelease ?
           <CAlert color="danger">Error loading data</CAlert>
           :
+          this.state.lastRelease &&
           <CRow >
             <MapViewer
               siteCode={this.props.item}
@@ -1089,6 +1093,10 @@ export class ModalChanges extends Component {
               mapSubmission={ConfigData.MAP_SUBMISSION}
               mapChanges={ConfigData.MAP_GEOMETRY_CHANGES}
               showGeometryChanges={["Critical","Info","Warning"].some(l => this.state.data?.[l]?.SiteInfo?.ChangesByCategory?.some(a => a.ChangeType.includes("Deletion of Spatial Area") || a.ChangeType.includes("Addition of Spatial Area")))}
+              {...(this.state.lastRelease > 0 ? {
+                release: this.state.lastRelease,
+                mapLastRelease: ConfigData.MAP_RELEASES
+              } : {})}
             />
           </CRow>
         }
@@ -1607,6 +1615,9 @@ export class ModalChanges extends Component {
     if (!this.isLoadingFields) {
       this.loadFields();
     }
+    if (!this.isLoadingRelease) {
+      this.loadRelease();
+    }
 
     let contents = this.state.loading ?
       <div className="loading-container"><em>Loading...</em></div>
@@ -1786,11 +1797,32 @@ export class ModalChanges extends Component {
     }
   }
 
+  loadRelease() {
+    if (this.isVisible() && (this.state.data.SiteCode !== this.props.item)) {
+      this.isLoadingRelease = true;
+      this.dl.fetch(ConfigData.GET_LAST_RELEASE_ID + "?siteCode=" + this.props.item)
+        .then(response => {
+          if (response.status === 200)
+            return response.json();
+          else
+            return this.errorLoadingRelease = true;
+        })
+        .then(data => {
+          if (!data.Success)
+            this.errorLoadingRelease = true;
+          else {
+            this.setState({ lastRelease: data.Data });
+          }
+        });
+    }
+  }
+
   resetLoading() {
     this.isLoadingComments = false;
     this.isLoadingDocuments = false;
     this.isLoadingData = false;
     this.isLoadingFields = false;
+    this.isLoadingRelease = false;
   }
 
   acceptChangesModal(clean) {
