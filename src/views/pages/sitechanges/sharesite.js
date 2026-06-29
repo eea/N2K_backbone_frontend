@@ -12,7 +12,7 @@ import {
   CNavLink,
   CSidebarNav,
   CTable,
-  CTableBody,  
+  CTableBody,
   CTableDataCell,
   CTableHead,
   CTableHeaderCell,
@@ -48,8 +48,14 @@ class ModalChanges extends Component {
     super(props);
     this.dl = new(DataLoader);
 
+    this.isLoadingData = false;
+    this.isLoadingComments = false;
+    this.isLoadingDocuments = false;
+    this.isLoadingRelease = false;
+
     this.errorLoadingComments = false;
     this.errorLoadingDocuments = false;
+    this.errorLoadingRelease = false;
 
     this.state = {
       activeKey: 1,
@@ -66,6 +72,7 @@ class ModalChanges extends Component {
       showDetail: [],
       downloadingDocuments: [],
       justificationRequired: false,
+      lastRelease: null,
       notValidDocument: "",
       errorLoading: false
     }
@@ -160,7 +167,7 @@ class ModalChanges extends Component {
                 style={{ backgroundColor: (pos.includes(index) ? colorizeValue(v) : "") }}>
                 {(Number.isNaN(parseFloat(v)) || v.match(/[A-Z]/g)) ? ( v) : Number(v)} </CTableDataCell>)
             }
-            else if (this.state.data.Status === "Pending" && UtilsData.LINEAGETYPES.includes(type)) {
+            else if (UtilsData.LINEAGETYPES.includes(type)) {
               return (<CTableDataCell key={v + "_" + index}>{v.split(",").map((a, i) => <>{i > 0 && ", "} <a href={"/#/sdf?site=" + a + "&type=" + fields[index].toLowerCase()} target="_blank">{a}</a></>)}</CTableDataCell>)
             }
             // Remove for next year
@@ -611,9 +618,10 @@ class ModalChanges extends Component {
   renderGeometry() {
     return (
       <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 2}>
-        {this.state.errorLoading ?
+        {this.errorLoadingRelease ?
           <CAlert color="danger">Error loading data</CAlert>
           :
+          this.state.lastRelease &&
           <CRow >
             <MapViewer
               siteCode={this.state.sitecode}
@@ -624,6 +632,10 @@ class ModalChanges extends Component {
               mapSubmission={ConfigData.MAP_SUBMISSION}
               mapChanges={ConfigData.MAP_GEOMETRY_CHANGES}
               showGeometryChanges={["Critical","Info","Warning"].some(l => this.state.data?.[l]?.SiteInfo?.ChangesByCategory?.some(a => a.ChangeType.includes("Deletion of Spatial Area") || a.ChangeType.includes("Addition of Spatial Area")))}
+              {...(this.state.lastRelease > 0 ? {
+                release: this.state.lastRelease,
+                mapLastRelease: ConfigData.MAP_RELEASES
+              } : {})}
             />
           </CRow>
         }
@@ -704,9 +716,18 @@ class ModalChanges extends Component {
 
   renderData() {
     if(this.state.data !== "noData" && this.state.sitecode && this.state.version !== null && !this.state.errorLoading) {
-      this.loadData();
-      this.loadComments();
-      this.loadDocuments();
+      if (!this.isLoadingData) {
+        this.loadData();
+      }
+      if (!this.isLoadingComments) {
+        this.loadComments();
+      }
+      if (!this.isLoadingDocuments) {
+        this.loadDocuments();
+      }
+      if (!this.isLoadingRelease) {
+        this.loadRelease();
+      }
     }
 
     let contents = (this.state.data === "noData" || (!this.state.sitecode || this.state.version === null))
@@ -743,6 +764,7 @@ class ModalChanges extends Component {
 
   loadData() {
     if (this.state.data.SiteCode !== this.state.sitecode) {
+      this.isLoadingData = true;
       this.dl.fetch(ConfigData.SITECHANGES_DETAIL + `siteCode=${this.state.sitecode}&version=${this.state.version}`)
         .then(response => {
           if (response.status === 200)
@@ -809,6 +831,26 @@ class ModalChanges extends Component {
           }
           else {
             this.setState({ documents: "noData" });
+          }
+        });
+    }
+  }
+
+  loadRelease() {
+    if (this.state.data.SiteCode !== this.state.sitecode) {
+      this.isLoadingRelease = true;
+      this.dl.fetch(ConfigData.GET_LAST_RELEASE_ID + "?siteCode=" + this.state.sitecode)
+        .then(response => {
+          if (response.status === 200)
+            return response.json();
+          else
+            return this.errorLoadingRelease = true;
+        })
+        .then(data => {
+          if (!data.Success)
+            this.errorLoadingRelease = true;
+          else {
+            this.setState({ lastRelease: data.Data });
           }
         });
     }
