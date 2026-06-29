@@ -53,7 +53,7 @@ class MapViewer extends React.Component {
                 if(this.props.showGeometryChanges) {
                     let geometryChanges = new FeatureLayer({
                         url: this.props.mapChanges,
-                        id: 2,
+                        id: 3,
                         popupEnabled: true,
                         title: "Geometry Changes",
                         opacity: 0.5,
@@ -98,6 +98,34 @@ class MapViewer extends React.Component {
                         }
                     });
                     layers.push(geometryChanges);
+                }
+                if(this.props.mapLastRelease){
+                    let lastRelease = new FeatureLayer({
+                        url: this.props.mapLastRelease,
+                        id: 2,
+                        popupEnabled: true,
+                        title: "Last Official Release",
+                        opacity: 0.5,
+                        minScale : 10000000,
+                        definitionExpression: "ReleaseId = " + this.props.release,
+                        renderer: {
+                            type: "simple",
+                            symbol: {
+                                type: "simple-fill",
+                                color: UtilsData.COLORS.MapPurple,
+                                style: "solid",
+                                outline: {
+                                    width: 1,
+                                    color: "#444444"
+                                }
+                            },
+                        },
+                        popupTemplate: {
+                            title: "Last Official Release: {SiteCode} - {SiteName}",
+                            content: [ popupTemplate ]
+                        }
+                    });
+                    layers.push(lastRelease);
                 }
 
                 let referenceLayer = new FeatureLayer({
@@ -160,7 +188,7 @@ class MapViewer extends React.Component {
 
             let siteLayer = new FeatureLayer({
                 url: this.props.lineageChangeType === "Deletion" || this.props.noGeometry ? this.props.mapReference : this.props.mapSubmission,
-                id: 3,
+                id: 4,
                 popupEnabled: false,
                 title: "Submitted Site",
                 definitionExpression: "SiteCode = '" + this.props.siteCode + "'",
@@ -210,29 +238,43 @@ class MapViewer extends React.Component {
             if(this.props.mapReference){
                 let layerList = new LayerList({view: this.view});
                 this.view.ui.add(layerList,{position: "top-left"});
-                
+
+                layerList.when(() => {
+                    const observer = new MutationObserver(() => {
+                        const items = document.querySelectorAll(".esri-layer-list__item");
+                        if (items.length > 0) {
+                            if(!document.querySelectorAll(".esri-layer-list__item")[0].querySelector(".esri-layer-list__item-label .legend-color")){
+                                document.querySelectorAll(".esri-layer-list__item")[0].querySelector(".esri-layer-list__item-label").insertAdjacentHTML( 'beforeend', "<span class='legend-color legend-color-border'></span>" );
+                            }
+                            if(document.querySelectorAll(".esri-layer-list__item")[1] && !document.querySelectorAll(".esri-layer-list__item")[1]?.querySelector(".esri-layer-list__item-label .legend-color")){
+                                document.querySelectorAll(".esri-layer-list__item")[1].querySelector(".esri-layer-list__item-label").insertAdjacentHTML( 'beforeend', "<span class='legend-color legend-color-submission'></span>" );
+                            }
+                            if(document.querySelectorAll(".esri-layer-list__item")[2] && !document.querySelectorAll(".esri-layer-list__item")[2]?.querySelector(".esri-layer-list__item-label .legend-color")){
+                                document.querySelectorAll(".esri-layer-list__item")[2].querySelector(".esri-layer-list__item-label").insertAdjacentHTML( 'beforeend', "<span class='legend-color legend-color-reference'></span>" );
+                            }
+                            if(document.querySelectorAll(".esri-layer-list__item")[3] && !document.querySelectorAll(".esri-layer-list__item")[3]?.querySelector(".esri-layer-list__item-label .legend-color")){
+                                document.querySelectorAll(".esri-layer-list__item")[3].querySelector(".esri-layer-list__item-label").insertAdjacentHTML( 'beforeend', "<span class='legend-color legend-color-release'></span>" );
+                            }
+                            if(document.querySelectorAll(".esri-layer-list__item")[4] && !document.querySelectorAll(".esri-layer-list__item")[4]?.querySelector(".esri-layer-list__item-label .legend-color")){
+                                document.querySelectorAll(".esri-layer-list__item")[4].querySelector(".esri-layer-list__item-label").insertAdjacentHTML( 'beforeend', "<span class='legend-color legend-color-changes'></span>" );
+                            }
+                            observer.disconnect();
+                        }
+                    });
+                    const container = document.querySelector(".esri-layer-list");
+                    if (container) {
+                        observer.observe(container, {
+                            childList: true,
+                            subtree: true
+                        });
+                    }
+                });
+
                 const basemapToggle = new BasemapToggle({
                     view: this.view,
                     nextBasemap: "satellite"
                 });
                 this.view.ui.add(basemapToggle,"bottom-left");
-                      
-                this.view.whenLayerView(siteLayer).then((layerView) => {
-                    reactiveUtils.whenOnce(() => layerView.updating).then(() => {
-                        if(!document.querySelectorAll(".esri-layer-list__item")[0].querySelector(".esri-layer-list__item-label .legend-color")){
-                            document.querySelectorAll(".esri-layer-list__item")[0].querySelector(".esri-layer-list__item-label").insertAdjacentHTML( 'beforeend', "<span class='legend-color legend-color-border'></span>" );
-                        }
-                        if(document.querySelectorAll(".esri-layer-list__item")[1] && !document.querySelectorAll(".esri-layer-list__item")[1]?.querySelector(".esri-layer-list__item-label .legend-color")){
-                            document.querySelectorAll(".esri-layer-list__item")[1].querySelector(".esri-layer-list__item-label").insertAdjacentHTML( 'beforeend', "<span class='legend-color legend-color-submission'></span>" );
-                        }
-                        if(document.querySelectorAll(".esri-layer-list__item")[2] && !document.querySelectorAll(".esri-layer-list__item")[2]?.querySelector(".esri-layer-list__item-label .legend-color")){
-                            document.querySelectorAll(".esri-layer-list__item")[2].querySelector(".esri-layer-list__item-label").insertAdjacentHTML( 'beforeend', "<span class='legend-color legend-color-reference'></span>" );
-                        }
-                        if(document.querySelectorAll(".esri-layer-list__item")[3] && !document.querySelectorAll(".esri-layer-list__item")[3]?.querySelector(".esri-layer-list__item-label .legend-color")){
-                            document.querySelectorAll(".esri-layer-list__item")[3].querySelector(".esri-layer-list__item-label").insertAdjacentHTML( 'beforeend', "<span class='legend-color legend-color-changes'></span>" );
-                        }
-                    });
-                });
             } 
 
             this.view.popup.visibleElements={closeButton:false};
@@ -245,7 +287,7 @@ class MapViewer extends React.Component {
 
     getReportedGeometry(layer,code){
         let query = layer.createQuery();
-        if (this.props.release) {
+        if (this.props.release && !this.props.mapLastRelease) {
             query.where = "SiteCode = '" + code + "' AND ReleaseId = " + this.props.release;
         }
         else {
