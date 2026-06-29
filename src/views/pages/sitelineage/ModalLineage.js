@@ -43,6 +43,11 @@ export class ModalLineage extends Component {
     this.isLoadingData = false;
     this.isLoadingPredecessorData = false;
     this.isLoadingReferenceData = false;
+    this.isLoadingRelease = false;
+
+    this.errorLoadingPredecessor = false;
+    this.errorLoadingReference = false;
+    this.errorLoadingRelease = false;
 
     this.changingStatus = false;
 
@@ -64,6 +69,7 @@ export class ModalLineage extends Component {
       newPredecessor: false,
       referenceSites: [],
       releaseDate: "",
+      lastRelease: null,
       updateOnClose: false,
       errorLoading: false,
       message: "",
@@ -431,31 +437,28 @@ export class ModalLineage extends Component {
 
   renderGeometry() {
     return (
-      this.state.errorLoading ?
-        <>
-          <div className="loading-container">
-            <CAlert color="danger">Error loading data</CAlert>
-          </div>
-        </>
-        :
-        <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 2}>
-          {this.state.errorLoading &&
-            <CAlert color="danger">Error loading data</CAlert>
-          }
-          {!this.state.errorLoading &&
-            <CRow >
-              <MapViewer
-                siteCode={this.props.code}
-                version={this.props.version}
-                lineageChangeType={this.props.type}
-                mapReference={ConfigData.MAP_REFERENCE}
-                mapSubmission={ConfigData.MAP_SUBMISSION}
-                mapChanges={ConfigData.MAP_GEOMETRY_CHANGES}
-                showGeometryChanges={false}
-              />
-            </CRow>
-          }
-        </CTabPane>
+      <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={this.state.activeKey === 2}>
+        {this.errorLoadingRelease ?
+          <CAlert color="danger">Error loading data</CAlert>
+          :
+          this.state.lastRelease &&
+          <CRow >
+            <MapViewer
+              siteCode={this.props.code}
+              version={this.props.version}
+              lineageChangeType={this.props.type}
+              mapReference={ConfigData.MAP_REFERENCE}
+              mapSubmission={ConfigData.MAP_SUBMISSION}
+              mapChanges={ConfigData.MAP_GEOMETRY_CHANGES}
+              showGeometryChanges={false}
+              {...(this.state.lastRelease > 0 ? {
+                release: this.state.lastRelease,
+                mapLastRelease: ConfigData.MAP_RELEASES
+              } : {})}
+            />
+          </CRow>
+        }
+      </CTabPane>
     )
   }
 
@@ -562,6 +565,9 @@ export class ModalLineage extends Component {
     if (!this.isLoadingReferenceData) {
       this.loadReferenceData();
     }
+    if (!this.isLoadingRelease) {
+      this.loadRelease();
+    }
 
     let contents = this.state.loading ?
       <div className="loading-container"><em>Loading...</em></div>
@@ -661,6 +667,26 @@ export class ModalLineage extends Component {
           this.setState({ referenceSites: data.Data, allOptions })
         }
       });
+    }
+  }
+
+  loadRelease() {
+    if (this.isVisible()) {
+      this.isLoadingRelease = true;
+      this.dl.fetch(ConfigData.GET_LAST_RELEASE_ID + "?siteCode=" + this.props.code)
+        .then(response => {
+          if (response.status === 200)
+            return response.json();
+          else
+            return this.setState({ errorLoading: true, loading: false });
+        })
+        .then(data => {
+          if (!data.Success)
+            this.errorLoadingRelease = true;
+          else {
+            this.setState({ lastRelease: data.Data });
+          }
+        });
     }
   }
 
