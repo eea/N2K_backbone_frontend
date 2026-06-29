@@ -426,7 +426,7 @@ export class ModalChanges extends Component {
         const chunk = this.state.selectedFile.slice(start, end);
 
         const form = new FormData();
-        form.append('Files', chunk, this.state.selectedFile.name);
+        form.append('chunk', chunk, this.state.selectedFile.name);
 
         const res = await this.dl.fetch(
           ConfigData.ATTACHED_FILE_UPLOAD_CHUNK + "?uploadId=" + uploadId + "&chunkIndex=" + i,
