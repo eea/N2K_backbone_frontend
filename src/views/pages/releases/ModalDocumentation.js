@@ -435,10 +435,67 @@ const ModalDocumentation = (props) => {
     setSelectedFile()
   }
 
-  const uploadFile = (data) => {
-    let country = props.item.Code
-    let comment = document.querySelector(".document--new .document--comment textarea").value;
-    return dl.xmlHttpRequest(ConfigData.RELEASES_ATTACHMENTS_DOCUMENT_ADD + '?Country=' + country + "&comment=" + comment, data)
+  const handleSubmission = async () => {
+    if (!selectedFile) {
+      showErrorMessage("document", "Add a file");
+      return;
+    }
+
+    const chunkSize = UtilsData.CHUNK_SIZE;
+    const totalChunks = Math.ceil(selectedFile.size / chunkSize);
+    const uploadId = 'upload-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+
+    const country = props.item.Code;
+    const comment = document.querySelector(".document--new .document--comment textarea")?.value ?? "";
+
+    setUploadingDocument(true);
+
+    try {
+      for (let i = 0; i < totalChunks; i++) {
+        const start = i * chunkSize;
+        const end   = Math.min(start + chunkSize, selectedFile.size);
+        const chunk = selectedFile.slice(start, end);
+
+        const form = new FormData();
+        form.append('chunk', chunk, selectedFile.name);
+
+        const res = await dl.fetch(
+          ConfigData.RELEASES_DOCUMENT_UPLOAD_CHUNK + "?uploadId=" + uploadId + "&chunkIndex=" + i + "&chunk="+ chunk,
+          { method: 'POST', body: form, headers: {} }
+        );
+
+        if (!res.ok) {
+          const body = await res.text().catch(() => '');
+          throw new Error(`Chunk ${i + 1} failed: HTTP ${res.status} — ${body}`);
+        }
+      }
+
+      const finalRes = await dl.fetch(
+        ConfigData.RELEASES_DOCUMENT_FINALIZE_UPLOAD + "?uploadId=" + uploadId + "&fileName=" + selectedFile.name + "&country=" + country + "&comment=" + comment,
+        { method: 'POST', headers: {} }
+      );
+
+      if (!finalRes.ok) {
+        const body = await finalRes.text().catch(() => '');
+        throw new Error(`Finalize failed: HTTP ${finalRes.status} — ${body}`);
+      }
+
+      const data = await finalRes.json();
+
+      if (data?.Success) {
+        setIsLoading(true);
+        setNewDocument(false);
+        setSelectedFile(false);
+        loadData(props.item.Code);
+      } else {
+        showErrorMessage("document", "Error uploading document");
+      }
+
+    } catch (e) {
+      showErrorMessage("document", e.message);
+    } finally {
+      setUploadingDocument(false);
+    }
   }
 
   const changeHandler = (e) => {
@@ -451,31 +508,6 @@ const ModalDocumentation = (props) => {
     else {
       e.currentTarget.closest("#uploadBtn").value = "";
       showErrorMessage("document", "File not valid, use a valid format: " + UtilsData.ACCEPTED_DOCUMENT_FORMATS);
-    }
-  }
-
-  const handleSubmission = () => {
-    if (selectedFile) {
-      let formData = new FormData();
-      formData.append("Files", selectedFile, selectedFile.name);
-      setUploadingDocument(true);
-
-      return uploadFile(formData)
-        .then(data => {
-          if (data?.Success) {
-            setIsLoading(true)
-            setNewDocument(false)
-            setSelectedFile(false)
-            setUploadingDocument(false)
-            loadData(props.item.Code)
-          }
-          else {
-            showErrorMessage("document", "Add a file")
-          }
-        })
-    }
-    else {
-      showErrorMessage("document", "Add a file")
     }
   }
 
