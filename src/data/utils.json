@@ -305,5 +305,6 @@
     "MapGreen": "#7fc008",
     "MapPurple": "#ad69ad"
   },
+  "CHUNK_SIZE": 52428800,
   "MESSAGE_TIMEOUT": 5000
 }

@@ -444,16 +444,16 @@ export class ModalEdition extends Component {
               <CAlert color="danger">Error loading documents</CAlert>
               :
               <CCard className="document--list">
-                {this.state.notValidDocument &&
-                  <CAlert color="danger">
-                    {this.state.notValidDocument}
-                  </CAlert>
-                }
                 <div className="d-flex justify-content-between align-items-center pb-2">
                   <b>Country Level</b>
                   <CButton color="link" className="btn-link--dark" href={"#/releases/documentation?country=" + this.props.country}>Manage documentation</CButton>
                 </div>
                 {this.renderDocuments("country")}
+                {this.state.notValidDocument &&
+                  <CAlert color="danger">
+                    {this.state.notValidDocument}
+                  </CAlert>
+                }
                 <div className="d-flex justify-content-between align-items-center pb-2">
                   <b>Site Level</b>
                   <CButton color="link" className="btn-link--dark" onClick={() => this.addNewDocument()}>Add document</CButton>
@@ -470,16 +470,16 @@ export class ModalEdition extends Component {
               <CAlert color="danger">Error loading comments</CAlert>
               :
               <CCard className="comment--list">
-                {this.state.notValidComment &&
-                  <CAlert color="danger">
-                    {this.state.notValidComment}
-                  </CAlert>
-                }
                 <div className="d-flex justify-content-between align-items-center pb-2">
                   <b>Country Level</b>
                   <CButton color="link" className="btn-link--dark" href={"#/releases/documentation?country=" + this.props.country}>Manage documentation</CButton>
                 </div>
                 {this.renderComments("country")}
+                {this.state.notValidComment &&
+                  <CAlert color="danger">
+                    {this.state.notValidComment}
+                  </CAlert>
+                }
                 <div className="d-flex justify-content-between align-items-center pb-2">
                   <b>Site Level</b>
                   <CButton color="link" className="btn-link--dark" onClick={() => this.addNewComment()}>Add comment</CButton>
@@ -752,49 +752,78 @@ export class ModalEdition extends Component {
     }
   }
 
-  uploadFile(data) {
-    let siteCode = this.state.data.SiteCode;
-    let version = this.state.data.Version;
-    let comment = document.querySelector(".document--new .document--comment textarea").value;
-    return this.dl.xmlHttpRequest(ConfigData.UPLOAD_ATTACHED_FILE + '?sitecode=' + siteCode + '&version=' + version + "&comment=" + comment, data);
-  }
-
-  handleSubmission() {
-    if (this.state.selectedFile) {
-      this.setState({ notValidDocument: "" });
-      let formData = new FormData();
-      formData.append("Files", this.state.selectedFile, this.state.selectedFile.name);
-      this.setState({ uploadingDocument: true });
-
-      return this.uploadFile(formData)
-        .then(data => {
-          if (data?.Success) {
-            let docs = this.state.documents === "noData" ? [] : this.state.documents;
-            let newDocs = data.Data.filter(({ Id: id1 }) => !docs.some(({ Id: id2 }) => id2 === id1));
-            for (let i in newDocs) {
-              let document = newDocs[i];
-              let documentId = document.Id;
-              let path = document.Path;
-              docs.push({
-                Id: documentId,
-                SiteCode: this.state.data.SiteCode,
-                Version: this.state.data.Version,
-                Path: path,
-                Username: document.Username,
-                ImportDate: document.ImportDate,
-                OriginalName: document.OriginalName,
-                Comment: document.Comment
-              })
-            }
-            this.setState({ documents: docs, newDocument: false, isSelected: false, selectedFile: "", uploadingDocument: false })
-          }
-          else {
-            this.showErrorMessage("document", "File upload failed - " + data.Message);
-          }
-        });
-    }
-    else {
+  async handleSubmission() {
+    if (!this.state.selectedFile) {
       this.showErrorMessage("document", "Add a file");
+      return;
+    }
+
+    const chunkSize = UtilsData.CHUNK_SIZE;
+    const totalChunks = Math.ceil(this.state.selectedFile.size / chunkSize);
+    const uploadId = 'upload-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+
+    const siteCode = this.state.data.SiteCode;
+    const version = this.state.data.Version;
+    const comment = document.querySelector(".document--new .document--comment textarea")?.value ?? "";
+
+    this.setState({ uploadingDocument: true, notValidDocument: "" });
+
+    try {
+      for (let i = 0; i < totalChunks; i++) {
+        const start = i * chunkSize;
+        const end = Math.min(start + chunkSize, this.state.selectedFile.size);
+        const chunk = this.state.selectedFile.slice(start, end);
+
+        const form = new FormData();
+        form.append('chunk', chunk, this.state.selectedFile.name);
+
+        const res = await this.dl.fetch(
+          ConfigData.ATTACHED_FILE_UPLOAD_CHUNK + "?uploadId=" + uploadId + "&chunkIndex=" + i,
+          { method: 'POST', body: form, headers: {} }
+        );
+
+        if (!res.ok) {
+          const body = await res.text().catch(() => '');
+          throw new Error(`Chunk ${i + 1} failed: HTTP ${res.status} — ${body}`);
+        }
+      }
+
+      const finalRes = await this.dl.fetch(
+        ConfigData.ATTACHED_FILE_FINALIZE_UPLOAD + "?uploadId=" + uploadId + "&fileName=" + encodeURIComponent(this.state.selectedFile.name) + "&sitecode=" + siteCode + "&version=" + version + "&comment=" + encodeURIComponent(comment),
+        { method: 'POST', headers: {} }
+      );
+
+      if (!finalRes.ok) {
+        const body = await finalRes.text().catch(() => '');
+        throw new Error(`Finalize failed: HTTP ${finalRes.status} — ${body}`);
+      }
+
+      const data = await finalRes.json();
+
+      if (data?.Success) {
+        let docs = this.state.documents === "noData" ? [] : this.state.documents;
+        let newDocs = data.Data.filter(({ Id: id1 }) => !docs.some(({ Id: id2 }) => id2 === id1));
+        for (let doc of newDocs) {
+          docs.push({
+            Id: doc.Id,
+            SiteCode: siteCode,
+            Version: version,
+            Path: doc.Path,
+            Username: doc.Username,
+            ImportDate: doc.ImportDate,
+            OriginalName: doc.OriginalName,
+            Comment: doc.Comment,
+          });
+        }
+        this.setState({ documents: docs, newDocument: false, isSelected: false, selectedFile: "", uploadingDocument: false });
+      } else {
+        this.showErrorMessage("document", "File upload failed - " + (data?.Message ?? "Unknown error"));
+      }
+
+    } catch (e) {
+      this.showErrorMessage("document", e.message);
+    } finally {
+      this.setState({ uploadingDocument: false });
     }
   }
 

@@ -57,8 +57,8 @@ jobs:
           app-name: 'n2kbackbonefront-dev-r3'
           slot-name: 'Production'
           package: .
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_25CF31C50E934B0EB9EF2B28AA46E3D1 }}
-          #publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_DA397581FD1C4402B1C8C19BDEF9CBBD }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_1F51253F35194277B17CE1CB8F85192D }}
+
           
   delete:
     runs-on: windows-latest
