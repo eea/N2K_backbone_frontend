@@ -1111,8 +1111,7 @@ export class ModalChanges extends Component {
         {this.errorLoadingRelease ?
           <CAlert color="danger">Error loading data</CAlert>
           :
-          this.state.lastRelease &&
-          <CRow >
+          this.state.lastRelease ?
             <MapViewer
               siteCode={this.props.item}
               version={this.props.version}
@@ -1127,7 +1126,7 @@ export class ModalChanges extends Component {
                 mapLastRelease: ConfigData.MAP_RELEASES
               } : {})}
             />
-          </CRow>
+          : <div className="loading-container mt-3"><em>Loading...</em></div>
         }
       </CTabPane>
     )
