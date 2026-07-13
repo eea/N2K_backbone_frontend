@@ -213,7 +213,7 @@ class MapViewer extends React.Component {
                 center: [0,40],
                 zoom: 5,
                 ui: {
-                    components: ["attribution"]
+                    components: []
                 }
             }
             this.view = new MapView(mapFeats);
@@ -221,7 +221,7 @@ class MapViewer extends React.Component {
             //Code to disable all events if required
             this.view.when(()=>{
                 if(!this.props.mapReference){
-                    this.view.ui.components = ["attribution"];
+                    this.view.ui.components = [];
                 }
                 this.getReportedGeometry(siteLayer, this.props.siteCode);
             });
@@ -318,9 +318,17 @@ class MapViewer extends React.Component {
 
     render(){
         return(
-            <>
+            <div className="map-container">
                 <div id={this.mapDiv} style={{ width: '100%', height: '600px' }} />
-            </>
+                <div className="map-attribution">
+                    Powered by <a href="http://www.esri.com/" target="_blank" rel="noopener noreferrer">Esri</a>
+                    {' | © '}
+                    <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">
+                        OpenStreetMap
+                    </a>
+                    {' contributors'}
+                </div>
+            </div>
         );
     }
 }
