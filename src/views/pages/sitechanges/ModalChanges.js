@@ -16,6 +16,7 @@ import {
   CTableHead,
   CTableHeaderCell,
   CTableRow,
+  CTableFoot,
   CImage,
   CModal,
   CModalBody,
@@ -96,6 +97,8 @@ export class ModalChanges extends Component {
       regions: [],
       types: [],
       updatingData: false,
+      notValidBioRegion: "",
+      invalidBioRegionRows: [],
       modalValues: {
         visibility: false,
         close: () => {
@@ -155,10 +158,13 @@ export class ModalChanges extends Component {
       downloadingDocuments: [],
       isSelected: false,
       selectedFile: "",
+      notValidField: [],
       fieldChanged: false,
       fields: {},
       siteTypeValue: "",
       siteRegionValue: "",
+      notValidBioRegion: "",
+      invalidBioRegionRows: [],
     });
     this.props.close();
   }
@@ -198,6 +204,12 @@ export class ModalChanges extends Component {
       this.setState({ generalError: message });
       setTimeout(() => {
         this.setState({ generalError: "" });
+      }, UtilsData.MESSAGE_TIMEOUT);
+    }
+    else if (target === "bioregion") {
+      this.setState({ notValidBioRegion: message });
+      setTimeout(() => {
+        this.setState({ notValidBioRegion: "" });
       }, UtilsData.MESSAGE_TIMEOUT);
     }
   }
@@ -804,7 +816,7 @@ export class ModalChanges extends Component {
               minRows={3}
               placeholder="Add a comment"
               className="comment--input"
-              onChange={({target}) => this.props.setHasChanges(target.value.length > 0)}
+              onChange={({ target }) => this.checkForChanges()}
             ></TextareaAutosize>
           </div>
           <div className="comment--icons">
@@ -1174,8 +1186,12 @@ export class ModalChanges extends Component {
 
   createFieldElement() {
     let fields = [];
-    let data = this.state.fields;
-    data = JSON.parse(JSON.stringify(data, ["SiteCode", "SiteName", "SiteType", "BioRegion", "Area"]));
+    let orderedKeys = ["SiteCode", "SiteName", "SiteType", "Area", "BioRegion"];
+    let source = this.state.fields;
+    let data = {};
+    orderedKeys.forEach(key => {
+      if (key in source) data[key] = source[key];
+    });
     for (let i in Object.keys(data)) {
       let field = Object.keys(data)[i]
       let id = "field_" + field;
@@ -1205,26 +1221,49 @@ export class ModalChanges extends Component {
           }
           original = original && this.state.types.find(y => y.Code === original).Classification;
           break;
-        case "BioRegion":
-          label = "Biogeographical Region";
-          placeholder = "Select a region";
-          options = this.state.regions.map(x => x = { label: x.RefBioGeoName, value: x.Code });
-          value = value.map(x => options.find(y => y.value === x));
-          this.siteRegionDefault = value;
-          if (this.state.siteRegionValue === "") {
-            this.setState({ siteRegionValue: value });
-          }
-          original = original && original.map(x => this.state.regions.find(y => y.Code === x).RefBioGeoName).join(", ");
-          break;
         case "Area":
           label = "Area";
           placeholder = "Site area";
           break;
+        case "BioRegion":
+          label = "Biogeographical Region";
+          placeholder = "Select a region";
+          options = this.state.regions.map(x => ({ label: x.RefBioGeoName, value: x.Code }));
+          value = (value && value.length) ? value : [{ BGRID: null, Percentage: null, Marine_Relationship_BioGeo: null }];
+          this.siteRegionDefault = value;
+          if (this.state.siteRegionValue === "") {
+            this.setState({ siteRegionValue: value })
+          }
+          original = original && original
+            .map(x => {
+              const name = this.state.regions.find(y => y.Code === x.BGRID)?.RefBioGeoName;
+              if (!name) return null;
+              let line = name;
+              if (x.Percentage !== null && x.Percentage !== undefined && x.Percentage !== "") {
+                line += ` (${x.Percentage}%)`;
+              }
+              if (x.Marine_Relationship_BioGeo) {
+                const terrestrialName = this.state.regions.find(y => y.Code === x.Marine_Relationship_BioGeo)?.RefBioGeoName;
+                if (terrestrialName) {
+                  line += ` - ${terrestrialName}`;
+                }
+              }
+              return line;
+            })
+            .filter(Boolean)
+            .join(", ");
+          break;
       }
+
+      let originalField = original?.toString() &&
+        <div className="original-field">
+          <i className="fa-solid fa-pen-to-square"></i><span>{original}</span>
+        </div>;
+
       fields.push(
-        <CCol xs={12} md={12} lg={6} key={"fd_" + field} className="mb-4">
+        <>
           {field === "SiteCode" &&
-            <>
+            <CCol xs={12} md={12} lg={6} key={"fd_" + field} className="mb-4">
               <label>{label}</label><span className="mandatory">*</span>
               <CFormInput
                 id={id}
@@ -1236,10 +1275,11 @@ export class ModalChanges extends Component {
                 disabled={true}
                 onChange={(e) => this.onChangeField(e)}
               />
-            </>
+              {originalField}
+            </CCol>
           }
           {field === "SiteName" &&
-            <>
+            <CCol xs={12} md={12} lg={6} key={"fd_" + field} className="mb-4">
               <label>{label}</label><span className="mandatory">*</span>
               <CFormInput
                 id={id}
@@ -1250,10 +1290,11 @@ export class ModalChanges extends Component {
                 autoComplete="off"
                 onChange={(e) => this.onChangeField(e)}
               />
-            </>
+              {originalField}
+            </CCol>
           }
           {field === "SiteType" &&
-            <>
+            <CCol xs={12} md={12} lg={6} key={"fd_" + field} className="mb-4">
               <label>{label}</label><span className="mandatory">*</span>
               <Select
                 id={id}
@@ -1265,27 +1306,11 @@ export class ModalChanges extends Component {
                 options={options}
                 onChange={(e) => this.onChangeField(e, name)}
               />
-            </>
-          }
-          {field === "BioRegion" &&
-            <>
-              <label>{label}</label><span className="mandatory">*</span>
-              <Select
-                id={id}
-                name={name}
-                className="multi-select disabled"
-                classNamePrefix="multi-select"
-                placeholder={placeholder}
-                value={this.state.siteRegionValue}
-                options={options}
-                isMulti={true}
-                closeMenuOnSelect={false}
-                onChange={(e) => this.onChangeField(e, name)}
-              />
-            </>
+              {originalField}
+            </CCol>
           }
           {field === "Area" &&
-            <>
+            <CCol xs={12} md={12} lg={6} key={"fd_" + field} className="mb-4">
               <label>{label} (ha)</label><span className="mandatory">*</span>
               <CFormInput
                 id={id}
@@ -1296,14 +1321,46 @@ export class ModalChanges extends Component {
                 autoComplete="off"
                 onChange={(e) => this.onChangeField(e)}
               />
-            </>
+              {originalField}
+            </CCol>
           }
-          {original?.toString() &&
-            <div className="original-field">
-              <i className="fa-solid fa-pen-to-square"></i><span>{original}</span>
-            </div>
+          {field === "BioRegion" &&
+            <CCol xs={12} md={12} lg={12} key={"fd_" + field} className="mb-4">
+              <label>{label}</label><span className="mandatory">*</span>
+              {this.state.notValidBioRegion &&
+                <CAlert color="danger">
+                  {this.state.notValidBioRegion}
+                </CAlert>
+              }
+              <CTable className="bioregions-table">
+                <CTableHead>
+                  <CTableRow>
+                    <CTableHeaderCell>Region</CTableHeaderCell>
+                    <CTableHeaderCell>Percentage</CTableHeaderCell>
+                    <CTableHeaderCell>Terrestrial region</CTableHeaderCell>
+                    <CTableHeaderCell></CTableHeaderCell>
+                  </CTableRow>
+                </CTableHead>
+                <CTableBody>
+                  {this.state.siteRegionValue !== "" && this.state.siteRegionValue.map((a, index) => this.renderBioregionRow(a, index))}
+                </CTableBody>
+                <CTableFoot>
+                  <CTableRow>
+                    <CTableDataCell>
+                      <CButton color="link" className="btn-link" onClick={() => this.addBioRegionRow()}>Add region</CButton>
+                    </CTableDataCell>
+                    <CTableDataCell>
+                      <b>Total: </b>
+                      {this.state.siteRegionValue !== "" && this.state.siteRegionValue.reduce((s, r) => s + (Number(r.Percentage) || 0), 0)}%
+                    </CTableDataCell>
+                    <CTableDataCell></CTableDataCell>
+                  </CTableRow>
+                </CTableFoot>
+              </CTable>
+             {originalField}
+            </CCol>
           }
-        </CCol>
+        </>
       )
     }
     return fields;
@@ -1311,7 +1368,7 @@ export class ModalChanges extends Component {
 
   fieldValidator() {
     let body = Object.fromEntries(new FormData(document.querySelector("form")));
-    let data = JSON.parse(JSON.stringify(body, this.state.informedFields));
+    let data = JSON.parse(JSON.stringify(body, ["SiteCode", "SiteName", "SiteType", "Area"]));
     this.state.notValidField = [];
     for (let i in Object.keys(data)) {
       let field = Object.keys(data)[i]
@@ -1325,16 +1382,64 @@ export class ModalChanges extends Component {
         field.querySelector(".multi-select__control").classList.add('invalidField')
         : field.classList.add('invalidField')
     });
+    let invalidBioRegionRows = this.getInvalidBioRegionRowIndexes();
+    let bioRegionValid = invalidBioRegionRows.length === 0;
+    this.setState({ invalidBioRegionRows });
+    if (!bioRegionValid) {
+      this.showErrorMessage("bioregion", "Select a region");
+    }
     this.state.notValidField.length > 0 && this.showErrorMessage("fields", "Empty fields are not allowed");
-    return this.state.notValidField.length == 0;
+    return this.state.notValidField.length == 0 && bioRegionValid;
   }
 
-  onChangeField(e, field) {
+  getInvalidBioRegionRowIndexes() {
+    return this.state.siteRegionValue
+      .map((r, i) => i)
+      .filter(i => {
+        let r = this.state.siteRegionValue[i];
+        if (this.isBioRegionRowEmpty(r)) return false;
+        return !this.isBioRegionRowComplete(r);
+      });
+  }
+
+  isBioRegionRowEmpty(r) {
+    return !r.BGRID && !r.Marine_Relationship_BioGeo;
+  }
+
+  isBioRegionValid() {
+    return this.getInvalidBioRegionRowIndexes().length === 0;
+  }
+
+  onChangeField(e, field, index, subField) {
     if (field === "SiteType") {
-      this.setState({ siteTypeValue: e })
+      this.setState({ siteTypeValue: e }, () => this.checkForChanges(e));
+      return;
     }
-    else if (field === "BioRegion") {
-      this.setState({ siteRegionValue: e })
+    if (field === "BioRegion") {
+      let siteRegionValue = [...this.state.siteRegionValue];
+      let newValue = (e && e.value !== undefined) ? e.value : e;
+      siteRegionValue[index] = {
+        ...siteRegionValue[index],
+        [subField]: newValue
+      };
+      if (subField === "BGRID") {
+        let regionData = this.state.regions.find(r => r.Code === newValue);
+        if (regionData?.isMarine) {
+          if (!siteRegionValue[index].Marine_Relationship_BioGeo) {
+            let defaultTerrestrial = this.getDefaultTerrestrial(newValue);
+            if (defaultTerrestrial) {
+              siteRegionValue[index].Marine_Relationship_BioGeo = defaultTerrestrial;
+            }
+          }
+        } else {
+          siteRegionValue[index].Marine_Relationship_BioGeo = null;
+        }
+      }
+      this.setState({
+        siteRegionValue,
+        invalidBioRegionRows: this.state.invalidBioRegionRows.filter(i => i !== index)
+      }, () => this.checkForChanges());
+      return;
     }
     if (e.target)
       e.target.classList.contains('invalidField') ?
@@ -1374,6 +1479,7 @@ export class ModalChanges extends Component {
   cleanEditFields(activeKey) {
     let fields = this.getBody();
     delete fields.Version;
+    delete fields.BioRegion;
     for (let i in fields) {
       document.getElementsByName(i)[0].value = this.state.fields[i];
     }
@@ -1388,12 +1494,15 @@ export class ModalChanges extends Component {
     if (activeKey) {
       this.setActiveKey(activeKey);
       document.querySelectorAll(".comment--input:not([disabled])").forEach((i) => {
+        const container = i.closest(".document--item, .comment--item");
+        const updateBtn = container?.querySelector(".btn-update");
+        if (!updateBtn) return;
         if (!i.defaultValue) {
           i.parentElement.setAttribute("hidden", "");
-        }  
+        }
         i.value = i.defaultValue;
         i.disabled = true;
-        i.closest(".document--item, .comment--item").querySelector(".btn-update").innerText = "Edit";
+        updateBtn.innerText = "Edit";
       });
     }
   }
@@ -1403,27 +1512,35 @@ export class ModalChanges extends Component {
     this.deleteComment();
   }
 
+  normalizeBioRegions(arr) {
+    return arr
+      .map(r => JSON.stringify([r.BGRID, r.Percentage, r.Marine_Relationship_BioGeo]))
+      .sort();
+  }
+
   checkForChanges(e) {
-    const body = this.getBody();
-    if (this.state.fields.SiteName != body.SiteName
-      || this.state.fields.Area !== body.Area
-      || (Array.isArray(e) && this.state.fields.BioRegion.sort().toString() !== e.map(b => b.value).sort().toString())
-      || (e && e.value ? this.state.fields.SiteType !== e.value : false)
-    ) {
-      this.setState({ fieldChanged: true });
-      this.props.setHasChanges(true)
-      return true;
-    } else {
-      this.setState({ fieldChanged: false });
-      this.props.setHasChanges(false)
-      return false;
-    }
+    let body = this.getBody();
+    let currentBioRegions = this.normalizeBioRegions(this.state.siteRegionValue);
+    let defaultBioRegions = this.normalizeBioRegions(this.siteRegionDefault);
+    let bioRegionChanged = JSON.stringify(currentBioRegions) !== JSON.stringify(defaultBioRegions);
+
+    let changed = this.state.data.SiteName !== body.SiteName
+      || this.state.data.Area !== body.Area
+      || bioRegionChanged
+      || (e && e.value !== undefined ? this.state.data.SiteType !== e.value : false);
+
+    this.setState({ fieldChanged: changed });
+    return changed;
   }
 
   getBody() {
     let body = Object.fromEntries(new FormData(document.querySelector("form")));
-    body.BioRegion = Array.from(document.getElementsByName("BioRegion")).map(el => el.value).sort().toString();
-    body.Area = body.Area == "" ? null : Number(body.Area);
+    body.BioRegion = this.state.siteRegionValue.map(r => ({
+      BGRID: r.BGRID,
+      Percentage: r.Percentage,
+      Marine_Relationship_BioGeo: r.Marine_Relationship_BioGeo,
+    }));
+    body.Area = body.Area ? +body.Area : body.Area;
     body.Version = this.props.version;
     body.SiteCode = this.props.item;
 
@@ -1438,49 +1555,139 @@ export class ModalChanges extends Component {
   }
 
   saveChanges(body) {
-    body.JustificationRequired = this.state.justificationRequired;
-    this.sendRequest(ConfigData.SITEDETAIL_SAVE, "POST", body)
-      .then((data) => {
-        if (data?.ok) {
-          body = {
-            ...body,
-            BioRegion: body.BioRegion.split(",").map(Number),
+    if (Object.keys(body).some(val => body[val] === null || body[val] === "")) {
+      this.showErrorMessage("fields", "Empty fields are not allowed");
+    } else {
+      body.JustificationRequired = this.state.justificationRequired;
+      this.sendRequest(ConfigData.SITEDETAIL_SAVE, "POST", body)
+        .then((data) => {
+          if (data?.ok) {
+            this.getCurrentVersion().then(version => {
+              this.versionChanged = true;
+              this.currentVersion = version;
+              this.resetLoading();
+              this.setState({ data: {}, fields: {}, loading: true, fieldChanged: false, updatingData: false, siteRegionValue: "", siteTypeValue: "" });
+            })
           }
-          let newFields = Object.keys(this.state.fields).filter(a => !body.hasOwnProperty(a));
-          for (let i in newFields) {
-            let field = newFields[i];
-            let value = this.state.fields[field];
-            let ref = field.replace('Original', '');
-            if (field === "OriginalBioRegion") {
-              if (!value && JSON.stringify(body[ref]) !== JSON.stringify(this.state.fields[ref].sort())) {
-                value = this.state.fields[ref];
-              }
-              else if (value && JSON.stringify(body[ref]) === JSON.stringify(value)) {
-                value = null;
-              }
-            }
-            else {
-              if (!value?.toString() && body[ref] !== this.state.fields[ref]) {
-                value = this.state.fields[ref];
-              }
-              else if (value?.toString() && body[ref] === value) {
-                value = null;
-              }
-            }
-            body[field] = value;
+          else {
+            this.showErrorMessage("fields", "Something went wrong");
           }
-          this.getCurrentVersion().then(version => {
-            this.versionChanged = true;
-            this.currentVersion = version;
-            this.resetLoading();
-            this.setState({ data: {}, fields: {}, loading: true, fieldChanged: false, updatingData: false });
-          })
-        }
-        else {
-          this.showErrorMessage("fields", "Something went wrong");
-        }
-      });
-    this.setState({ updatingData: true });
+        });
+      this.setState({ updatingData: true });
+    }
+  }
+
+  renderBioregionRow(val, index) {
+    let selectedRegionCodes = this.state.siteRegionValue
+      .filter((r, i) => i !== index && r.BGRID)
+      .map(r => r.BGRID);
+
+    let bioregions = this.state.regions
+      .filter(x => !selectedRegionCodes.includes(x.Code))
+      .map(x => ({ label: x.RefBioGeoName, value: x.Code }));
+
+    let terrestrialRegions = this.state.regions.filter(a => !a.isMarine).map(x => ({ label: x.RefBioGeoName, value: x.Code }));
+    let selectedRegion = bioregions.find(o => o.value === val.BGRID) || null;
+    let selectedTerrestrial = terrestrialRegions.find(o => o.value === val.Marine_Relationship_BioGeo) || null;
+
+    let selectedRegionData = this.state.regions.find(a => a.Code === val.BGRID);
+    let isMarine = selectedRegionData?.isMarine;
+    let terrestrialDisabled = !!val.BGRID && !isMarine;
+
+    let rowInvalid = this.state.invalidBioRegionRows.includes(index);
+    let regionInvalid = rowInvalid && !val.BGRID;
+    let terrestrialInvalid = rowInvalid && isMarine && !val.Marine_Relationship_BioGeo;
+
+    return (
+      <CTableRow key={"bioregion_row_" + index}>
+        <CTableDataCell>
+          <Select
+            className={"multi-select" + (regionInvalid ? " invalidField" : "")}
+            classNamePrefix="multi-select"
+            placeholder="Select a region"
+            value={selectedRegion}
+            options={bioregions}
+            isMulti={false}
+            closeMenuOnSelect={true}
+            onChange={(opt) => this.onChangeField(opt, "BioRegion", index, "BGRID")}
+          />
+        </CTableDataCell>
+        <CTableDataCell>
+          <CFormInput
+            type="number"
+            min="0"
+            value={val.Percentage ?? ""}
+            placeholder="Add region percentage"
+            autoComplete="off"
+            onChange={(e) => {
+              let newVal = e.target.value === "" ? null : +e.target.value;
+              if (newVal !== null && newVal < 0) return;
+              this.onChangeField(newVal, "BioRegion", index, "Percentage");
+            }}
+          />
+        </CTableDataCell>
+        <CTableDataCell>
+          <Select
+            className={"multi-select" + (terrestrialDisabled ? " disabled" : "") + (terrestrialInvalid ? " invalidField" : "")}
+            classNamePrefix="multi-select"
+            placeholder="Select a terrestrial region"
+            value={selectedTerrestrial}
+            options={terrestrialRegions}
+            isMulti={false}
+            isDisabled={terrestrialDisabled}
+            closeMenuOnSelect={true}
+            onChange={(opt) => this.onChangeField(opt, "BioRegion", index, "Marine_Relationship_BioGeo")}
+          />
+        </CTableDataCell>
+        <CTableDataCell>
+          <CButton color="link" className="btn-icon" onClick={() => this.deleteBioRegionRow(index)}>
+            <i className="fa-regular fa-trash-can"></i>
+          </CButton>
+        </CTableDataCell>
+      </CTableRow>
+    )
+  }
+
+  getDefaultTerrestrial(marineRegionCode) {
+    let marineRegion = this.state.regions.find(r => r.Code === marineRegionCode);
+    if (!marineRegion?.isMarine) return null;
+
+    let terrestrialRefCode = marineRegion.RefBioRegionCode.replace(/^marine/, '');
+    terrestrialRefCode = terrestrialRefCode.charAt(0).toLowerCase() + terrestrialRefCode.slice(1);
+
+    let match = this.state.regions.find(r => !r.isMarine && r.RefBioRegionCode === terrestrialRefCode);
+    if (!match && marineRegion.RefBioRegionCode === "marineBaltic") {
+      match = this.state.regions.find(r => !r.isMarine && r.RefBioRegionCode === "boreal");
+    }
+    return match ? match.Code : null;
+  }
+
+  addBioRegionRow() {
+    if (this.state.siteRegionValue.some(r => !this.isBioRegionRowComplete(r))) {
+      this.showErrorMessage("bioregion", "Select a region before adding a new one");
+      return;
+    }
+    this.setState({
+      siteRegionValue: [...this.state.siteRegionValue, { BGRID: null, Percentage: null, Marine_Relationship_BioGeo: null }]
+    }, () => this.checkForChanges());
+  }
+
+  isBioRegionRowComplete(r) {
+    if (!r.BGRID) return false;
+    let regionData = this.state.regions.find(a => a.Code === r.BGRID);
+    if (regionData?.isMarine && !r.Marine_Relationship_BioGeo) return false;
+    return true;
+  }
+
+  deleteBioRegionRow(index) {
+    if (this.state.siteRegionValue.length > 1) {
+      let siteRegionValue = this.state.siteRegionValue.filter((_, i) => i !== index);
+      this.setState({ siteRegionValue }, () => this.checkForChanges());
+    } else {
+      let siteRegionValue = [...this.state.siteRegionValue];
+      siteRegionValue[index] = { BGRID: null, Percentage: null, Marine_Relationship_BioGeo: null };
+      this.setState({ siteRegionValue }, () => this.checkForChanges());
+    }
   }
 
   renderModal() {

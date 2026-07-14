@@ -223,3 +223,13 @@
     margin-right: 0.5rem;
   }
 }
+
+.bioregions-table {
+  margin-bottom: 0;
+  tbody tr:not(:last-of-type) td {
+    border: none !important;
+  }
+  tfoot td {
+    border: none !important;
+  }
+}
