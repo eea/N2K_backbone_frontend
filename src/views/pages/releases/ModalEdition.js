@@ -204,21 +204,19 @@ export class ModalEdition extends Component {
   }
 
   getInvalidBioRegionRowIndexes() {
-    return this.state.siteRegionValue
+    let rows = this.state.siteRegionValue;
+    let hasCompleteRow = rows.some(r => this.isBioRegionRowComplete(r));
+    return rows
       .map((r, i) => i)
       .filter(i => {
-        let r = this.state.siteRegionValue[i];
-        if (this.isBioRegionRowEmpty(r)) return false;
+        let r = rows[i];
+        if (this.isBioRegionRowEmpty(r)) return !hasCompleteRow;
         return !this.isBioRegionRowComplete(r);
       });
   }
 
   isBioRegionRowEmpty(r) {
     return !r.BGRID && !r.Marine_Relationship_BioGeo;
-  }
-
-  isBioRegionValid() {
-    return this.getInvalidBioRegionRowIndexes().length === 0;
   }
 
   onChangeField(e, field, index, subField) {
@@ -1434,8 +1432,8 @@ export class ModalEdition extends Component {
 
   checkForChanges(e) {
     let body = this.getBody();
-    let currentBioRegions = this.normalizeBioRegions(this.state.siteRegionValue);
-    let defaultBioRegions = this.normalizeBioRegions(this.siteRegionDefault);
+    let currentBioRegions = this.normalizeBioRegions(this.state.siteRegionValue.filter(r => !this.isBioRegionRowEmpty(r)));
+    let defaultBioRegions = this.normalizeBioRegions(this.siteRegionDefault.filter(r => !this.isBioRegionRowEmpty(r)));
     let bioRegionChanged = JSON.stringify(currentBioRegions) !== JSON.stringify(defaultBioRegions);
 
     let changed = this.state.data.SiteName !== body.SiteName
@@ -1449,11 +1447,13 @@ export class ModalEdition extends Component {
 
   getBody() {
     let body = Object.fromEntries(new FormData(document.querySelector("form")));
-    body.BioRegion = this.state.siteRegionValue.map(r => ({
-      BGRID: r.BGRID,
-      Percentage: r.Percentage,
-      Marine_Relationship_BioGeo: r.Marine_Relationship_BioGeo,
-    }));
+    body.BioRegion = this.state.siteRegionValue
+      .filter(r => !this.isBioRegionRowEmpty(r))
+      .map(r => ({
+        BGRID: r.BGRID,
+        Percentage: r.Percentage,
+        Marine_Relationship_BioGeo: r.Marine_Relationship_BioGeo,
+      }));
     body.Area = body.Area ? +body.Area : body.Area;
     body.Version = this.props.version;
     body.SiteCode = this.props.item;
