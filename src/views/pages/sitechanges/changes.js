@@ -27,6 +27,7 @@ import { ModalFilters } from './ModalFilters';
 import ConfigData from '../../../config.json';
 import UtilsData from '../../../data/utils.json';
 import {DataLoader} from '../../../components/DataLoader';
+import { getPreferredCountry, setPreferredCountry } from '../../../components/CountryPreference';
 
 const xmlns = 'https://www.w3.org/2000/svg'
 
@@ -37,8 +38,8 @@ let refreshSitechanges={"pending":false,"accepted":false,"rejected":false},
   const defaultCountry = () => {
     const searchParams = new URLSearchParams(window.location.href.split('?')[1]);
     const parmCountry = searchParams.get('country');
-    return parmCountry ? parmCountry : ConfigData.DEFAULT_COUNTRY ? ConfigData.DEFAULT_COUNTRY : "";
-  }  
+    return parmCountry || getPreferredCountry() || ConfigData.DEFAULT_COUNTRY || "";
+  }
 
   const openSite = () => {
     const searchParams = new URLSearchParams(window.location.href.split('?')[1]);
@@ -534,6 +535,7 @@ const Sitechanges = () => {
 
   let changeCountry = (country)=>{
     setCountry(country);
+    setPreferredCountry(country);
     setSitecodes({});
     setSearchList({});
     setDisabledBtn(true);
@@ -563,6 +565,11 @@ const Sitechanges = () => {
         setCountries(countriesList);
         if(country === "" || !countriesList.some(a => a.code === country)) {
           changeCountry(countriesList[0]?.code);
+        } else {
+          const searchParams = new URLSearchParams(window.location.href.split('?')[1]);
+          if (searchParams.get('country') !== country) {
+            changeCountryParam(country);
+          }
         }
         setIsLoading(false);
       }
