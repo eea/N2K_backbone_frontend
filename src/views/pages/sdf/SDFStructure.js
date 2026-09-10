@@ -635,7 +635,7 @@ const SDFVisualization = (props) => {
   const sortFields = (section, field, column) => {
     let colName = column;
     column = ConfigSDF[field] && Object.keys(ConfigSDF[field]).find(key => ConfigSDF[field][key] === column);
-    var collator = new Intl.Collator([], { numeric: false, sensitivity: 'base' });
+    var collator = new Intl.Collator([], { numeric: true, sensitivity: 'base' });
     function getValue(obj, path) {
       if (!path) return obj;
       const properties = path.split('.');
