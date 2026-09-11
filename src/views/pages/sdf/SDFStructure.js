@@ -635,13 +635,14 @@ const SDFVisualization = (props) => {
   const sortFields = (section, field, column) => {
     let colName = column;
     column = ConfigSDF[field] && Object.keys(ConfigSDF[field]).find(key => ConfigSDF[field][key] === column);
-    var collator = new Intl.Collator([], { numeric: true, sensitivity: 'base' });
     function getValue(obj, path) {
       if (!path) return obj;
       const properties = path.split('.');
       return getValue(obj[properties.shift()], properties.join('.'))
     }
-
+    let currentValues = getValue(data, [section, field].join('.'));
+    let isNumericColumn = Array.isArray(currentValues) && currentValues.some(item => typeof item[column] === 'number');
+    var collator = new Intl.Collator([], { numeric: isNumericColumn, sensitivity: 'base' });
     if (order[section + field]?.column === colName && order[section + field].order === "asc") {
       setOrder((prevState) => ({
         ...prevState,
