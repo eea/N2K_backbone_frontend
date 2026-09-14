@@ -642,7 +642,8 @@ const SDFVisualization = (props) => {
     }
     let currentValues = getValue(data, [section, field].join('.'));
     let isNumericColumn = Array.isArray(currentValues) && currentValues.some(item => typeof item[column] === 'number');
-    var collator = new Intl.Collator([], { numeric: isNumericColumn, sensitivity: 'base' });
+    var collator = new Intl.Collator([], { numeric: false, sensitivity: 'base' });
+    var compareValues = (a, b) => isNumericColumn ? (a - b) : collator.compare(a, b);
     if (order[section + field]?.column === colName && order[section + field].order === "asc") {
       setOrder((prevState) => ({
         ...prevState,
@@ -652,7 +653,7 @@ const SDFVisualization = (props) => {
         ...prevState,
         [section]: {
           ...prevState[section],
-          [field]: getValue(prevState, [section, field].join('.')).sort((a, b) => collator.compare(b[column] === null ? "" : b[column], a[column] === null ? "" : a[column]))
+          [field]: getValue(prevState, [section, field].join('.')).sort((a, b) => compareValues(b[column] === null ? "" : b[column], a[column] === null ? "" : a[column]))
         }
       }));
     }
@@ -665,8 +666,7 @@ const SDFVisualization = (props) => {
         ...prevState,
         [section]: {
           ...prevState[section],
-          [field]: getValue(prevState, [section, field].join('.')).sort((a, b) => collator.compare(a[column] === null ? "" : a[column], b[column] === null ? "" : b[column]))
-
+          [field]: getValue(prevState, [section, field].join('.')).sort((a, b) => compareValues(a[column] === null ? "" : a[column], b[column] === null ? "" : b[column]))
         }
       }));
     }

@@ -241,8 +241,10 @@ const SDFVisualization = (props) => {
                   if(order[section+"Ownership"]) {
                     let sortColumn = Object.keys(ConfigSDF.Ownership).find(key => ConfigSDF.Ownership[key] === order[section+"Ownership"].column);
                     if(sortColumn) {
-                      let collator = new Intl.Collator([], { numeric: true, sensitivity: 'base' });
-                      value.sort((a, b) => order[section+"Ownership"].order === "asc" ? collator.compare(a[sortColumn], b[sortColumn]) : collator.compare(b[sortColumn], a[sortColumn]));
+                      let isNumericColumn = value.some(item => typeof item[sortColumn] === 'number');
+                      let collator = new Intl.Collator([], { numeric: false, sensitivity: 'base' });
+                      let compareValues = (a, b) => isNumericColumn ? (a - b) : collator.compare(a, b);
+                      value.sort((a, b) => order[section+"Ownership"].order === "asc" ? compareValues(a[sortColumn], b[sortColumn]) : compareValues(b[sortColumn], a[sortColumn]));
                     }
                   }
                   let total = value.map(a => a["Percent"]).reduce((a, b) => a + b, 0);
@@ -559,9 +561,10 @@ const SDFVisualization = (props) => {
       return getValue(obj[properties.shift()], properties.join('.'))
     }
     let path = field === "GeneralCharacter" || field === "NegativeThreats" ? [field, field].join(".") : field === "PositiveThreats" ? ["NegativeThreats", field].join(".") : field;
-    let currentValues = getValue(data, [section, path].join('.'));
-    let isNumericColumn = Array.isArray(currentValues) && currentValues.some(item => typeof item[column] === 'number');
-    var collator = new Intl.Collator([], { numeric: isNumericColumn, sensitivity: 'base' });
+      let currentValues = getValue(data, [section, path].join('.'));
+      let isNumericColumn = Array.isArray(currentValues) && currentValues.some(item => typeof item[column] === 'number');
+      var collator = new Intl.Collator([], { numeric: false, sensitivity: 'base' });
+      var compareValues = (a, b) => isNumericColumn ? (a - b) : collator.compare(a, b);
     if (order[section + field]?.column === colName && order[section + field].order === "asc") {
       setOrder((prevState) => ({
         ...prevState,
@@ -573,17 +576,17 @@ const SDFVisualization = (props) => {
           ...prevState[section],
           ...(field === "GeneralCharacter" && {
             [field]: {
-              [field]: getValue(prevState, [section, path].join('.')).sort((a, b) => collator.compare(field === "GeneralCharacter" && column === "HabitatClass" ? ConfigSDF.HabitatClasses[b.Code] : b[column] === null ? "" : b[column], field === "GeneralCharacter" && column === "HabitatClass" ? ConfigSDF.HabitatClasses[a.Code] : a[column] === null ? "" : a[column]))
+              [field]: getValue(prevState, [section, path].join('.')).sort((a, b) => compareValues(field === "GeneralCharacter" && column === "HabitatClass" ? ConfigSDF.HabitatClasses[b.Code] : b[column] === null ? "" : b[column], field === "GeneralCharacter" && column === "HabitatClass" ? ConfigSDF.HabitatClasses[a.Code] : a[column] === null ? "" : a[column]))
             }
           }),
           ...(field.includes("Threats") && {
             ["NegativeThreats"]: {
               ...prevState[section]["NegativeThreats"],
-              [field]: getValue(prevState, [section, path].join('.')).sort((a, b) => collator.compare(b[column] === null ? "" : b[column], a[column] === null ? "" : a[column]))
+              [field]: getValue(prevState, [section, path].join('.')).sort((a, b) => compareValues(b[column] === null ? "" : b[column], a[column] === null ? "" : a[column]))
             }
           }),
           ...((field !== "GeneralCharacter" && !field.includes("Threats")) && {
-            [field]: getValue(prevState, [section, path].join('.')).sort((a, b) => collator.compare(b[column] === null ? "" : b[column], a[column] === null ? "" : a[column]))
+            [field]: getValue(prevState, [section, path].join('.')).sort((a, b) => compareValues(b[column] === null ? "" : b[column], a[column] === null ? "" : a[column]))
           }),
         }
       }));
@@ -599,17 +602,17 @@ const SDFVisualization = (props) => {
           ...prevState[section],
           ...(field === "GeneralCharacter" && {
             [field]: {
-              [field]: getValue(prevState, [section, path].join('.')).sort((a, b) => collator.compare(field === "GeneralCharacter" && column === "HabitatClass" ? ConfigSDF.HabitatClasses[a.Code] : a[column] === null ? "" : a[column], field === "GeneralCharacter" && column === "HabitatClass" ? ConfigSDF.HabitatClasses[b.Code] : b[column] === null ? "" : b[column]))
+              [field]: getValue(prevState, [section, path].join('.')).sort((a, b) => compareValues(field === "GeneralCharacter" && column === "HabitatClass" ? ConfigSDF.HabitatClasses[a.Code] : a[column] === null ? "" : a[column], field === "GeneralCharacter" && column === "HabitatClass" ? ConfigSDF.HabitatClasses[b.Code] : b[column] === null ? "" : b[column]))
             }
           }),
           ...(field.includes("Threats") && {
             ["NegativeThreats"]: {
               ...prevState[section]["NegativeThreats"],
-              [field]: getValue(prevState, [section, path].join('.')).sort((a, b) => collator.compare(a[column] === null ? "" : a[column], b[column] === null ? "" : b[column]))
+              [field]: getValue(prevState, [section, path].join('.')).sort((a, b) => compareValues(a[column] === null ? "" : a[column], b[column] === null ? "" : b[column]))
             }
           }),
           ...((field !== "GeneralCharacter" && !field.includes("Threats")) && {
-            [field]: getValue(prevState, [section, path].join('.')).sort((a, b) => collator.compare(a[column] === null ? "" : a[column], b[column] === null ? "" : b[column]))
+            [field]: getValue(prevState, [section, path].join('.')).sort((a, b) => compareValues(a[column] === null ? "" : a[column], b[column] === null ? "" : b[column]))
           }),
         }
       }));
