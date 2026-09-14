@@ -238,6 +238,13 @@ const SDFVisualization = (props) => {
                     }
                   });
                   value = Object.keys(tableHeader).map(a => ({ "Type": tableHeader[a], "Percent": val.filter(b => b.Type === a).length ? val.find(b => b.Type === a).Percent : 0 }));
+                  if(order[section+"Ownership"]) {
+                    let sortColumn = Object.keys(ConfigSDF.Ownership).find(key => ConfigSDF.Ownership[key] === order[section+"Ownership"].column);
+                    if(sortColumn) {
+                      let collator = new Intl.Collator([], { numeric: true, sensitivity: 'base' });
+                      value.sort((a, b) => order[section+"Ownership"].order === "asc" ? collator.compare(a[sortColumn], b[sortColumn]) : collator.compare(b[sortColumn], a[sortColumn]));
+                    }
+                  }
                   let total = value.map(a => a["Percent"]).reduce((a, b) => a + b, 0);
                   value.push({ "Type": "Total", "Percent": parseFloat((total).toFixed(4)) });
                 } else {
@@ -394,7 +401,8 @@ const SDFVisualization = (props) => {
               return (
                 <tr style={{ backgroundColor: color ? color : "" }} key={"tr_" + i}>
                   {Object.keys(value[0]).map((cell, ii) => {
-                    return <CTableDataCell key={"tc_" + i + ii}><span>{checkCellLink(cell, row[cell])}</span></CTableDataCell>
+                    const isStrictlyNumeric = typeof row[cell] === 'number';
+                    return <td key={"tc_" + i + ii} style={{ textAlign: isStrictlyNumeric ? 'right' : 'left' }}><span>{checkCellLink(cell, row[cell])}</span></td>
                   })}
                 </tr>
               )
@@ -456,7 +464,8 @@ const SDFVisualization = (props) => {
                 return (
                   <tr key={"tr_" + i}>
                     {Object.keys(a[1][0]).map((cell, ii) => {
-                      return <CTableDataCell key={"tc_" + i + ii}>{row[cell]}</CTableDataCell>
+                      const isStrictlyNumeric = typeof row[cell] === 'number';
+                      return <td key={"tc_" + i + ii} style={{ textAlign: isStrictlyNumeric ? 'right' : 'left' }}>{row[cell]}</td>
                     })}
                   </tr>
                 )
@@ -544,14 +553,15 @@ const SDFVisualization = (props) => {
   const sortFields = (section, field, column) => {
     let colName = column;
     column = Object.keys(ConfigSDF[field]).find(key => ConfigSDF[field][key] === column);
-    var collator = new Intl.Collator([], { numeric: false, sensitivity: 'base' });
     function getValue(obj, path) {
       if (!path) return obj;
       const properties = path.split('.');
       return getValue(obj[properties.shift()], properties.join('.'))
     }
     let path = field === "GeneralCharacter" || field === "NegativeThreats" ? [field, field].join(".") : field === "PositiveThreats" ? ["NegativeThreats", field].join(".") : field;
-
+    let currentValues = getValue(data, [section, path].join('.'));
+    let isNumericColumn = Array.isArray(currentValues) && currentValues.some(item => typeof item[column] === 'number');
+    var collator = new Intl.Collator([], { numeric: isNumericColumn, sensitivity: 'base' });
     if (order[section + field]?.column === colName && order[section + field].order === "asc") {
       setOrder((prevState) => ({
         ...prevState,
