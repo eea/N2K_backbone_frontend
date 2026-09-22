@@ -36,7 +36,7 @@ function fuzzyTextFilterFn(rows, id, filterValue) {
 
 fuzzyTextFilterFn.autoRemove = val => !val
 
-function Table({ columns, data, setSelected, modalProps, updateModalValues }) {
+function Table({ columns, data, setSelected, modalProps, updateModalValues, currentPage, currentSize, loadPage }) {
   const filterTypes = React.useMemo(
     () => ({
       fuzzyText: fuzzyTextFilterFn,
@@ -68,19 +68,18 @@ function Table({ columns, data, setSelected, modalProps, updateModalValues }) {
     canPreviousPage,
     canNextPage,
     pageOptions,
-    pageSize,
     gotoPage,
     nextPage,
     previousPage,
     setPageSize,
-    state: { pageIndex, selectedRowIds },
+    state: { pageIndex, pageSize, selectedRowIds },
   } = useTable(
     {
       columns,
       data,
       defaultColumn,
       filterTypes,
-      initialState: {hiddenColumns: ["EditedDate", "EditedBy", "JustificationRequired"]},
+      initialState: {hiddenColumns: ["EditedDate", "EditedBy", "JustificationRequired"], pageIndex: currentPage || 0, pageSize: currentSize || 10},
     },
     useFilters,
     useGlobalFilter,
@@ -177,10 +176,10 @@ function Table({ columns, data, setSelected, modalProps, updateModalValues }) {
 
       </pre>
       <CPagination>
-        <CPaginationItem onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
+        <CPaginationItem onClick={() => {gotoPage(0); loadPage(0, currentSize);}} disabled={!canPreviousPage}>
           <i className="fa-solid fa-angles-left"></i>
         </CPaginationItem>
-        <CPaginationItem onClick={() => previousPage()} disabled={!canPreviousPage}>
+        <CPaginationItem onClick={() => {previousPage(); loadPage(pageIndex - 1, currentSize);}} disabled={!canPreviousPage}>
           <i className="fa-solid fa-angle-left"></i>
         </CPaginationItem>
         <span>
@@ -190,10 +189,10 @@ function Table({ columns, data, setSelected, modalProps, updateModalValues }) {
           </strong>{' '}
           ({data.length === 1 ? data.length + " result" : data.length + " results"})
         </span>
-        <CPaginationItem onClick={() => nextPage()} disabled={!canNextPage}>
+        <CPaginationItem onClick={() => {nextPage(); loadPage(pageIndex + 1, currentSize);}} disabled={!canNextPage}>
           <i className="fa-solid fa-angle-right"></i>
         </CPaginationItem>
-        <CPaginationItem onClick={() => gotoPage(pageOptions.length - 1)} disabled={!canNextPage}>
+        <CPaginationItem onClick={() => {gotoPage(pageOptions.length - 1); loadPage(pageOptions.length - 1, currentSize);}} disabled={!canNextPage}>
           <i className="fa-solid fa-angles-right"></i>
         </CPaginationItem>
         <div className='pagination-rows'>
@@ -202,7 +201,9 @@ function Table({ columns, data, setSelected, modalProps, updateModalValues }) {
             className='form-select'
             value={pageSize}
             onChange={e => {
-              setPageSize(Number(e.target.value))
+              setPageSize(Number(e.target.value));
+              gotoPage(0);
+              loadPage(0, Number(e.target.value));
             }}
           >
             {[10, 20, 30, 40, 50].map(pageSize => (
@@ -221,8 +222,15 @@ function TableEdition(props) {
   const [isLoading, setIsLoading] = useState(false);
   const [sitesData, setSitesData] = useState([]);
   const [errorRequest, setErrorRequest] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [currentSize, setCurrentSize] = useState(10);
 
   let dl = new(DataLoader);
+
+  let loadPage = (page, size) => {
+    setCurrentPage(page);
+    setCurrentSize(size);
+  }
   
   const customFilter = (rows, columnIds, filterValue) => {
     let result = filterValue.length === 0 ? rows : rows.filter((row) => row.original.SiteCode.toLowerCase().includes(filterValue.toLowerCase()) || row.original.Name.toLowerCase().includes(filterValue.toLowerCase()))
@@ -329,6 +337,9 @@ function TableEdition(props) {
         data={sitesData}
         modalProps={props.modalProps}
         updateModalValues={props.updateModalValues}
+        currentPage={currentPage}
+        currentSize={currentSize}
+        loadPage={loadPage}
       />
     </>
   )

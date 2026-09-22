@@ -68,27 +68,26 @@ import {DataLoader} from '../../../components/DataLoader';
       canPreviousPage,
       canNextPage,
       pageOptions,
-      pageSize,
       gotoPage,
       nextPage,
       previousPage,
-      setPageSize,     
-      state: { pageIndex },
+      setPageSize,
+      state: { pageIndex, pageSize },
     } = useTable(
       {
         columns,
         data,
         defaultColumn,
         filterTypes,
-
+        initialState: {pageIndex: currentPage || 0, pageSize: currentSize || 10},
       },
       useFilters,
       useGlobalFilter,
       useSortBy,
       useExpanded,
       usePagination,
-    )  
-  
+    )
+
     // Render the UI for your table
     return (
       <>
@@ -124,10 +123,10 @@ import {DataLoader} from '../../../components/DataLoader';
             
         </pre>
         <CPagination>
-          <CPaginationItem onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
+          <CPaginationItem onClick={() => {gotoPage(0); loadPage(0, currentSize);}} disabled={!canPreviousPage}>
             <i className="fa-solid fa-angles-left"></i>
           </CPaginationItem>
-          <CPaginationItem onClick={() => previousPage()} disabled={!canPreviousPage}>
+          <CPaginationItem onClick={() => {previousPage(); loadPage(pageIndex - 1, currentSize);}} disabled={!canPreviousPage}>
             <i className="fa-solid fa-angle-left"></i>
           </CPaginationItem>
           <span>
@@ -137,10 +136,10 @@ import {DataLoader} from '../../../components/DataLoader';
             </strong>{' '}
             ({data.length === 1 ? data.length + " result" : data.length + " results"})
           </span>
-          <CPaginationItem onClick={() => nextPage()} disabled={!canNextPage}>
+          <CPaginationItem onClick={() => {nextPage(); loadPage(pageIndex + 1, currentSize);}} disabled={!canNextPage}>
             <i className="fa-solid fa-angle-right"></i>
           </CPaginationItem>
-          <CPaginationItem onClick={() => gotoPage(pageOptions.length - 1)} disabled={!canNextPage}>
+          <CPaginationItem onClick={() => {gotoPage(pageOptions.length - 1); loadPage(pageOptions.length - 1, currentSize);}} disabled={!canNextPage}>
             <i className="fa-solid fa-angles-right"></i>
           </CPaginationItem>
           <div className='pagination-rows'>
@@ -149,7 +148,9 @@ import {DataLoader} from '../../../components/DataLoader';
               className='form-select'
               value={pageSize}
               onChange={e => {
-                setPageSize(Number(e.target.value))
+                setPageSize(Number(e.target.value));
+                gotoPage(0);
+                loadPage(0, Number(e.target.value));
               }}
             >
               {[10, 20, 30, 40, 50].map(pageSize => (
@@ -170,8 +171,7 @@ import {DataLoader} from '../../../components/DataLoader';
     const [isLoaded, setIsLoaded] = useState(false);
     const [changesData, setChangesData] = useState({});
     const [currentPage, setCurrentPage] = useState(0);
-    // TODO solve pagination issues
-    const [currentSize, setCurrentSize] = useState(0);
+    const [currentSize, setCurrentSize] = useState(10);
     const [country, setCountry] = useState("");
     const [errorRequest, setErrorRequest] = useState(false);
 
@@ -196,7 +196,6 @@ import {DataLoader} from '../../../components/DataLoader';
     let loadPage = (page,size) =>{
       setCurrentPage(page);
       setCurrentSize(size);
-      forceRefreshData();
     }
 
     let showModal = (data) => {
@@ -358,8 +357,8 @@ import {DataLoader} from '../../../components/DataLoader';
         let url = ConfigData.LINEAGE_GET_CHANGES;
         url += '?country=' + props.country;
         url += '&status=' + props.status;
-        url += '&page=' + (currentPage+1);
-        url += '&pageLimit=' + 0;
+        url += '&page=1';
+        url += '&pageLimit=0';
         url += '&creation=' + props.typeFilter.includes("Creation");
         url += '&deletion=' + props.typeFilter.includes("Deletion");
         url += '&split=' + props.typeFilter.includes("Split");
@@ -372,10 +371,8 @@ import {DataLoader} from '../../../components/DataLoader';
             if(data?.Success) {
               if(Object.keys(data.Data).length===0) {
                 setChangesData("nodata");
-                setCurrentSize(0);
               } else {
                 setChangesData(data.Data);
-                setCurrentSize(data.Data.length);
                 return data.Data;
               }
             }
@@ -418,11 +415,11 @@ import {DataLoader} from '../../../components/DataLoader';
     }
     return (
       <>
-        <Table 
-          columns={columns} 
-          data={changesData} 
+        <Table
+          columns={columns}
+          data={changesData}
           currentPage={currentPage}
-          currentSize={currentSize} 
+          currentSize={currentSize}
           loadPage = {loadPage}
           status={props.status}
           isTabChanged={props.isTabChanged}

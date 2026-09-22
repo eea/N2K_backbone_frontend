@@ -32,7 +32,7 @@ function fuzzyTextFilterFn(rows, id, filterValue) {
 
 fuzzyTextFilterFn.autoRemove = val => !val
 
-function Table({ columns, data, setSelected, modalProps, currentPage, currentSize, updateModalValues }) {
+function Table({ columns, data, setSelected, modalProps, currentPage, currentSize, loadPage, updateModalValues }) {
 	const [pgCount, setPgCount] = useState(Math.ceil(data.length / currentSize));
 
 	const filterTypes = React.useMemo(
@@ -78,7 +78,7 @@ function Table({ columns, data, setSelected, modalProps, currentPage, currentSiz
 			data,
 			defaultColumn,
 			filterTypes,
-			initialState: { pageSize: currentSize, pageIndex: currentPage },
+			initialState: { pageSize: currentSize || 30, pageIndex: currentPage || 0 },
 			pageCount: pgCount,
 		},
 		useFilters,
@@ -158,10 +158,10 @@ function Table({ columns, data, setSelected, modalProps, currentPage, currentSiz
 
 			</pre>
 			<CPagination>
-				<CPaginationItem onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
+				<CPaginationItem onClick={() => {gotoPage(0); loadPage(0, currentSize);}} disabled={!canPreviousPage}>
 					<i className="fa-solid fa-angles-left"></i>
 				</CPaginationItem>
-				<CPaginationItem onClick={() => previousPage()} disabled={!canPreviousPage}>
+				<CPaginationItem onClick={() => {previousPage(); loadPage(pageIndex - 1, currentSize);}} disabled={!canPreviousPage}>
 					<i className="fa-solid fa-angle-left"></i>
 				</CPaginationItem>
 				<span>
@@ -171,10 +171,10 @@ function Table({ columns, data, setSelected, modalProps, currentPage, currentSiz
 					</strong>{' '}
 					({data.length === 1 ? data.length + " result" : data.length + " results"})
 				</span>
-				<CPaginationItem onClick={() => nextPage()} disabled={!canNextPage}>
+				<CPaginationItem onClick={() => {nextPage(); loadPage(pageIndex + 1, currentSize);}} disabled={!canNextPage}>
 					<i className="fa-solid fa-angle-right"></i>
 				</CPaginationItem>
-				<CPaginationItem onClick={() => gotoPage(pageCount - 1)} disabled={!canNextPage}>
+				<CPaginationItem onClick={() => {gotoPage(pageCount - 1); loadPage(pageCount - 1, currentSize);}} disabled={!canNextPage}>
 					<i className="fa-solid fa-angles-right"></i>
 				</CPaginationItem>
 				<div className='pagination-rows'>
@@ -185,6 +185,8 @@ function Table({ columns, data, setSelected, modalProps, currentPage, currentSiz
 						onChange={e => {
 							setPgCount(Math.ceil(data.length / Number(e.target.value)));
 							setPageSize(Number(e.target.value));
+							gotoPage(0);
+							loadPage(0, Number(e.target.value));
 						}}
 					>
 						{[10, 20, 30, 40, 50].map(pageSize => (
@@ -206,6 +208,11 @@ function TableDocumentation(props) {
 	const [currentSize, setCurrentSize] = useState(30);
 	
 	let dl = new (DataLoader);
+
+	let loadPage = (page, size) => {
+		setCurrentPage(page);
+		setCurrentSize(size);
+	}
 
 	const customFilter = (rows, columnIds, filterValue) => {
 		let result = filterValue.length === 0 ? rows : rows.filter((row) => row.original.SiteCode.toLowerCase().includes(filterValue.toLowerCase()) || row.original.Name.toLowerCase().includes(filterValue.toLowerCase()))
@@ -251,8 +258,6 @@ function TableDocumentation(props) {
 					} else {
 						data.Data.sort((a, b) => a.Country.localeCompare(b.Country));
 						setData(data.Data);
-						setCurrentPage(0);
-						setCurrentSize(30);
 					}
 				} else throw "Error loading data"
 		})
@@ -277,6 +282,7 @@ function TableDocumentation(props) {
 						updateModalValues={props.updateModalValues}
 						currentPage={currentPage}
 						currentSize={currentSize}
+						loadPage={loadPage}
 					/>
 				</>
 			)
