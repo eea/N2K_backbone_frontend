@@ -71,7 +71,7 @@ function Table({ columns, data, setSelected, modalProps, currentPage, currentSiz
 		nextPage,
 		previousPage,
 		setPageSize,
-		state: { pageIndex, pageSize, selectedRowIds },
+		state: { pageIndex, pageSize, selectedRowIds, filters, globalFilter },
 	} = useTable(
 		{
 			columns,
@@ -124,6 +124,23 @@ function Table({ columns, data, setSelected, modalProps, currentPage, currentSiz
 		}
 	)
 	if (setSelected) setSelected(Object.keys(selectedRowIds).filter(v => !v.includes(".")).map(v => { return { country: data[v].Country, version: data[v].Version } }))
+
+	useEffect(() => {
+		if(pageIndex > 0 && pageIndex >= pageOptions.length) {
+			gotoPage(0);
+			loadPage(0, currentSize);
+		}
+	}, [pageOptions.length]);
+
+	const isMounted = React.useRef(false);
+	useEffect(() => {
+		if(!isMounted.current) {
+			isMounted.current = true;
+			return;
+		}
+		gotoPage(0);
+		loadPage(0, currentSize);
+	}, [JSON.stringify(filters), globalFilter]);
 
 	// Render the UI for your table
 	return (
@@ -215,7 +232,7 @@ function TableDocumentation(props) {
 	}
 
 	const customFilter = (rows, columnIds, filterValue) => {
-		let result = filterValue.length === 0 ? rows : rows.filter((row) => row.original.SiteCode.toLowerCase().includes(filterValue.toLowerCase()) || row.original.Name.toLowerCase().includes(filterValue.toLowerCase()))
+		let result = filterValue.length === 0 ? rows : rows.filter((row) => row.original.Country.toLowerCase().includes(filterValue.toLowerCase()))
 		return result;
 	}
 

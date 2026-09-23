@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useTable, usePagination, useFilters,useGlobalFilter, useAsyncDebounce, useSortBy, useExpanded } from 'react-table'
 import {matchSorter} from 'match-sorter'
 import ConfigData from '../../../config.json';
@@ -72,7 +72,7 @@ import {DataLoader} from '../../../components/DataLoader';
       nextPage,
       previousPage,
       setPageSize,
-      state: { pageIndex, pageSize },
+      state: { pageIndex, pageSize, filters, globalFilter },
     } = useTable(
       {
         columns,
@@ -87,6 +87,23 @@ import {DataLoader} from '../../../components/DataLoader';
       useExpanded,
       usePagination,
     )
+
+    useEffect(() => {
+      if(pageIndex > 0 && pageIndex >= pageOptions.length) {
+        gotoPage(0);
+        loadPage(0, currentSize);
+      }
+    }, [pageOptions.length]);
+
+    const isMounted = React.useRef(false);
+    useEffect(() => {
+      if(!isMounted.current) {
+        isMounted.current = true;
+        return;
+      }
+      gotoPage(0);
+      loadPage(0, currentSize);
+    }, [JSON.stringify(filters), globalFilter]);
 
     // Render the UI for your table
     return (
@@ -174,6 +191,7 @@ import {DataLoader} from '../../../components/DataLoader';
     const [currentSize, setCurrentSize] = useState(10);
     const [country, setCountry] = useState("");
     const [errorRequest, setErrorRequest] = useState(false);
+    const prevTypeFilter = useRef(props.typeFilter);
 
     let dl = new(DataLoader);
 
@@ -394,6 +412,10 @@ import {DataLoader} from '../../../components/DataLoader';
         setIsLoaded(true);
         props.setSitecodes({});
         return;
+      }
+      if(prevTypeFilter.current !== props.typeFilter) {
+        prevTypeFilter.current = props.typeFilter;
+        setCurrentPage(0);
       }
       loadData();
     }, [props.country, props.loadingCountries, props.typeFilter, props.getRefresh()]);

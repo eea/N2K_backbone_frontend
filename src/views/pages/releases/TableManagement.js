@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import { useTable, usePagination, useFilters,useGlobalFilter, useRowSelect, useAsyncDebounce, useSortBy, useExpanded } from 'react-table'
 import {matchSorter} from 'match-sorter'
 import ConfigData from '../../../config.json';
@@ -103,7 +103,7 @@ function Table({ columns, data, setSelected, modalProps, showErrorMessage, curre
     nextPage,
     previousPage,
     setPageSize,
-    state: { pageIndex, pageSize, selectedRowIds },
+    state: { pageIndex, pageSize, selectedRowIds, filters, globalFilter },
   } = useTable(
     {
       columns,
@@ -159,6 +159,23 @@ function Table({ columns, data, setSelected, modalProps, showErrorMessage, curre
     }
   )
   if(setSelected) setSelected(Object.keys(selectedRowIds).filter(v=>!v.includes(".")).map(v=>{return {country:data[v].Country, version: data[v].Version}}))
+
+  useEffect(() => {
+    if(pageIndex > 0 && pageIndex >= pageOptions.length) {
+      gotoPage(0);
+      loadPage(0, currentSize);
+    }
+  }, [pageOptions.length]);
+
+  const isMounted = React.useRef(false);
+  useEffect(() => {
+    if(!isMounted.current) {
+      isMounted.current = true;
+      return;
+    }
+    gotoPage(0);
+    loadPage(0, currentSize);
+  }, [JSON.stringify(filters), globalFilter]);
 
   // Render the UI for your table
   return (
