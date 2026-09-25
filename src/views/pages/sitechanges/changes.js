@@ -512,6 +512,7 @@ const Sitechanges = () => {
   }
 
   let changeLevel = (newLevel) => {
+    if(newLevel === level) return;
     setLevel(newLevel);
     setDisabledSearchBtn(true);
     forceRefreshData();
