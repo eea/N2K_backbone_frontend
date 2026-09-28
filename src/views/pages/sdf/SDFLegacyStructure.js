@@ -375,7 +375,8 @@ const SDFVisualization = (props) => {
               )
             )
           case "table":
-            let header = Object.keys(value[0]).map(a => {
+            let columns = Object.keys(value[0]).filter(a => a !== "SpeciesEunisId");
+            let header = columns.map(a => {
               return (
                 <th className={order[section + field]?.column === a ? "sorted" : ""} scope="col" key={a} onClick={() => sortFields(section, field, a)}>
                   {a}
@@ -383,15 +384,12 @@ const SDFVisualization = (props) => {
                 </th>
               )
             });
-            let checkCellLink = (cell, value) => {
-              if (field === "HabitatTypes" && cell === "Code") {
-                value = <a href={"https://eunis.eea.europa.eu/habitats_code2000/" + value} target="blank">{value}</a>
+            let checkCellLink = (cell, value, row) => {
+              if(field === "HabitatTypes" && cell === "Code") {
+                value = <a href={ConfigSDF.Links.BiseHabitats + value} target="_blank">{value}</a>
               }
-              else if ((field === "Species" || field === "OtherSpecies") && cell === "Scientific Name" && value !== "-") {
-                value = <a href={"https://eunis.eea.europa.eu/species/" + value} target="blank">{value}</a>
-              }
-              else if ((field === "Species" || field === "OtherSpecies") && cell === "Code" && value !== "-") {
-                value = <a href={"https://eunis.eea.europa.eu/species_code2000/" + value} target="blank">{value}</a>
+              else if((field === "Species" || field === "OtherSpecies") && cell === "Scientific Name" && row.SpeciesEunisId) {
+                value = <a href={ConfigSDF.Links.BiseSpecies + row.SpeciesEunisId} target="_blank">{value}</a>
               }
               return value;
             }
@@ -402,9 +400,9 @@ const SDFVisualization = (props) => {
               }
               return (
                 <tr style={{ backgroundColor: color ? color : "" }} key={"tr_" + i}>
-                  {Object.keys(value[0]).map((cell, ii) => {
+                  {columns.map((cell, ii) => {
                     const isStrictlyNumeric = typeof row[cell] === 'number';
-                    return <td key={"tc_" + i + ii} style={{ textAlign: isStrictlyNumeric ? 'right' : 'left' }}><span>{checkCellLink(cell, row[cell])}</span></td>
+                    return <td key={"tc_" + i + ii} style={{ textAlign: isStrictlyNumeric ? 'right' : 'left' }}><span>{checkCellLink(cell, row[cell], row)}</span></td>
                   })}
                 </tr>
               )

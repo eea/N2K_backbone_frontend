@@ -85,7 +85,8 @@
     "Population": "Population",
     "Conservation": "Conservation",
     "Isolation": "Isolation",
-    "Global": "Global"
+    "Global": "Global",
+    "SpeciesEunisId": "SpeciesEunisId"
   },
   "SpeciesFilters": ["AnnexIV", "AnnexV", "OtherCategoriesA", "OtherCategoriesB", "OtherCategoriesC", "OtherCategoriesD"],
   "OtherSpecies": {
@@ -103,7 +104,8 @@
     "OtherCategoriesA": "Other Cat. A",
     "OtherCategoriesB": "Other Cat. B",
     "OtherCategoriesC": "Other Cat. C",
-    "OtherCategoriesD": "Other Cat. D"
+    "OtherCategoriesD": "Other Cat. D",
+    "SpeciesEunisId": "SpeciesEunisId"
   },
   "OtherSpeciesFilters": ["Type", "DataQuality", "Population", "Conservation", "Isolation", "Global"],
   "HabitatClasses": {
