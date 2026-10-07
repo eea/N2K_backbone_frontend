@@ -67,7 +67,7 @@ const IndeterminateCheckbox = React.forwardRef(
   
   fuzzyTextFilterFn.autoRemove = val => !val
 
-  function Table({ columns, data, setSelected, modalProps, tableType }) {
+  function Table({ columns, data, setSelected, modalProps, tableType, currentPage, currentSize, loadPage }) {
     const filterTypes = React.useMemo(
       () => ({
         fuzzyText: fuzzyTextFilterFn,
@@ -110,22 +110,22 @@ const IndeterminateCheckbox = React.forwardRef(
       getTableBodyProps,
       headerGroups,
       prepareRow,
-      page, 
+      page,
       canPreviousPage,
       canNextPage,
       pageOptions,
-      pageSize,
       gotoPage,
       nextPage,
       previousPage,
       setPageSize,
-      state: { pageIndex, selectedRowIds },
+      state: { pageIndex, pageSize, selectedRowIds, filters, globalFilter },
     } = useTable(
       {
         columns,
         data,
         defaultColumn,
         filterTypes,
+        initialState: {pageIndex: currentPage || 0, pageSize: currentSize || 10},
       },
       useFilters,
       useGlobalFilter,
@@ -192,7 +192,24 @@ const IndeterminateCheckbox = React.forwardRef(
       }
     )
     if(setSelected) setSelected(Object.keys(selectedRowIds).filter(v=>!v.includes(".")).map(v=>{return {country:data[v].Country, version: data[v].Version}}))
-  
+
+    useEffect(() => {
+      if(pageIndex > 0 && pageIndex >= pageOptions.length) {
+        gotoPage(0);
+        loadPage(0, currentSize);
+      }
+    }, [pageOptions.length]);
+
+    const isMounted = React.useRef(false);
+    useEffect(() => {
+      if(!isMounted.current) {
+        isMounted.current = true;
+        return;
+      }
+      gotoPage(0);
+      loadPage(0, currentSize);
+    }, [JSON.stringify(filters), globalFilter]);
+
     // Render the UI for your table
     return (
       <>
@@ -226,10 +243,10 @@ const IndeterminateCheckbox = React.forwardRef(
 
         </pre>
         <CPagination>
-          <CPaginationItem onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
+          <CPaginationItem onClick={() => {gotoPage(0); loadPage(0, currentSize);}} disabled={!canPreviousPage}>
             <i className="fa-solid fa-angles-left"></i>
           </CPaginationItem>
-          <CPaginationItem onClick={() => previousPage()} disabled={!canPreviousPage}>
+          <CPaginationItem onClick={() => {previousPage(); loadPage(pageIndex - 1, currentSize);}} disabled={!canPreviousPage}>
             <i className="fa-solid fa-angle-left"></i>
           </CPaginationItem>
           <span>
@@ -239,10 +256,10 @@ const IndeterminateCheckbox = React.forwardRef(
             </strong>{' '}
             ({data.length === 1 ? data.length + " result" : data.length + " results"})
           </span>
-          <CPaginationItem onClick={() => nextPage()} disabled={!canNextPage}>
+          <CPaginationItem onClick={() => {nextPage(); loadPage(pageIndex + 1, currentSize);}} disabled={!canNextPage}>
             <i className="fa-solid fa-angle-right"></i>
           </CPaginationItem>
-          <CPaginationItem onClick={() => gotoPage(pageOptions.length - 1)} disabled={!canNextPage}>
+          <CPaginationItem onClick={() => {gotoPage(pageOptions.length - 1); loadPage(pageOptions.length - 1, currentSize);}} disabled={!canNextPage}>
             <i className="fa-solid fa-angles-right"></i>
           </CPaginationItem>
           <div className='pagination-rows'>
@@ -251,7 +268,9 @@ const IndeterminateCheckbox = React.forwardRef(
               className='form-select'
               value={pageSize}
               onChange={e => {
-                setPageSize(Number(e.target.value))
+                setPageSize(Number(e.target.value));
+                gotoPage(0);
+                loadPage(0, Number(e.target.value));
               }}
             >
               {[10, 20, 30, 40, 50].map(pageSize => (
@@ -271,16 +290,15 @@ const IndeterminateCheckbox = React.forwardRef(
     const [events, setEvents] = useState([]);
     const [isLoading, setIsLoading] = useState(props.isLoading);
     const [envelopsData, setEnvelopsData] = useState([]);
+    const [currentPage, setCurrentPage] = useState(0);
+    const [currentSize, setCurrentSize] = useState(10);
 
     let dl = new(DataLoader);
 
-    // useEffect(() => {
-    //   fetch(ConfigData.HARVESTING_PRE_HARVESTED)
-    //   .then(response => response.json())
-    //   .then(data => {
-    //     setEvents(data);
-    //   });
-    // }, [])
+    let loadPage = (page, size) => {
+      setCurrentPage(page);
+      setCurrentSize(size);
+    }
 
     const formatDate = (date) => {
       date = new Date(date);
@@ -408,6 +426,9 @@ const IndeterminateCheckbox = React.forwardRef(
             setSelected={props.setSelected}
             modalProps={props.modalProps}
             status={props.status}
+            currentPage={currentPage}
+            currentSize={currentSize}
+            loadPage={loadPage}
           />
         </>
       )

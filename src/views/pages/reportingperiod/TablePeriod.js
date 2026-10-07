@@ -158,7 +158,8 @@ function Table({ columns, data, setSelected, modalProps, updateModalValues }) {
             className='form-select'
             value={pageSize}
             onChange={e => {
-              setPageSize(Number(e.target.value))
+              setPageSize(Number(e.target.value));
+              gotoPage(0);
             }}
           >
             {[10, 20, 30, 40, 50].map(pageSize => (

@@ -4,6 +4,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import ConfigData from '../../../config.json';
 import UtilsData from '../../../data/utils.json';
 import {DataLoader} from '../../../components/DataLoader';
+import { getPreferredCountry, setPreferredCountry } from '../../../components/CountryPreference';
 import { ConfirmationModal } from './components/ConfirmationModal';
 import TableManagement from './TableManagement';
 import Turnstone from 'turnstone';
@@ -30,8 +31,8 @@ let refreshSitechanges={"Proposed":false,"Consolidated":false},
 const defaultCountry = () => {
   const searchParams = new URLSearchParams(window.location.href.split('?')[1]);
   const parmCountry = searchParams.get('country');
-  return parmCountry ? parmCountry : ConfigData.DEFAULT_COUNTRY ? ConfigData.DEFAULT_COUNTRY : "";
-} 
+  return parmCountry || getPreferredCountry() || ConfigData.DEFAULT_COUNTRY || "";
+}
 
 const openSite = () => {
   const searchParams = new URLSearchParams(window.location.href.split('?')[1]);
@@ -110,6 +111,11 @@ const Sitelineage = () => {
         setCountries(countriesList);
         if(country === "" || !countriesList.some(a => a.code === country)) {
           changeCountry(countriesList[0]?.code);
+        } else {
+          const searchParams = new URLSearchParams(window.location.href.split('?')[1]);
+          if (searchParams.get('country') !== country) {
+            changeCountryParam(country);
+          }
         }
         if(countriesList[0]) {
           setIsLoading(false);
@@ -137,6 +143,7 @@ const Sitelineage = () => {
 
   let changeCountry = (country) => {
     setCountry(country);
+    setPreferredCountry(country);
     setSitecodes({});
     setSearchList({});
     turnstoneRef.current?.clear();
