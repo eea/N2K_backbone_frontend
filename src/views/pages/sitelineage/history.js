@@ -6,6 +6,7 @@ import UtilsData from '../../../data/utils.json';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import Turnstone from 'turnstone';
 import {DataLoader} from '../../../components/DataLoader';
+import { getPreferredCountry, setPreferredCountry } from '../../../components/CountryPreference';
 import { dateFormatter } from 'src/components/DateUtils';
 import ReactFlow, { Controls, Background, MarkerType } from 'reactflow';
 import 'reactflow/dist/style.css';
@@ -23,7 +24,20 @@ import {
 const defaultCountry = () => {
   const searchParams = new URLSearchParams(window.location.href.split('?')[1]);
   const parmCountry = searchParams.get('country');
-  return parmCountry ? parmCountry : ConfigData.DEFAULT_COUNTRY ? ConfigData.DEFAULT_COUNTRY : "";
+  return parmCountry || getPreferredCountry() || ConfigData.DEFAULT_COUNTRY || "";
+}
+
+const changeCountryParam = (country) => {
+  const base = window.location.href.split('?')[0];
+  const parms = new URLSearchParams(window.location.href.split('?')[1]);
+  if(country) {
+    parms.set("country", country);
+    location.href = base + '?' + parms.toString();
+  }
+  else {
+    parms.delete("country");
+    location.href = base;
+  }
 }
 
 const Sitelineage = () => {
@@ -68,9 +82,14 @@ const Sitelineage = () => {
           }
           setCountries(countriesList);
         }
-        if(country === ""){
+        if(country === "" || !countriesList.some(a => a.code === country)){
           setCountry(countriesList[0]?.code);
           changeCountry(countriesList[0]?.code);
+        } else {
+          const searchParams = new URLSearchParams(window.location.href.split('?')[1]);
+          if (searchParams.get('country') !== country) {
+            changeCountryParam(country);
+          }
         }
       }
     });
@@ -78,10 +97,14 @@ const Sitelineage = () => {
 
   let changeCountry = (country) => {
     setCountry(country);
+    setPreferredCountry(country);
     setSearchList({});
     turnstoneRef.current?.clear();
     turnstoneRef.current?.blur();
-    forceRefreshData();
+    if(country !== "") {
+      forceRefreshData();
+      changeCountryParam(country);
+    }
   }
 
   let getSitesList = (data) => {

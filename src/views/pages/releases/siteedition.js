@@ -6,6 +6,7 @@ import UtilsData from '../../../data/utils.json';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import Turnstone from 'turnstone';
 import {DataLoader} from '../../../components/DataLoader';
+import { getPreferredCountry, setPreferredCountry } from '../../../components/CountryPreference';
 
 import {
   CButton,
@@ -23,7 +24,7 @@ import { ConfirmationModal } from './components/ConfirmationModal';
 const defaultCountry = () => {
   const searchParams = new URLSearchParams(window.location.href.split('?')[1]);
   const parmCountry = searchParams.get('country');
-  return parmCountry ? parmCountry : ConfigData.DEFAULT_COUNTRY ? ConfigData.DEFAULT_COUNTRY : "";
+  return parmCountry || getPreferredCountry() || ConfigData.DEFAULT_COUNTRY || "";
 }
 
 const changeCountryParam = (country) => {
@@ -79,6 +80,7 @@ const Releases = () => {
   
   let changeCountry = (country) => {
     setCountry(country);
+    setPreferredCountry(country);
     setSitecodes({});
     setSearchList({});
     turnstoneRef.current?.clear();
@@ -105,6 +107,11 @@ const Releases = () => {
         setCountries(countriesList);
         if(country === "" || !countriesList.some(a => a.code === country)) {
           changeCountry(countriesList[0]?.code);
+        } else {
+          const searchParams = new URLSearchParams(window.location.href.split('?')[1]);
+          if (searchParams.get('country') !== country) {
+            changeCountryParam(country);
+          }
         }
         if(countriesList[0]) {
           setIsLoading(false);

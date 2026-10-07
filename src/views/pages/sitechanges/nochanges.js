@@ -20,12 +20,13 @@ import { ConfirmationModal } from './components/ConfirmationModal';
 import ConfigData from '../../../config.json';
 import UtilsData from '../../../data/utils.json';
 import {DataLoader} from '../../../components/DataLoader';
+import { getPreferredCountry, setPreferredCountry } from '../../../components/CountryPreference';
 
   const defaultCountry = () => {
     const searchParams = new URLSearchParams(window.location.href.split('?')[1]);
     const parmCountry = searchParams.get('country');
-    return parmCountry ? parmCountry : ConfigData.DEFAULT_COUNTRY ? ConfigData.DEFAULT_COUNTRY : "";
-  }  
+    return parmCountry || getPreferredCountry() || ConfigData.DEFAULT_COUNTRY || "";
+  }
 
   const changeCountryParam = (country) => {
     const base = window.location.href.split('?')[0];
@@ -157,6 +158,7 @@ const Sitechanges = () => {
 
   let changeCountry = (country)=>{
     setCountry(country);
+    setPreferredCountry(country);
     setSitecodes({});
     setSearchList({});
     turnstoneRef.current?.clear();
@@ -182,6 +184,11 @@ const Sitechanges = () => {
         setCountries(countriesList);
         if(country === "" || !countriesList.some(a => a.code === country)) {
           changeCountry(countriesList[0]?.code);
+        } else {
+          const searchParams = new URLSearchParams(window.location.href.split('?')[1]);
+          if (searchParams.get('country') !== country) {
+            changeCountryParam(country);
+          }
         }
         if(countriesList[0]) {
           setIsLoading(false);
