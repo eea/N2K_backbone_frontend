@@ -537,7 +537,8 @@ const SDFVisualization = (props) => {
               )
             )
           case "table":
-            let header = Object.keys(value[0]).map(a => {
+            let columns = Object.keys(value[0]).filter(a => a !== "SpeciesEunisId");
+            let header = columns.map(a => {
               const isStrictlyNumeric = typeof value[0][a] === 'number';
               return (
                 <th className={order[section + field]?.column === a ? "sorted" : ""} scope="col" key={a} onClick={() => sortFields(section, field, a)} style={{ verticalAlign: isStrictlyNumeric ? 'bottom' : 'top' }}>
@@ -546,17 +547,12 @@ const SDFVisualization = (props) => {
                 </th>
               )
             });
-            let checkCellLink = (cell, value) => {
+            let checkCellLink = (cell, value, row) => {
               if ((field === "F_3_1_a_essential_information" || field === "F_3_1_b_site_assessment") && cell === "3.1.1 Code") {
-                value = <a href={"https://eunis.eea.europa.eu/habitats_code2000/" + value} target="blank">{value}</a>
+                value = <a href={ConfigSDF.Links.BiseHabitats + value} target="_blank">{value}</a>
               }
-              else if (field === "F_3_2_a_essential_information" || field === "F_3_2_b_site_assessment" || field === "F_3_3_other_species" || field === "F_3_3_8_species_motivation") {
-                if (cell.includes("Code") && value !== "-") {
-                  value = <a href={"https://eunis.eea.europa.eu/species_code2000/" + value} target="blank">{value}</a>
-                }
-                else if (cell.includes("Scientific name") && value !== "-") {
-                  value = <a href={"https://eunis.eea.europa.eu/species/" + value} target="blank">{value}</a>
-                }
+              else if ((field === "F_3_2_a_essential_information" || field === "F_3_2_b_site_assessment" || field === "F_3_3_other_species" || field === "F_3_3_8_species_motivation") && cell.includes("Scientific name") && row.SpeciesEunisId) {
+                value = <a href={ConfigSDF.Links.BiseSpecies + row.SpeciesEunisId} target="_blank">{value}</a>
               }
               return parseLinks(value);
             }
@@ -567,12 +563,12 @@ const SDFVisualization = (props) => {
               }
               return (
                 <tr style={{ backgroundColor: color ? color : "" }} key={"tr_" + i}>
-                  {Object.keys(value[0]).map((cell, ii) => {
+                  {columns.map((cell, ii) => {
                     const cellValue = row[cell];
                     const isStrictlyNumeric = typeof cellValue === 'number';
                     return (
                       <CTableDataCell key={"tc_" + i + ii} style={{ textAlign: isStrictlyNumeric ? 'right' : 'left' }}>
-                        {cell.includes("Scientific name") ? <i>{checkCellLink(cell, cellValue)}</i> : <span>{checkCellLink(cell, cellValue)}</span>}
+                        {cell.includes("Scientific name") ? <i>{checkCellLink(cell, cellValue, row)}</i> : <span>{checkCellLink(cell, cellValue)}</span>}
                       </CTableDataCell>
                     );
                   })}

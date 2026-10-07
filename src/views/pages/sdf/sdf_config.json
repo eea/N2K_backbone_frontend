@@ -71,7 +71,8 @@
     "F_3_2_7_2_species_pop_unit": "3.2.7.2 Unit",
     "F_3_2_8_species_abundance": "3.2.8 Abundance",
     "F_3_2_9_species_method": "3.2.9 Method population size",
-    "F_3_2_10_species_date": "3.2.10 Last data collection"
+    "F_3_2_10_species_date": "3.2.10 Last data collection",
+    "SpeciesEunisId": "SpeciesEunisId"
   },
   "F_3_2_b_site_assessment": {
     "F_3_2_1_species_group": "3.2.1 Group",
@@ -89,7 +90,8 @@
     "F_3_2_17_a_species_objectives_text": "3.2.17 Objectives further explanation",
     "F_3_2_18_species_isolation": "3.2.18 Isolation",
     "F_3_2_19_species_global": "3.2.19 Global",
-    "F_3_2_20_species_date": "3.2.20 Update date"
+    "F_3_2_20_species_date": "3.2.20 Update date",
+    "SpeciesEunisId": "SpeciesEunisId"
   },
   "F_3_3_other_species": {
     "F_3_3_1_species_group": "3.3.1 Group",
@@ -100,7 +102,8 @@
     "F_3_3_6_1_a_species_pop_min": "3.3.6.1 Size min",
     "F_3_3_6_1_b_species_pop_max": "3.3.6.1 Size max",
     "F_3_3_6_2_species_pop_unit": "3.3.6.2 Unit",
-    "F_3_3_7_species_abundance": "3.3.7 Abundance"
+    "F_3_3_7_species_abundance": "3.3.7 Abundance",
+    "SpeciesEunisId": "SpeciesEunisId"
   },
   "F_3_3_8_species_motivation": {
     "F_3_3_2_species_code": "Code",
@@ -119,7 +122,8 @@
     "F_3_3_8_hd_annexi": "H.D. Annex I",
     "F_3_3_8_cwr_frg": "CWR/FRG",
     "F_3_3_8_ias_union": "IAS Union",
-    "F_3_3_8_other": "Other reason"
+    "F_3_3_8_other": "Other reason",
+    "SpeciesEunisId": "SpeciesEunisId"
   },
   "F_4_3_pressures": {
     "F_4_3_1_pressure_code": "4.3.1 Pressure code",
@@ -288,8 +292,7 @@
     "Red": "#f6cbcf"
   },
   "Links": {
-    "BiseHabitats": "https://biodiversity.europa.eu/habitats/",
-    "BiseSpecies": "https://biodiversity.europa.eu/species/",
-    "ReferencePortal": "https://cdr.eionet.europa.eu/help/natura2000/"
+    "BiseHabitats": "https://biodiversity.europa.eu/habitats/ANNEX1_",
+    "BiseSpecies": "https://biodiversity.europa.eu/species/"
   }
 }
