@@ -334,6 +334,7 @@ const IndeterminateCheckbox = React.forwardRef(
               onChange={e => {
                   const newSize = Number(e.target.value);
                   setPageSize(newSize);
+                  gotoPage(0);
                   loadPage(0, newSize);
               }}
             >

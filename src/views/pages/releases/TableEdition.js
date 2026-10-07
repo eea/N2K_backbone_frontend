@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useTable, usePagination, useFilters,useGlobalFilter, useRowSelect, useAsyncDebounce, useSortBy, useExpanded } from 'react-table'
 import {matchSorter} from 'match-sorter'
 import ConfigData from '../../../config.json';
@@ -36,7 +36,7 @@ function fuzzyTextFilterFn(rows, id, filterValue) {
 
 fuzzyTextFilterFn.autoRemove = val => !val
 
-function Table({ columns, data, setSelected, modalProps, updateModalValues }) {
+function Table({ columns, data, setSelected, modalProps, updateModalValues, currentPage, currentSize, loadPage }) {
   const filterTypes = React.useMemo(
     () => ({
       fuzzyText: fuzzyTextFilterFn,
@@ -68,19 +68,18 @@ function Table({ columns, data, setSelected, modalProps, updateModalValues }) {
     canPreviousPage,
     canNextPage,
     pageOptions,
-    pageSize,
     gotoPage,
     nextPage,
     previousPage,
     setPageSize,
-    state: { pageIndex, selectedRowIds },
+    state: { pageIndex, pageSize, selectedRowIds, filters, globalFilter },
   } = useTable(
     {
       columns,
       data,
       defaultColumn,
       filterTypes,
-      initialState: {hiddenColumns: ["EditedDate", "EditedBy", "JustificationRequired"]},
+      initialState: {hiddenColumns: ["EditedDate", "EditedBy", "JustificationRequired"], pageIndex: currentPage || 0, pageSize: currentSize || 10},
     },
     useFilters,
     useGlobalFilter,
@@ -144,6 +143,23 @@ function Table({ columns, data, setSelected, modalProps, updateModalValues }) {
   )
   if(setSelected) setSelected(Object.keys(selectedRowIds).filter(v=>!v.includes(".")).map(v=>{return {country:data[v].Country, version: data[v].Version}}))
 
+  useEffect(() => {
+    if(pageIndex > 0 && pageIndex >= pageOptions.length) {
+      gotoPage(0);
+      loadPage(0, currentSize);
+    }
+  }, [pageOptions.length]);
+
+  const isMounted = React.useRef(false);
+  useEffect(() => {
+    if(!isMounted.current) {
+      isMounted.current = true;
+      return;
+    }
+    gotoPage(0);
+    loadPage(0, currentSize);
+  }, [JSON.stringify(filters), globalFilter]);
+
   // Render the UI for your table
   return (
     <>
@@ -177,10 +193,10 @@ function Table({ columns, data, setSelected, modalProps, updateModalValues }) {
 
       </pre>
       <CPagination>
-        <CPaginationItem onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
+        <CPaginationItem onClick={() => {gotoPage(0); loadPage(0, currentSize);}} disabled={!canPreviousPage}>
           <i className="fa-solid fa-angles-left"></i>
         </CPaginationItem>
-        <CPaginationItem onClick={() => previousPage()} disabled={!canPreviousPage}>
+        <CPaginationItem onClick={() => {previousPage(); loadPage(pageIndex - 1, currentSize);}} disabled={!canPreviousPage}>
           <i className="fa-solid fa-angle-left"></i>
         </CPaginationItem>
         <span>
@@ -190,10 +206,10 @@ function Table({ columns, data, setSelected, modalProps, updateModalValues }) {
           </strong>{' '}
           ({data.length === 1 ? data.length + " result" : data.length + " results"})
         </span>
-        <CPaginationItem onClick={() => nextPage()} disabled={!canNextPage}>
+        <CPaginationItem onClick={() => {nextPage(); loadPage(pageIndex + 1, currentSize);}} disabled={!canNextPage}>
           <i className="fa-solid fa-angle-right"></i>
         </CPaginationItem>
-        <CPaginationItem onClick={() => gotoPage(pageOptions.length - 1)} disabled={!canNextPage}>
+        <CPaginationItem onClick={() => {gotoPage(pageOptions.length - 1); loadPage(pageOptions.length - 1, currentSize);}} disabled={!canNextPage}>
           <i className="fa-solid fa-angles-right"></i>
         </CPaginationItem>
         <div className='pagination-rows'>
@@ -202,7 +218,9 @@ function Table({ columns, data, setSelected, modalProps, updateModalValues }) {
             className='form-select'
             value={pageSize}
             onChange={e => {
-              setPageSize(Number(e.target.value))
+              setPageSize(Number(e.target.value));
+              gotoPage(0);
+              loadPage(0, Number(e.target.value));
             }}
           >
             {[10, 20, 30, 40, 50].map(pageSize => (
@@ -221,8 +239,16 @@ function TableEdition(props) {
   const [isLoading, setIsLoading] = useState(false);
   const [sitesData, setSitesData] = useState([]);
   const [errorRequest, setErrorRequest] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [currentSize, setCurrentSize] = useState(10);
+  const prevFilters = useRef(props.filters);
 
   let dl = new(DataLoader);
+
+  let loadPage = (page, size) => {
+    setCurrentPage(page);
+    setCurrentSize(size);
+  }
   
   const customFilter = (rows, columnIds, filterValue) => {
     let result = filterValue.length === 0 ? rows : rows.filter((row) => row.original.SiteCode.toLowerCase().includes(filterValue.toLowerCase()) || row.original.Name.toLowerCase().includes(filterValue.toLowerCase()))
@@ -310,6 +336,10 @@ function TableEdition(props) {
       setIsLoading(false);
       return;
     }
+    if(prevFilters.current !== props.filters) {
+      prevFilters.current = props.filters;
+      setCurrentPage(0);
+    }
     loadData();
   }, [props.country, props.loadingCountries,  props.filters, props.siteCodes]);
 
@@ -329,6 +359,9 @@ function TableEdition(props) {
         data={sitesData}
         modalProps={props.modalProps}
         updateModalValues={props.updateModalValues}
+        currentPage={currentPage}
+        currentSize={currentSize}
+        loadPage={loadPage}
       />
     </>
   )
